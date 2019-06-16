@@ -323,6 +323,7 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
+	 * Generates an A4 format page with dimensions indicated in mm
 	 * @param portrait
 	 * @param leftrightmargin
 	 * @param topbottommargin
@@ -376,14 +377,14 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
-	 * 
+	 * generates an A4 page with margin size indicated in mm, with topatzero = true
 	 * @param portrait        true if portrait, false is landscape
 	 * @param leftrightmargin margin at left and right in mm
 	 * @param topbottommargin margin at top and bottom in mm
 	 * @throws IOException
 	 */
 	public PDFPage(boolean portrait, float leftrightmargin, float topbottommargin) throws IOException {
-		this(portrait, topbottommargin, leftrightmargin, false);
+		this(portrait, topbottommargin, leftrightmargin, true);
 	}
 
 	/**
@@ -711,7 +712,7 @@ public class PDFPage extends PDFPart {
 			}
 
 			contentStream.beginText();
-			contentStream.newLineAtOffset(left * MM_TO_POINT, newtop * MM_TO_POINT);
+			contentStream.newLineAtOffset(left * MM_TO_POINT, newtop * MM_TO_POINT-fontinpoint);
 
 			PDFont font = PDType1Font.HELVETICA;
 			if (!serif) {
@@ -1014,12 +1015,12 @@ public class PDFPage extends PDFPart {
 
 			}
 			float fontSize = LINE_HEIGHT_NORMAL_TEXT;
-			float verticaloffset = (LINE_HEIGHT_NORMAL_TEXT) * (paragraphnumber)
+			float verticaloffset = (LINE_HEIGHT_NORMAL_TEXT) * (paragraphnumber+1)
 					+ (PARAGRAPH_SPACING_NORMAL_TEXT * paragraphnumber);
 			if (title) {
 				font = titlefont;
 				fontSize = LINE_HEIGHT_TITLE_TEXT;
-				verticaloffset = (LINE_HEIGHT_TITLE_TEXT) * (paragraphnumber)
+				verticaloffset = (LINE_HEIGHT_TITLE_TEXT) * (paragraphnumber+1)
 						+ (PARAGRAPH_SPACING_TITLE_TEXT * paragraphnumber);
 
 			}
@@ -1055,7 +1056,7 @@ public class PDFPage extends PDFPart {
 		float pagebottom = topbottommargin;
 		if (this.topatzero)
 			pagebottom = height - pagebottom;
-		return topbottommargin;
+		return pagebottom;
 	}
 
 	/**

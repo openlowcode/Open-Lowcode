@@ -201,7 +201,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	}
 
 	private float getHeadersHeight(float leftinmm, float rightinmm) throws IOException {
-
+		if (this.columnwidthinmm==null) initColumnWidthInMm(leftinmm,rightinmm);
 		float maxheight = 0;
 		for (int i = 0; i < this.columnnumber; i++) {
 			float columnwidth = this.columnwidthinmm[i];
@@ -216,8 +216,8 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 
 	}
 
-	private float[] getColumnWidthInMm(float leftinmm, float rightinmm) {
-		columnwidthinmm = new float[columnnumber];
+	private void initColumnWidthInMm(float leftinmm, float rightinmm) {
+		this.columnwidthinmm = new float[columnnumber];
 		float totalrelativewidth = 0;
 		for (int i = 0; i < columnrelativewidth.length; i++)
 			totalrelativewidth += columnrelativewidth[i];
@@ -225,11 +225,12 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 			this.columnwidthinmm[i] = (rightinmm - leftinmm - this.leftmargin - this.rightmargin)
 					* columnrelativewidth[i] / totalrelativewidth;
 		}
-		return columnwidthinmm;
+		
 	}
 
 	protected float getLineHeight(float leftinmm, float rightinmm, int lineindex) throws IOException {
 		float maxheight = 0;
+		
 		for (int i = 0; i < this.columnnumber; i++) {
 			float columnwidth = this.columnwidthinmm[i];
 			String text = this.cellscontent.get(lineindex)[i].text;
@@ -256,7 +257,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	 */
 	private float printHeader(PDFPage currentpage, float mmfromtopforsection, float leftinmm, float rightinmm)
 			throws IOException {
-		float[] columnwidthinmm = getColumnWidthInMm(leftinmm, rightinmm);
+
 		float headerheight = getHeadersHeight(leftinmm, rightinmm);
 		float currentleft = leftinmm;
 		for (int i = 0; i < columnwidthinmm.length; i++) {
@@ -283,7 +284,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	 */
 	protected float printOneRow(PDFPage currentpage, int rowindex, float mmfromtopforsection, float leftinmm,
 			float rightinmm) throws IOException {
-		float[] columnwidthinmm = getColumnWidthInMm(leftinmm, rightinmm);
+	
 		float rowheight = this.getLineHeight(leftinmm, rightinmm, rowindex);
 		float currentleft = leftinmm;
 		for (int i = 0; i < columnwidthinmm.length; i++) {
