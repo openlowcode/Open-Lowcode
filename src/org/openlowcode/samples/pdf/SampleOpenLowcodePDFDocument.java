@@ -20,6 +20,7 @@ import org.openlowcode.tools.pdf.DocumentTableOfContent;
 import org.openlowcode.tools.pdf.PDFDocument;
 import org.openlowcode.tools.pdf.PDFMultiPageTable;
 import org.openlowcode.tools.pdf.PDFPage;
+import org.openlowcode.tools.pdf.PDFPage.BoxTextContent;
 import org.openlowcode.tools.pdf.PDFPageBand;
 import org.openlowcode.tools.pdf.PDFPageBandHeaders;
 import org.openlowcode.tools.pdf.ParagraphHeader;
@@ -69,7 +70,14 @@ public class SampleOpenLowcodePDFDocument {
 		coverpage.drawCenteredTextAt(true, coverpage.getPagetop() + 100, 0, "Open Lowcode PDF");
 		coverpage.drawCenteredTextAt(false, coverpage.getPagetop() + 130, 0, "automatically generated document");
 		document.addPDFPart(coverpage);
+		// demonstrate facilities to write text in  box
+		BoxTextContent boxsize = coverpage.drawTextInBox(coverpage.getPageLeft(),coverpage.getPagetop()+160, coverpage.getPageLeft()+60,"A real example showing main features of the library (excluding images)");
+		float bottomofbox1 = coverpage.drawBoxWithLineNumber(false,coverpage.getPageLeft(),coverpage.getPagetop()+160, coverpage.getPageLeft()+60, boxsize.getNblines(),boxsize.getNbparagraph());
+		// second box is put just 5 mm after first box
+		BoxTextContent boxsize2 = coverpage.drawTextInBox(coverpage.getPageLeft(),bottomofbox1+5, coverpage.getPageLeft()+60,"All you see is quick to code.");
+		coverpage.drawBoxWithLineNumber(false,coverpage.getPageLeft(),bottomofbox1+5, coverpage.getPageLeft()+60, boxsize2.getNblines(),boxsize2.getNbparagraph());
 
+		
 		// create document body
 		PDFPageBand documentbody = new PDFPageBand(header, true, 15, 10);
 		document.addPDFPart(documentbody);
