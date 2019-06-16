@@ -1,7 +1,7 @@
 # Open-Lowcode
 ### Open-source Low-code platform to build applications quick and fast.
 
-published by [Open Lowcode SAS](https://openlowcode.com). You may also want to look at the [Community Page](https://openlowcode.org).
+published by [Open Lowcode SAS](https://openlowcode.com). You may also want to look at the [Community Page](https://openlowcode.org) and the [javadoc](https://openlowcode.org/javadoc/).
 
 The project includes the main low-code platform (a full application server), and also some java tools you may find useful in other contexts. You are of course very welcome to use just the java tools if it makes sense for you.
 
