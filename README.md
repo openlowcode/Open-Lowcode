@@ -11,3 +11,5 @@ You are welcome to get involved and contribute to the project by:
 * As a company using the framework, you may request additions to the framework for a fee to [Open Lowcode SAS](https://openlowcode.com). Depending on the complexity, commitments for deliveries can be as short as a few days, and it may cost as a little as a few hours. Additions to the framework will be integrated  in the open-source project, a great way for you to support the community.
 
 This is the first open-source project of the author, so there may be technical mistakes done, do not hesitate to suggest improvements on the way the project is organized too.
+
+You may also want to consult the [contributor guidelines](https://github.com/openlowcode/Open-Lowcode/blob/master/CONTRIBUTING.md) and [code of conduct](https://github.com/openlowcode/Open-Lowcode/blob/master/CODE_OF_CONDUCT.md).
