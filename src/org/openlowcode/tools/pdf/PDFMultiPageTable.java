@@ -168,8 +168,6 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 
 	}
 
-	
-
 	/**
 	 * @param headertexts the list of header texts (should be consistent with the
 	 *                    column number)
@@ -211,7 +209,8 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	}
 
 	/**
-	 * Creates a new line without content. Content can then be added by setCellContent
+	 * Creates a new line without content. Content can then be added by
+	 * setCellContent
 	 */
 	public void addBlankLine() {
 		CellText[] blankline = new CellText[columnnumber];
@@ -221,9 +220,10 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	}
 
 	/**
-	 * @param cellcontent text to include in the cell
-	 * @param columnindex index of the column, starting with zero
-	 * @param showasnumber if true, will display as right aligned constant space number
+	 * @param cellcontent  text to include in the cell
+	 * @param columnindex  index of the column, starting with zero
+	 * @param showasnumber if true, will display as right aligned constant space
+	 *                     number
 	 */
 	public void setCellContent(String cellcontent, int columnindex, boolean showasnumber) {
 		if (this.cellscontent.size() == 0)
@@ -371,7 +371,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	protected void printOneCell(PDFPage currentpage, int rowindex, int columnindex, float mmfromtopforsection,
 			float currentleft, float currentcolumnwidth) throws IOException {
 		CellText currenttextcell = this.cellscontent.get(rowindex)[columnindex];
-		
+
 		if (!currenttextcell.displayasNumber) {
 			currentpage.drawTextInBox(currentleft, mmfromtopforsection, currentleft + currentcolumnwidth,
 					currenttextcell.text, PDFPage.TEXTTYPE_PLAIN);
@@ -415,7 +415,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 		if (this.indexlastlineprinted == -1) {
 			// check if space to print at least a header and a cell
 			float topafterfirstdataline = currenttop + this.getHeadersHeight(leftinmm, rightinmm)
-					+ (this.cellscontent.size() > 0 ? this.getLineHeight(leftinmm, rightinmm, 0) : 0);
+			+ (this.cellscontent.size() > 0 ? this.getLineHeight(leftinmm, rightinmm, 0) : 0);
 			// T-816 correction on line above
 			if (topafterfirstdataline - mmfromtopforsection > spaceleft)
 				return new PartialPrintFeedback(topafterfirstdataline, false);
