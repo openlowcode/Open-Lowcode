@@ -1074,20 +1074,20 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
-	 * @param left
-	 * @param top
-	 * @param right
-	 * @param remainingheight
-	 * @param text
-	 * @param page
-	 * @param texttype
+	 * @param left				left of the printing zone in mm
+	 * @param top				top of the prining zone in mm
+	 * @param right				right of the printing zone in mm
+	 * @param remainingheight	the maximum height to print
+	 * @param text				 the full text to write
+	 * @param page				page to print in
+	 * @param texttype			text type as defined in PDFPage constant
 	 * @param                 splitparagraph: true if this is the non-first part of
 	 *                        a split paragraph. Typically, widget does not have to
 	 *                        be printed
 	 * @return
 	 * @throws IOException
 	 */
-	static BoxTextContent writeAsMuchTextAsPossible(float left, float top, float right, float remainingheight,
+	public static BoxTextContent writeAsMuchTextAsPossible(float left, float top, float right, float remainingheight,
 			String text, PDFPage page, int texttype, boolean splitparagraph) throws IOException {
 		return calculateBoxAndMaybeWriteText(left, top, right, text, true, true, remainingheight, page, texttype,
 				splitparagraph);
@@ -1100,24 +1100,25 @@ public class PDFPage extends PDFPart {
 	 * @param remainingheight the maximum height to print
 	 * @param text            the full text to write
 	 * @param page            page to print in
+	 * @param write			  true to write the text, false just to calculate
 	 * @param texttype        text type as defined in PDFPage constant
 	 * @return the remaining text that could not be printed
 	 * @throws IOException
 	 */
-	static BoxTextContent calculateBoxAndMaybeWriteText(float left, float top, float right, String text, boolean write,
+	public static BoxTextContent calculateBoxAndMaybeWriteText(float left, float top, float right, String text, boolean write,
 			PDFPage page, int texttype) throws IOException {
 		return calculateBoxAndMaybeWriteText(left, top, right, text, write, false, 0, page, texttype, false);
 	}
 
 	/**
-	 * @param left
-	 * @param top
-	 * @param right
-	 * @param text
-	 * @param write
-	 * @param partial
-	 * @param maxheight
-	 * @param page
+	 * @param left 			left of the printing zone in mm
+	 * @param top			top of the prining zone in mm
+	 * @param right			right of the printing zone in mm
+	 * @param text			the full text to write
+	 * @param write         true to write the text, false just to calculate
+	 * @param partial       true to write only partial content within the maximum height limit specified
+	 * @param maxheight		max height to print partial content
+	 * @param page           page to print in
 	 * @param texttype       one of the constants prefixed by 'TEXTTYPE_' in the
 	 *                       class
 	 * @param splitparagraph : true if this is the non-first part of a section split
@@ -1126,7 +1127,7 @@ public class PDFPage extends PDFPart {
 	 * @return
 	 * @throws IOException
 	 */
-	static BoxTextContent calculateBoxAndMaybeWriteText(float left, float top, float right, String text, boolean write,
+	public static BoxTextContent calculateBoxAndMaybeWriteText(float left, float top, float right, String text, boolean write,
 			boolean partial, float maxheight, PDFPage page, int texttype, boolean splitparagraph) throws IOException {
 		boolean currentsplitparagraph = splitparagraph;
 		if (write)
