@@ -25,12 +25,28 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
  */
 public class PDFMultiPageTable implements PDFPageBandSection {
 
-	private class CellText {
+	/**
+	 * Holds information about a single cell display
+	 * 
+	 * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+	 *
+	 */
+	protected class CellText {
+
+		/**
+		 * A cell with text not displayed as number
+		 * 
+		 * @param text the text content
+		 */
 		public CellText(String text) {
 			this.text = text;
 			this.displayasNumber = false;
 		}
 
+		/**
+		 * @param text            the text to display
+		 * @param displayasNumber true to display the cell as number
+		 */
 		public CellText(String text, boolean displayasNumber) {
 			this.text = text;
 			this.displayasNumber = displayasNumber;
@@ -39,19 +55,48 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 		private boolean displayasNumber;
 		private String text;
 
+		/**
+		 * @return true if the text should be displayed as number
+		 */
+		public boolean isDisplayasNumber() {
+			return displayasNumber;
+		}
+
+		/**
+		 * @return the text of the cell
+		 */
+		public String getText() {
+			return text;
+		}
+
 	}
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(PDFPageTable.class.getName());
 	private float leftmargin;
 	private float rightmargin;
-	private boolean[] richtextcolumn;
 	private float[] columnrelativewidth;
 	private String[] headertexts;
 	private ArrayList<CellText[]> cellscontent;
-	private float[] columnwidthinmm;
+	protected float[] columnwidthinmm;
 	private int columnnumber;
 	private int indexlastlineprinted;
+
+	/**
+	 * @return the number of columns in the table
+	 */
+	public int getColumnNumber() {
+		return columnnumber;
+	}
+
+	/**
+	 * @param row    index of row, starting by 0
+	 * @param column index of column, starting by 0
+	 * @return
+	 */
+	public CellText getCellContent(int row, int column) {
+		return cellscontent.get(row)[column];
+	}
 
 	/**
 	 * Creates a table of columns with similar width taking the full page width
@@ -120,18 +165,10 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 		this.columnnumber = columnrelativewidth.length;
 		this.cellscontent = new ArrayList<CellText[]>();
 		this.indexlastlineprinted = -1;
-		this.richtextcolumn = new boolean[columnrelativewidth.length];
-		for (int i = 0; i < richtextcolumn.length; i++)
-			richtextcolumn[i] = false;
+
 	}
 
-	public void setColumnRichText(int columnindex) {
-		if (columnindex < 0)
-			throw new RuntimeException("columnindex need to be positive");
-		if (columnindex >= this.richtextcolumn.length)
-			throw new RuntimeException("Index out of range " + columnindex + ">=" + this.richtextcolumn.length);
-		this.richtextcolumn[columnindex] = true;
-	}
+	
 
 	/**
 	 * @param headertexts the list of header texts (should be consistent with the
@@ -201,7 +238,8 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	}
 
 	private float getHeadersHeight(float leftinmm, float rightinmm) throws IOException {
-		if (this.columnwidthinmm==null) initColumnWidthInMm(leftinmm,rightinmm);
+		if (this.columnwidthinmm == null)
+			initColumnWidthInMm(leftinmm, rightinmm);
 		float maxheight = 0;
 		for (int i = 0; i < this.columnnumber; i++) {
 			float columnwidth = this.columnwidthinmm[i];
@@ -225,25 +263,37 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 			this.columnwidthinmm[i] = (rightinmm - leftinmm - this.leftmargin - this.rightmargin)
 					* columnrelativewidth[i] / totalrelativewidth;
 		}
-		
+
 	}
 
-	protected float getLineHeight(float leftinmm, float rightinmm, int lineindex) throws IOException {
+	private float getLineHeight(float leftinmm, float rightinmm, int lineindex) throws IOException {
 		float maxheight = 0;
-		
+
 		for (int i = 0; i < this.columnnumber; i++) {
 			float columnwidth = this.columnwidthinmm[i];
 			String text = this.cellscontent.get(lineindex)[i].text;
-			float cellheight = 0;
-
-			cellheight = PDFPage
-					.calculateBoxAndMaybeWriteText(0, 0, columnwidth, text, false, null, PDFPage.TEXTTYPE_PLAIN)
-					.getHeightWithoutFinalSpacing();
-
+			float cellheight = getCellHeight(columnwidth, lineindex, i);
 			if (cellheight > maxheight)
 				maxheight = cellheight;
 		}
 		return maxheight;
+	}
+
+	/**
+	 * calculates the height of the cell. This method can be overloaded by
+	 * subclasses with specific layout (rich-text...)
+	 * 
+	 * @param columnwidth width of the table column
+	 * @param lineindex   line index starting with 0
+	 * @param columnindex column index starting with 0
+	 * @return the height of the cell
+	 * @throws IOException
+	 */
+	protected float getCellHeight(float columnwidth, int lineindex, int columnindex) throws IOException {
+		String text = this.cellscontent.get(lineindex)[columnindex].text;
+		return PDFPage.calculateBoxAndMaybeWriteText(0, 0, columnwidth, text, false, null, PDFPage.TEXTTYPE_PLAIN)
+				.getHeightWithoutFinalSpacing();
+
 	}
 
 	/**
@@ -282,30 +332,48 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	 * @return the new top for printing the next element
 	 * @throws IOException
 	 */
-	protected float printOneRow(PDFPage currentpage, int rowindex, float mmfromtopforsection, float leftinmm,
+	private float printOneRow(PDFPage currentpage, int rowindex, float mmfromtopforsection, float leftinmm,
 			float rightinmm) throws IOException {
-	
+
 		float rowheight = this.getLineHeight(leftinmm, rightinmm, rowindex);
 		float currentleft = leftinmm;
 		for (int i = 0; i < columnwidthinmm.length; i++) {
 			float currentcolumnwidth = columnwidthinmm[i];
-
 			currentpage.drawBoxWithWidthAndHeight(false, currentleft, mmfromtopforsection, currentcolumnwidth,
 					rowheight);
-			CellText currenttextcell = this.cellscontent.get(rowindex)[i];
-			if (!currenttextcell.displayasNumber) {
-				currentpage.drawTextInBox(currentleft, mmfromtopforsection, currentleft + currentcolumnwidth,
-						this.cellscontent.get(rowindex)[i].text, PDFPage.TEXTTYPE_PLAIN);
-			} else {
-				currentpage.drawFixWidthRightAlignedTextAt(currentleft + currentcolumnwidth, mmfromtopforsection, 0, 0,
-						currenttextcell.text);
-			}
-
+			printOneCell(currentpage, rowindex, i, mmfromtopforsection, currentleft, currentcolumnwidth);
 			currentleft += currentcolumnwidth;
 
 		}
 		// add spacing if last column
 		return (mmfromtopforsection + rowheight);
+	}
+
+	/**
+	 * This method prints the content of one row of a table. It can be overriden by
+	 * subclasses wishing to add their own formatting
+	 * 
+	 * @param currentpage         page to print in
+	 * @param rowindex            index of the row (starting with 0)
+	 * @param columnindex         index of the column (starting with 0)
+	 * @param mmfromtopforsection vertical position for printing as per pageband
+	 *                            mechanism
+	 * @param currentleft         left of the cell
+	 * @param currentcolumnwidth  with of the cell
+	 * @throws IOException if any exception is raised regarding printing of the
+	 *                     content
+	 */
+	protected void printOneCell(PDFPage currentpage, int rowindex, int columnindex, float mmfromtopforsection,
+			float currentleft, float currentcolumnwidth) throws IOException {
+		CellText currenttextcell = this.cellscontent.get(rowindex)[columnindex];
+		
+		if (!currenttextcell.displayasNumber) {
+			currentpage.drawTextInBox(currentleft, mmfromtopforsection, currentleft + currentcolumnwidth,
+					currenttextcell.text, PDFPage.TEXTTYPE_PLAIN);
+		} else {
+			currentpage.drawFixWidthRightAlignedTextAt(currentleft + currentcolumnwidth, mmfromtopforsection, 0, 0,
+					currenttextcell.text);
+		}
 	}
 
 	@Override
