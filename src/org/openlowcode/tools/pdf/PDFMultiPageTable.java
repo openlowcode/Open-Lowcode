@@ -211,6 +211,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	}
 
 	/**
+	 * Creates a new line without content. Content can then be added by setCellContent
 	 */
 	public void addBlankLine() {
 		CellText[] blankline = new CellText[columnnumber];
@@ -219,6 +220,11 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 		this.cellscontent.add(blankline);
 	}
 
+	/**
+	 * @param cellcontent text to include in the cell
+	 * @param columnindex index of the column, starting with zero
+	 * @param showasnumber if true, will display as right aligned constant space number
+	 */
 	public void setCellContent(String cellcontent, int columnindex, boolean showasnumber) {
 		if (this.cellscontent.size() == 0)
 			this.addBlankLine();
@@ -271,7 +277,6 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 
 		for (int i = 0; i < this.columnnumber; i++) {
 			float columnwidth = this.columnwidthinmm[i];
-			String text = this.cellscontent.get(lineindex)[i].text;
 			float cellheight = getCellHeight(columnwidth, lineindex, i);
 			if (cellheight > maxheight)
 				maxheight = cellheight;
