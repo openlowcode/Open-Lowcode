@@ -161,8 +161,9 @@ public abstract class MessageReader {
 			if (this.activearraystart != null)
 				throw new RuntimeException(
 						"Incorrect message, received  a message array start " + arraystart.getArrayName()
-						+ ", while other array is active " + this.activearraystart.getArrayName());
+								+ ", while other array is active " + this.activearraystart.getArrayName());
 			this.activearraystart = arraystart;
+			this.arraylinebuffer = null;
 		}
 
 		if (currentelement instanceof MessageArrayEnd) {
@@ -497,4 +498,69 @@ public abstract class MessageReader {
 	 * @return
 	 */
 	public abstract String endrecord();
+
+	/**
+	 * @param arrayname name of the compact array structure
+	 * @return the MessageArrayStart element, or throws an exception if the next
+	 *         element does not correspond
+	 * @throws OLcRemoteException if the remote party encounters an error while
+	 *                            processing the message
+	 * @throws IOException        if any communication issue is encountered
+	 */
+	public MessageArrayStart returnNextMessageStartArray(String arrayname) throws OLcRemoteException, IOException {
+		MessageElement nextelement = getNextElement();
+		if (!(nextelement instanceof MessageArrayStart))
+			throw new RuntimeException(String.format(
+					"Expecting a MessageArrayStart, got  %s \n       path: %s\n    message: %s", nextelement.toString(),
+					this.getCurrentElementPath(), lastelementbuffer.getCompactBufferTrace()));
+		MessageArrayStart arraystart = (MessageArrayStart) nextelement;
+		if (!arraystart.getArrayName().equals(arrayname))
+			throw new RuntimeException(String.format(
+					"Message Array Start does not have the good name, expecting %s, got %s \n       path: %s\n    message: %s",
+					arrayname, nextelement.toString(), this.getCurrentElementPath(),
+					lastelementbuffer.getCompactBufferTrace()));
+		return arraystart;
+	}
+
+	private MessageArrayLine arraylinebuffer = null;
+
+	/**
+	 * This convenience method should be called inside the while statement of a loop
+	 * that reads all lines of the compact array. It reads the next element, and if
+	 * this is an arrayline, stores it into a buffer so that it can be retrieved
+	 * with the getArrayNextLine method
+	 * 
+	 * @return true if a MessageArrayLine could be found, false if the array is
+	 *         finished
+	 * @throws OLcRemoteException if the remote party encounters an error while
+	 *                            processing the message
+	 * @throws IOException        if any communication issue is encountered
+	 */
+	public boolean hasArrayNextLine() throws OLcRemoteException, IOException {
+		MessageElement nextelement = getNextElement();
+		if (nextelement instanceof MessageArrayEnd)
+			return false;
+		if (nextelement instanceof MessageArrayLine) {
+			arraylinebuffer = (MessageArrayLine) nextelement;
+			return true;
+		}
+		throw new RuntimeException(String.format(
+				"Did not find either a MessageArrayEnd or MessageArrayLine got %s \n       path: %s\n    message: %s",
+				nextelement.toString(), this.getCurrentElementPath(), lastelementbuffer.getCompactBufferTrace()));
+	}
+
+	/**
+	 * @return the MessageArrayLine stored in a local buffer after hasArrayNextLine has
+	 * been called.
+	 */
+	public MessageArrayLine getArrayNextLine() {
+		if (arraylinebuffer == null)
+			throw new RuntimeException(String.format(
+					"Only call this method after a call to hasArrayNextLine has returned true,  path: %s\n    message: %s",
+					this.getCurrentElementPath(), lastelementbuffer.getCompactBufferTrace()));
+		MessageArrayLine linetoreturn = arraylinebuffer;
+		arraylinebuffer = null;
+		return linetoreturn;
+	}
+
 }
