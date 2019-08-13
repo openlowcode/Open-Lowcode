@@ -59,9 +59,9 @@ public abstract class MessageReader {
 	 *                   MessageError Element,
 	 */
 	public MessageReader(boolean throwerror) {
-		logger.finest("Message reader created with throwerror = "+throwerror);
-		this.throwerror = throwerror;
 		
+		this.throwerror = throwerror;
+		logger.finest("Message reader created with throwerror = "+throwerror);
 
 	}
 
