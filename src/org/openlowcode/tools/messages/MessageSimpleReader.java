@@ -184,7 +184,7 @@ public class MessageSimpleReader extends MessageReader {
 	public MessageSimpleReader(Reader br) {
 		super();
 		this.br = br;
-		logger.finest("Message Simple Reader created");
+		logger.finest("Message Simple Reader created without throwremoteexception set");
 
 	}
 
