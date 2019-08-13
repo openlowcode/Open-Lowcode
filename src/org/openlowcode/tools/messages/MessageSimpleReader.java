@@ -678,6 +678,10 @@ public class MessageSimpleReader extends MessageReader {
 		return thischar;
 	}
 
+	/**
+	 * Closes the underlying Reader
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
 		this.br.close();
 	}
