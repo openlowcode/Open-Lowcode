@@ -49,7 +49,7 @@ public abstract class MessageReader {
 	public MessageReader() {
 		
 		this.throwerror = true;
-		logger.finest("MessageReader created with throwerror = "+throwerror);
+		logger.finest("MessageReader constructor with throwerror = "+throwerror);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public abstract class MessageReader {
 	public MessageReader(boolean throwerror) {
 		
 		this.throwerror = throwerror;
-		logger.finest("MessageReader created with throwerror = "+throwerror);
+		logger.finest("MessageReader constructor with throwerror = "+throwerror);
 
 	}
 
