@@ -72,7 +72,7 @@ public class CActionData {
 		writer.startStructure("ATTRIBUTES");
 		for (int i = 0; i < actionattributes.getSize(); i++) {
 			writer.startStructure("ATTRIBUTE");
-			actionattributes.get(i).writeToCML(writer, null);
+			actionattributes.get(i).writeToMessage(writer, null);
 			writer.endStructure("ATTRIBUTE");
 		}
 		writer.endStructure("ATTRIBUTES");
