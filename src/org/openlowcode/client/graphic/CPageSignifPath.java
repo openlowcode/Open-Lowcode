@@ -22,7 +22,8 @@ import org.openlowcode.tools.misc.NamedList;
  * name amongst siblings (children of the same parent). <br>
  * This class is used for nodes and leaves of the tree
  * 
- * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+ *         SAS</a>
  *
  */
 public class CPageSignifPath extends Named {
@@ -95,7 +96,7 @@ public class CPageSignifPath extends Named {
 
 	/**
 	 * @return the path in text form. This is a succession of names of elements
-	 * separated by character '/' and starting with a '/'
+	 *         separated by character '/' and starting with a '/'
 	 */
 	public String printPath() {
 		if (parentpath == null)
@@ -108,8 +109,9 @@ public class CPageSignifPath extends Named {
 		return printPath();
 	}
 
-	private CPageNode getNodeAtPath(String path,int circuitbreaker) {
-		if (circuitbreaker>1024) throw new RuntimeException("Recursive circuit breaker found, path = "+path);
+	private CPageNode getNodeAtPath(String path, int circuitbreaker) {
+		if (circuitbreaker > 1024)
+			throw new RuntimeException("Recursive circuit breaker found, path = " + path);
 		String nextpathtoken = getPathNextToken(path);
 		if (nextpathtoken == null)
 			return this.pagenode;
@@ -117,21 +119,23 @@ public class CPageSignifPath extends Named {
 		if (child == null)
 			throw new RuntimeException(
 					String.format("did not find path token %s at item with path %s", nextpathtoken, printPath()));
-		return child.getNodeAtPath(getPathBelow(path),circuitbreaker++);
+		return child.getNodeAtPath(getPathBelow(path), circuitbreaker++);
 
 	}
+
 	/**
-	 * a recursive method to parse the path tree and get the page node
-	 * at the given path. A circuit breaker is implemented so that potential
-	 * recursive structures do not cause the whole JVM to to fail
+	 * a recursive method to parse the path tree and get the page node at the given
+	 * path. A circuit breaker is implemented so that potential recursive structures
+	 * do not cause the whole JVM to to fail
+	 * 
 	 * @param path the path as a string
 	 * @return the node
 	 */
 	public CPageNode getNodeAtPath(String path) {
-		return getNodeAtPath(path,0);
-		}
+		return getNodeAtPath(path, 0);
+	}
 
-	/** 
+	/**
 	 * @param path a path as a string (e.g. /MAINBAND/BUTTONBAND/OKBUTTON)
 	 * @return the next element of the path (in example above would be MAINBAND)
 	 */
@@ -153,8 +157,9 @@ public class CPageSignifPath extends Named {
 	}
 
 	/**
-	 * utility function to get a path without the head element.
-	 * e.g. /MAINBAND/BUTTONBAND/OKBUTTON -> /BUTTONBAND/OKBUTTON
+	 * utility function to get a path without the head element. e.g.
+	 * /MAINBAND/BUTTONBAND/OKBUTTON -> /BUTTONBAND/OKBUTTON
+	 * 
 	 * @param path origin path
 	 * @return the path without the head element
 	 */
