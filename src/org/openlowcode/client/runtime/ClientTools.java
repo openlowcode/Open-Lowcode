@@ -12,23 +12,27 @@ package org.openlowcode.client.runtime;
 
 /**
  * Tools used by classes in the client
- * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
+ * 
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+ *         SAS</a>
  *
  */
 public class ClientTools {
 	/**
-	 * @return a text summarized memory statement of the client, it is used to detect memory links
+	 * @return a text summarized memory statement of the client, it is used to
+	 *         detect memory links
 	 */
 	public static String memoryStatement() {
 		StringBuffer memorystatement = new StringBuffer();
-		long usedmemoryinmb=((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())/(1024*1024));
-		long pcused = (100*usedmemoryinmb/(Runtime.getRuntime().maxMemory()/(1024*1024)));
+		long usedmemoryinmb = ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())
+				/ (1024 * 1024));
+		long pcused = (100 * usedmemoryinmb / (Runtime.getRuntime().maxMemory() / (1024 * 1024)));
 		memorystatement.append(", memory: ");
 		memorystatement.append(usedmemoryinmb);
 		memorystatement.append("mb (");
 		memorystatement.append(pcused);
 		memorystatement.append("%) ");
-	
+
 		return memorystatement.toString();
 	}
 }
