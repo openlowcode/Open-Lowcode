@@ -487,7 +487,7 @@ public class ClientSession {
 		if (showtechdetails) {
 			activedisplay.updateStatusBar("Executed inline action, execution time (ms) : " + (endaction - starttime)
 					+ ", data read (ch): " + NiceFormatters.formatNumber(reader.charcountsinceStartMessage()) + " "
-					+ memoryStatement() + extrastatusmessage);
+					+ ClientTools.memoryStatement() + extrastatusmessage);
 		} else {
 			activedisplay.updateStatusBar("Executed inline action " + extrastatusmessage);
 
@@ -495,23 +495,6 @@ public class ClientSession {
 		return new DisplayPageFeedback(null, reader.charcountsinceStartMessage(), null);
 	}
 
-	/**
-	 * @return a summary statement of the memory used by the client. This is part of
-	 *         technical details that may be shown on the status bar
-	 */
-	public static String memoryStatement() {
-		StringBuffer memorystatement = new StringBuffer();
-		long usedmemoryinmb = ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())
-				/ (1024 * 1024));
-		long pcused = (100 * usedmemoryinmb / (Runtime.getRuntime().maxMemory() / (1024 * 1024)));
-		memorystatement.append(", memory: ");
-		memorystatement.append(usedmemoryinmb);
-		memorystatement.append("mb (");
-		memorystatement.append(pcused);
-		memorystatement.append("%) ");
-
-		return memorystatement.toString();
-	}
 
 	/**
 	 * @param activedisplay   current display
