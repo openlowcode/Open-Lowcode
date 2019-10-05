@@ -300,7 +300,7 @@ public class ObjectDataElt extends DataElt {
 		for (int i = 0; i < objectfields.getSize(); i++) {
 			if (hiddenfields.get(objectfields.get(i).getName()) == null) {
 				SimpleDataElt field = objectfields.get(i);
-				field.writeToMessage(writer);
+				field.WriteSpecToMessage(writer);
 			}
 		}
 
