@@ -19,7 +19,7 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
  * A section header is a "big title" inside a document. This is a higher level
  * separation than the paragraph header
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class SectionHeader implements PDFPageBandSection, PagedLabel {

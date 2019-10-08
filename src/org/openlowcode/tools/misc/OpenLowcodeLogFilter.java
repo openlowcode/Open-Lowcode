@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * </ul>
  * </li> Exceptions can be entered as a classpath, or as aliases.
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class OpenLowcodeLogFilter implements Filter {

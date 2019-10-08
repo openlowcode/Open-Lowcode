@@ -338,4 +338,7 @@ public abstract class MessageWriter {
 	public MessageWriter() {
 		currentpath = new ArrayList<String>();
 	}
+	public boolean isActive() {
+		return this.active;
+	}
 }

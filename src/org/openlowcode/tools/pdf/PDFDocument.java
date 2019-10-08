@@ -19,7 +19,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 /**
  * A document to be printed in PDF. This document is made of PDF Parts
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class PDFDocument {

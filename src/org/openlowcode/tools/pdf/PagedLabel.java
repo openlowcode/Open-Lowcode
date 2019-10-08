@@ -14,7 +14,7 @@ package org.openlowcode.tools.pdf;
  * A PagedLabel is a PDFPageBandSection that can be put in a table of content.
  * It can provide its label and its page number at the time of printing.
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public interface PagedLabel {

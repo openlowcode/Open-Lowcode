@@ -19,7 +19,7 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
 /**
  * A paragraph with a bullet point. 3 levels are managed
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class BulletText implements PDFPageBandSection {

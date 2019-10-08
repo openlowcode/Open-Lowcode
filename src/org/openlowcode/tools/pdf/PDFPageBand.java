@@ -24,7 +24,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
  * managing page return</li>
  * </ul>
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class PDFPageBand extends PDFPart {

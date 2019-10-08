@@ -20,7 +20,7 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
  * A multiple-page table that will by default print the header on each page. The
  * columns will not be separated.
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class PDFMultiPageTable implements PDFPageBandSection {

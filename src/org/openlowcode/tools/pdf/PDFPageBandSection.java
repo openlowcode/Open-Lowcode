@@ -18,7 +18,7 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
  * A section is text that will be printed in the appropriate place on the page
  * band in one go
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public interface PDFPageBandSection {

@@ -641,6 +641,10 @@ public class ClientSession {
 		} else {
 			this.getActiveClientDisplay().updateStatusBar("Connectionerror " + e.getMessage(), true);
 		}
+		printException(e);
+		}
+
+	public static void printException(Exception e) {
 		int i = 0;
 		boolean exit = false;
 		logger.warning("<!!!> Exception " + e.getClass().getName() + " - " + e.getMessage());
@@ -654,12 +658,15 @@ public class ClientSession {
 
 		}
 	}
-
+	
 	/**
 	 * @param frozen true if widgets should be frozen as one communication is
 	 *               already happening in the server
 	 */
 	public void setBusinessScreenFrozen(boolean frozen) {
+		// closing message if required (if error while sending the message)
+		connectiontoserver.resetSendingMessage();
+		// making connection bar active again
 		for (int i = 0; i < this.displaysforconnection.size(); i++)
 			displaysforconnection.get(i).setBusinessScreenFrozen(frozen);
 		;

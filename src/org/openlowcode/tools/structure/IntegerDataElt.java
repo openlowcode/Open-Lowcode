@@ -40,11 +40,13 @@ public class IntegerDataElt extends SimpleDataElt {
 
 	/**
 	 * @param name    name of the element
-	 * @param payload integer payload (can be null)
+	 * @param payload integer payload (can not be null)
 	 */
 	public IntegerDataElt(String name, Integer payload) {
 		super(name, new IntegerDataEltType());
+		if (payload==null) throw new RuntimeException("For Field "+name+", null integer value is provided, but it is not valid");
 		this.payload = payload;
+		
 
 	}
 

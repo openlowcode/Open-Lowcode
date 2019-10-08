@@ -18,7 +18,7 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
 /**
  * A low level header to separate paragraphs inside a section
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class ParagraphHeader implements PDFPageBandSection {

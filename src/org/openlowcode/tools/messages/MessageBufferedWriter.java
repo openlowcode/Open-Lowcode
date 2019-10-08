@@ -36,6 +36,10 @@ public class MessageBufferedWriter extends MessageWriter {
 
 	}
 
+	public void close() throws IOException {
+		writer.close();
+		messagebuffer = null;
+	}
 	
 	@Override
 	public void sendMessageElement(MessageElement messageelement) throws IOException {

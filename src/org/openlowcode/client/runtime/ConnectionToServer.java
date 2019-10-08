@@ -193,4 +193,17 @@ public class ConnectionToServer {
 		if (writer != null)
 			writer.close();
 	}
+
+	public void resetSendingMessage() {
+		try {
+			if (writer.isActive()) {
+				logger.warning("Error during sending message, sending error to server to reset connection");
+				writer.sendMessageError(1,"Error during sending of client data");
+			}
+		} catch (Exception e) {
+			logger.warning("In case of error, did not manage to reset sending message");
+			ClientSession.printException(e);
+		}
+		
+	}
 }

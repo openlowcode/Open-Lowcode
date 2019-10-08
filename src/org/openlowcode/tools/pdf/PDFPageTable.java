@@ -18,7 +18,7 @@ import org.openlowcode.tools.pdf.PDFPage.BoxTextContent;
 /**
  * An utility class to draw a table of content on a single page
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class PDFPageTable {

@@ -17,7 +17,7 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
 
 /**
  * Plain text in a document
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class SectionText implements PDFPageBandSection {

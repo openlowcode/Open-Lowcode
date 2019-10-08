@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * A void header that takes no space for a page band
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class PDFPageBandVoidHeaders implements PDFPageBandHeaders {

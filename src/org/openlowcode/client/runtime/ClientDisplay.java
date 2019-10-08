@@ -654,10 +654,31 @@ public class ClientDisplay {
 	 * @param message Displays a message in the status bar with normal status
 	 */
 	public void updateStatusBar(String message) {
-
-		updateStatusBar(message, false);
+		Date date = new Date();
+		String output = ""+sdf.format(date)+" "+message;
+		logger.info(output);
+		Platform.runLater(new Thread() {
+		@Override
+		public void run() {
+			
+			
+			
+			try {
+			statuslabel.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+			
+			statuslabel.setText(output);
+			} catch (Exception e ) {
+				logger.warning("Exception in setting status bar "+e.getMessage());
+				for (int i=0;i<e.getStackTrace().length;i++) {
+					String element = e.getStackTrace()[i].toString();
+					if ((element.startsWith("gallium") || (element.startsWith("org.openlowcode"))))
+						logger.warning(e.getStackTrace()[i].toString());
+				}
+			}
+		}
+		});
 		
-
+		
 	}
 
 	/**

@@ -19,7 +19,7 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
  * This component prints a table of content made of all the SectionHeaders of
  * all the PDFPageBandSections of the document
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class DocumentTableOfContent implements PDFPageBandSection {

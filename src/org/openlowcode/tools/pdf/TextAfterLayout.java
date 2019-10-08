@@ -18,7 +18,7 @@ import java.io.IOException;
  * solved. So, especially, the page number of each widget is known, which allows
  * to generate layout.
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 @FunctionalInterface

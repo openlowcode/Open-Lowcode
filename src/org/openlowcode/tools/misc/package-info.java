@@ -10,7 +10,7 @@
 
 /**
  * This package gathers various small tools. 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  */
 package org.openlowcode.tools.misc;
 

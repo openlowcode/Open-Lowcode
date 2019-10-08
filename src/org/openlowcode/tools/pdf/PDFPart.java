@@ -19,7 +19,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
  * memory, then evaluated for the number of pages, then actually printed.<br>
  * A Part is composed of one or several full pages.
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public abstract class PDFPart {

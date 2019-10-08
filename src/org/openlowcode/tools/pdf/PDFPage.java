@@ -28,7 +28,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
  * A framework to generate pdfpages. This uses Apache PDFBOX. All dimensions are
  * in mm.
  * 
- * @author <a href="https://openlowcode.com/">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
 public class PDFPage extends PDFPart {
