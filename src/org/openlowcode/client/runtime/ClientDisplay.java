@@ -38,6 +38,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.effect.DropShadow;
@@ -247,7 +248,7 @@ public class ClientDisplay {
 						connectionbar.setPageAddress(fulladdress);
 
 					Node pagenode = page.getNode().getNode(pageactionmanager, page.getAllInputData(),
-							parent.getMainFrame().getPrimaryStage());
+							parent.getMainFrame().getPrimaryStage(),new TabPane[0]);
 					VBox nodeb = new VBox();
 					nodeb.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 					VBox.setMargin(pagenode, new Insets(8, 5, 5, 18));

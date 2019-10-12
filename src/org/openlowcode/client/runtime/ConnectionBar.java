@@ -76,8 +76,7 @@ public class ConnectionBar implements UserInteractionWidget {
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("YYYY/MM/dd HH:mm");
 	private Logger logger = Logger.getLogger(ConnectionBar.class.toString());
 	Pane content;
-	private Button stopconnection;
-	private Button connectionbutton;
+	private Button actionbutton;
 	private Button back;
 	private Button more;
 
@@ -85,6 +84,7 @@ public class ConnectionBar implements UserInteractionWidget {
 	private Popup linkaddresspopup;
 
 	private ClientSession parentsession;
+	private boolean connectiftruestopiffalse;
 
 	/**
 	 * @return the text field where address is entered
@@ -235,32 +235,28 @@ public class ConnectionBar implements UserInteractionWidget {
 			address.setText(originurl);
 		address.setPrefColumnCount(40);
 		connectionbar.getChildren().add(address);
-		connectionbutton = new Button("Connect");
-		connectionbutton.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
-		connectionbutton.setOnAction(new EventHandler<ActionEvent>() {
+		connectiftruestopiffalse=true;
+		actionbutton = new Button("Go");
+		actionbutton.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
+		actionbutton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-
-				parentsession.sendLink(address.getText(), false);
+				if (connectiftruestopiffalse) {
+					parentsession.sendLink(address.getText(), false);
+				} else {
+					enableAfterServerResponse();
+					parentsession.stopconnection();
+				}
 			}
 		});
 		// launching it too soon before page has done layout
 		// if (originurl!=null) parentsession.sendLink(address.getText(),false);
 
-		connectionbar.getChildren().add(connectionbutton);
+		connectionbar.getChildren().add(actionbutton);
 
-		stopconnection = new Button("Stop");
-		stopconnection.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
-		stopconnection.setDisable(true);
-		stopconnection.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				enableAfterServerResponse();
-				parentsession.stopconnection();
-			}
-		});
-		address.setOnAction(connectionbutton.getOnAction());
-		connectionbar.getChildren().add(stopconnection);
+		
+		address.setOnAction(actionbutton.getOnAction());
+		
 		BorderPane barwithright = new BorderPane();
 		barwithright.setCenter(connectionbar);
 		MenuBar morebar = new MenuBar();
@@ -464,17 +460,18 @@ public class ConnectionBar implements UserInteractionWidget {
 
 	@Override
 	public void disableDuringServerRequest() {
-		stopconnection.setDisable(false);
+		connectiftruestopiffalse=false;
+		actionbutton.setText("Stop");
 		back.setDisable(true);
 		more.setDisable(true);
-		connectionbutton.setDisable(true);
+		this.
 		logger.finer("disable during server request inside connection bar");
 	}
 
 	@Override
 	public void enableAfterServerResponse() {
-		stopconnection.setDisable(true);
-		connectionbutton.setDisable(false);
+		connectiftruestopiffalse=true;
+		actionbutton.setText("Go");
 		if (parentsession.getClientData().isBackPossible()) {
 			this.back.setDisable(false);
 			this.more.setDisable(false);

@@ -196,7 +196,7 @@ public class ConnectionToServer {
 
 	public void resetSendingMessage() {
 		try {
-			if (writer.isActive()) {
+			if (writer!=null) if (writer.isActive()) {
 				logger.warning("Error during sending message, sending error to server to reset connection");
 				writer.sendMessageError(1,"Error during sending of client data");
 			}

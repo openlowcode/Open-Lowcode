@@ -234,6 +234,18 @@ public class ClientSession {
 			region.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, Color.RED, Color.RED, Color.RED,
 					BorderStrokeStyle.SOLID, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE,
 					CornerRadii.EMPTY, new BorderWidths(1), Insets.EMPTY)));
+			region.heightProperty().addListener(new ChangeListener<Number>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue,
+						Number newValue) {
+					tabpane.requestLayout();
+					if (tabpane.getParent()!=null) tabpane.getParent().requestLayout();
+			
+					
+				}
+				
+			});
 		}
 		tab.setContent(clientdisplaynode);
 		tab.setText("New Tab");
@@ -305,7 +317,7 @@ public class ClientSession {
 										+ " - execution time (ms) : " + (endaction - startaction), true);
 
 					}
-
+					setBusinessScreenFrozen(false);
 				} catch (Exception e) {
 					treatException(e);
 					setBusinessScreenFrozen(false);
