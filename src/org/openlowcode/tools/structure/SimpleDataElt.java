@@ -202,6 +202,23 @@ public abstract class SimpleDataElt extends DataElt {
 				}
 
 			};
+		case "FYT":
+			return new SimpleDataElementCreator<FaultyTextDataElt, String>() {
+
+				@Override
+				public FaultyTextDataElt getBlankDataElt() {
+					FaultyTextDataElt blankelement = new FaultyTextDataElt(name);
+					blankelement.setPropertyname(propertyname);
+					return blankelement;
+				}
+
+				@Override
+				public void setPayload(FaultyTextDataElt dataelt, String payload) {
+					dataelt.changePayload(payload);
+				}
+
+			};
+
 		case "CHT":
 			return new SimpleDataElementCreator<ChoiceDataElt, String>() {
 
@@ -274,6 +291,17 @@ public abstract class SimpleDataElt extends DataElt {
 					name, reader.getCurrentElementPath()));
 
 		}
+	}
+
+	@Override
+	public void addPayload(MessageReader reader) throws OLcRemoteException, IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public String toString() {
+		return "[" + this.type.printType() + ":" + this.getName() + "=" + this.defaultTextRepresentation() + "]";
 	}
 
 }

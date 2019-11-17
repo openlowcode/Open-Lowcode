@@ -237,14 +237,13 @@ public class ClientSession {
 			region.heightProperty().addListener(new ChangeListener<Number>() {
 
 				@Override
-				public void changed(ObservableValue<? extends Number> observable, Number oldValue,
-						Number newValue) {
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 					tabpane.requestLayout();
-					if (tabpane.getParent()!=null) tabpane.getParent().requestLayout();
-			
-					
+					if (tabpane.getParent() != null)
+						tabpane.getParent().requestLayout();
+
 				}
-				
+
 			});
 		}
 		tab.setContent(clientdisplaynode);
@@ -507,7 +506,6 @@ public class ClientSession {
 		return new DisplayPageFeedback(null, reader.charcountsinceStartMessage(), null);
 	}
 
-
 	/**
 	 * @param activedisplay   current display
 	 * @param starttime       start time of the exchange with the server
@@ -654,7 +652,17 @@ public class ClientSession {
 			this.getActiveClientDisplay().updateStatusBar("Connectionerror " + e.getMessage(), true);
 		}
 		printException(e);
+		try {
+			this.connectiontoserver.stopConnection();
+		} catch (IOException e2) {
+			// will not print exception in screen as first exception is likely more useful
+			// for user to figure out
+			logger.warning(" Error in stopping connection " + e2.getMessage());
+			for (int i = 0; i < e2.getStackTrace().length; i++) {
+				logger.warning(e2.getStackTrace()[i].toString());
+			}
 		}
+	}
 
 	public static void printException(Exception e) {
 		int i = 0;
@@ -670,7 +678,7 @@ public class ClientSession {
 
 		}
 	}
-	
+
 	/**
 	 * @param frozen true if widgets should be frozen as one communication is
 	 *               already happening in the server

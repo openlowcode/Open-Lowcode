@@ -157,8 +157,14 @@ public abstract class DataElt extends Named {
 		case "TXT":
 			answer = new TextDataElt(name);
 			break;
+		case "FYT":
+			answer = new FaultyTextDataElt(name);
+			break;
 		case "CHT":
 			answer = new ChoiceDataElt(name);
+			break;
+		case "TMP":
+			answer = new TimePeriodDataElt(name);
 			break;
 		case "OID":
 			answer = new ObjectIdDataElt(name);
@@ -179,7 +185,9 @@ public abstract class DataElt extends Named {
 		case "LBN":
 			answer = new LargeBinaryDataElt(name);
 			break;
-
+		case "TPE":
+			answer = new TimePeriodDataElt(name);
+			break;
 		default:
 			throw new RuntimeException(String.format(" Type %s not supported for data element %s at path %s ", type,
 					name, reader.getCurrentElementPath()));

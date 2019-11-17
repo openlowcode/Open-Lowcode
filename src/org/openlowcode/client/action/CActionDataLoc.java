@@ -37,6 +37,7 @@ public class CActionDataLoc extends Named {
 	public static final String DATE_TYPE = "DAT";
 	public static final String BINARY_TYPE = "LBN";
 	public static final String INTEGER_TYPE = "INT";
+	public static final String TIMEPERIOD_TYPE = "TPE";
 
 	private String objectfield = null;
 
@@ -64,6 +65,8 @@ public class CActionDataLoc extends Named {
 			typesupported = true;
 		if (this.type.compareTo(INTEGER_TYPE) == 0)
 			typesupported = true;
+		if (this.type.compareTo(TIMEPERIOD_TYPE)==0)
+			typesupported=true;
 		if (this.type.startsWith(ARRAY_PREFIX)) {
 			String subtype = this.type.substring(4);
 			if (subtype.compareTo(TEXT_TYPE) == 0)

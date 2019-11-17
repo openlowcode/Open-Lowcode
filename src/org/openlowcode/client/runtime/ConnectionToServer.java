@@ -68,6 +68,10 @@ public class ConnectionToServer {
 		boolean sent = false;
 		while ((index < 2) && (!sent)) {
 			try {
+				if (clientsocket == null) {
+					initConnection();
+				}
+
 				writertoserver.apply(writer);
 
 				sent = true;
@@ -133,23 +137,27 @@ public class ConnectionToServer {
 				if (reader != null)
 					reader.close();
 			}
-			clientsocket = new Socket(localserver, new Integer(localport).intValue());
-			InputStreamReader streamreader = new InputStreamReader(clientsocket.getInputStream(),
-					Charset.forName("UTF-8"));
-			logger.fine("Input stream reader encoding " + streamreader.getEncoding());
-			BufferedReader bufferedreader = new BufferedReader(streamreader, 9090);
-
-			reader = new MessageSimpleReader(bufferedreader);
-			OutputStreamWriter socketoutputstream = new OutputStreamWriter(clientsocket.getOutputStream(),
-					Charset.forName("UTF-8"));
-			logger.fine("OutputStream reader encoding" + socketoutputstream.getEncoding());
-			BufferedWriter bufferedwriter = new BufferedWriter(socketoutputstream);
-			writer = new MessageBufferedWriter(bufferedwriter, true);
 
 			server = localserver;
 			port = localport;
+			initConnection();
 		}
 		return application;
+	}
+
+	private void initConnection() throws IOException {
+
+		clientsocket = new Socket(server, new Integer(port).intValue());
+		InputStreamReader streamreader = new InputStreamReader(clientsocket.getInputStream(), Charset.forName("UTF-8"));
+		logger.fine("Input stream reader encoding " + streamreader.getEncoding());
+		BufferedReader bufferedreader = new BufferedReader(streamreader, 9090);
+
+		reader = new MessageSimpleReader(bufferedreader);
+		OutputStreamWriter socketoutputstream = new OutputStreamWriter(clientsocket.getOutputStream(),
+				Charset.forName("UTF-8"));
+		logger.fine("OutputStream reader encoding" + socketoutputstream.getEncoding());
+		BufferedWriter bufferedwriter = new BufferedWriter(socketoutputstream);
+		writer = new MessageBufferedWriter(bufferedwriter, true);
 	}
 
 	/**
@@ -196,14 +204,16 @@ public class ConnectionToServer {
 
 	public void resetSendingMessage() {
 		try {
-			if (writer!=null) if (writer.isActive()) {
-				logger.warning("Error during sending message, sending error to server to reset connection");
-				writer.sendMessageError(1,"Error during sending of client data");
-			}
+			if (writer != null)
+				if (writer.isActive()) {
+					logger.warning("Error during sending message, sending error to server to reset connection");
+					writer.sendMessageError(1, "Error during sending of client data");
+				}
 		} catch (Exception e) {
 			logger.warning("In case of error, did not manage to reset sending message");
 			ClientSession.printException(e);
 		}
-		
+
 	}
+
 }

@@ -11,7 +11,6 @@
 package org.openlowcode.client.graphic;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.openlowcode.client.runtime.PageActionManager;

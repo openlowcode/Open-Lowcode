@@ -118,6 +118,8 @@ public class ObjectDataElt extends DataElt {
 	 */
 	public void addField(SimpleDataElt field) {
 		objectfields.add(field);
+		if (field.getName().equals("YEARALLOCATED"))
+			logger.severe(" --> In object " + this.getUID() + " (" + this.hashCode() + "), add new field " + field);
 	}
 
 	/**
