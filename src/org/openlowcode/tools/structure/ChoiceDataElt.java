@@ -26,11 +26,7 @@ import org.openlowcode.tools.messages.OLcRemoteException;
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  * @param <E>
  */
-/**
- * @author demau
- *
- * @param <E>
- */
+
 public class ChoiceDataElt<E extends Choice> extends SimpleDataElt {
 	private static Logger logger = Logger.getLogger(ChoiceDataElt.class.getName());
 	private String storedvalue;

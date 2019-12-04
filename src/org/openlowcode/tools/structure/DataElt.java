@@ -188,6 +188,9 @@ public abstract class DataElt extends Named {
 		case "TPE":
 			answer = new TimePeriodDataElt(name);
 			break;
+		case "MLC":
+			answer = new MultipleChoiceDataElt(name);
+			break;
 		default:
 			throw new RuntimeException(String.format(" Type %s not supported for data element %s at path %s ", type,
 					name, reader.getCurrentElementPath()));

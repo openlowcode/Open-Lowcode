@@ -23,6 +23,7 @@ import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.ChoiceDataEltType;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
+import org.openlowcode.tools.structure.MultipleChoiceDataElt;
 import org.openlowcode.tools.structure.ObjectIdDataEltType;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
@@ -104,6 +105,10 @@ public class CPageInlineAction extends Named {
 					treated = true;
 					result.addActionAttribute(new TextDataElt(thisbusinessdataloc.getName(), ""));
 				}
+				if (thisbusinessdataloc.getType().compareTo("MLC")==0) {
+					treated=true;
+					result.addActionAttribute(new MultipleChoiceDataElt(thisbusinessdataloc.getName()));
+				}
 				if (thisbusinessdataloc.getType().startsWith("ARR")) {
 					String subtype = thisbusinessdataloc.getType().substring(4);
 					if (subtype.compareTo(CActionDataLoc.CHOICE_TYPE) == 0) {
@@ -125,7 +130,7 @@ public class CPageInlineAction extends Named {
 				}
 				if (!treated)
 					throw new RuntimeException("Type not supported yet : " + thisbusinessdataloc.getType()
-							+ ", attribute name = " + thisbusinessdataloc.getName());
+							+ " for path "+thisbusinessdataloc.getPath()+", attribute name = " + thisbusinessdataloc.getName());
 			}
 		}
 		return result;

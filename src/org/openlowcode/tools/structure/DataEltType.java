@@ -49,6 +49,8 @@ public abstract class DataEltType {
 			return new BooleanDataEltType();
 		if (printedtype.compareTo("CHT") == 0)
 			return new ChoiceDataEltType();
+		if (printedtype.compareTo("MLC") ==0)
+			return new MultipleChoiceDataEltType();
 		if (printedtype.compareTo("NDT") == 0)
 			return new NodeTreeDataEltType();
 		if (printedtype.startsWith("OBT"))

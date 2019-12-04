@@ -33,6 +33,7 @@ public class CActionDataLoc extends Named {
 	public static final String OBJ_TYPE = "OBJ";
 	public static final String OBJ_ID_TYPE = "OID";
 	public static final String CHOICE_TYPE = "CHT";
+	public static final String MULTI_CHOICE_TYPE = "MLC";
 	public static final String ARRAY_PREFIX = "ARR/";
 	public static final String DATE_TYPE = "DAT";
 	public static final String BINARY_TYPE = "LBN";
@@ -59,6 +60,9 @@ public class CActionDataLoc extends Named {
 			typesupported = true;
 		if (this.type.compareTo(CHOICE_TYPE) == 0)
 			typesupported = true;
+		if (this.type.compareTo(MULTI_CHOICE_TYPE) == 0)
+			typesupported = true;
+		
 		if (this.type.compareTo(DATE_TYPE) == 0)
 			typesupported = true;
 		if (this.type.compareTo(BINARY_TYPE) == 0)

@@ -186,6 +186,23 @@ public abstract class SimpleDataElt extends DataElt {
 				}
 
 			};
+		case "MLC":
+			return new SimpleDataElementCreator<MultipleChoiceDataElt,String>() {
+
+				@Override
+				public MultipleChoiceDataElt getBlankDataElt() {
+					MultipleChoiceDataElt blankelement = new MultipleChoiceDataElt(name);
+					blankelement.setPropertyname(propertyname);
+					return blankelement;
+				}
+
+				@Override
+				public void setPayload(MultipleChoiceDataElt dataelt, String payload) {
+					dataelt.forceContent(payload);
+					
+				}
+				
+			};
 		case "TXT":
 			return new SimpleDataElementCreator<TextDataElt, String>() {
 

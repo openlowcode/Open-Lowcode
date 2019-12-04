@@ -20,7 +20,7 @@ import org.openlowcode.client.action.CPageAction;
 import org.openlowcode.client.graphic.CPage;
 import org.openlowcode.client.runtime.PageActionManager.ActionSourceTransformer;
 import javafx.scene.input.MouseEvent;
-
+import javafx.scene.input.ScrollEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -271,6 +271,16 @@ public class ClientDisplay {
 								contentholderhorizontalscrollbar.setValue(contentholderhorizontalscrollbar.getMin());
 							} else {
 								contentholderverticalscrollbar = thisscrollbar;
+								
+								backgroundpane.setOnScroll(new EventHandler<ScrollEvent>() {
+							        @Override
+							        public void handle(ScrollEvent event) {
+							            double deltaY = event.getDeltaY()*8; 
+							            double width = contentholder.getContent().getBoundsInLocal().getWidth();
+							            double vvalue = contentholder.getVvalue();
+							            contentholder.setVvalue(vvalue + -deltaY/width); // deltaY/width to make the scrolling equally fast regardless of the actual width of the component
+							        }
+							    });
 							}
 						}
 					}
