@@ -18,6 +18,7 @@ import org.openlowcode.client.action.CActionData;
 import org.openlowcode.client.action.CPageAction;
 import org.openlowcode.client.action.CPageInlineAction;
 import org.openlowcode.client.graphic.CPage;
+import org.openlowcode.client.graphic.CPageData;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.Callback;
 
@@ -355,8 +356,12 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 		if (continuewithaction) {
 			if (currentinlineaction.isForcePopupClose())
 				page.getAllInputData().closeSubScene();
-			serverconnection.sendInlineAction(actionname, modulename, local, actionattributes, page);
-			// this is a shortcut
+			if (!local) {
+				serverconnection.sendInlineAction(actionname, modulename, actionattributes, page);
+			} else {
+				page.processInlineAction(modulename, actionname, CPageData.echo(actionattributes));
+			}
+				// this is a shortcut
 			resetWarnings();
 			return;
 		} else {

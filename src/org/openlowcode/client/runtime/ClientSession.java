@@ -278,7 +278,7 @@ public class ClientSession {
 	 * @param page             page to show the data coming back from the inline
 	 *                         action
 	 */
-	public void sendInlineAction(String actionname, String modulename, boolean local, CActionData actionattributes,
+	public void sendInlineAction(String actionname, String modulename, CActionData actionattributes,
 			CPage page) {
 		ClientDisplay activedisplay = displaysforconnection.get(activedisplayindex);
 

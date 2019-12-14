@@ -22,6 +22,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -53,6 +54,7 @@ public class TimePeriodField extends HBox {
 
 		// ------------------------ quarter or month or before or after or full year and
 		// potentially ongoing) ------------
+		YearQualifier yeardefault = new YearQualifier(PeriodType.YEAR, true);
 		if (hasyearqualifier) {
 			this.yearqualifier = new ChoiceBox<YearQualifier>();
 			ObservableList<YearQualifier> values = FXCollections.observableArrayList();
@@ -60,7 +62,7 @@ public class TimePeriodField extends HBox {
 			if (this.restrictionontype == null || TimePeriod.PeriodType.YEAR.equals(this.restrictionontype)) {
 				values.add(new YearQualifier(PeriodType.YEAR, false));
 
-				values.add(new YearQualifier(PeriodType.YEAR, true));
+				values.add(yeardefault);
 			}
 
 			if (this.restrictionontype == null || TimePeriod.PeriodType.QUARTER.equals(this.restrictionontype)) {
@@ -86,6 +88,9 @@ public class TimePeriodField extends HBox {
 			yearqualifier = new ChoiceBox<YearQualifier>(values);
 			if (value != null)
 				yearqualifier.setValue(value.getYearQualifier());
+			if (value==null) if (this.restrictionontype == null || TimePeriod.PeriodType.YEAR.equals(this.restrictionontype)) {
+				yearqualifier.setValue(yeardefault);
+			}
 			yearqualifier.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<YearQualifier>() {
 
 				@Override
@@ -105,6 +110,7 @@ public class TimePeriodField extends HBox {
 		}
 		// ------------------------ year field
 		yearfield = new TextField();
+		yearfield.setMaxWidth(60);
 		int year = (value != null ? value.getYear() : Calendar.getInstance().get(Calendar.YEAR));
 		if (year >= 1970)
 			yearfield.setText("" + year);
@@ -126,7 +132,7 @@ public class TimePeriodField extends HBox {
 	}
 
 	public TimePeriodField(TimePeriod.PeriodType restrictionontype) {
-		super();
+		super(5);
 		this.restrictionontype = restrictionontype;
 	}
 
