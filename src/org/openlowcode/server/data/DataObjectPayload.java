@@ -27,8 +27,8 @@ import org.openlowcode.server.data.storage.TableAlias;
 import org.openlowcode.server.data.storage.UpdateQuery;
 
 /**
- * the data object payload stores the fields, properties, and the link to the
- * persistence layer
+ * the DataObjectPayload stores the fields, properties, and the link to the
+ * persistence layer. Each Data Object contains a DataObjectPayload
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
