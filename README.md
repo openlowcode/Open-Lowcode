@@ -5,6 +5,8 @@ published by [Open Lowcode SAS](https://openlowcode.com). You may also want to l
 
 The project includes the main low-code platform (a full application server), and also some java tools you may find useful in other contexts. You are of course very welcome to use just the java tools if it makes sense for you. As of today (August 5th, 2019), the Open Lowcode PDF framework and the Open Lowcode Messaging are released.
 
+**The publication of the main application server and design studio is currently under way, and will likely last until 10th of January 2020. It is possible that the head branch does not compile during this interval as classes may be published without their dependencies for a few days**
+
 You are welcome to get involved and contribute to the project by:
 * suggesting new features or bug corrections. right here on github or on the [community forum](https://openlowcode.org/open-lowcode-forum/). Of course, the fixes will be best effort
 * writing improvements to the framework to be included
