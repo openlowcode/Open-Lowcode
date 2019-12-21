@@ -120,7 +120,7 @@ public class DataObjectPayload {
 	}
 
 	/**
-	 * adds a property to this data object payload
+	 * adds a property to this DataobjectPayload
 	 * 
 	 * @param property the property added
 	 */
@@ -130,7 +130,7 @@ public class DataObjectPayload {
 	}
 
 	/**
-	 * initiates this data object payload from the row of data
+	 * initiates this DataobjectPayload from the row of data
 	 * 
 	 * @param row   a row from the databse
 	 * @param alias the alias to look at
@@ -180,7 +180,7 @@ public class DataObjectPayload {
 	}
 
 	/**
-	 * Gets a stored table row initiated with the data in this data object payload
+	 * Gets a stored table row initiated with the data in this DataobjectPayload
 	 * 
 	 * @return the stored table row object.
 	 */
