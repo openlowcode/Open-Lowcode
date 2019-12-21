@@ -98,7 +98,7 @@ public class DataObjectPayload {
 	}
 
 	/**
-	 * Creates a new data object payload linked to the specified persisted schema
+	 * Creates a new DataobjectPayload linked to the specified persisted schema
 	 * 
 	 * @param schema schema for this data object payload
 	 */
@@ -110,7 +110,7 @@ public class DataObjectPayload {
 	}
 
 	/**
-	 * adds a field to this data object payload
+	 * adds a field to this DataobjectPayload
 	 * 
 	 * @param field the field added
 	 */
