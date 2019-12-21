@@ -10,8 +10,6 @@
 
 package org.openlowcode.server.data;
 
-
-
 import org.openlowcode.tools.misc.NamedList;
 
 import org.openlowcode.server.data.storage.DeleteQuery;
@@ -46,6 +44,7 @@ public class DataObjectPayload {
 
 	/**
 	 * gets the property with the specified name
+	 * 
 	 * @param name name
 	 * @return the property if it exists, else null
 	 */
@@ -56,6 +55,7 @@ public class DataObjectPayload {
 
 	/**
 	 * gets the field with the specified name
+	 * 
 	 * @param name name
 	 * @return the field if it exists, else null
 	 */
@@ -88,7 +88,8 @@ public class DataObjectPayload {
 	}
 
 	/**
-	 * @param index and integer between 0 (included) and getPropertyNumber (excluded)
+	 * @param index and integer between 0 (included) and getPropertyNumber
+	 *              (excluded)
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
@@ -98,6 +99,7 @@ public class DataObjectPayload {
 
 	/**
 	 * Creates a new data object payload linked to the specified persisted schema
+	 * 
 	 * @param schema schema for this data object payload
 	 */
 	@SuppressWarnings("rawtypes")
@@ -109,6 +111,7 @@ public class DataObjectPayload {
 
 	/**
 	 * adds a field to this data object payload
+	 * 
 	 * @param field the field added
 	 */
 	@SuppressWarnings("rawtypes")
@@ -118,6 +121,7 @@ public class DataObjectPayload {
 
 	/**
 	 * adds a property to this data object payload
+	 * 
 	 * @param property the property added
 	 */
 	@SuppressWarnings("rawtypes")
