@@ -188,8 +188,8 @@ public abstract class DataObjectFieldDefinition<E extends DataObject<E>>
 	 * @param locale           locale if loaded by CSV
 	 * @return a flat file loader
 	 */
-	public abstract <F extends DataObject<F>> FlatFileLoaderColumn<F> getFlatFileLoaderColumn(
-			DataObjectDefinition<F> objectdefinition, String[] columnattributes,
+	public abstract  FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
+			DataObjectDefinition<E> objectdefinition, String[] columnattributes,
 			ChoiceValue<ApplocaleChoiceDefinition> locale);
 
 	/**
