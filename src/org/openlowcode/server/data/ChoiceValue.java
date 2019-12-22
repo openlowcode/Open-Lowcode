@@ -27,7 +27,7 @@ import org.openlowcode.tools.structure.ChoiceWithTransition;
  *
  * @param <E> the field choice definition
  */
-public class ChoiceValue<E extends FieldChoiceDefinition> extends Named implements Choice, ChoiceWithTransition {
+public class ChoiceValue<E extends FieldChoiceDefinition<E>> extends Named implements Choice, ChoiceWithTransition {
 	private ArrayList<ChoiceValue<E>> authorizedtransitions;
 	private boolean transitionrestrictions;
 	private String displayvalue;
