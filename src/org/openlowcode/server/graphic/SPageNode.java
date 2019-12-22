@@ -34,6 +34,7 @@ public abstract class SPageNode {
 
 	/**
 	 * gets the parent page for this node
+	 * 
 	 * @return the page
 	 */
 	public SPage getPage() {
@@ -61,6 +62,7 @@ public abstract class SPageNode {
 
 	/**
 	 * creates a note for the specified page
+	 * 
 	 * @param parentpage page this node is part of
 	 */
 	public SPageNode(SPage parentpage) {
@@ -115,8 +117,6 @@ public abstract class SPageNode {
 					+ (parentpath != null ? parentpath.printPath() : "null"));
 		return path.printPath();
 	}
-
-
 
 	/**
 	 * This method allows to hide component in a layout if the user is not
