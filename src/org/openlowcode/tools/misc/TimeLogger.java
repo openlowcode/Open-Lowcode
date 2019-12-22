@@ -11,25 +11,36 @@
 package org.openlowcode.tools.misc;
 
 /**
- * @author demau
+ * a simple class that returns a log precising the time elapsed since the object was created
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+ *         SAS</a>
  *
  */
 public class TimeLogger {
 	long lastlogtime;
+
+	/**
+	 * Creates the object and records the time
+	 */
 	public TimeLogger() {
 		lastlogtime = System.currentTimeMillis();
 	}
+
+	/**
+	 * returns a log with the duration since last call
+	 * @param message message to put in log
+	 * @return a log with the time elapsed since previous action on this TimeLogger and the messag specified
+	 */
 	public String logTimer(String message) {
 		long currentlogtime = System.currentTimeMillis();
 		StringBuffer logmessage = new StringBuffer(" --- TIMELOG --- ");
 		logmessage.append(message);
 		logmessage.append(" [");
-		long executiontime = currentlogtime-lastlogtime;
+		long executiontime = currentlogtime - lastlogtime;
 		logmessage.append(executiontime);
 		logmessage.append("ms]");
 		lastlogtime = currentlogtime;
 		return logmessage.toString();
 	}
-	
-	
+
 }
