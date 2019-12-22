@@ -15,10 +15,6 @@ package org.openlowcode.tools.misc;
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
  *
  */
-/**
- * @author demau
- *
- */
 public class StringExtremityPrinter {
 	
 	/**
