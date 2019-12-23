@@ -204,8 +204,8 @@ public abstract class DataObject<E extends DataObject<E>> extends Named {
 	 * @return all the triggers
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public NamedList<DataUpdateTrigger> getDataUpdateTriggers() {
-		NamedList<DataUpdateTrigger> triggers = new NamedList<DataUpdateTrigger>();
+	public NamedList<DataUpdateTrigger<E>> getDataUpdateTriggers() {
+		NamedList<DataUpdateTrigger<E>> triggers = new NamedList<DataUpdateTrigger<E>>();
 		for (int i = 0; i < this.payload.getFieldNumber(); i++) {
 			DataObjectField field = this.payload.getFieldAtIndex(i);
 			triggers.mergeWithNamedListIfNotExist(field.getTriggersForThisUpdate());
