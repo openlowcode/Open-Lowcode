@@ -131,7 +131,7 @@ public class ChoiceDataObjectFieldDefinition<E extends FieldChoiceDefinition<E>,
 			if (columnattributes.length > 0)
 				if ("LENIENT".equals(columnattributes[0]))
 					lenient = true;
-		return new ChoiceDataObjectFieldFlatFileLoaderColumn<F>(objectdefinition, columnattributes, this.getName(),
+		return new ChoiceDataObjectFieldFlatFileLoaderColumn<F,E>(objectdefinition, columnattributes, this.getName(),
 				getFieldchoicedefinition(), lenient);
 	}
 
