@@ -12,7 +12,7 @@ package org.openlowcode.server.graphic;
 
 import java.io.IOException;
 
-import org.openlowcode.server.security.GalliumSecurityBuffer;
+import org.openlowcode.server.security.SecurityBuffer;
 import org.openlowcode.tools.messages.MessageWriter;
 
 /**
@@ -77,12 +77,12 @@ public abstract class SPageNode {
 	 * @param writer the CDL writer on which to write the message
 	 * @throws GalliumException
 	 */
-	public abstract void WritePayloadToCDL(MessageWriter writer, SPageData input, GalliumSecurityBuffer buffer)
+	public abstract void WritePayloadToCDL(MessageWriter writer, SPageData input, SecurityBuffer buffer)
 			throws IOException;
 
 	public abstract String getWidgetCode();
 
-	public void WriteToCDL(MessageWriter writer, SPageData input, GalliumSecurityBuffer buffer) throws IOException {
+	public void WriteToCDL(MessageWriter writer, SPageData input, SecurityBuffer buffer) throws IOException {
 		writer.startStructure(getWidgetCode());
 		if (path == null) {
 			writer.addStringField("SPT", "");
@@ -125,7 +125,7 @@ public abstract class SPageNode {
 	 * @return true if the component should be hidden, false is the component is to
 	 *         be shown
 	 */
-	public abstract boolean hideComponent(SPageData input, GalliumSecurityBuffer buffer);
+	public abstract boolean hideComponent(SPageData input, SecurityBuffer buffer);
 
 	public static final String DEFAULT_UNSAVED_EDITION_WARNING_MESSAGE = "Your data will be lost, do you really want to continue ?";
 	public static final String DEFAULT_UNSAVED_EDITION_CONTINUE_MESSAGE = "Yes";
