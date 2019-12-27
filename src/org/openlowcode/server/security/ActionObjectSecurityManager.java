@@ -1,5 +1,3 @@
-package org.openlowcode.server.security;
-
 /********************************************************************************
  * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
  *
@@ -9,6 +7,8 @@ package org.openlowcode.server.security;
  *
  * SPDX-License-Identifier: EPL-2.0
  ********************************************************************************/
+
+package org.openlowcode.server.security;
 
 import java.util.logging.Logger;
 
