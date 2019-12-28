@@ -43,14 +43,15 @@ public class Creationlog<E extends DataObject<E>> extends DataObjectProperty<E> 
 	}
 
 	/**
-	 * @return
+	 * @return the object id of the application user (Appuser) that created the
+	 *         object
 	 */
 	public DataObjectId<Appuser> getCreateuserid() {
 		return new DataObjectId<Appuser>(createuserid.getPayload(), AppuserDefinition.getAppuserDefinition());
 	}
 
 	/**
-	 * @param createuserid
+	 * @param createuserid sets as a raw string the userid that created the object
 	 */
 	void SetCreateuserid(String createuserid) {
 		this.createuserid.setPayload(createuserid);
@@ -58,24 +59,34 @@ public class Creationlog<E extends DataObject<E>> extends DataObjectProperty<E> 
 	}
 
 	/**
-	 * @return
+	 * @return the creation time of the object
 	 */
 	public Date getCreatetime() {
 		return this.createtime.getPayload();
 	}
 
 	/**
-	 * @param createtime
+	 * @param createtime sets the creation time of the object
 	 */
 	void SetCreatetime(Date createtime) {
 		this.createtime.setPayload(createtime);
 	}
 
+	/**
+	 * @param storedobject gets the dependent property (general Open Lowcode
+	 *                     mechanism, but useless in that case)
+	 */
 	public void setDependentPropertyStoredobject(Storedobject<E> storedobject) {
 		// do nothing, stored object is not used
 
 	}
 
+	/**
+	 * performs preprocessing of the object before insertion (gets the userid from
+	 * the server context and the creation time)
+	 * 
+	 * @param object data object
+	 */
 	public void preprocStoredobjectInsert(E object) {
 		if (this.createtime.getPayload() == null)
 			this.SetCreatetime(new Date());
@@ -99,6 +110,13 @@ public class Creationlog<E extends DataObject<E>> extends DataObjectProperty<E> 
 		}
 	}
 
+	/**
+	 * Massive preprocessing before insertion. This does not use a database access
+	 * and should be very performant.
+	 * 
+	 * @param objectbatch
+	 * @param creationlogbatch
+	 */
 	public static <E extends DataObject<E>> void preprocStoredobjectInsert(E[] objectbatch,
 			Creationlog<E>[] creationlogbatch) {
 		if (objectbatch == null)
