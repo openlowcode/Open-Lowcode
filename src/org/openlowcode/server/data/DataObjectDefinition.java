@@ -299,9 +299,9 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return a join query condition
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public JoinQueryConditionDefinition<?> generateJoinQueryDefinition(StoredTableSchema maintable,
-			StoredFieldSchema<E> maintablefield, String propertyname, String propertyfield, String sidetablesuffix,
-			QueryOperator<E> operator) {
+	public <Z extends Object> JoinQueryConditionDefinition<Z> generateJoinQueryDefinition(StoredTableSchema maintable,
+			StoredFieldSchema<Z> maintablefield, String propertyname, String propertyfield, String sidetablesuffix,
+			QueryOperator<Z> operator) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
 			throw new RuntimeException("did not find property with name = '" + propertyname + "', available list = "
