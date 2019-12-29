@@ -62,9 +62,9 @@ public class UniqueidentifiedDefinition<E extends DataObject<E>> extends DataObj
 		return new Uniqueidentified<E>(this, parentpayload);
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	@Override
-	public ArrayList<ExternalFieldSchema> generateExternalSchema() {
+	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema() {
 
 		return null;
 	}
