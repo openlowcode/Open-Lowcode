@@ -25,8 +25,10 @@ public interface NumberedInterface<E extends DataObject<E>> extends Uniqueidenti
 	 * @return the number of this object
 	 */
 	public String getNr();
+
 	/**
 	 * change the number of the object and persists the change
+	 * 
 	 * @param nr the new number
 	 */
 	public void setobjectnumber(String nr);
