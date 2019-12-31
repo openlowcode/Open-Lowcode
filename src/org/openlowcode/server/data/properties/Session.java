@@ -31,7 +31,7 @@ import org.openlowcode.server.data.storage.StoredField;
  * @param <E> data object of the session
  * @param <F> data object of the 'parent' Timeslot
  */
-public class Session<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F>>
+public class Session<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & TimeslotInterface<F>>
 		extends DataObjectProperty<E> {
 	private StoredField<Date> starttime;
 	private StoredField<Date> endtime;
