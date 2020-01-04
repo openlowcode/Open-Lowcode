@@ -9,6 +9,15 @@ As a company using the Open-Lowcode framework, you can support the initiative by
 * asking for extensions of the framework for a fee (available, just precise it when writing a feature request)
 * purchasing support to the product (not yet available)
 
+# Who can contribute
+
+Every contribution to the framework is appreciate. Especially, enterprise
+IT professionals with an experience in what company needs are warmly welcome,
+even if they feel they are not top-notch hackers, and would not feel confident
+contributing to the linux Kernel. Building the right thing is more important than
+building the thing right.
+
+
 # Courtesy & Manners
 
 Some of the greatest mind in many areas practice perfect courtesy, there is no reason we do not do the same. Exchanging in a courteous and considerate manner is really appreciated.
@@ -17,7 +26,7 @@ Some of the greatest mind in many areas practice perfect courtesy, there is no r
 
 Debate on the framework is highly welcome. The author of the framework fully acknowledges you may have stronger skills in a number of areas, and bring a lot of value and insights. 
 
-Nonetheless, the framework is built on a number of strong hypothesis and choices, contributors are expected to accept, or, at least, tolerate them. Values are discussed in greater length in the [Open Lowcode blog](https://openlowcode.com/blog/). Please take this as a warning that this is, say, a bossa-nova concert, and if you are expecting heavy-metal (or the other way round), you will likely be disappointed.
+Nonetheless, the framework is built on a number of strong hypothesis and choices, contributors are expected to accept, or, at least, tolerate them. Values are discussed in greater length in the [Open Lowcode blog](https://openlowcode.com/blog/). Please take this as a notice that this is, say, a bossa-nova concert, and if you are expecting heavy-metal (or the other way round), you will likely be disappointed.
 
 Some core values include:
 * keep complexity reasonnable. To make a parallel, if the tool was a rich-text format, the objective would be something like markdown (easy and good enough), not something like html (powerful but verbose). This is driven by the need to be usable in enterprise context with varying development skill levels. 
