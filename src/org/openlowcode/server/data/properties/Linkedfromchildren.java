@@ -29,7 +29,7 @@ import org.openlowcode.server.data.storage.QueryFilter;
  * @param <E> the parent data object
  * @param <F> the child data object
  */
-public class Linkedfromchildren<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F>>
+public class Linkedfromchildren<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>>
 		extends DataObjectProperty<E> {
 	private DataObjectDefinition<F> childrendefinition;
 	private DataObjectDefinition<E> referenceobjectdefinition;
