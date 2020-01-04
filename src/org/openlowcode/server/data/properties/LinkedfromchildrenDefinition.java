@@ -37,7 +37,7 @@ import org.openlowcode.server.data.storage.QueryCondition;
  * @param <E> the parent data object
  * @param <F> the child data object
  */
-public class LinkedfromchildrenDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F>>
+public class LinkedfromchildrenDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>>
 		extends DataObjectPropertyDefinition<E> {
 	private Logger logger = Logger.getLogger(LinkedfromchildrenDefinition.class.getName());
 	private DataObjectDefinition<F> referenceobjectdefinition;
