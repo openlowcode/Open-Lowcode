@@ -35,7 +35,7 @@ import org.openlowcode.server.data.storage.TimestampStoredField;
  * @param <E> parent object
  * @param <F> type of lifecycle of the related lifecycle property
  */
-public class TargetdateDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends TransitionFieldChoiceDefinition<F>>
+public class TargetdateDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E> & LifecycleInterface<E,F>, F extends TransitionFieldChoiceDefinition<F>>
 		extends DataObjectPropertyDefinition<E> {
 	private TimestampStoredField targetdate;
 	@SuppressWarnings("unused")

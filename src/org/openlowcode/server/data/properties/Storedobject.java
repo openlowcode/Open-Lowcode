@@ -19,7 +19,7 @@ import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectProperty;
 
 import org.openlowcode.server.data.formula.DataUpdateTrigger;
-import org.openlowcode.server.data.formula.GalliumTriggerLauncher;
+import org.openlowcode.server.data.formula.TriggerLauncher;
 
 /**
  * Storedobject property specifies that the object can be persisted in the
@@ -53,9 +53,9 @@ public class Storedobject<E extends DataObject<E>> extends DataObjectProperty<E>
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void insert(E object) {
 
-		NamedList<DataUpdateTrigger> triggers = object.getDataUpdateTriggers();
+		NamedList<DataUpdateTrigger<E>> triggers = object.getDataUpdateTriggers();
 
-		GalliumTriggerLauncher triggerlauncher = new GalliumTriggerLauncher(triggers);
+		TriggerLauncher triggerlauncher = new TriggerLauncher(triggers);
 		triggerlauncher.executeTriggerList(object);
 
 		this.parentpayload.insert();

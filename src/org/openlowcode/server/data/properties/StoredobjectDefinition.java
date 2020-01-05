@@ -50,9 +50,8 @@ public class StoredobjectDefinition<E extends DataObject<E>> extends DataObjectP
 		return new Storedobject<E>(this, parentpayload);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public ArrayList<ExternalFieldSchema> generateExternalSchema() {
+	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema() {
 
 		return null;
 	}

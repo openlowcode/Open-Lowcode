@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -31,7 +31,7 @@ import org.openlowcode.server.data.storage.StoredField;
  * @param <E> parent data object
  * @param <F> the lifecycle of the object
  */
-public class Targetdate<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends TransitionFieldChoiceDefinition<F>>
+public class Targetdate<E extends DataObject<E> & UniqueidentifiedInterface<E> & LifecycleInterface<E,F>, F extends TransitionFieldChoiceDefinition<F>>
 		extends DataObjectProperty<E> {
 
 	private StoredField<Date> targetdate;
