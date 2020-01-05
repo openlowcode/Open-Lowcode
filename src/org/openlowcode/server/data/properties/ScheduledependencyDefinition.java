@@ -24,7 +24,6 @@ import org.openlowcode.server.data.specificstorage.ExternalFieldSchema;
 import org.openlowcode.server.data.storage.QueryCondition;
 import org.openlowcode.server.data.storage.StringStoredField;
 
-
 /**
  * Definition of a property to use the data object as a schedule dependency. It
  * should be an auto-link to an object implementing the timeslot and schedule
@@ -45,6 +44,12 @@ public class ScheduledependencyDefinition<E extends DataObject<E> & Uniqueidenti
 	private ScheduleDefinition<F, E> genericsscheduledefinition;
 	private StringStoredField split;
 
+	/**
+	 * creates a schedule dependency definition
+	 * 
+	 * @param parentobject             object used as schedule dependency
+	 * @param scheduleobjectdefinition object used as timeslot
+	 */
 	public ScheduledependencyDefinition(DataObjectDefinition<E> parentobject,
 			DataObjectDefinition<F> scheduleobjectdefinition) {
 		super(parentobject, "SCHEDULEDEPENDENCY");
@@ -53,26 +58,41 @@ public class ScheduledependencyDefinition<E extends DataObject<E> & Uniqueidenti
 		this.addFieldSchema(split);
 	}
 
+	/**
+	 * get the related autolink object definition
+	 * 
+	 * @return the related autolink object definition
+	 */
 	public AutolinkobjectDefinition<E, F> getAutoLinkObjectDefinition() {
 		return this.autolinkobjectdefinition;
 	}
 
+	/**
+	 * sets the dependent autolink object definition
+	 * 
+	 * @param autolinkobjectdefinition dependent autolink object definition
+	 */
 	public void setDependentDefinitionAutolinkobject(AutolinkobjectDefinition<E, F> autolinkobjectdefinition) {
 		this.autolinkobjectdefinition = autolinkobjectdefinition;
 	}
 
-	public void setGenericsScheduleProperty(ScheduleDefinition<F, E> genericsscheduledefinition)
-			 {
+	/**
+	 * sets the schedule property definition of the scheduled object
+	 * 
+	 * @param genericsscheduledefinition scheduled property definition of the
+	 *                                   schedule / timeslot object
+	 */
+	public void setGenericsScheduleProperty(ScheduleDefinition<F, E> genericsscheduledefinition) {
 		this.genericsscheduledefinition = genericsscheduledefinition;
 	}
 
 	@Override
-	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema()  {
+	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema() {
 		return null;
 	}
 
 	@Override
-	public QueryCondition getUniversalQueryCondition(String alias)  {
+	public QueryCondition getUniversalQueryCondition(String alias) {
 		return null;
 	}
 
@@ -84,7 +104,7 @@ public class ScheduledependencyDefinition<E extends DataObject<E> & Uniqueidenti
 	@Override
 	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
 			String[] columnattributes, PropertyExtractor<E> propertyextractor,
-			ChoiceValue<ApplocaleChoiceDefinition> locale)  {
+			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 
 		return null;
 	}
@@ -103,7 +123,7 @@ public class ScheduledependencyDefinition<E extends DataObject<E> & Uniqueidenti
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public DataObjectElement initiateFieldInstance(DataObjectPayload parentpayload)  {
+	public DataObjectElement initiateFieldInstance(DataObjectPayload parentpayload) {
 		return new Scheduledependency<E, F>(this, parentpayload, scheduleobjectdefinition);
 	}
 
