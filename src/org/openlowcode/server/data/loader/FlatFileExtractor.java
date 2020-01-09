@@ -161,7 +161,7 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 				width = 80 * 256;
 				for (int j = 2; j < nblines; j++) {
 					Cell cell = sheet.getRow(j).getCell(i);
-					cell.getCellStyle().setWrapText(true);
+					if (cell!=null) if (cell.getCellStyle()!=null) cell.getCellStyle().setWrapText(true);
 
 				}
 
