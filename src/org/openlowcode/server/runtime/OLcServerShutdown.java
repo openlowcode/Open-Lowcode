@@ -64,11 +64,12 @@ public class OLcServerShutdown {
 			reader.returnNextStartStructure("SHUTDOWNOK");
 			reader.returnNextEndStructure("SHUTDOWNOK");
 			reader.returnNextEndMessage();
+
+			logger.severe(
+					"Got last message from server before shutdown, all connections are stopped. Server will stop in less than 50ms");
 			reader.close();
 			writer.close();
 			clientsocket.close();
-			logger.severe(
-					"Got last message from server before shutdown, all connections are stopped. Server will stop in less than 50ms");
 		} catch (Exception e) {
 			logger.severe("could not execute correctly shutdown script: " + e.getMessage());
 			for (int i = 0; i < e.getStackTrace().length; i++) {
