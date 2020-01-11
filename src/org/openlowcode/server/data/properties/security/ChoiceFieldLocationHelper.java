@@ -36,9 +36,11 @@ public class ChoiceFieldLocationHelper<E extends DataObject<E> & LocatedInterfac
 	/**
 	 * Creates the location helper using a choice field on the object
 	 * 
-	 * @param defaultdomainnr default domain number
-	 * @param choicevalueextractor extractor that takes an object in input and provides the choice value as output
-	 * @param choicecodetodomainnumber mapping from choice storage code to domain number
+	 * @param defaultdomainnr          default domain number
+	 * @param choicevalueextractor     extractor that takes an object in input and
+	 *                                 provides the choice value as output
+	 * @param choicecodetodomainnumber mapping from choice storage code to domain
+	 *                                 number
 	 */
 	public ChoiceFieldLocationHelper(String defaultdomainnr, Function<E, ChoiceValue<F>> choicevalueextractor,
 			Function<String, String> choicecodetodomainnumber) {

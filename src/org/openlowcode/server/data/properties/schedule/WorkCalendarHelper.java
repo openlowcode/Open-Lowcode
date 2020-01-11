@@ -405,7 +405,8 @@ public class WorkCalendarHelper {
 
 	/**
 	 * Creates a new helper for the specified work calendar
-	 * @param calendar  the calendar to use
+	 * 
+	 * @param calendar the calendar to use
 	 */
 	public WorkCalendarHelper(Workcalendar calendar) {
 		weeklyslots = calendar.getallchildrenforworkcalendarforweeklyslot(null);
@@ -419,6 +420,7 @@ public class WorkCalendarHelper {
 
 	/**
 	 * get next start date valid for the timeslot.
+	 * 
 	 * @param endtime endtime of the previous slot
 	 * @return the next valid date. It is typically either end-date, or the start
 	 *         time of the next working slot
@@ -463,6 +465,7 @@ public class WorkCalendarHelper {
 
 	/**
 	 * gets the end date for the period
+	 * 
 	 * @param starttime      the start of the slot (typically got through
 	 *                       getNextStartDate)
 	 * @param lengthinminute length of the slot in minutes
@@ -538,9 +541,9 @@ public class WorkCalendarHelper {
 	}
 
 	/**
-	 * @param newstartdate
+	 * @param newstartdate start date of the new period
 	 * @param l            length in minute
-	 * @return
+	 * @return the end date
 	 * @throws GalliumException
 	 */
 	public Date getNextEndDate(Date newstartdate, long l) {

@@ -88,7 +88,6 @@ public class Linkedfromchildren<E extends DataObject<E> & UniqueidentifiedInterf
 	 * 
 	 * @param object the current object
 	 */
-	@SuppressWarnings("unchecked")
 	public void preprocUniqueidentifiedDelete(E object) {
 		F[] children = getallchildren(object, null);
 		if (children != null)
