@@ -67,10 +67,16 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 	private int minpriorityforrightobjectfields;
 	private static Logger logger = Logger.getLogger(LinkobjectDefinition.class.getName());
 
+	/**
+	 * @return
+	 */
 	protected DataObjectDefinition<G> getRightObjectDefinition() {
 		return this.rightobjectdefinition;
 	}
 
+	/**
+	 * @return
+	 */
 	protected DataObjectDefinition<F> getLeftObjectDefinition() {
 		return this.leftobjectdefinition;
 	}
@@ -350,7 +356,7 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 
 		if (leftobjectdefinition.hasProperty("LIFECYCLE")) {
 			@SuppressWarnings("unchecked")
-			LifecycleDefinition<F, ?> lifecycle = (LifecycleDefinition<F, ?>) (leftobjectdefinition
+			LifecycleDefinition<?, ?> lifecycle = (LifecycleDefinition<?, ?>) (leftobjectdefinition
 					.getProperty("LIFECYCLE"));
 			ExternalFieldSchema<?> leftexternalfield = leftobjectdefinition.generateExternalField(
 					this.getName() + "LEFTSTATE", "Left state", "this is a stupid comment", "LIFECYCLE", "STATE",
@@ -432,7 +438,7 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 		}
 		if (rightobjectdefinition.hasProperty("LIFECYCLE")) {
 			@SuppressWarnings("unchecked")
-			LifecycleDefinition<G, ?> lifecycle = (LifecycleDefinition<G, ?>) (rightobjectdefinition
+			LifecycleDefinition<?, ?> lifecycle = (LifecycleDefinition<?, ?>) (rightobjectdefinition
 					.getProperty("LIFECYCLE"));
 			ExternalFieldSchema<?> rightexternalfield = rightobjectdefinition.generateExternalField(
 					this.getName() + "RIGHTSTATE", "Right object state", "this is a stupid comment", "LIFECYCLE",
