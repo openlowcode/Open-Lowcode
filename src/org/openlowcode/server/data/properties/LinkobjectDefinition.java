@@ -355,7 +355,6 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 		// get state property for left object
 
 		if (leftobjectdefinition.hasProperty("LIFECYCLE")) {
-			@SuppressWarnings("unchecked")
 			LifecycleDefinition<?, ?> lifecycle = (LifecycleDefinition<?, ?>) (leftobjectdefinition
 					.getProperty("LIFECYCLE"));
 			ExternalFieldSchema<?> leftexternalfield = leftobjectdefinition.generateExternalField(
@@ -437,7 +436,6 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 			externalfieldlist.add(rightexternalfield);
 		}
 		if (rightobjectdefinition.hasProperty("LIFECYCLE")) {
-			@SuppressWarnings("unchecked")
 			LifecycleDefinition<?, ?> lifecycle = (LifecycleDefinition<?, ?>) (rightobjectdefinition
 					.getProperty("LIFECYCLE"));
 			ExternalFieldSchema<?> rightexternalfield = rightobjectdefinition.generateExternalField(
