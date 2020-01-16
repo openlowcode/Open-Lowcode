@@ -160,7 +160,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 
 	/**
 	 * pre-processing to a link insert. Generates an update note, and takes an
-	 * iteration on the parent object
+	 * iteration on the left object
 	 * 
 	 * @param object data object
 	 */
