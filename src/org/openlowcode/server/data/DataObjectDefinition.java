@@ -1,5 +1,5 @@
 /********************************************************************************
-* Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+* Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License 2.0 which is available at
@@ -145,7 +145,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param index
 	 * @return
 	 */
-	public DataObjectFieldDefinition<?> getFieldAt(int index) {
+	public DataObjectFieldDefinition<E> getFieldAt(int index) {
 		return this.fielddeflist.get(index);
 	}
 
@@ -356,7 +356,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return
 	 */
 	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String propertyname, String propertyfield, JoinQueryConditionDefinition<E> joinqueryconditiondefinition,
+			String propertyname, String propertyfield, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
 			int priority, int displaycolumn) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
@@ -395,8 +395,8 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String fieldname, JoinQueryConditionDefinition<E> joinqueryconditiondefinition,
-			DisplayProfile<E> hideifprofileset, int priority, int displaycolumn) {
+			String fieldname, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn) {
 		DataObjectFieldDefinition<E> fielddef = this.fielddeflist.lookupOnName(fieldname);
 		if (fielddef == null)
 			throw new RuntimeException("did not find field with name = " + fieldname + ", available list = "
@@ -492,7 +492,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
 			String propertyname, String propertyfield, FieldChoiceDefinition<?> fieldchoice,
-			JoinQueryConditionDefinition<?> joinqueryconditiondefinition, DisplayProfile<E> hideifprofileset,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition, DisplayProfile<?> hideifprofileset,
 			int priority, int displaycolumn) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
@@ -536,7 +536,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
 			String propertyname, String propertyfield, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			DisplayProfile<E> hideifprofileset, int priority, int displaycolumn) {
+			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
 			throw new RuntimeException("did not find property with name = '" + propertyname + "', available list = "
@@ -576,7 +576,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ExternalFieldSchema<?> generateExternalFieldFromField(String externalfieldname, String displayname,
 			String tooltip, String fieldname, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			DisplayProfile<E> hideifprofileset, int priority, int displaycolumn) {
+			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn) {
 		DataObjectFieldDefinition<E> fielddefinition = this.fielddeflist.lookupOnName(fieldname);
 		if (fielddefinition == null)
 			throw new RuntimeException("did not find field with name = '" + fieldname + "', available list = "
@@ -627,7 +627,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 */
 	public ExternalFieldSchema<?> generateExternalFieldInBottomNotes(String externalfieldname, String displayname,
 			String tooltip, String propertyname, String propertyfield,
-			JoinQueryConditionDefinition<?> joinqueryconditiondefinition, DisplayProfile<E> hideifprofileset,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition, DisplayProfile<?> hideifprofileset,
 			int priority, int displaycolumn) {
 		ExternalFieldSchema<?> thisfieldschema = generateExternalField(externalfieldname, displayname, tooltip,
 				propertyname, propertyfield, joinqueryconditiondefinition, hideifprofileset, priority, displaycolumn);
@@ -664,7 +664,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
 			String propertyname, String propertyfield, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			DisplayProfile<E> hideifprofileset, int priority, int displaycolumn, boolean orderedasnumber,
+			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn, boolean orderedasnumber,
 			int numberoffset) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)

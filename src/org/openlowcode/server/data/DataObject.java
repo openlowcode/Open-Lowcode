@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -154,7 +154,7 @@ public abstract class DataObject<E extends DataObject<E>> extends Named {
 	 * @return the casted property
 	 */
 	@SuppressWarnings("unchecked")
-	public <Z extends Autolinkobject<?, E>> Uniqueidentified<E> getUniqueidentiedFromAutolinkObject(
+	public <Z extends Autolinkobject<?, ?>> Uniqueidentified<E> getUniqueidentiedFromAutolinkObject(
 			Z autolinkobjectproperty) {
 		if (autolinkobjectproperty == null)
 			throw new RuntimeException(
@@ -188,7 +188,7 @@ public abstract class DataObject<E extends DataObject<E>> extends Named {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <Z extends Linkedfromchildren<?, E>> Uniqueidentified<E> getUniqueidentiedFromLinkedFromChildren(
+	public <Z extends Linkedfromchildren<?, ?>> Uniqueidentified<E> getUniqueidentiedFromLinkedFromChildren(
 			Z linkedfromchildrenproperty) {
 		if (linkedfromchildrenproperty == null)
 			throw new RuntimeException(

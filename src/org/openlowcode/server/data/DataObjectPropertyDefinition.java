@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -108,19 +108,19 @@ public abstract class DataObjectPropertyDefinition<E extends DataObject<E>>
 	 * @return get all external fields
 	 * 
 	 */
-	public abstract ArrayList<ExternalFieldSchema> generateExternalSchema();
+	public abstract ArrayList<ExternalFieldSchema<?>> generateExternalSchema();
 
 	/**
 	 * initiates and sorts proeperly all external schemas
 	 */
 	public void initiateExternalFieldSchema() {
 
-		ArrayList<ExternalFieldSchema> external = generateExternalSchema();
+		ArrayList<ExternalFieldSchema<?>> external = generateExternalSchema();
 		if (external != null)
 			logger.finer("initiating external field schema, number of fields = " + external.size());
 		if (external != null)
 			for (int i = 0; i < external.size(); i++) {
-				ExternalFieldSchema<E> externalfield = external.get(i);
+				ExternalFieldSchema<?> externalfield = external.get(i);
 				if (externalfield == null)
 					throw new RuntimeException("external field null for index = " + i + " out of " + external.size()
 							+ " for " + this.parentobject + " " + this.getName() + ", all fields = "
