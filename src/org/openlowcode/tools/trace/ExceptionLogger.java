@@ -26,7 +26,7 @@ public class ExceptionLogger {
 	 * @param e           exception
 	 * @param classlogger class logger
 	 */
-	public static void setInLogs(Exception e, Logger classlogger) {
+	public static void setInLogs(Throwable e, Logger classlogger) {
 		classlogger.warning("------------------------------------------------------------------------------");
 		classlogger.warning(e.getClass().toString() + " during processing " + e.getMessage());
 		for (int i = 0; i < e.getStackTrace().length; i++) {
