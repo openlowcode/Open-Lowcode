@@ -19,8 +19,11 @@ import org.openlowcode.server.data.DataObject;
  * @param <E> the data object used as autolink
  * @param <F> the data object being referenced by the autolink
  */
-public interface AutolinkobjectInterface<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>>
-		extends UniqueidentifiedInterface<E> {
+public interface AutolinkobjectInterface<
+		E extends DataObject<E> & UniqueidentifiedInterface<E>,
+		F extends DataObject<F> & UniqueidentifiedInterface<F>>
+		extends
+		UniqueidentifiedInterface<E> {
 	/**
 	 * @return the id of the right object for the link
 	 */
