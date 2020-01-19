@@ -33,12 +33,16 @@ import org.openlowcode.server.data.storage.StringStoredField;
 import org.openlowcode.server.data.storage.TimestampStoredField;
 
 /**
+ * definition of the update log property
+ * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  *
- * @param <E>
+ * @param <E> parent data object type
  */
-public class UpdatelogDefinition<E extends DataObject<E>> extends DataObjectPropertyDefinition<E> {
+public class UpdatelogDefinition<E extends DataObject<E>>
+		extends
+		DataObjectPropertyDefinition<E> {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CreationlogDefinition.class.getName());
 	private StringStoredField updateuserid;
@@ -46,6 +50,11 @@ public class UpdatelogDefinition<E extends DataObject<E>> extends DataObjectProp
 	private boolean fieldsintitle;
 	private boolean fieldsinbottomnotes;
 
+	/**
+	 * Creates an update log definition for the parent object
+	 * 
+	 * @param parentobject parent data object
+	 */
 	public UpdatelogDefinition(DataObjectDefinition<E> parentobject) {
 		super(parentobject, "UPDATELOG");
 
@@ -63,10 +72,16 @@ public class UpdatelogDefinition<E extends DataObject<E>> extends DataObjectProp
 		this.addIndex(updateuseridindex);
 	}
 
+	/**
+	 * If true, fields are forced to be shown in title
+	 */
 	public void setFieldsInTitle() {
 		this.fieldsintitle = true;
 	}
 
+	/**
+	 * if true, fields are forced to be shown only in bottom notes
+	 */
 	public void setFieldsInBottomNotes() {
 		this.fieldsinbottomnotes = true;
 	}
@@ -80,9 +95,9 @@ public class UpdatelogDefinition<E extends DataObject<E>> extends DataObjectProp
 				.generateJoinQueryDefinition(this.parentobject.getTableschema(), updateuserid, "UNIQUEIDENTIFIED", "ID",
 						this.getName(), new QueryOperatorEqual<String>());
 
-		ExternalFieldSchema<?> externalfield = referenceobjectdefinition.generateExternalFieldFromTitle(
-				"UPDATEUSERNUMBER", "Updated By", "Indicates the user who last updated the object", joincondition, -90,
-				40);
+		ExternalFieldSchema<
+				?> externalfield = referenceobjectdefinition.generateExternalFieldFromTitle("UPDATEUSERNUMBER",
+						"Updated By", "Indicates the user who last updated the object", joincondition, -90, 40);
 		if (this.fieldsinbottomnotes)
 			externalfield.setDisplayInBottomNotes();
 		if (this.fieldsintitle)
@@ -117,23 +132,34 @@ public class UpdatelogDefinition<E extends DataObject<E>> extends DataObjectProp
 		return new Updatelog(this, parentpayload);
 	}
 
+	/**
+	 * adds dependent property definition (general framework, but not used in that case)
+	 * 
+	 * @param storedobjectdefinition dependent definition stored object for the object
+	 */
 	public void setDependentDefinitionStoredobject(StoredobjectDefinition<E> storedobjectdefinition) {
 		// not needed in that case
 	}
 
+	/**
+	 * adds dependent property definition (general framework, but not used in that case)
+	 * 
+	 * @param uniqueidentified dependent definition  unique identified for the object
+	 */
 	public void setDependentDefinitionUniqueidentified(UniqueidentifiedDefinition<E> uniqueidentified) {
 		// not needed in that case
 	}
 
 	@Override
 	public QueryCondition getUniversalQueryCondition(String alias) {
-
 		return null;
 	}
 
 	@Override
-	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
-			String[] columnattributes, PropertyExtractor<E> propertyextractor,
+	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
+			DataObjectDefinition<E> objectdefinition,
+			String[] columnattributes,
+			PropertyExtractor<E> propertyextractor,
 			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		if (columnattributes == null)
 			throw new RuntimeException("At least one attribute required for updatelog: DATE or USER");
