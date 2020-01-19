@@ -235,7 +235,7 @@ public class ReportTree<E extends DataObject<E>> {
 	public static String printBigDecimal(BigDecimal decimal, String displayifnull) {
 		if (decimal == null)
 			return displayifnull;
-		DecimalFormat decimalformatter = StandardUtil.getGalliumDecimalFormatter();
+		DecimalFormat decimalformatter = StandardUtil.getOLcDecimalFormatter();
 		return decimalformatter.format(decimal);
 	}
 
@@ -260,7 +260,7 @@ public class ReportTree<E extends DataObject<E>> {
 	public static String printBigDecimal(BigDecimal decimal, int scale, String displayifnull) {
 		if (decimal == null)
 			return displayifnull;
-		DecimalFormat decimalformatter = StandardUtil.getGalliumDecimalFormatter();
+		DecimalFormat decimalformatter = StandardUtil.getOLcDecimalFormatter();
 		BigDecimal decimalrounded = decimal.setScale(scale, RoundingMode.HALF_DOWN);
 		return decimalformatter.format(decimalrounded);
 	}
