@@ -58,6 +58,7 @@ public class MultipleChoiceDataElt<E extends Choice> extends SimpleDataElt {
 	
 	@Override
 	public SimpleDataElt cloneElt() {
+		@SuppressWarnings("rawtypes")
 		MultipleChoiceDataElt clone = new MultipleChoiceDataElt(this.getName());
 		clone.addChoices(selectedchoices.toArray(new String[0]));
 		return clone;
