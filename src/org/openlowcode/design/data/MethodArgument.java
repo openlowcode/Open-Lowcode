@@ -19,13 +19,26 @@ import org.openlowcode.tools.misc.Named;
  *         SAS</a>
  *
  */
-public class MethodArgument extends Named {
+public class MethodArgument
+		extends
+		Named {
 
 	private ArgumentContent content;
-	public MethodArgument(String name,ArgumentContent content) {
+
+	/**
+	 * creates a method argument with the given name and content
+	 * 
+	 * @param name    name of the argument
+	 * @param content payload of the argument
+	 */
+	public MethodArgument(String name, ArgumentContent content) {
 		super(name);
 		this.content = content;
 	}
+
+	/**
+	 * @return get the payload
+	 */
 	public ArgumentContent getContent() {
 		return this.content;
 	}
