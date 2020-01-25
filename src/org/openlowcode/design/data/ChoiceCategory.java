@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -109,12 +109,6 @@ public abstract class ChoiceCategory
 
 	public abstract String getDefinitionClass();
 
-	/**
-	 * generates the source of the choice category to a file
-	 * 
-	 * @param sourceGenerator source generator
-	 * @param augustappdef
-	 */
 	/**
 	 * * generates the source of the choice category to a file
 	 * 
