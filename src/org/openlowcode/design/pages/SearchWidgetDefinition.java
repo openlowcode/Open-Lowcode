@@ -227,6 +227,7 @@ public class SearchWidgetDefinition {
 		return posttreatment;
 	}
 
+	
 	/**
 	 * @return the element the search widget is refering to
 	 */
