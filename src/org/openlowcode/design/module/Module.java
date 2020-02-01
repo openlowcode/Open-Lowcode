@@ -1257,7 +1257,7 @@ public class Module
 			for (int l = 0; l < currentobject.getPropertySize(); l++) {
 				Property<?> thisproperty = currentobject.getPropertyAt(l);
 				if (thisproperty instanceof LinkedFromChildren) {
-					LinkedFromChildren<?> linkedfromchildren = (LinkedFromChildren<?>) thisproperty;
+					LinkedFromChildren linkedfromchildren = (LinkedFromChildren) thisproperty;
 					String loadchildrenactioname = "LOADCHILDREN" + linkedfromchildren.getInstancename() + "FOR"
 							+ currentobject.getName();
 
