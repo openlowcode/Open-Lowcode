@@ -25,9 +25,9 @@ import org.openlowcode.design.generation.SourceGenerator;
  */
 public class DeleteChildrenWhenParentDeletedFinal
 		extends
-		PropertyBusinessRule<LinkedFromChildren<?>> {
+		PropertyBusinessRule<LinkedFromChildren> {
 
-	private LinkedFromChildren<?> parentlinkedfromchildren;
+	private LinkedFromChildren parentlinkedfromchildren;
 
 	/**
 	 * creates the business rule to delete children when parent is deleted. This
@@ -35,7 +35,7 @@ public class DeleteChildrenWhenParentDeletedFinal
 	 * 
 	 * @param parentlinkedfromchildren linked from children property on the parent
 	 */
-	public DeleteChildrenWhenParentDeletedFinal(LinkedFromChildren<?> parentlinkedfromchildren) {
+	public DeleteChildrenWhenParentDeletedFinal(LinkedFromChildren parentlinkedfromchildren) {
 		super("DELETECHILDREN", false);
 		this.parentlinkedfromchildren = parentlinkedfromchildren;
 	}

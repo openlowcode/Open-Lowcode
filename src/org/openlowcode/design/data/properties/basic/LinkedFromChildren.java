@@ -50,9 +50,9 @@ import org.openlowcode.tools.misc.NamedList;
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  */
-public class LinkedFromChildren<E extends DataObjectDefinition>
+public class LinkedFromChildren
 		extends
-		Property<LinkedFromChildren<E>> {
+		Property<LinkedFromChildren> {
 	private static Logger logger = Logger.getLogger(LinkedFromChildren.class.getName());
 	@SuppressWarnings("unused")
 	private NamedList<DynamicActionDefinition> actionsonobjectid;
@@ -62,7 +62,7 @@ public class LinkedFromChildren<E extends DataObjectDefinition>
 	private String linedisplayforgrid;
 	private String columndisplayforgrid;
 	private String[] cellfieldsforgrid;
-	private E childobject;
+	private DataObjectDefinition childobject;
 	private LinkedToParent<?> originobjectproperty;
 	private WidgetDisplayPriority linkedfromchildrenwidgetdisplaypriority;
 	private String secondarycolumndisplayforgrid;
@@ -86,14 +86,14 @@ public class LinkedFromChildren<E extends DataObjectDefinition>
 			extends
 			Widget {
 
-		private LinkedFromChildren<?> linkedfromchildren;
+		private LinkedFromChildren linkedfromchildren;
 
 		/**
 		 * creates the widget showing all children on the parent object
 		 * 
 		 * @param linkedfromchildren related linked from children property
 		 */
-		ChildrenTable(LinkedFromChildren<?> linkedfromchildren) {
+		ChildrenTable(LinkedFromChildren linkedfromchildren) {
 			super("CHILDRENTABLE");
 			this.linkedfromchildren = linkedfromchildren;
 		}
@@ -240,7 +240,7 @@ public class LinkedFromChildren<E extends DataObjectDefinition>
 						Property<?> thisproperty = linkedfromchildren.getParent().getPropertyAt(j);
 						boolean done = false;
 						if (thisproperty instanceof LinkedFromChildren) {
-							LinkedFromChildren<?> thislinkedfromchildren = (LinkedFromChildren<?>) thisproperty;
+							LinkedFromChildren thislinkedfromchildren = (LinkedFromChildren) thisproperty;
 							if (thislinkedfromchildren.getName().compareTo(linkedfromchildren.getName()) == 0) {
 								sg.wl("		create" + childclassattribute + "withparentaction.set"
 										+ StringFormatter.formatForJavaClass(
@@ -571,14 +571,22 @@ public class LinkedFromChildren<E extends DataObjectDefinition>
 	}
 
 	/**
-	 * @param name
-	 * @param childobjectforlink
-	 * @param originobjectproperty
-	 * @param linkedfromchildrenwidgetdisplaypriority
+	 * creates a linked from children property with specified display priority for
+	 * the child table
+	 * 
+	 * @param name                                    unique name amongst linked
+	 *                                                from children property of this
+	 *                                                object
+	 * @param childobjectforlink                      definition of the child object
+	 * @param originobjectproperty                    LinkedToParent property on the
+	 *                                                child object
+	 * @param linkedfromchildrenwidgetdisplaypriority specific widget display
+	 *                                                priority for the child table
+	 *                                                widget
 	 */
 	public LinkedFromChildren(
 			String name,
-			E childobjectforlink,
+			DataObjectDefinition childobjectforlink,
 			LinkedToParent<?> originobjectproperty,
 			WidgetDisplayPriority linkedfromchildrenwidgetdisplaypriority) {
 		this(name, childobjectforlink, originobjectproperty);
@@ -587,11 +595,17 @@ public class LinkedFromChildren<E extends DataObjectDefinition>
 	}
 
 	/**
-	 * @param name
-	 * @param childobjectforlink
-	 * @param originobjectproperty
+	 * creates a linked from children property with default display
+	 * 
+	 * @param name                 unique name amongst linked from children property
+	 *                             of this object
+	 * @param childobjectforlink   definition of the child object
+	 * @param originobjectproperty LinkedToParent property on the child object
 	 */
-	public LinkedFromChildren(String name, E childobjectforlink, LinkedToParent<?> originobjectproperty) {
+	public LinkedFromChildren(
+			String name,
+			DataObjectDefinition childobjectforlink,
+			LinkedToParent<?> originobjectproperty) {
 		super(name, "LINKEDFROMCHILDREN");
 		this.addPropertyGenerics(new PropertyGenerics("CHILDOBJECTFORLINK", childobjectforlink, originobjectproperty));
 		this.childobject = childobjectforlink;
@@ -603,18 +617,29 @@ public class LinkedFromChildren<E extends DataObjectDefinition>
 	}
 
 	/**
-	 * @param name
-	 * @param childobjectforlink
-	 * @param originobjectproperty
-	 * @param linkedfromchildrenwidgetdisplaypriority
-	 * @param linedisplayforgrid
-	 * @param columndisplayforgrid
-	 * @param secondarycolumndisplayforgrid
-	 * @param cellfieldsforgrid
+	 * creates a linked from children property with grid display with specific
+	 * display priority
+	 * 
+	 * @param name                                    unique name amongst linked
+	 *                                                from children property of this
+	 *                                                object
+	 * @param childobjectforlink                      definition of the child object
+	 * @param originobjectproperty                    LinkedToParent property on the
+	 *                                                child object
+	 * @param linkedfromchildrenwidgetdisplaypriority widget display priority
+	 * @param linedisplayforgrid                      the column used for line
+	 *                                                display
+	 * @param columndisplayforgrid                    the column used for column
+	 *                                                display
+	 * @param secondarycolumndisplayforgrid           the column used for secondary
+	 *                                                column display (leave it null
+	 *                                                if not used)
+	 * @param cellfieldsforgrid                       the name of the fields to show
+	 *                                                as content in the grid
 	 */
 	public LinkedFromChildren(
 			String name,
-			E childobjectforlink,
+			DataObjectDefinition childobjectforlink,
 			LinkedToParent<?> originobjectproperty,
 			WidgetDisplayPriority linkedfromchildrenwidgetdisplaypriority,
 			String linedisplayforgrid,
@@ -631,17 +656,23 @@ public class LinkedFromChildren<E extends DataObjectDefinition>
 	}
 
 	/**
-	 * @param name
-	 * @param childobjectforlink
-	 * @param originobjectproperty
-	 * @param linedisplayforgrid
-	 * @param columndisplayforgrid
-	 * @param secondarycolumndisplayforgrid
-	 * @param cellfieldsforgrid
+	 * creates a linked from children property with grid display
+	 * 
+	 * @param name                          unique name amongst linked from children
+	 *                                      property of this object
+	 * @param childobjectforlink            definition of the child object
+	 * @param originobjectproperty          LinkedToParent property on the child
+	 *                                      object
+	 * @param linedisplayforgrid            the column used for line display
+	 * @param columndisplayforgrid          the column used for column display
+	 * @param secondarycolumndisplayforgrid the column used for secondary column
+	 *                                      display (leave it null if not used)
+	 * @param cellfieldsforgrid             the name of the fields to show as
+	 *                                      content in the grid
 	 */
 	public LinkedFromChildren(
 			String name,
-			E childobjectforlink,
+			DataObjectDefinition childobjectforlink,
 			LinkedToParent<?> originobjectproperty,
 			String linedisplayforgrid,
 			String columndisplayforgrid,
