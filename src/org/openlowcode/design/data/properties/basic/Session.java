@@ -33,7 +33,7 @@ import org.openlowcode.module.system.design.SystemModule;
 
 /**
  * A session is as specific period of time that is part of a timeslot. As an
- * example, a 1-week English training will be from 1st to 5th of february, with
+ * example, a 1-week English training timeslot will be from 1st to 5th of february, with
  * 2 sessions a day from 9am to 12am and from 1pm to 5pm. This is useful for
  * very precise scheduling for industrial planning or invitation sending
  * 
