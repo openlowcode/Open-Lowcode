@@ -42,7 +42,7 @@ public class TriggerLaunchConditionInsert
 
 	@Override
 	public String[] generateImportConditions() {
-		return new String[] { "import gallium.server.data.properties.trigger.TriggerConditionCreate;" };
+		return new String[] { "import org.openlowcode.server.data.properties.trigger.TriggerConditionCreate;" };
 	}
 
 }

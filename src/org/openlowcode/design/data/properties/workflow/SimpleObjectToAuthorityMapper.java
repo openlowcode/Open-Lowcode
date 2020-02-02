@@ -54,7 +54,6 @@ public class SimpleObjectToAuthorityMapper
 		sg.wl("import org.openlowcode.server.data.workflowhelper.ObjectToAuthorityMapper;");
 		sg.wl("import org.openlowcode.server.data.workflowhelper.SimpleObjectToAuthorityMapper;");
 		sg.wl("import org.openlowcode.server.data.workflowhelper.SimpletaskWorkflowHelper;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
 		sg.wl("import org.openlowcode.module.system.data.choice.DelaytypeChoiceDefinition;");
 		sg.wl("");

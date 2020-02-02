@@ -64,7 +64,7 @@ public class TriggerLaunchConditionSetState
 
 	@Override
 	public String[] generateImportConditions() {
-		return new String[] { "import gallium.server.data.properties.trigger.TriggerConditionStateChange;" };
+		return new String[] { "import org.openlowcode.server.data.properties.trigger.TriggerConditionStateChange;" };
 	}
 
 	@Override

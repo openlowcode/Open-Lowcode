@@ -49,13 +49,12 @@ public class ParentLocationHelperDefinition
 
 		sg.wl("package " + this.getParent().getOwnermodule().getPath() + ".data;");
 		sg.wl("");
-		sg.wl("import gallium.module.system.data.Domain;");
-		sg.wl("import gallium.server.data.DataObject;");
-		sg.wl("import gallium.server.data.properties.DataObjectId;");
-		sg.wl("import gallium.server.data.properties.LocatedInterface;");
-		sg.wl("import gallium.server.data.properties.UniqueidentifiedInterface;");
-		sg.wl("import gallium.server.data.properties.security.LocationHelper;");
-		sg.wl("import gallium.tools.trace.GalliumException;");
+		sg.wl("import org.openlowcode.module.system.data.Domain;");
+		sg.wl("import org.openlowcode.server.data.DataObject;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.properties.LocatedInterface;");
+		sg.wl("import org.openlowcode.server.data.properties.UniqueidentifiedInterface;");
+		sg.wl("import org.openlowcode.server.data.properties.security.LocationHelper;");
 		sg.wl("");
 		sg.wl("public class " + objectclass + "LocationHelper extends LocationHelper<" + objectclass + "> {");
 		sg.wl("	private static " + objectclass + "LocationHelper singleton;");
@@ -67,10 +66,10 @@ public class ParentLocationHelperDefinition
 		sg.wl("		return singleton;");
 		sg.wl("	}");
 		sg.wl("	@Override");
-		sg.wl("	public DataObjectId<Domain> getObjectLocation(" + objectclass + " object) throws GalliumException {");
+		sg.wl("	public DataObjectId<Domain> getObjectLocation(" + objectclass + " object)  {");
 		sg.wl("		" + locatedparentclass + " parent = object.getparentfor"
 				+ parentlinkforlocation.getInstancename().toLowerCase() + "();");
-		sg.wl("		if (parent==null) throw new GalliumException(9999,\"Parent not set at time of insert or update, so location could not be set\");");
+		sg.wl("		if (parent==null) throw new RuntimeException(\"Parent not set at time of insert or update, so location could not be set\");");
 		sg.wl("		return parent.getLocationdomainid();");
 		sg.wl("	}");
 		sg.wl("");

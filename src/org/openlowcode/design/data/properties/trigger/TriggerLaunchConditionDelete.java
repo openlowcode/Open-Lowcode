@@ -35,7 +35,7 @@ public class TriggerLaunchConditionDelete
 
 	@Override
 	public String[] generateImportConditions() {
-		return new String[] { "import gallium.server.data.properties.trigger.TriggerConditionDelete;" };
+		return new String[] { "import org.openlowcode.server.data.properties.trigger.TriggerConditionDelete;" };
 	}
 
 	@Override

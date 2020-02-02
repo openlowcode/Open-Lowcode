@@ -80,7 +80,7 @@ public class ChoiceFieldLocationHelperDefinition
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("");
-		sg.wl("import gallium.server.data.properties.security.ChoiceFieldLocationHelper;");
+		sg.wl("import org.openlowcode.server.data.properties.security.ChoiceFieldLocationHelper;");
 		sg.wl("import " + module.getPath() + ".data.choice."
 				+ StringFormatter.formatForJavaClass(choicefield.getChoice().getName()) + "ChoiceDefinition;");
 		sg.wl("");

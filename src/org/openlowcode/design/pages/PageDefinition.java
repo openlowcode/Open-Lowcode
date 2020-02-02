@@ -133,13 +133,12 @@ public abstract class PageDefinition
 			sg.wl(" ----------------------------------------------------------------------------------------- */");
 		}
 
-		sg.wl("import gallium.server.graphic.SPage" + this.getClassAddon() + ";");
-		sg.wl("import gallium.server.graphic.SPageData;");
-		sg.wl("import gallium.server.graphic.SPageNode;");
-		sg.wl("import gallium.server.runtime.GalliumServer;");
+		sg.wl("import org.openlowcode.server.graphic.SPage" + this.getClassAddon() + ";");
+		sg.wl("import org.openlowcode.server.graphic.SPageData;");
+		sg.wl("import org.openlowcode.server.graphic.SPageNode;");
+		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataElt;");
-		sg.wl("import gallium.tools.trace.GalliumException;");
-		sg.wl("import gallium.tools.struct.*;");
+		sg.wl("import org.openlowcode.server.data.message.*;");
 		sg.wl("import org.openlowcode.tools.structure.*;");
 
 		sg.wl("import " + module.getPath() + ".data.*;");
@@ -190,7 +189,7 @@ public abstract class PageDefinition
 			sg.w("	" + thisarg.getType() + " " + StringFormatter.formatForAttribute(thisarg.getName()));
 
 		}
-		sg.wl(") throws GalliumException;");
+		sg.wl(") ;");
 
 		sg.w("			public Abs" + classname + "Page(");
 		for (int i = 0; i < this.getPageAttributes().getSize(); i++) {
@@ -200,7 +199,7 @@ public abstract class PageDefinition
 			sg.w("	" + thisarg.getType() + " " + StringFormatter.formatForAttribute(thisarg.getName()));
 
 		}
-		sg.wl(") throws GalliumException {");
+		sg.wl(")  {");
 		sg.wl("				super(\"" + this.getName() + "\");");
 		sg.w("				this.setTitle(generateTitle(");
 		for (int i = 0; i < this.getPageAttributes().getSize(); i++) {
@@ -214,7 +213,7 @@ public abstract class PageDefinition
 		sg.wl("				pagedata = new SPageData();");
 		if (!(this instanceof AddonPageDefinition))
 			if (!this.noaddon)
-				sg.wl("				this.addAddon(GalliumServer.getServer().getMainmodule().getPageAddonForModule());");
+				sg.wl("				this.addAddon(OLcServer.getServer().getMainmodule().getPageAddonForModule());");
 
 		for (int i = 0; i < this.getPageAttributes().getSize(); i++) {
 			ArgumentContent thisarg = this.getPageAttributes().get(i);

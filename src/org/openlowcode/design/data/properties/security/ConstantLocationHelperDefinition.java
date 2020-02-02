@@ -46,7 +46,7 @@ public class ConstantLocationHelperDefinition
 	public void generateLocationHelper(SourceGenerator sg, Module module) throws IOException {
 		String objectclassname = StringFormatter.formatForJavaClass(this.getParent().getName());
 		sg.wl("package " + module.getPath() + ".data;");
-		sg.wl("import gallium.server.data.properties.security.SameLocationHelper;");
+		sg.wl("import org.openlowcode.server.data.properties.security.SameLocationHelper;");
 		sg.wl("");
 		sg.wl("");
 		sg.wl("public class " + objectclassname + "LocationHelper extends SameLocationHelper<" + objectclassname

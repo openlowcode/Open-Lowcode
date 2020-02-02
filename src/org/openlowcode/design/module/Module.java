@@ -203,7 +203,7 @@ public class Module
 		if (!valid)
 			throw new RuntimeException("code " + code
 					+ " second character should be latine upper case or digit for module " + this.getName() + ".");
-		if (!this.getClass().getName().equals("gallium.module.system.design.SystemModule")) {
+		if (!this.getClass().getName().equals("org.openlowcode.module.system.design.SystemModule")) {
 			if (this.code.equals("S0"))
 				throw new RuntimeException("Code S0 is reserved for System Module, module " + this.getName()
 						+ " should have another code");
@@ -736,8 +736,7 @@ public class Module
 		sg.wl("import org.openlowcode.server.action.ActionExecution;");
 		sg.wl("import org.openlowcode.server.graphic.SPageAddon;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.server.runtime.GalliumServer;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
+		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import org.openlowcode.server.action.SActionRef;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 
@@ -820,7 +819,7 @@ public class Module
 
 		sg.wl("	protected ActionExecution getActionForDefaultPage() {");
 		if (this.actionfordefaultpage == null) {
-			sg.wl("		return new GetfrontpagedataAction(GalliumServer.getServer().getModuleByName(\"SYSTEMMODULE\"));");
+			sg.wl("		return new GetfrontpagedataAction(OLcServer.getServer().getModuleByName(\"SYSTEMMODULE\"));");
 		} else {
 			sg.wl("		return new " + StringFormatter.formatForJavaClass(this.actionfordefaultpage.getName())
 					+ "Action(this); ");
@@ -1454,7 +1453,7 @@ public class Module
 				String fullfilepathsearch = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("SEARCH" + currentobject.getName()) + "Action.java";
 				logger.info("generating file " + fullfilepathsearch);
-				DataObjectDefinitionOtherActions.generateCreateAutolinkActionToFile(currentobject,
+				currentobject.getSearchPagesAndActions().generateSearchActionToFile(
 						new SourceGenerator(new File(fullfilepathsearch), this.getAuthor(), this.getVersionid()), this);
 				String fullfilepathlaunchsearch = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("LAUNCHSEARCH" + currentobject.getName()) + "Action.java";
