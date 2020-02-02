@@ -13,7 +13,6 @@ package org.openlowcode.design.data;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.openlowcode.design.data.loader.LoaderElement;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
@@ -31,7 +30,6 @@ import org.openlowcode.tools.misc.NamedList;
 public abstract class ObjectElement
 		extends
 		Named {
-	private NamedList<LoaderElement> loaderelements;
 	private NamedList<Element> elements;
 	private NamedList<Index> indexes;
 	private ArrayList<SearchWidgetDefinition> searchwidgetlist;
@@ -101,27 +99,10 @@ public abstract class ObjectElement
 		elements = new NamedList<Element>();
 		searchwidgetlist = new ArrayList<SearchWidgetDefinition>();
 		indexes = new NamedList<Index>();
-		this.loaderelements = new NamedList<LoaderElement>();
 
 	}
 
-	/**
-	 * adds a loader element to the object element
-	 * 
-	 * @param loaderelement loader element
-	 */
-	public void addLoaderElement(LoaderElement loaderelement) {
-		this.loaderelements.add(loaderelement);
-	}
 
-	/**
-	 * gets all the loader elements for the object element
-	 * 
-	 * @return
-	 */
-	public LoaderElement[] getLoaderElements() {
-		return loaderelements.getFullList().toArray(new LoaderElement[0]);
-	}
 
 	/**
 	 * get all the data elements of the object element

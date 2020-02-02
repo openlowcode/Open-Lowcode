@@ -83,7 +83,6 @@ public class SmartReport
 		return new ActionDefinition[] { blankreport, launchreport, launchexcelreport };
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void generateActionsAndPages() {
 		logger.severe(" +-------------------------------------- generating actions and pages for " + label
