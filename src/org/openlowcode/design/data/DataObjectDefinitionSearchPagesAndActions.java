@@ -281,7 +281,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import org.openlowcode.server.data.properties.StoredobjectQueryHelper;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import java.util.function.Function;");
@@ -289,13 +288,13 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectIdDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.server.action.SActionInputDataRef;");
 		sg.wl("import org.openlowcode.tools.structure.ArrayDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.ArrayDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.MultipleChoiceDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
 		sg.wl("import org.openlowcode.server.action.SActionOutputDataRef;");
 		for (int i = 0; i < searchwidgets.length; i++) {
 			SearchWidgetDefinition widget = searchwidgets[i];
@@ -537,10 +536,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.graphic.widget.SActionDataLoc;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.structure.ArrayDataEltType;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectDataEltType;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectIdDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
@@ -760,10 +758,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.graphic.widget.SActionDataLoc;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.structure.ArrayDataEltType;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectDataEltType;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectIdDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
@@ -979,10 +976,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.graphic.widget.SActionDataLoc;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.structure.ArrayDataEltType;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectDataEltType;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectIdDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.data.properties.AutolinkobjectQueryHelper;");
 		sg.wl("import java.util.function.Function;");
@@ -1172,7 +1168,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 			sg.wl("import java.util.List;");
 		}
 		sg.wl("import java.util.function.Function;");
-		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("");
 		sg.wl("import " + module.getPath() + ".action.generated.Abs" + actionname + ";");
@@ -1196,11 +1191,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.MultipleChoiceDataEltType;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import org.openlowcode.server.data.properties.StoredobjectQueryHelper;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import java.util.function.Function;");
-		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
@@ -1501,9 +1494,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;");
 		sg.wl("import org.openlowcode.tools.structure.ArrayDataEltType;");
 
-		sg.wl("import org.openlowcode.tools.struct.TObjectDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import org.openlowcode.tools.misc.NamedList;");
 
 		for (int i = 0; i < searchwidgets.length; i++) {
@@ -1945,10 +1937,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import " + module.getPath() + ".page.generated.AtgSearch" + objectvariable + "Page;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
-		sg.wl("import org.openlowcode.server.runtime.GalliumServer;");
+		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("");
@@ -1962,7 +1953,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public ActionOutputData executeActionLogic(Function<TableAlias,QueryFilter> datafilter)  {");
-		sg.wl("		return new ActionOutputData(GalliumServer.getServer().getCurrentUser().getPreflang(),GalliumServer.getServer().getCurrentUser().getPreffileenc());");
+		sg.wl("		return new ActionOutputData(OLcServer.getServer().getCurrentUser().getPreflang(),OLcServer.getServer().getCurrentUser().getPreffileenc());");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");

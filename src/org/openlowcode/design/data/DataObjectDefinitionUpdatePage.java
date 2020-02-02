@@ -99,7 +99,6 @@ public class DataObjectDefinitionUpdatePage
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectDisplay;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPageText;");
 
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class Atg" + pagename + " extends Abs" + pagename + " {");
 		sg.wl("");

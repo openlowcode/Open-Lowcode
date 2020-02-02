@@ -541,9 +541,9 @@ public class LinkedToParent<E extends DataObjectDefinition>
 
 	@Override
 	public void writeDependentClass(SourceGenerator sg, Module module) throws IOException {
-		sg.wl("import gallium.server.data.formula.LinkedToParentNavigator;");
+		sg.wl("import org.openlowcode.server.data.formula.LinkedToParentNavigator;");
 		if (parentobjectforlink.getPropertyByName("LOCATED") != null) {
-			sg.wl("import gallium.module.system.data.Domain;");
+			sg.wl("import org.openlowcode.module.system.data.Domain;");
 		}
 	}
 

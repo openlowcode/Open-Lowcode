@@ -40,7 +40,7 @@ public class Anarchy
 
 	@Override
 	public void writeDefinition(SourceGenerator sg, ActionDefinition contextaction) throws IOException {
-		sg.wl("		private static GalliumActionSecurityManager anarchy = new GalliumActionAnarchySecurityManager();");
+		sg.wl("		private static ActionSecurityManager anarchy = new ActionAnarchySecurityManager();");
 
 	}
 
@@ -51,7 +51,7 @@ public class Anarchy
 
 	@Override
 	public void writeImport(SourceGenerator sg, ActionDefinition contextaction) throws IOException {
-		sg.wl("import gallium.server.security.GalliumActionAnarchySecurityManager;");
+		sg.wl("import org.openlowcode.server.security.ActionAnarchySecurityManager;");
 
 	}
 

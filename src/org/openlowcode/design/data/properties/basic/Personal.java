@@ -22,7 +22,7 @@ import org.openlowcode.module.system.design.SystemModule;
 
 /**
  * An object with a personal property can assign privileges to specific people,
- * not a role (refer to github issue #19, may not be actually used)
+ * not a role 
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>

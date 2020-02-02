@@ -238,10 +238,9 @@ public class TransitionChoiceCategory
 		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
 		sg.wl("import org.openlowcode.server.data.TransitionFieldChoiceDefinition;");
 
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		String classname = StringFormatter.formatForJavaClass(this.getName()) + "ChoiceDefinition";
-		sg.wl("public class " + classname + " extends " + this.getDefinitionClass() + " {");
+		sg.wl("public class " + classname + " extends " + this.getDefinitionClass() + "<"+classname+"> {");
 		sg.wl("	private static " + classname + " singleton;");
 		sg.wl("");
 		for (int i = 0; i < this.values.getSize(); i++) {

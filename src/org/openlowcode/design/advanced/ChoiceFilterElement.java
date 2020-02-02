@@ -160,7 +160,7 @@ public class ChoiceFilterElement<E extends Object>
 
 			sg.wl("		OrQueryCondition " + queryconditionname + "_" + choiceattribute
 					+ "helper = new OrQueryCondition();");
-			sg.wl("		FunctionWithGalliumException<DataObjectId<" + rootobjectclass + ">,List<ChoiceValue<"
+			sg.wl("		Function<DataObjectId<" + rootobjectclass + ">,List<ChoiceValue<"
 					+ choiceclass + "ChoiceDefinition>>> " + objectattribute + "_" + choiceattribute + "helper=");
 			sg.wl("				new " + objectclass + fieldclass + "SelectionHelperFor" + reportnameclass + "();");
 			sg.wl("		List<ChoiceValue<" + choiceclass + "ChoiceDefinition>> values = " + objectattribute + "_"
@@ -192,7 +192,7 @@ public class ChoiceFilterElement<E extends Object>
 					+ fieldclass + "SelectionHelperFor" + reportnameclass + ";");
 			imports.add("import org.openlowcode.server.data.storage.OrQueryCondition;");
 			imports.add("import java.util.List;");
-			imports.add("import gallium.tools.util.FunctionWithGalliumException;");
+			imports.add("import java.util.Function;");
 		}
 		return imports.toArray(new String[0]);
 	}

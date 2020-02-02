@@ -85,7 +85,7 @@ public class AutonumberingRule
 
 		sg.wl("			@Override");
 
-		sg.wl("			public String generateNumber(" + objectname + " object) throws GalliumException {");
+		sg.wl("			public String generateNumber(" + objectname + " object)  {");
 		sg.wl("				StringBuffer sequence = new StringBuffer();");
 		for (int i = 0; i < pattern.getElementNumber(); i++) {
 			sg.wl("				sequence.append(" + pattern.getElement(i).generateSource() + ");");
@@ -101,7 +101,7 @@ public class AutonumberingRule
 	@Override
 	public String[] getImportstatements() {
 		ArrayList<String> importstatements = new ArrayList<String>();
-		importstatements.add("import gallium.server.data.properties.constraints.AutonumberingRule;");
+		importstatements.add("import org.openlowcode.server.data.properties.constraints.AutonumberingRule;");
 		for (int i = 0; i < pattern.getElementNumber(); i++) {
 			PatternElement thiselement = pattern.getElement(i);
 			for (int j = 0; j < thiselement.generateImport().length; j++) {

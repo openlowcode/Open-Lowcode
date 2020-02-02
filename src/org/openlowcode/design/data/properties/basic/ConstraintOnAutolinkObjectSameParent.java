@@ -38,7 +38,6 @@ public class ConstraintOnAutolinkObjectSameParent
 	 * @param autolinkproperty the linked property this is added to
 	 * @param sameparent       the linked to parent property to consider for the
 	 *                         linked object
-	 * @throws GalliumException
 	 */
 	public ConstraintOnAutolinkObjectSameParent(AutolinkObject<?> autolinkproperty, LinkedToParent<?> sameparent) {
 		super("CONSTRAINTONAUTOLINKSAMEPARENT", false);
@@ -69,7 +68,7 @@ public class ConstraintOnAutolinkObjectSameParent
 	public String[] getImportstatements() {
 		ArrayList<String> returnimport = new ArrayList<String>();
 		returnimport
-				.add("import gallium.server.data.properties.constraints.ConstraintOnAutolinkObjectSimilarAttribute;");
+				.add("import org.openlowcode.server.data.properties.constraints.ConstraintOnAutolinkObjectSimilarAttribute;");
 		return returnimport.toArray(new String[0]);
 	}
 }

@@ -99,8 +99,8 @@ public class HasAutolink<E extends DataObjectDefinition>
 		public String[] getImportStatements() {
 			Module module = hasautolink.getParent().getOwnermodule();
 			ArrayList<String> importstatements = new ArrayList<String>();
-			importstatements.add("import gallium.server.graphic.widget.SObjectSearcher;");
-			importstatements.add("import gallium.server.graphic.widget.SPopupButton;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectSearcher;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SPopupButton;");
 			String linkobjectvariable = StringFormatter
 					.formatForAttribute(hasautolink.getLinkObjectDefinition().getName());
 			String linkobjectclass = StringFormatter

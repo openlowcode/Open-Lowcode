@@ -267,12 +267,12 @@ public class RightForLink<E extends DataObjectDefinition, F extends DataObjectDe
 		@Override
 		public String[] getImportStatements() {
 			ArrayList<String> importstatements = new ArrayList<String>();
-			importstatements.add("import gallium.server.action.SInlineActionRef;");
-			importstatements.add("import gallium.server.graphic.widget.SObjectStorage;");
-			importstatements.add("import gallium.server.graphic.widget.SFieldSearcher;");
-			importstatements.add("import gallium.server.graphic.widget.SObjectArrayField;");
-			importstatements.add("import gallium.server.graphic.widget.SObjectSearcher;");
-			importstatements.add("import gallium.server.graphic.widget.SPopupButton;");
+			importstatements.add("import org.openlowcode.server.action.SInlineActionRef;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectStorage;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SFieldSearcher;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectArrayField;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectSearcher;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SPopupButton;");
 
 			String linkobjectclass = StringFormatter
 					.formatForJavaClass(rightforlink.getLinkObjectDefinition().getName());

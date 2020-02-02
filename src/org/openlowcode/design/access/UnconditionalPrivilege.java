@@ -53,8 +53,8 @@ public class UnconditionalPrivilege
 
 		sg.wl("		// Security Manager section");
 		sg.wl("");
-		sg.wl("		private static GalliumActionSecurityManager " + variablename + " = new " + classname + "();");
-		sg.wl("		private static class " + classname + " extends GalliumActionTotalSecurityManager {");
+		sg.wl("		private static ActionSecurityManager " + variablename + " = new " + classname + "();");
+		sg.wl("		private static class " + classname + " extends ActionTotalSecurityManager {");
 		sg.wl("");
 		sg.wl("			@Override");
 		sg.wl("			public void fillRelevantAuthorities(");
@@ -78,7 +78,7 @@ public class UnconditionalPrivilege
 
 	@Override
 	public void writeImport(SourceGenerator sg, ActionDefinition contextaction) throws IOException {
-		sg.wl("import gallium.server.security.GalliumActionTotalSecurityManager;");
+		sg.wl("import org.openlowcode.server.security.ActionTotalSecurityManager;");
 
 	}
 

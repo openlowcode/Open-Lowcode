@@ -58,7 +58,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -117,7 +116,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -180,7 +178,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -261,7 +258,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgPreviewprintoutfor" + objectvariable + "for"
 				+ printoutproperty.getInstancename().toLowerCase() + "Action extends AbsPreviewprintoutfor"
@@ -406,7 +402,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -495,7 +490,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -554,7 +548,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -607,7 +600,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -675,7 +667,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgGetfullimagefor" + imageclassvariable + "for" + objectvariable
 				+ "Action extends AbsGetfullimagefor" + imageclassvariable + "for" + objectvariable + "Action {");
@@ -726,7 +717,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -789,7 +779,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -876,7 +865,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.action.SecurityInDataMethod;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -971,7 +959,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.storage.SimpleQueryCondition;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 
 		sg.wl("");
 		sg.wl("public class AtgSaveas" + objectvariable + "Action extends");
@@ -1089,7 +1076,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -1175,7 +1161,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -1299,7 +1284,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import " + module.getPath() + ".page.generated.AtgStandardcreate" + objectvariable + "Page;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -1378,7 +1362,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.action.SecurityInDataMethod;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -1496,7 +1479,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("import java.util.ArrayList;");
 		sg.wl("import java.util.function.Function;");
@@ -1568,7 +1550,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgForceversionaslastfor" + objectvariable + "Action extends AbsForceversionaslastfor"
 				+ objectvariable + "Action {");
@@ -1619,7 +1600,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgNewversionfor" + objectvariable + "Action extends AbsNewversionfor" + objectvariable
 				+ "Action {");
@@ -1670,7 +1650,6 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgRenumber" + objectvariable + "Action extends AbsRenumber" + objectvariable + "Action {");
 		sg.wl("");

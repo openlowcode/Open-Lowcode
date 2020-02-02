@@ -65,7 +65,7 @@ public class LinkedToDefaultParent<E extends DataObjectDefinition>
 				+ ">(\"DEFAULT\",true) {");
 		sg.wl("");
 		sg.wl("			@Override");
-		sg.wl("			public void processBeforeInsert(" + mainobjectclass + " object) throws GalliumException {");
+		sg.wl("			public void processBeforeInsert(" + mainobjectclass + " object)  {");
 		sg.wl("				" + parentobjectclass + "[] parents = null;");
 		sg.wl("				if (this.getDefaultparentstored()!=null) {");
 		sg.wl("					parents = new " + parentobjectclass + "[] {this.getDefaultparentstored()};");
@@ -80,7 +80,7 @@ public class LinkedToDefaultParent<E extends DataObjectDefinition>
 		sg.wl("						parent.insert();");
 		sg.wl("						this.setDefaultparentstored(parent);");
 		sg.wl("					} else  {");
-		sg.wl("						throw new GalliumException(9999,\"Default Parent Number '\"+this.getNumber()+\"' does not exists for object "
+		sg.wl("						throw new RuntimeException(\"Default Parent Number '\"+this.getNumber()+\"' does not exists for object "
 				+ parentobjectclass + "\");");
 		sg.wl("					}");
 		sg.wl("				} else {");
@@ -101,7 +101,7 @@ public class LinkedToDefaultParent<E extends DataObjectDefinition>
 	@Override
 	public String[] getImportstatements() {
 		ArrayList<String> imports = new ArrayList<String>();
-		imports.add("import gallium.server.data.properties.constraints.LinkedToDefaultParent;");
+		imports.add("import org.openlowcode.server.data.properties.constraints.LinkedToDefaultParent;");
 		return imports.toArray(new String[0]);
 	}
 

@@ -198,9 +198,9 @@ public class ComplexWorkflow
 
 	@Override
 	public void writeDependentClass(SourceGenerator sg, Module module) throws IOException {
-		sg.wl("import gallium.module.system.data.Task;");
-		sg.wl("import gallium.module.system.data.Taskchoice;");
-		sg.wl("import gallium.module.system.data.Appuser;");
+		sg.wl("import org.openlowcode.module.system.data.Task;");
+		sg.wl("import org.openlowcode.module.system.data.Taskchoice;");
+		sg.wl("import org.openlowcode.module.system.data.Appuser;");
 
 	}
 
@@ -293,33 +293,32 @@ public class ComplexWorkflow
 		String parentobjectclass = StringFormatter.formatForJavaClass(this.getParent().getName());
 		sg.wl("package " + module.getPath() + ".data;");
 		sg.wl("");
-		sg.wl("import gallium.module.system.data.Authority;");
-		sg.wl("import gallium.server.data.ChoiceValue;");
+		sg.wl("import org.openlowcode.module.system.data.Authority;");
+		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
 		for (int i = 0; i < this.workflowstepsnottask.size(); i++) {
 			WorkflowStep step = this.workflowstepsnottask.get(i);
 			step.writeimport(sg, module);
 		}
-		sg.wl("import gallium.server.data.workflowhelper.ChangeStateWorkflowStep;");
-		sg.wl("import gallium.server.data.workflowhelper.ComplexWorkflowClose;");
-		sg.wl("import gallium.server.data.workflowhelper.ComplexWorkflowGround;");
-		sg.wl("import gallium.server.data.workflowhelper.ObjectElementSwitchComplexWorkflowStep;");
-		sg.wl("import gallium.server.data.workflowhelper.ComplexWorkflowHelper;");
-		sg.wl("import gallium.server.data.workflowhelper.ObjectParentUserSelectionForTask;");
-		sg.wl("import gallium.server.data.workflowhelper.SimpleAuthorityUserSelectionForTask;");
-		sg.wl("import gallium.server.data.workflowhelper.TaskChoiceTemplate;");
-		sg.wl("import gallium.server.data.workflowhelper.WorkflowTaskStep;");
-		sg.wl("import gallium.tools.trace.GalliumException;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.ChangeStateWorkflowStep;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.ComplexWorkflowClose;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.ComplexWorkflowGround;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.ObjectElementSwitchComplexWorkflowStep;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.ComplexWorkflowHelper;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.ObjectParentUserSelectionForTask;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.SimpleAuthorityUserSelectionForTask;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.TaskChoiceTemplate;");
+		sg.wl("import org.openlowcode.server.data.workflowhelper.WorkflowTaskStep;");
 		sg.wl("import " + module.getPath() + ".data.choice." + lifecycleclass + "ChoiceDefinition;");
 		sg.wl("");
 		sg.wl("");
 		sg.wl("public class " + parentobjectclass + "ComplexWorkflowHelper extends ComplexWorkflowHelper<"
 				+ parentobjectclass + "," + lifecycleclass + "ChoiceDefinition> {");
-		sg.wl("	public " + parentobjectclass + "ComplexWorkflowHelper() throws GalliumException {");
+		sg.wl("	public " + parentobjectclass + "ComplexWorkflowHelper()  {");
 		sg.wl("		super(" + (emailtype != null ? "\"" + emailtype + "\"" : "null") + ");");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	private static " + parentobjectclass + "ComplexWorkflowHelper singleton;");
-		sg.wl("	public static " + parentobjectclass + "ComplexWorkflowHelper get() throws GalliumException {");
+		sg.wl("	public static " + parentobjectclass + "ComplexWorkflowHelper get()  {");
 		sg.wl("		if (singleton!=null) return singleton;");
 		sg.wl("		" + parentobjectclass + "ComplexWorkflowHelper newinstance = new " + parentobjectclass
 				+ "ComplexWorkflowHelper();");
@@ -327,7 +326,7 @@ public class ComplexWorkflow
 		sg.wl("		return singleton;");
 		sg.wl("	}");
 		sg.wl("	@Override");
-		sg.wl("	public void initializetaskandsteps() throws GalliumException {");
+		sg.wl("	public void initializetaskandsteps() {");
 		sg.wl("");
 		Iterator<Entry<String, UserTask>> allusertasksset = allusertasks.entrySet().iterator();
 		while (allusertasksset.hasNext()) {
@@ -383,7 +382,7 @@ public class ComplexWorkflow
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public boolean isStartAtChangeState(ChoiceValue<" + lifecycleclass
-				+ "ChoiceDefinition> state) throws GalliumException {");
+				+ "ChoiceDefinition> state)  {");
 		if (this.automaticworkflowtrigger.getNewlifecyclestate() != null) {
 			String newlifecycletrigger = StringFormatter
 					.formatForJavaClass(automaticworkflowtrigger.getNewlifecyclestate().getName());
@@ -395,7 +394,7 @@ public class ComplexWorkflow
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
-		sg.wl("	public boolean isStartAtInsert() throws GalliumException {");
+		sg.wl("	public boolean isStartAtInsert()  {");
 		if (this.automaticworkflowtrigger.getNewlifecyclestate() != null) {
 			sg.wl("		return false;");
 		} else {

@@ -66,7 +66,7 @@ public class SequenceDefinition
 
 		sg.wl("package " + module.getPath() + ".data.sequence;");
 		sg.wl("");
-		sg.wl("import gallium.server.data.Sequence;");
+		sg.wl("import org.openlowcode.server.data.Sequence;");
 		sg.wl("");
 		sg.wl("public class " + idclass + "Sequence extends Sequence {");
 		sg.wl("");

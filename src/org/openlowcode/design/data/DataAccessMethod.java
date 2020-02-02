@@ -257,7 +257,7 @@ public class DataAccessMethod
 					+ ">() {");
 			arguments.append("					@Override");
 			arguments.append("					public " + thispropertyclassname + generics + " extract(");
-			arguments.append("							" + classname + " object) throws GalliumException {");
+			arguments.append("							" + classname + " object)  {");
 			arguments.append("						return object." + thispropertyname + ";");
 			arguments.append("					}}");
 		}
@@ -351,7 +351,7 @@ public class DataAccessMethod
 					+ ">() {");
 			arguments.append("					@Override");
 			arguments.append("					public " + thispropertyclassname + generics + " extract(");
-			arguments.append("							" + classname + " object) throws GalliumException {");
+			arguments.append("							" + classname + " object)  {");
 			arguments.append("						return object." + thispropertyname + ";");
 			arguments.append("					}}");
 		}

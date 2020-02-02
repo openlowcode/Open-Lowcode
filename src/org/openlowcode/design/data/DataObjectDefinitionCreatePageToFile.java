@@ -155,7 +155,6 @@ GeneratedPages {
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectIdStorage;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectSearcher;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPageText;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgStandardcreate" + objectvariable + "Page extends");
 		sg.wl("		AbsStandardcreate" + objectvariable + "Page {");

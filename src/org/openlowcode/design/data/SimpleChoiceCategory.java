@@ -106,14 +106,14 @@ public class SimpleChoiceCategory
 		if (this.isPseudoNumber()) {
 			choicevalueprefix = "PseudoInteger";
 		}
-		sg.wl("import org.openlowcode.data." + choicevalueprefix + "ChoiceValue;");
+		sg.wl("import org.openlowcode.server.data." + choicevalueprefix + "ChoiceValue;");
 
 		sg.wl("import org.openlowcode.server.data.FieldChoiceDefinition;");
 		sg.wl("import org.openlowcode.server.data.SimpleFieldChoiceDefinition;");
 
 		sg.wl("");
 		String classname = StringFormatter.formatForJavaClass(this.getName()) + "ChoiceDefinition";
-		sg.wl("public class " + classname + " extends " + this.getDefinitionClass() + " {");
+		sg.wl("public class " + classname + " extends " + this.getDefinitionClass() + "<"+classname+"> {");
 		sg.wl("	private static " + classname + " singleton;");
 		sg.wl("");
 		for (int i = 0; i < this.values.getSize(); i++) {

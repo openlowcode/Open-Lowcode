@@ -256,7 +256,7 @@ public class LinkedFromChildren
 
 								sg.wl("		create"
 										+ childclassattribute + "withparentaction.set" + StringFormatter
-												.formatForJavaClass(thisproperty.getContextDataForCreation(j).getName())
+												.formatForJavaClass(thisproperty.getContextDataForCreation(k).getName())
 										+ "();");
 
 							}

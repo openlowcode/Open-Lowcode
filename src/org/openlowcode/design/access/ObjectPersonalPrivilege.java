@@ -85,8 +85,8 @@ public class ObjectPersonalPrivilege
 
 	@Override
 	public void writeImport(SourceGenerator sg, ActionDefinition contextaction) throws IOException {
-		sg.wl("import gallium.server.security.GalliumActionObjectPersonalSecurityManager;");
-		sg.wl("import gallium.server.data.DataObject;");
+		sg.wl("import org.openlowcode.server.security.ActionObjectPersonalSecurityManager;");
+		sg.wl("import org.openlowcode.server.data.DataObject;");
 		sg.wl("import " + personal.getLinkObject().getOwnermodule().getPath() + ".data."
 				+ StringFormatter.formatForJavaClass(personal.getLinkObject().getName()) + ";");
 	}
@@ -103,9 +103,9 @@ public class ObjectPersonalPrivilege
 		String objectclassid = StringFormatter.formatForAttribute(objectforprivilege.getName()) + "id";
 		String linkclass = StringFormatter.formatForJavaClass(personal.getLinkObject().getName());
 
-		sg.wl("		private static GalliumActionObjectPersonalSecurityManager<" + objectclass + "," + linkclass + "> "
+		sg.wl("		private static ActionObjectPersonalSecurityManager<" + objectclass + "," + linkclass + "> "
 				+ attributename);
-		sg.wl("			= new GalliumActionObjectPersonalSecurityManager<" + objectclass + "," + linkclass + ">("
+		sg.wl("			= new ActionObjectPersonalSecurityManager<" + objectclass + "," + linkclass + ">("
 				+ linkclass + ".getDefinition(),");
 		sg.wl("					(appuserid) -> (" + linkclass + ".getalllinksfromrightid(appuserid,null)), ");
 		sg.wl("					(appuserid," + objectclassid + ")->(" + linkclass + ".getalllinksfromleftandrightid("

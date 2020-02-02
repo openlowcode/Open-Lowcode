@@ -2712,12 +2712,11 @@ public class DataObjectDefinition
 		sg.wl("import org.openlowcode.server.data.storage.Row;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import org.openlowcode.server.graphic.widget.AttributeMarker;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SDecimalFormatter;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectIdDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.IntegerDataEltType;");
-		sg.wl("import org.openlowcode.server.runtime.GalliumServer;");
+		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import org.openlowcode.server.data.storage.StoredFieldSchema;");
 		sg.wl("import org.openlowcode.server.data.properties.UniqueidentifiedInterface;");
 		if (this.aliasfilteronparent != null) {
@@ -3203,9 +3202,9 @@ public class DataObjectDefinition
 						+ linkedtoparent.getInstancename().toLowerCase() + "Navigator() {");
 				sg.wl("		return ((LinkedToParentNavigator<" + classname + "," + parentclass + ">)((" + classname
 						+ " object) -> (new " + parentclass + "[]");
-				sg.wl("				{(GalliumServer.getServer().getObjectInTriggerUpdateBuffer(object.getLinkedtoparentfor"
+				sg.wl("				{(OLcServer.getServer().getObjectInTriggerUpdateBuffer(object.getLinkedtoparentfor"
 						+ linkedtoparent.getInstancename().toLowerCase() + "id())!=null?");
-				sg.wl("						GalliumServer.getServer().getObjectInTriggerUpdateBuffer(object.getLinkedtoparentfor"
+				sg.wl("						OLcServer.getServer().getObjectInTriggerUpdateBuffer(object.getLinkedtoparentfor"
 						+ linkedtoparent.getInstancename().toLowerCase() + "id()):object.getparentfor"
 						+ linkedtoparent.getInstancename().toLowerCase() + "())})));	");
 				sg.wl("	}");
@@ -3236,8 +3235,8 @@ public class DataObjectDefinition
 
 				sg.wl("		return ((LinkToLeftReverseNavigator<" + leftobjectclass + "," + classname + ","
 						+ rightobjectclass + ">)((" + classname + " object)->(new " + leftobjectclass + "[]{");
-				sg.wl("				(GalliumServer.getServer().getObjectInTriggerUpdateBuffer(object.getLfid())!=null?");
-				sg.wl("						GalliumServer.getServer().getObjectInTriggerUpdateBuffer(object.getLfid()):");
+				sg.wl("				(OLcServer.getServer().getObjectInTriggerUpdateBuffer(object.getLfid())!=null?");
+				sg.wl("						OLcServer.getServer().getObjectInTriggerUpdateBuffer(object.getLfid()):");
 				sg.wl("							" + leftobjectclass + ".readone(object.getLfid()))})));");
 
 				sg.wl("	}");
@@ -3395,17 +3394,16 @@ public class DataObjectDefinition
 		sg.wl("import java.util.Date;");
 		sg.wl("import org.openlowcode.server.data.*;");
 		sg.wl("import org.openlowcode.server.data.storage.*;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import org.openlowcode.tools.misc.NamedList;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.graphic.widget.AttributeMarker;");
-		sg.wl("import org.openlowcode.tools.struct.TObjectIdDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.tools.structure.IntegerDataEltType;");
 		sg.wl("import org.openlowcode.server.action.SecurityInDataMethod;");
-		sg.wl("import org.openlowcode.server.security.GalliumActionAuthorization;");
+		sg.wl("import org.openlowcode.server.security.ActionAuthorization;");
 		sg.wl("import org.openlowcode.server.action.ActionExecution;");
-		sg.wl("import org.openlowcode.server.runtime.GalliumConnection;");
+		sg.wl("import org.openlowcode.server.runtime.ServerConnection;");
 		String implementedproperties = "";
 		int propertyinterface = 0;
 
@@ -3747,8 +3745,8 @@ public class DataObjectDefinition
 					sg.wl("			boolean execute=true;");
 
 					sg.wl("			if (!SecurityInDataMethod.NONE.equals(method)) {");
-					sg.wl("				GalliumActionAuthorization executeresult = GalliumConnection.isAuthorized(contextaction, this);");
-					sg.wl("				if (executeresult.getAuthorization()==GalliumActionAuthorization.NOT_AUTHORIZED) execute=false;");
+					sg.wl("				ActionAuthorization executeresult = ServerConnection.isAuthorized(contextaction, this);");
+					sg.wl("				if (executeresult.getAuthorization()==ActionAuthorization.NOT_AUTHORIZED) execute=false;");
 					sg.wl("			}");
 					sg.wl("			if (execute) { 					");
 					if (preprocessinginstruction != null)

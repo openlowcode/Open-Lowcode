@@ -26,7 +26,7 @@ import org.openlowcode.design.module.Module;
 
 /**
  * This property provides a target date to an object with a lifecycle. Lifecycle
- * is defined by a {@link gallium.design.data.TransitionChocieCategory}.
+ * is defined by a {@link org.openlowcode.design.data.TransitionChoiceCategory}.
  * 
  * <br>
  * Dependent property :

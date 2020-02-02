@@ -95,8 +95,7 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.server.runtime.GalliumServer;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
+		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
@@ -153,8 +152,8 @@ public class DataObjectDefinitionShowAction {
 				+ "> id,Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("		");
 		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(id);");
-		sg.wl("		ChoiceValue<ApplocaleChoiceDefinition> userlocale = GalliumServer.getServer().getCurrentUser().getPreflang();");
-		sg.wl("		ChoiceValue<PreferedfileencodingChoiceDefinition> preffileencoding = GalliumServer.getServer().getCurrentUser().getPreffileenc();");
+		sg.wl("		ChoiceValue<ApplocaleChoiceDefinition> userlocale = OLcServer.getServer().getCurrentUser().getPreflang();");
+		sg.wl("		ChoiceValue<PreferedfileencodingChoiceDefinition> preffileencoding = OLcServer.getServer().getCurrentUser().getPreffileenc();");
 
 		ArrayList<String> extravariableforaction = new ArrayList<String>();
 		ArrayList<String> extraargumentfordata = new ArrayList<String>();

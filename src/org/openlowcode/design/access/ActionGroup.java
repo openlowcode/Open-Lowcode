@@ -26,7 +26,6 @@ public interface ActionGroup {
 
 	/**
 	 * @return the list of actions in this group
-	 * @throws GalliumException
 	 */
 	public ActionDefinition[] getActionsInGroup();
 

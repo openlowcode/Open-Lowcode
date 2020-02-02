@@ -354,7 +354,7 @@ public abstract class ActionDefinition
 		sg.wl("import java.util.Date;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import java.util.function.Function;");
-		sg.wl("import java.util.function.Function;");
+		sg.wl("import java.util.function.BiFunction;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		for (int i = 0; i < privilegesforaction.length; i++) {
@@ -377,7 +377,7 @@ public abstract class ActionDefinition
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.action.SActionRef;");
 		sg.wl("import org.openlowcode.server.action.SInlineActionRef;");
-		sg.wl("import org.openlowcode.tools.struct.*;");
+		sg.wl("import org.openlowcode.server.data.message.*;");
 		sg.wl("import org.openlowcode.tools.structure.*;");
 		sg.wl("import " + module.getPath() + ".data.*;");
 		for (int i = 0; i < this.getInputArguments().getSize(); i++)
@@ -542,10 +542,10 @@ public abstract class ActionDefinition
 			DataObjectDefinition accesscriteriaobject = this.accesscriteria.getMasterObject();
 			String accesscriteriaobjectclass = StringFormatter.formatForJavaClass(accesscriteriaobject.getName());
 			String accesscriteriaobjectvariable = StringFormatter.formatForAttribute(accesscriteriaobject.getName());
-			sg.wl("	public static Function<SActionData,SecurityBuffer," + accesscriteriaobjectclass
+			sg.wl("	public static BiFunction<SActionData,SecurityBuffer," + accesscriteriaobjectclass
 					+ "[]> getInputSecurityDataExtractor() {");
 
-			sg.wl("			return new Function<SActionData,SecurityBuffer," + accesscriteriaobjectclass + "[]>() {");
+			sg.wl("			return new BiFunction<SActionData,SecurityBuffer," + accesscriteriaobjectclass + "[]>() {");
 			sg.wl("				@Override");
 			sg.wl("				public " + accesscriteriaobjectclass
 					+ "[] apply(SActionData actiondata, SecurityBuffer buffer)  {");
@@ -655,16 +655,16 @@ public abstract class ActionDefinition
 							+ "list.add(buffer.getObject(DataObjectId.generatefromDataObjectIdElt(thisobjectid,"
 							+ accesscriteriaobjectclass + ".getDefinition())));");
 					sg.wl("							} else {");
-					sg.wl("								throw new RuntimeException(Exception(3002,\"was expecting an objectid attribute inside array called "
+					sg.wl("								throw new RuntimeException(String.format(\"was expecting an objectid attribute inside array called "
 							+ getaccesscriteria.getName().toUpperCase()
-							+ " as attribute 0, got %s \",thisobjectid.getName());");
+							+ " as attribute 0, got %s \",thisobjectid.getName()));");
 					sg.wl("							}");
 					sg.wl("						}");
 					sg.wl("						");
 					sg.wl("					} else {");
-					sg.wl("						throw new RuntimeException(\"was expecting an ObjectId inside array called "
+					sg.wl("						throw new RuntimeException(String.format(\"was expecting an ObjectId inside array called "
 							+ getaccesscriteria.getName().toUpperCase() + " as attribute 0, got %s \",attribute"
-							+ accesscriteriaindex + ".getArrayPayloadEltType() );");
+							+ accesscriteriaindex + ".getArrayPayloadEltType() ));");
 					sg.wl("						");
 					sg.wl("					}	");
 					sg.wl("					" + accesscriteriaobjectvariable + "s = " + accesscriteriaobjectvariable
@@ -672,10 +672,10 @@ public abstract class ActionDefinition
 					sg.wl("				}");
 					sg.wl("				");
 					sg.wl("				if (" + accesscriteriaobjectvariable
-							+ "s == null) throw new RuntimeException( \" was expecting a DataObjectId<"
+							+ "s == null) throw new RuntimeException(String.format( \" was expecting a DataObjectId<"
 							+ accesscriteriaobjectclass + ">[] attribute called "
 							+ getaccesscriteria.getName().toUpperCase()
-							+ " as attribute 0, got %s \",actiondata.getAttribute(0));");
+							+ " as attribute 0, got %s \",actiondata.getAttribute(0)));");
 					sg.wl("				return " + accesscriteriaobjectvariable + "s;");
 					sg.wl("			}");
 
@@ -701,10 +701,10 @@ public abstract class ActionDefinition
 				sg.wl("				}");
 				sg.wl("				");
 				sg.wl("				if (" + accesscriteriaobjectvariable
-						+ " == null) throw new RuntimeException( \" was expecting a " + accesscriteriaobjectclass
+						+ " == null) throw new RuntimeException(String.format( \" was expecting a " + accesscriteriaobjectclass
 						+ " attribute called " + getaccesscriteria.getName().toUpperCase() + " as attribute "
 						+ accesscriteriaindex + " of action , got %s \",actiondata.getAttribute(" + accesscriteriaindex
-						+ "));");
+						+ ")));");
 				sg.wl("				return new " + accesscriteriaobjectclass + "[]{" + accesscriteriaobjectvariable
 						+ "};			");
 				sg.wl("			}");
@@ -977,9 +977,9 @@ public abstract class ActionDefinition
 		sg.wl("	private " + outputtype
 				+ " validateInputAndExecuteAction(SActionData actionattributes,Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("		if (actionattributes.size()!=" + this.getInputArguments().getSize()
-				+ ") throw new RuntimeException(\"action " + this.getName() + " is supposed to have "
+				+ ") throw new RuntimeException(String.format(\"action " + this.getName() + " is supposed to have "
 				+ this.getInputArguments().getSize()
-				+ " attributes, but %d attribute(s) was found\",actionattributes.size());");
+				+ " attributes, but %d attribute(s) was found\",actionattributes.size()));");
 
 		for (int i = 0; i < this.getInputArguments().getSize(); i++) {
 			boolean nullallowed = false;
@@ -1053,17 +1053,17 @@ public abstract class ActionDefinition
 				nullallowed = true;
 				ChoiceArgument thischoicearg = (ChoiceArgument) thisarg;
 				sg.wl("			if (attribute" + i + ".getName().compareTo(\"" + thisarg.getName().toUpperCase()
-						+ "\")!=0) throw new RuntimeException( \" was expecting a " + thisarg.getType()
+						+ "\")!=0) throw new RuntimeException(String.format( \" was expecting a " + thisarg.getType()
 						+ " attribute called " + thisarg.getName() + " as attribute " + i + " of action "
-						+ this.getName() + ", got %s \",actionattributes.getAttribute(" + i + "));");
+						+ this.getName() + ", got %s \",actionattributes.getAttribute(" + i + ")));");
 				sg.wl("			if (attribute" + i + ".getStoredValue()!=null) if (attribute" + i
 						+ ".getStoredValue().length()>0) {");
 				sg.wl("				" + thisarg.getName().toLowerCase() + " = " + thischoicearg.getChoiceCategoryClass()
 						+ ".get().parseValueFromStorageCode(attribute" + i + ".getStoredValue());");
 				sg.wl("				if (" + StringFormatter.formatForAttribute(thisarg.getName())
-						+ " == null) throw new RuntimeException( \" was expecting a " + thisarg.getType()
+						+ " == null) throw new RuntimeException(String.format( \" was expecting a " + thisarg.getType()
 						+ " attribute called " + thisarg.getName() + " as attribute " + i + " of action "
-						+ this.getName() + ", got %s \",actionattributes.getAttribute(" + i + "));");
+						+ this.getName() + ", got %s \",actionattributes.getAttribute(" + i + ")));");
 				sg.wl("			}");
 				treated = true;
 			}
@@ -1162,18 +1162,18 @@ public abstract class ActionDefinition
 							+ StringFormatter.formatForJavaClass(thisobjectidinarray.getObjectType())
 							+ ".getDefinition()));");
 					sg.wl("					} else {");
-					sg.wl("						throw new RuntimeException(\"was expecting an objectid attribute inside array called "
+					sg.wl("						throw new RuntimeException(String.format(\"was expecting an objectid attribute inside array called "
 							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
-							+ ", got %s \",thisobjectid.getName());");
+							+ ", got %s \",thisobjectid.getName()));");
 					sg.wl("					}");
 					sg.wl("				}");
 					sg.wl("				" + argumentname + " = (DataObjectId<"
 							+ StringFormatter.formatForJavaClass(thisobjectidinarray.getObjectType()) + ">[]) listfor"
 							+ argumentname + ".toArray(new DataObjectId[0]);");
 					sg.wl("			} else {");
-					sg.wl("				throw new RuntimeException(\"was expecting an ObjectId inside array called "
+					sg.wl("				throw new RuntimeException(String.format(\"was expecting an ObjectId inside array called "
 							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
-							+ ", got %s \",attribute" + i + ".getArrayPayloadEltType() );");
+							+ ", got %s \",attribute" + i + ".getArrayPayloadEltType() ));");
 					sg.wl("				");
 					sg.wl("			}				");
 
@@ -1196,17 +1196,17 @@ public abstract class ActionDefinition
 							+ thischoiceinarrayarg.getChoiceCategoryClass()
 							+ ".get().parseValueFromStorageCode(thischoice.getStoredValue()));");
 					sg.wl("					} else {");
-					sg.wl("						throw new RuntimeException(\"was expecting a Choice Attribute inside array called "
+					sg.wl("						throw new RuntimeException(String.format(\"was expecting a Choice Attribute inside array called "
 							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
-							+ ", got %s \",thischoice.getName());");
+							+ ", got %s \",thischoice.getName()));");
 					sg.wl("					}");
 					sg.wl("				}");
 					sg.wl("				" + argumentname + " = listfor" + argumentname
 							+ ".toArray(new ChoiceValue[0]);");
 					sg.wl("			} else {");
-					sg.wl("				throw new RuntimeException(\"was expecting a Choice Attribute inside array called "
+					sg.wl("				throw new RuntimeException(String.format(\"was expecting a Choice Attribute inside array called "
 							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
-							+ ", got %s \",attribute" + i + ".getArrayPayloadEltType() );");
+							+ ", got %s \",attribute" + i + ".getArrayPayloadEltType() ));");
 					sg.wl("				");
 					sg.wl("			}				");
 
@@ -1221,9 +1221,9 @@ public abstract class ActionDefinition
 			sg.wl("		");
 			if (!nullallowed)
 				sg.wl("		if (" + StringFormatter.formatForAttribute(thisarg.getName())
-						+ " == null) throw new RuntimeException( \" was expecting a " + thisarg.getType()
+						+ " == null) throw new RuntimeException(String.format( \" was expecting a " + thisarg.getType()
 						+ " attribute called " + thisarg.getName() + " as attribute " + i + " of action "
-						+ this.getName() + ", got %s \",actionattributes.getAttribute(" + i + "));");
+						+ this.getName() + ", got %s \",actionattributes.getAttribute(" + i + ")));");
 			sg.wl("		");
 		}
 		String allinputarguments = "";

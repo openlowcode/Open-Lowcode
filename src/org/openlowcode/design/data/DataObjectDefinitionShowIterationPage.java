@@ -147,7 +147,6 @@ GeneratedPages {
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectArray;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPageText;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectArrayField;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgShow" + objectvariable + "iterationPage extends AbsShow" + objectvariable
 				+ "iterationPage {");

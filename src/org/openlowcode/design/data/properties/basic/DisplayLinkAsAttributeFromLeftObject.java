@@ -54,7 +54,7 @@ public class DisplayLinkAsAttributeFromLeftObject<E extends DataObjectDefinition
 	@Override
 	public String[] getImportstatements() {
 		String[] importlist = new String[1];
-		importlist[0] = "import gallium.server.graphic.widget.SObjectArrayField;";
+		importlist[0] = "import org.openlowcode.server.graphic.widget.SObjectArrayField;";
 		return importlist;
 	}
 

@@ -51,7 +51,6 @@ public class PrintOut
 	 *                      triggered (the print-out is generated as predefined
 	 *                      states, typically during review of after the document is
 	 *                      validated)
-	 * @throws GalliumException
 	 */
 	public PrintOut(String name, String label, ChoiceValue[] triggerstates) {
 		super(name, "PRINTOUT");

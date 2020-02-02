@@ -129,7 +129,7 @@ public class ConstraintOnLinkObjectSameChoiceFieldValue
 	@Override
 	public String[] getImportstatements() {
 		ArrayList<String> returnimport = new ArrayList<String>();
-		returnimport.add("import gallium.server.data.properties.constraints.ConstraintOnLinkedObjectSimilarAttribute;");
+		returnimport.add("import org.openlowcode.server.data.properties.constraints.ConstraintOnLinkedObjectSimilarAttribute;");
 		returnimport.add("import " + category.getParentModule().getPath() + ".data.choice."
 				+ StringFormatter.formatForJavaClass(category.getName()) + "ChoiceDefinition;");
 		return returnimport.toArray(new String[0]);

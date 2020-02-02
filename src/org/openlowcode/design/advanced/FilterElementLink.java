@@ -224,10 +224,10 @@ public class FilterElementLink<E extends Object>
 	public String[] getImportClassesForAction(String reportname) {
 		ArrayList<String> imports = new ArrayList<String>();
 		logger.severe("putting in imports " + linkobject.getParent().getName());
-		imports.add("import gallium.server.data.TwoDataObjects;");
+		imports.add("import org.openlowcode.server.data.TwoDataObjects;");
 		imports.add("import " + linkobject.getParent().getOwnermodule().getPath() + ".data."
 				+ StringFormatter.formatForJavaClass(linkobject.getParent().getName()) + ";");
-		imports.add("import gallium.server.action.utility.SmartReportUtility;");
+		imports.add("import org.openlowcode.server.action.utility.SmartReportUtility;");
 
 		return imports.toArray(new String[0]);
 	}

@@ -43,7 +43,7 @@ public class ObjectIdArgument
 		super(name, false);
 		this.payload = payload;
 		imports = new ArrayList<String>();
-		imports.add("import gallium.server.data.properties.DataObjectId;");
+		imports.add("import org.openlowcode.server.data.properties.DataObjectId;");
 		if (payload != null)
 			imports.add("import " + payload.getOwnermodule().getPath() + ".data."
 					+ StringFormatter.formatForJavaClass(payload.getName()) + ";");

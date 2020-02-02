@@ -33,7 +33,7 @@ import org.openlowcode.design.pages.SearchWidgetDefinition;
 
 /**
  * This property provides a lifecycle to an object. Lifecycle is defined by a
- * {@link gallium.design.data.TransitionChocieCategory}.
+ * {@link org.openlowcode.design.data.TransitionChoiceCategory}.
  * 
  * <br>
  * Dependent property :
@@ -103,7 +103,6 @@ public class Lifecycle
 	 * @param newstatelabel    name of the state for the object (could be a synonym
 	 *                         like status...)
 	 * @param nonreleasedlabel a warning for non-released data
-	 * @throws GalliumException
 	 */
 	public Lifecycle(TransitionChoiceCategory lifecyclehelper, String newstatelabel, String nonreleasedlabel) {
 		this(lifecyclehelper, newstatelabel);

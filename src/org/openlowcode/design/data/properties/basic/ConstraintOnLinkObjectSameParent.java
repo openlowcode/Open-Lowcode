@@ -122,7 +122,7 @@ public class ConstraintOnLinkObjectSameParent<E extends DataObjectDefinition, F 
 	@Override
 	public String[] getImportstatements() {
 		ArrayList<String> returnimport = new ArrayList<String>();
-		returnimport.add("import gallium.server.data.properties.constraints.ConstraintOnLinkedObjectSimilarAttribute;");
+		returnimport.add("import org.openlowcode.server.data.properties.constraints.ConstraintOnLinkedObjectSimilarAttribute;");
 		return returnimport.toArray(new String[0]);
 	}
 

@@ -52,7 +52,7 @@ public class AutoNamingRule
 		sg.wl("		AutonamingRule<" + objectname + "> rule = new AutonamingRule<" + objectname + ">() {");
 		sg.wl("");
 		sg.wl("			@Override");
-		sg.wl("			public String generateName(" + objectname + " object) throws GalliumException {");
+		sg.wl("			public String generateName(" + objectname + " object)  {");
 		sg.wl("				StringBuffer sequence = new StringBuffer();");
 		for (int i = 0; i < pattern.getElementNumber(); i++) {
 			sg.wl("				sequence.append(" + pattern.getElement(i).generateSource() + ");");
@@ -68,7 +68,7 @@ public class AutoNamingRule
 	@Override
 	public String[] getImportstatements() {
 		ArrayList<String> importstatements = new ArrayList<String>();
-		importstatements.add("import gallium.server.data.properties.constraints.AutonamingRule;");
+		importstatements.add("import org.openlowcode.server.data.properties.constraints.AutonamingRule;");
 		for (int i = 0; i < pattern.getElementNumber(); i++) {
 			PatternElement thiselement = pattern.getElement(i);
 			for (int j = 0; j < thiselement.generateImport().length; j++) {

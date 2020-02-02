@@ -73,7 +73,7 @@ public class LineGroupingCriteriaUniqueLink
 				+ objectprefix + "_linegrouping_" + linkobjectattribute + " = ");
 		sg.wl("				" + linkobjectclass + ".getlinksandrightobject(" + leftobjectattribute + "_step"
 				+ objectprefix + "_id, null);");
-		sg.wl("		FunctionWithGalliumException<DataObjectId<" + leftobjectclass + ">, String> " + leftobjectattribute
+		sg.wl("		Function<DataObjectId<" + leftobjectclass + ">, String> " + leftobjectattribute
 				+ "_step" + objectprefix + "_linegrouping_" + linkobjectattribute
 				+ "_mapping = SmartReportUtility.getUniqueLinkNr(" + leftobjectattribute + "_step" + objectprefix
 				+ "_linegrouping_" + linkobjectattribute + ");");

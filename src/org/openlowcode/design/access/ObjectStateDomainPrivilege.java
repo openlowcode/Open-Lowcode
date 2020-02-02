@@ -88,8 +88,8 @@ public class ObjectStateDomainPrivilege
 	@Override
 	public void writeImport(SourceGenerator sg, ActionDefinition contextaction) throws IOException {
 		validate(); // as it is the first to be called
-		sg.wl("import gallium.server.security.GalliumActionObjectStateDomainSecurityManager;");
-		sg.wl("import gallium.server.data.DataObject;");
+		sg.wl("import org.openlowcode.server.security.ActionObjectStateDomainSecurityManager;");
+		sg.wl("import org.openlowcode.server.data.DataObject;");
 	}
 
 	@Override

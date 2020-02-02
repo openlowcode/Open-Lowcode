@@ -53,7 +53,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -116,7 +115,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -172,7 +170,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -236,7 +233,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -302,7 +298,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -370,7 +365,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -460,7 +454,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -576,7 +569,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgMassivedelete" + objectvariable + "andshowparent"
 				+ relevantlinkedtoparent.getInstancename().toLowerCase() + "Action");
@@ -646,7 +638,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgMassupdate" + objectvariable + "andshowleftAction extends AbsMassupdate" + objectvariable
 				+ "andshowleftAction {");
@@ -720,7 +711,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgMassupdate" + objectvariable + "andshowparent" + linkedtoparentinstance
 				+ "Action extends AbsMassupdate" + objectvariable + "andshowparent" + linkedtoparentinstance
@@ -782,7 +772,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -874,7 +863,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");

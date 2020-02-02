@@ -103,7 +103,6 @@ public class SimpleTaskWorkflow
 		this.emailtype = emailtype;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void controlAfterParentDefinition() {
 		Numbered numbered = (Numbered) parent.getPropertyByName("NUMBERED");

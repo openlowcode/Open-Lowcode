@@ -117,7 +117,7 @@ public class TimePeriodFilterElement
 					+ objectclass + fieldclass + "SelectionHelperFor" + reportnameclass + ";");
 			imports.add("import org.openlowcode.server.data.storage.OrQueryCondition;");
 			imports.add("import java.util.List;");
-			imports.add("import org.openlowcode.tools.util.FunctionWithGalliumException;");
+			imports.add("import java.util.function.Function;");
 		}
 		return imports.toArray(new String[0]);
 
@@ -165,7 +165,7 @@ public class TimePeriodFilterElement
 			String rootobjectclass = StringFormatter.formatForJavaClass(reportroot.getName());
 
 			sg.wl("		OrQueryCondition " + queryconditionname + "_timeperiodhelper = new OrQueryCondition();");
-			sg.wl("		FunctionWithGalliumException<DataObjectId<" + rootobjectclass + ">,List<TimePeriod>> "
+			sg.wl("		Function<DataObjectId<" + rootobjectclass + ">,List<TimePeriod>> "
 					+ objectattribute + "_timeperiodhelper=");
 			sg.wl("				new " + objectclass + fieldclass + "SelectionHelperFor" + reportnameclass + "();");
 			sg.wl("		List<TimePeriod> values = " + objectattribute + "_timeperiodhelper.apply(parentid);");

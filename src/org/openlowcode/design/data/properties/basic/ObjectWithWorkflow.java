@@ -85,13 +85,13 @@ public abstract class ObjectWithWorkflow
 		@Override
 		public String[] getImportStatements() {
 			ArrayList<String> importstatements = new ArrayList<String>();
-			importstatements.add("import gallium.module.system.action.ShowactivetaskAction;");
-			importstatements.add("import gallium.module.system.action.generated.AtgShowworkflowAction;");
-			importstatements.add("import gallium.module.system.data.Task;");
-			importstatements.add("import gallium.module.system.data.TaskDefinition;");
-			importstatements.add("import gallium.module.system.data.Workflow;");
-			importstatements.add("import gallium.server.graphic.widget.SObjectArrayField;");
-			importstatements.add("import gallium.server.graphic.widget.SObjectArray;");
+			importstatements.add("import org.openlowcode.module.system.action.ShowactivetaskAction;");
+			importstatements.add("import org.openlowcode.module.system.action.generated.AtgShowworkflowAction;");
+			importstatements.add("import org.openlowcode.module.system.data.Task;");
+			importstatements.add("import org.openlowcode.module.system.data.TaskDefinition;");
+			importstatements.add("import org.openlowcode.module.system.data.Workflow;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectArrayField;");
+			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectArray;");
 			return importstatements.toArray(new String[0]);
 		}
 

@@ -345,9 +345,9 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 
 	@Override
 	public void writeDependentClass(SourceGenerator sg, Module module) throws IOException {
-		sg.wl("import gallium.server.data.formula.LinkNavigator;");
-		sg.wl("import gallium.server.data.formula.LinkReverseNavigator;");
-		sg.wl("import gallium.server.data.formula.LinkToLeftReverseNavigator;");
+		sg.wl("import org.openlowcode.server.data.formula.LinkNavigator;");
+		sg.wl("import org.openlowcode.server.data.formula.LinkReverseNavigator;");
+		sg.wl("import org.openlowcode.server.data.formula.LinkToLeftReverseNavigator;");
 
 	}
 

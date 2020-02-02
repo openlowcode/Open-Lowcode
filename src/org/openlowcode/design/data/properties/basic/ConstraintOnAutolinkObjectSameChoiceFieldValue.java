@@ -49,7 +49,6 @@ public class ConstraintOnAutolinkObjectSameChoiceFieldValue
 	 * @param objectchoicefieldname the name in upper case of the linked object
 	 *                              choice field (should already be created on the
 	 *                              object)
-	 * @throws GalliumException
 	 */
 	public ConstraintOnAutolinkObjectSameChoiceFieldValue(
 			AutolinkObject<?> autolinkproperty,
@@ -91,7 +90,7 @@ public class ConstraintOnAutolinkObjectSameChoiceFieldValue
 	public String[] getImportstatements() {
 		ArrayList<String> returnimport = new ArrayList<String>();
 		returnimport
-				.add("import gallium.server.data.properties.constraints.ConstraintOnAutolinkObjectSimilarAttribute;");
+				.add("import org.openlowcode.server.data.properties.constraints.ConstraintOnAutolinkObjectSimilarAttribute;");
 		returnimport.add("import " + category.getParentModule().getPath() + ".data.choice."
 				+ StringFormatter.formatForJavaClass(category.getName()) + "ChoiceDefinition;");
 		return returnimport.toArray(new String[0]);

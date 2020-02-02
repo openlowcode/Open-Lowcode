@@ -70,7 +70,6 @@ public class DataObjectDefinitionFileActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		if (hasextractorchoice) {
 			sg.wl("import org.openlowcode.server.data.ChoiceValue;");
 			;
@@ -180,7 +179,6 @@ public class DataObjectDefinitionFileActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class Atg" + filename + "Action extends Abs" + filename + "Action {");
 		sg.wl("	private static Logger logger = Logger.getLogger(Atg" + filename + "Action.class.getName());");
@@ -277,12 +275,11 @@ public class DataObjectDefinitionFileActions {
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.module.system.data.Appuser;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
-		sg.wl("import org.openlowcode.server.runtime.GalliumServer;");
+		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;");
 		sg.wl("");
 		sg.wl("public class AtgGenerateflatfilesamplefor" + objectvariable
@@ -297,7 +294,7 @@ public class DataObjectDefinitionFileActions {
 		sg.wl("	public ActionOutputData executeActionLogic(Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("		try {");
 
-		sg.wl("			Appuser currentuser = GalliumServer.getServer().getCurrentUser();");
+		sg.wl("			Appuser currentuser = OLcServer.getServer().getCurrentUser();");
 		sg.wl("			String csvseparator = \",\";");
 		sg.wl("			if (currentuser.getPreflang()!=null) if (currentuser.getPreflang().equals(ApplocaleChoiceDefinition.get().FR)) csvseparator = \";\";");
 		sg.wl("			ArrayList<String[]> sample = " + objectclass
@@ -359,7 +356,6 @@ public class DataObjectDefinitionFileActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");

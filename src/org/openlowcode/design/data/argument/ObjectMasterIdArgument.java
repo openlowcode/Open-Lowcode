@@ -44,7 +44,7 @@ public class ObjectMasterIdArgument
 		super(name, false);
 		this.payload = payload;
 		imports = new ArrayList<String>();
-		imports.add("import gallium.server.data.properties.DataObjectMasterId;");
+		imports.add("import org.openlowcode.server.data.properties.DataObjectMasterId;");
 		if (payload != null)
 			imports.add("import " + payload.getOwnermodule().getPath() + ".data."
 					+ StringFormatter.formatForJavaClass(payload.getName()) + ";");
@@ -117,12 +117,12 @@ public class ObjectMasterIdArgument
 
 	@Override
 	public void writeImports(SourceGenerator sg, Module module) throws IOException {
-		sg.wl("import gallium.server.data.properties.DataObjectMasterId;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectMasterId;");
 		if (payload != null)
 
 			sg.wl("import " + payload.getOwnermodule().getPath() + ".data."
 					+ StringFormatter.formatForJavaClass(payload.getName()) + ";");
-		sg.wl("import gallium.server.data.DataObject;");
+		sg.wl("import org.openlowcode.server.data.DataObject;");
 	}
 
 	@Override
