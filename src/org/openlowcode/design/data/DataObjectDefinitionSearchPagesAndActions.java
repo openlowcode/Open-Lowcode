@@ -1931,4 +1931,48 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		return searchactionforparent;
 	}
 
+	/**
+	 * @param name name of the data object
+	 * @param sg        source generator
+	 * @param module    parent module
+	 * @throws IOException if anyting bad happens while writing the source code
+	 */
+	public static void generateLaunchSearchActionToFile(String name,SourceGenerator sg, Module module) throws IOException {
+		String objectvariable = StringFormatter.formatForAttribute(name);
+
+		sg.wl("package " + module.getPath() + ".action.generated;");
+		sg.wl("");
+		sg.wl("import " + module.getPath() + ".page.generated.AtgSearch" + objectvariable + "Page;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("import org.openlowcode.tools.trace.GalliumException;");
+		sg.wl("import java.util.function.Function;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+		sg.wl("import org.openlowcode.server.runtime.GalliumServer;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
+		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+		sg.wl("");
+		sg.wl("public class AtgLaunchsearch" + objectvariable + "Action extends AbsLaunchsearch" + objectvariable
+				+ "Action {");
+		sg.wl("");
+		sg.wl("	public AtgLaunchsearch" + objectvariable + "Action(SModule parent) {");
+		sg.wl("		super(parent);");
+		sg.wl("	");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public ActionOutputData executeActionLogic(Function<TableAlias,QueryFilter> datafilter)  {");
+		sg.wl("		return new ActionOutputData(GalliumServer.getServer().getCurrentUser().getPreflang(),GalliumServer.getServer().getCurrentUser().getPreffileenc());");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public SPage choosePage(ActionOutputData outputdata)  {");
+		sg.wl("		return new AtgSearch" + objectvariable
+				+ "Page(outputdata.getPreflanguage(),outputdata.getPreffileencoding());");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("}");
+
+		sg.close();
+	}
 }
