@@ -28,7 +28,7 @@ import org.openlowcode.design.module.Module;
  *         SAS</a>
  *
  */
-public class DataobjectDefinitionUpdatePage
+public class DataObjectDefinitionUpdatePage
 		implements
 		GeneratedPages {
 
@@ -39,7 +39,7 @@ public class DataobjectDefinitionUpdatePage
 	 * 
 	 * @param dataobject data object definition
 	 */
-	public DataobjectDefinitionUpdatePage(DataObjectDefinition dataobject) {
+	public DataObjectDefinitionUpdatePage(DataObjectDefinition dataobject) {
 		this.dataobject = dataobject;
 	}
 
