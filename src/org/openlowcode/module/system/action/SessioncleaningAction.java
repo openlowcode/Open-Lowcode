@@ -21,7 +21,7 @@ import org.openlowcode.server.data.storage.TableAlias;
 import org.openlowcode.server.graphic.SPage;
 import org.openlowcode.server.runtime.SModule;
 /**
- * Action to clean sessions older than a provided nmber of dayzs
+ * Action to clean sessions older than a provided nmber of days
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
