@@ -26,7 +26,6 @@ public interface PersistentStorage {
 	 * Today, this is used to create a table to store sequences for databases that
 	 * do not support them.
 	 * 
-	 * @throws GalliumException
 	 */
 	public void technicalInit();
 

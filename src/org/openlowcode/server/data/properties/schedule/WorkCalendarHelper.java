@@ -544,7 +544,6 @@ public class WorkCalendarHelper {
 	 * @param newstartdate start date of the new period
 	 * @param l            length in minute
 	 * @return the end date
-	 * @throws GalliumException
 	 */
 	public Date getNextEndDate(Date newstartdate, long l) {
 		if (!hasdata) {

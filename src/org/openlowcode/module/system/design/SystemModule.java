@@ -372,9 +372,9 @@ public class SystemModule
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public SystemModule() {
-		super("SYSTEMMODULE", "S0", "System", "gallium.module.system", "Nicolas de Mauroy", OLcVersionGenerator.version,
+		super("SYSTEMMODULE", "S0", "System", "org.openlowcode.module.system", "Open Lowcode SAS", OLcVersionGenerator.version,
 				"On this server, only the system module has been setup. To build your application, you should create your own module "
-						+ "(subclass of gallium.design.module.Module) and run the code generation tool.");
+						+ "(subclass of org.openlowcode.design.module.Module) and run the code generation tool.");
 		defineSystemAttributes();
 		this.sovereignauthority = new TotalAuthority("SOVEREIGN", "Sovereign",
 				"Sovereign authority gets full access to all the modules in the platform. Some actions may result in inconsistent or lost data.");
@@ -660,11 +660,7 @@ public class SystemModule
 		domain.addProperty(new Numbered());
 		domain.addProperty(new LinkedToParent("hierarchy", domain));
 
-		DynamicActionDefinition createdomain = new DynamicActionDefinition("CREATEDOMAIN",
-				"Create a new domain as a child of the specified domain");
-		createdomain.addInputArgument(new ObjectArgument("NEWDOMAIN", domain));
-		createdomain.addOutputArgument(new StringArgument("ID", 64));
-		this.addAction(createdomain);
+
 
 		StaticActionDefinition getdomainhierarchy = new StaticActionDefinition("GETDOMAINHIERARCHY",
 				"Get all domains from the root one");
@@ -862,15 +858,7 @@ public class SystemModule
 		this.addPrivilege(new Anarchy(getfrontpagedata));
 		// USER STAT
 
-		DynamicActionDefinition clientversionaction = new DynamicActionDefinition("CLIENTVERSIONERROR");
-		clientversionaction.addInputArgument(new StringArgument("WRONGCLIENTVERSION", 30));
-		clientversionaction.addOutputArgument(new StringArgument("VERSIONERROR", 200));
-		clientversionaction.addOutputArgument(new StringArgument("HELPMESSAGE", 1000));
-		this.addAction(clientversionaction);
-		DynamicPageDefinition clientversionpage = new DynamicPageDefinition("CLIENTVERSIONERROR");
-		clientversionpage.setNoAddOn();
-		clientversionpage.linkPageToAction(clientversionaction);
-		this.AddPage(clientversionpage);
+	
 		StaticActionDefinition prepareuserstat = new StaticActionDefinition("showuserstat");
 		prepareuserstat.addOutputArgument(new ObjectIdArgument("userid", appuser));
 		prepareuserstat.setButtonlabel("Your connections");

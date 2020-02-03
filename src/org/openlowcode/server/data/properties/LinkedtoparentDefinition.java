@@ -116,7 +116,6 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 	 * @param name   name of the index
 	 * @param fields list of fields to add to the composite index after the
 	 *               parentid.
-	 * @throws GalliumException
 	 */
 	public void setCompositeIndex(String name, DataObjectFieldDefinition<E>[] fields) {
 		StoredTableIndex thisindex = new StoredTableIndex(this.getName().substring(17) + name);

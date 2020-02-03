@@ -100,9 +100,8 @@ public class MultiFieldConstraint
 			Field thisfield = this.fieldsinorder.get(i);
 			thisfield.writeDependentClass(sg, module);
 		}
-		sg.wl("import gallium.server.data.ChoiceValue;");
-		sg.wl("import gallium.server.utility.SMultiFieldConstraint;");
-		sg.wl("import gallium.tools.trace.GalliumException;");
+		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
+		sg.wl("import org.openlowcode.server.utility.SMultiFieldConstraint;");
 		sg.wl("import java.math.MathContext;");
 		sg.wl("");
 		sg.wl("public abstract class Abs" + constraintclass + "MultiFieldConstraint {");
@@ -120,7 +119,7 @@ public class MultiFieldConstraint
 				comma = ",";
 			sg.wl("			" + comma + thisfield.getJavaType() + " " + thisfield.getName().toLowerCase());
 		}
-		sg.wl(" 		)	throws GalliumException {");
+		sg.wl(" 		)	 {");
 		sg.wl("		ArrayList<String> rawconstraintline = new ArrayList<String>();");
 		for (int i = 0; i < this.fieldsinorder.size(); i++) {
 			Field thisfield = this.fieldsinorder.get(i);
@@ -145,9 +144,9 @@ public class MultiFieldConstraint
 		sg.wl("		storage.addOneLineOfConstraint(rawconstraintline);");
 		sg.wl("	}");
 		sg.wl("	");
-		sg.wl("	public abstract void addData() throws GalliumException;");
+		sg.wl("	public abstract void addData();");
 		sg.wl("	");
-		sg.wl("	public Abs" + constraintclass + "MultiFieldConstraint() throws GalliumException {");
+		sg.wl("	public Abs" + constraintclass + "MultiFieldConstraint() {");
 		sg.wl("		this.storage=new SMultiFieldConstraint(\"" + this.getName().toUpperCase() + "\");");
 		for (int i = 0; i < this.fieldsinorder.size(); i++) {
 			Field thisfield = this.fieldsinorder.get(i);

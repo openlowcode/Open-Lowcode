@@ -75,7 +75,6 @@ public abstract class SPageNode {
 	 * structure)
 	 * 
 	 * @param writer the CDL writer on which to write the message
-	 * @throws GalliumException
 	 */
 	public abstract void WritePayloadToCDL(MessageWriter writer, SPageData input, SecurityBuffer buffer)
 			throws IOException;

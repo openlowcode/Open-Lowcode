@@ -51,7 +51,6 @@ public class Linkedtoparent<E extends DataObject<E> & UniqueidentifiedInterface<
 	 * @param parentpayload    payload of the current data object
 	 * @param parentdefinition definition of the parent data object for
 	 *                         LinkedToParent relationship
-	 * @throws GalliumException
 	 */
 	@SuppressWarnings("unchecked")
 	public Linkedtoparent(LinkedtoparentDefinition<E, F> definition, DataObjectPayload parentpayload,

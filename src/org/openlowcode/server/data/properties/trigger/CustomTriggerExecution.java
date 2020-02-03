@@ -164,7 +164,6 @@ public abstract class CustomTriggerExecution<E extends DataObject<E> & Uniqueide
 	 * @return null if the trigger string feature is not used (in that case, trigger
 	 *         will always be triggered), or the string else If string is the same
 	 *         as the one stored, the trigger is not triggered again.
-	 * @throws GalliumException
 	 */
 	public String generateTriggerString(E object) {
 		return null;

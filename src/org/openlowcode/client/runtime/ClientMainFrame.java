@@ -194,7 +194,7 @@ public class ClientMainFrame {
 					throw new RuntimeException("Trying to create log folder " + file.getPath() + ", does not work");
 			}
 			System.err.println("log folder = " + file.getAbsolutePath());
-			FileHandler logfilehandler = new FileHandler("./log/GalliumClient%g.log", 10000000, 1000, true);
+			FileHandler logfilehandler = new FileHandler("./log/OLcClient%g.log", 10000000, 1000, true);
 			logfilefilter = new OpenLowcodeLogFilter(Level.FINER, "Log File Filter", logfilehandler);
 			logfilehandler.setFilter(logfilefilter);
 

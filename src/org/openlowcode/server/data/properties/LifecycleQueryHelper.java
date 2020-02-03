@@ -41,10 +41,11 @@ public class LifecycleQueryHelper {
 	}
 
 	/**
-	 * @param alias
-	 * @param parentdefinition
-	 * @return
-	 * @throws GalliumException
+	 * generates a condition with all working (non final) states of the lifecycle
+	 * 
+	 * @param alias alias to generate condition for
+	 * @param parentdefinition parent object
+	 * @return the query condition
 	 */
 	@SuppressWarnings("rawtypes")
 	public QueryCondition getAllNonFinalStatesQueryCondition(String alias, DataObjectDefinition parentdefinition) {

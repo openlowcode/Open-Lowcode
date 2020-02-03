@@ -943,7 +943,6 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * ensures the persistent storage is ready to store the corresponding objects.
 	 * This typically means creating tables and indexes on a relational database
 	 * 
-	 * @throws GalliumException
 	 */
 	public void updatePersistenceStorage() {
 		if (this.hasProperty("STOREDOBJECT")) {

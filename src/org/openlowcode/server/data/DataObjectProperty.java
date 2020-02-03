@@ -147,7 +147,6 @@ public abstract class DataObjectProperty<E extends DataObject<E>>
 	 * fields
 	 * 
 	 * @return
-	 * @throws GalliumException
 	 */
 	public SimpleDataElt[] getDynamicDataElt() {
 		return new SimpleDataElt[0];

@@ -88,7 +88,7 @@ public class DataMigratorRefreshAllObjects
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
-		sg.wl("	public long executeRecoveryMigration() throws GalliumException {");
+		sg.wl("	public long executeRecoveryMigration()  {");
 		sg.wl("		return executeNormalMigration();");
 		sg.wl("	}");
 		sg.wl("");

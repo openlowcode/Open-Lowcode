@@ -24,7 +24,6 @@ public interface ConnectionPool {
 	/**
 	 * this method tries for a defined period of time to get a database connection in the pool. If after the timeout, connection could not be gotten,
 	 * then it returns null.
-	 * TODO check if it would not be better to return directly a GalliumException in case no connection could be got.
 	 * @return a connection if one connection was available, null else
 	 * @throws SQLException
 	 * @throws InterruptedException

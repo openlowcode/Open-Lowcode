@@ -226,7 +226,6 @@ public class SObjectTreeArray<E extends DataObject<E>> extends SPageNode impleme
 	 * hide the given attribute
 	 * 
 	 * @param marker attribute marker of the attribute to hide
-	 * @throws GalliumException
 	 */
 	public void hideAttribute(DataObjectFieldMarker<E> marker) {
 		hiddenfields.add(marker);

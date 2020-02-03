@@ -12,9 +12,10 @@ package org.openlowcode.server.action;
 
 import java.util.function.Function;
 
+import org.openlowcode.module.system.design.SystemModule;
 import org.openlowcode.server.graphic.widget.SActionDataLoc;
 import org.openlowcode.tools.structure.DataEltType;
-import org.openlowcode.module.system.Systemmodule;
+
 
 /**
  * An inline echo action ref, when triggered, transfers the data from a widget
@@ -38,7 +39,7 @@ public class SInlineEchoActionRef<E extends DataEltType>
 	 * @param dataelementtype type of data to transfer
 	 */
 	public SInlineEchoActionRef(E dataelementtype) {
-		super("ECHO", Systemmodule.getSystemModule().getName(), -1, true);
+		super("ECHO", SystemModule.getSystemModule().getName(), -1, true);
 		this.dataelementtype = dataelementtype;
 	}
 

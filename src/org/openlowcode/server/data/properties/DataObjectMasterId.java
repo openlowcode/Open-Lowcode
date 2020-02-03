@@ -109,8 +109,7 @@ public class DataObjectMasterId<E extends DataObject<E>> {
 	 * 
 	 * @param element    object data element
 	 * @param definition definition of the object
-	 * @return
-	 * @throws GalliumException
+	 * @return the generated master id
 	 */
 	public static <E extends DataObject<E>> DataObjectMasterId<E> generatefromDataObjectElt(
 			ObjectDataElt element,

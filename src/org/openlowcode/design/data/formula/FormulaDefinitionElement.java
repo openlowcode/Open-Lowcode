@@ -16,7 +16,7 @@ import org.openlowcode.design.data.DataObjectDefinition;
  * A formula definition element provides a result when a calculation is
  * triggered. This element will generate the appropriate code for run-time
  * 
- * {@Link gallium.design.data.formula.FormulaDefinition} are made of consistent
+ * {@Link org.openlowcode.design.data.formula.FormulaDefinition} are made of consistent
  * FormulaDefinitionElement.
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode

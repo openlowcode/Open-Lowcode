@@ -122,12 +122,10 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	}
 
 	/**
-	 * Returns the error message if this is a GalliumException, or more technical
-	 * information if not a Gallium Exception
+	 * Returns the error message
 	 * 
 	 * @param t a throwable
-	 * @return a String with the clearest possible message in the case this is not a
-	 *         GalliumException
+	 * @return a String with the clearest possible message 
 	 */
 	public static String buildExceptionMessage(Throwable t) {
 		if (t == null)

@@ -67,28 +67,28 @@ public class OLcServerLogFilter extends OpenLowcodeLogFilter {
 	protected String[] getPathesForAlias(String path) {
 		if (path.equals("@PERSISTENCE")) {
 			ArrayList<String> pathes = new ArrayList<String>();
-			pathes.add("gallium.server.data.storage.derbyjdbc.DerbyJDBCStorage");
-			pathes.add("gallium.server.data.storage.mariadbjdbc.MariaDBJDBCStorage");
-			pathes.add("gallium.server.data.storage.standardjdbc.BaseJDBCStorage");
-			pathes.add("gallium.server.data.storage.standardjdbc.JDBCRow");
-			pathes.add("gallium.server.data.storage.standardjdbc.SQLQueryConditionGenerator");
-			pathes.add("gallium.server.data.storage.standardjdbc.SQLQueryPSFiller");
+			pathes.add("org.openlowcode.server.data.storage.derbyjdbc.DerbyJDBCStorage");
+			pathes.add("org.openlowcode.server.data.storage.mariadbjdbc.MariaDBJDBCStorage");
+			pathes.add("org.openlowcode.server.data.storage.standardjdbc.BaseJDBCStorage");
+			pathes.add("org.openlowcode.server.data.storage.standardjdbc.JDBCRow");
+			pathes.add("org.openlowcode.server.data.storage.standardjdbc.SQLQueryConditionGenerator");
+			pathes.add("org.openlowcode.server.data.storage.standardjdbc.SQLQueryPSFiller");
 			return pathes.toArray(new String[0]);
 		}
 		if (path.equals("@SECURITY")) {
 			ArrayList<String> pathes = new ArrayList<String>();
-			pathes.add("gallium.server.security.GalliumActionAnarchySecurityManager");
-			pathes.add("gallium.server.security.GalliumActionAuthorization");
-			pathes.add("gallium.server.security.GalliumActionObjectDomainSecurityManager");
-			pathes.add("gallium.server.security.GalliumActionObjectSecurityManager");
-			pathes.add("gallium.server.security.GalliumActionObjectStateDomainSecurityManager");
-			pathes.add("gallium.server.security.GalliumActionObjectStateSecurityManager");
-			pathes.add("gallium.server.security.GalliumActionSecurityManager");
-			pathes.add("gallium.server.security.GalliumActionTotalSecurityManager");
-			pathes.add("gallium.server.security.GalliumSecurityBuffer");
-			pathes.add("gallium.server.security.GalliumSecurityManager");
-			pathes.add("gallium.server.security.GalliumServerSecurityBuffer");
-			pathes.add("gallium.server.security.GalliumServerSession");
+			pathes.add("org.openlowcode.server.security.ActionAnarchySecurityManager");
+			pathes.add("org.openlowcode.server.security.ActionAuthorization");
+			pathes.add("org.openlowcode.server.security.ActionObjectDomainSecurityManager");
+			pathes.add("org.openlowcode.server.security.ActionObjectSecurityManager");
+			pathes.add("org.openlowcode.server.security.ActionObjectStateDomainSecurityManager");
+			pathes.add("org.openlowcode.server.security.ActionObjectStateSecurityManager");
+			pathes.add("org.openlowcode.server.security.ActionSecurityManager");
+			pathes.add("org.openlowcode.server.security.ActionTotalSecurityManager");
+			pathes.add("org.openlowcode.server.security.SecurityBuffer");
+			pathes.add("org.openlowcode.server.security.SecurityManager");
+			pathes.add("org.openlowcode.server.security.OLcServerSecurityBuffer");
+			pathes.add("org.openlowcode.server.security.OLcServerSession");
 			return pathes.toArray(new String[0]);
 		}
 		return null;

@@ -223,7 +223,6 @@ public abstract class ActionExecution extends Named {
 	 * 
 	 * @return the security managers for the action, or null if the action has no
 	 *         security manager
-	 * @throws GalliumException
 	 */
 	public abstract ActionSecurityManager[] getActionSecurityManager();
 

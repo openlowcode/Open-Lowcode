@@ -394,7 +394,7 @@ public class LinkobjectQueryHelper {
 	 * @return an array of triples of left object, link and right object
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends DataObject<E> & LinkobjectInterface<E, F, G>, F extends DataObject<F> & UniqueidentifiedInterface<F>, G extends DataObject<G> & UniqueidentifiedInterface<G>> ThreeDataObjects<E, F, G>[] getlinksandbothobjects(
+	public <E extends DataObject<E> & LinkobjectInterface<E, F, G>, F extends DataObject<F> & UniqueidentifiedInterface<F>, G extends DataObject<G> & UniqueidentifiedInterface<G>> ThreeDataObjects<F, E, G>[] getlinksandbothobjects(
 			QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> leftobjectdefinition, DataObjectDefinition<G> rightobjectdefinition,
 			LinkobjectDefinition<E, F, G> propertydefinition) {

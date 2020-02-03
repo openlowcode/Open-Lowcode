@@ -80,10 +80,7 @@ public class UpdatelogUserFlatFileLoader<E extends DataObject<E>> extends FlatFi
 					usersbynumber.put(stringvalue, user);
 				} else {
 					logger.warning("Update log, user '" + stringvalue + "' does not exist, will put admin");
-					// TODO: by default, put admin if user not known, there should be an option to
-					// reject line
-					// throw new GalliumException(9999,"Unknown user provided for creationlog
-					// "+value);
+					
 				}
 			}
 		}

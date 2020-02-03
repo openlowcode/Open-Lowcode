@@ -172,8 +172,7 @@ public class Trigger<E extends DataObject<E> & UniqueidentifiedInterface<E>> ext
 	/**
 	 * Immediately executes the trigger
 	 * 
-	 * @param object
-	 * @throws GalliumException
+	 * @param object the object on which to execute the trigger
 	 */
 	private void processTriggerImmediately(E object) {
 		CustomTriggerExecution<E> trigger = triggerdefinition.getTriggerExecution().generate();
@@ -185,7 +184,6 @@ public class Trigger<E extends DataObject<E> & UniqueidentifiedInterface<E>> ext
 	 * action
 	 * 
 	 * @param object the object on which to execute the trigger
-	 * @throws GalliumException
 	 */
 	private void processTrigger(E object) {
 		CustomTriggerExecution<E> trigger = triggerdefinition.getTriggerExecution().generate();

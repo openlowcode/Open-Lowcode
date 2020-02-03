@@ -81,9 +81,11 @@ public abstract class DataElt extends Named {
 	 * for each element, should read and add content for all elements between the
 	 * "TYP" field (excluded) and the "DELT" structure end (also excluded)
 	 * 
-	 * @param reader
-	 * @throws GalliumException
+	 * @param reader reader
+	 * @throws OLcRemoteException if anything happened to the other party
+	 * @throws IOException if any communication error happens
 	 */
+
 	public abstract void addPayload(MessageReader reader) throws OLcRemoteException, IOException;
 
 	@SuppressWarnings("rawtypes")

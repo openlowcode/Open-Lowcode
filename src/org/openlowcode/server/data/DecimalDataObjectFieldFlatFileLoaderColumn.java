@@ -32,7 +32,9 @@ import org.openlowcode.server.data.loader.PostUpdateProcessingStore;
  *
  * @param <E>
  */
-public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>> extends FlatFileLoaderColumn<E> {
+public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
+		extends
+		FlatFileLoaderColumn<E> {
 	private static Logger logger = Logger.getLogger(DecimalDataObjectFieldFlatFileLoaderColumn.class.getName());
 	private String name;
 	private int scale;
@@ -58,12 +60,18 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 		}
 
 		/**
-		 * @param scale
-		 * @param precision
-		 * @param locale
-		 * @throws GalliumException
+		 * creates a decimal parser
+		 * 
+		 * @param scale     total number of digits of the number (e.g. 533.33 is 5
+		 *                  digits)
+		 * @param precision (digits to the right of decimal point (e.g. 533.33 has
+		 *                  precision on 2)
+		 * @param locale    locale if CSV import
 		 */
-		public DecimalParser(int scale, int precision, ChoiceValue<ApplocaleChoiceDefinition> locale,
+		public DecimalParser(
+				int scale,
+				int precision,
+				ChoiceValue<ApplocaleChoiceDefinition> locale,
 				int specialtreatment) {
 			this.scale = scale;
 			this.precision = precision;
@@ -119,8 +127,13 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 
 	private DecimalParser decimalparser;
 
-	public DecimalDataObjectFieldFlatFileLoaderColumn(DataObjectDefinition<E> definition, String[] arguments,
-			String name, int scale, int precision, ChoiceValue<ApplocaleChoiceDefinition> locale) {
+	public DecimalDataObjectFieldFlatFileLoaderColumn(
+			DataObjectDefinition<E> definition,
+			String[] arguments,
+			String name,
+			int scale,
+			int precision,
+			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		this.scale = scale;
 		this.precision = precision;
 		this.name = name;
@@ -164,8 +177,8 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 		if (!(field instanceof DecimalDataObjectField))
 			throw new RuntimeException("Expected field " + name
 					+ " would be of type DecimalDataObjectField but in reality, it is " + field.getClass().toString());
-		DecimalDataObjectField<?> decimalfield = (DecimalDataObjectField<?>) object.payload
-				.lookupSimpleFieldOnName(name);
+		DecimalDataObjectField<
+				?> decimalfield = (DecimalDataObjectField<?>) object.payload.lookupSimpleFieldOnName(name);
 		BigDecimal oldbigdecimal = decimalfield.getValue();
 		BigDecimal newbigdecimal = FlatFileLoader.parseDecimal(value, precision, scale,
 				"Flat file loader for column " + decimalfield.getName(), decimalparser);
@@ -188,8 +201,8 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 		if (!(field instanceof DecimalDataObjectField))
 			throw new RuntimeException("Expected field " + name
 					+ " would be of type DecimalDataObjectField but in reality, it is " + field.getClass().toString());
-		DecimalDataObjectField<?> decimalfield = (DecimalDataObjectField<?>) currentobject.payload
-				.lookupSimpleFieldOnName(name);
+		DecimalDataObjectField<
+				?> decimalfield = (DecimalDataObjectField<?>) currentobject.payload.lookupSimpleFieldOnName(name);
 		BigDecimal decimal = decimalfield.getValue();
 		if (decimal != null) {
 			decimal = decimal.multiply(this.multiplyatexport);

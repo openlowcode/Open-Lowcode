@@ -58,7 +58,6 @@ public abstract class SDataMigrator
 	 * treat all data, assuming no data has been transfered yet
 	 * 
 	 * @return the number of rows modified
-	 * @throws GalliumException
 	 */
 	public abstract long executeNormalMigration();
 
@@ -67,7 +66,6 @@ public abstract class SDataMigrator
 	 * robust to the fact some data may have already been transfered
 	 * 
 	 * @return the number of rows modified
-	 * @throws GalliumException
 	 */
 	public abstract long executeRecoveryMigration();
 

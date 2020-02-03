@@ -220,7 +220,7 @@ public class ClientSession {
 					logger.warning("Exception in close request listener " + e.getMessage());
 					for (int i = 0; i < e.getStackTrace().length; i++) {
 						String element = e.getStackTrace()[i].toString();
-						if ((element.startsWith("gallium") || (element.startsWith("org.openlowcode"))))
+						if (element.startsWith("org.openlowcode"))
 							logger.warning(e.getStackTrace()[i].toString());
 					}
 				}
@@ -670,7 +670,7 @@ public class ClientSession {
 		logger.warning("<!!!> Exception " + e.getClass().getName() + " - " + e.getMessage());
 		while (!exit) {
 			logger.warning(e.getStackTrace()[i].toString());
-			if (e.getStackTrace()[i].toString().indexOf("GalliumClientConnection") != -1)
+			if (e.getStackTrace()[i].toString().indexOf("ClientConnection") != -1)
 				exit = true; // only show stack trace until mangager
 			i++;
 			if (i >= e.getStackTrace().length)

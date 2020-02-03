@@ -227,14 +227,14 @@ public class SmartReport
 		}
 		sg.wl("package " + modulepath + ".page.generated;");
 		sg.wl("");
-		sg.wl("import gallium.server.action.SActionRef;");
-		sg.wl("import gallium.server.graphic.widget.SComponentBand;");
-		sg.wl("import gallium.server.graphic.widget.SPageText;");
-		sg.wl("import gallium.server.graphic.widget.SActionButton;");
-		sg.wl("import gallium.server.graphic.widget.SObjectIdStorage;");
-		sg.wl("import gallium.server.graphic.widget.STextField;");
-		sg.wl("import gallium.server.graphic.widget.SChoiceTextField;");
-		sg.wl("import gallium.server.graphic.widget.SObjectArrayField;");
+		sg.wl("import org.openlowcode.server.action.SActionRef;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SComponentBand;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SPageText;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SActionButton;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SObjectIdStorage;");
+		sg.wl("import org.openlowcode.server.graphic.widget.STextField;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SChoiceTextField;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SObjectArrayField;");
 
 		if (hasparentobject) {
 			sg.wl("import " + parentobject.getOwnermodule().getPath() + ".data." + parentobjectclass + ";");
@@ -262,18 +262,17 @@ public class SmartReport
 			sg.wl("import " + backtoobject.getOwnermodule().getPath() + ".action.generated.AtgShow"
 					+ StringFormatter.formatForAttribute(backtoobject.getName()) + "Action;");
 		}
-		sg.wl("import gallium.server.data.NodeTree;");
-		sg.wl("import gallium.server.graphic.widget.SFileDownloader;");
-		sg.wl("import gallium.server.data.ChoiceValue;");
-		sg.wl("import gallium.server.data.properties.DataObjectId;");
-		sg.wl("import gallium.server.graphic.SPageNode;");
-		sg.wl("import gallium.tools.trace.GalliumException;");
-		sg.wl("import gallium.server.action.SInlineActionRef;");
-		sg.wl("import gallium.server.action.SActionRef;");
-		sg.wl("import gallium.server.action.SInlineEchoActionRef;");
-		sg.wl("import gallium.server.graphic.widget.SFieldSearcher;");
-		sg.wl("import gallium.tools.struct.TObjectDataEltType;");
-		sg.wl("import gallium.server.graphic.widget.SObjectTreeArray;");
+		sg.wl("import org.openlowcode.server.data.NodeTree;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SFileDownloader;");
+		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.graphic.SPageNode;");
+		sg.wl("import org.openlowcode.server.action.SInlineActionRef;");
+		sg.wl("import org.openlowcode.server.action.SActionRef;");
+		sg.wl("import org.openlowcode.server.action.SInlineEchoActionRef;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SFieldSearcher;");
+		sg.wl("import import org.openlowcode.server.data.message.TObjectDataEltType;");
+		sg.wl("import org.openlowcode.server.graphic.widget.SObjectTreeArray;");
 		sg.wl("import " + modulepath + ".action.generated.AtgLaunchreportfor" + reportvariablename + "Action;");
 		sg.wl("import " + modulepath + ".action.generated.AtgLaunchexcelreportfor" + reportvariablename + "Action;");
 
@@ -434,16 +433,15 @@ public class SmartReport
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import java.util.List;");
-		sg.wl("import gallium.server.action.utility.SmartReportUtility;");
-		sg.wl("import gallium.server.data.NodeTree;");
-		sg.wl("import gallium.server.runtime.SModule;");
-		sg.wl("import gallium.server.data.loader.FlatFileExtractor;");
-		sg.wl("import gallium.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
+		sg.wl("import org.openlowcode.server.data.NodeTree;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("import org.openlowcode.server.data.loader.FlatFileExtractor;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
-		sg.wl("import gallium.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
-		sg.wl("import gallium.tools.trace.GalliumException;");
 		sg.wl("import " + modulepath + ".data.Reportfor" + reportvariablename + ";");
 		sg.wl("");
 		if (hasparentobject) {
@@ -515,7 +513,7 @@ public class SmartReport
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public SPage choosePage(SFile excelreport)  {");
-		sg.wl("		throw new GalliumException(9999,\"Should only be called as inline action\");");
+		sg.wl("		throw new RuntimeException(\"Should only be called as inline action\");");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("}");
@@ -540,7 +538,7 @@ public class SmartReport
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import java.util.List;");
-		sg.wl("import gallium.server.action.utility.SmartReportUtility;");
+		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
 		sg.wl("");
 		if (hasparentobject) {
 			sg.wl("import " + parentobject.getOwnermodule().getPath() + ".data." + parentobjectclass + ";");
@@ -566,21 +564,21 @@ public class SmartReport
 		sg.wl("import " + modulepath + ".page.generated.AtgReportfor" + reportvariablename + "Page;");
 		sg.wl("import " + modulepath + ".data.Reportfor" + reportvariablename + ";");
 
-		sg.wl("import gallium.server.data.ChoiceValue;");
-		sg.wl("import gallium.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 
-		sg.wl("import gallium.server.data.helpers.ReportTree;");
-		sg.wl("import gallium.server.graphic.SPage;");
-		sg.wl("import gallium.server.runtime.SModule;");
+		sg.wl("import org.openlowcode.server.data.helpers.ReportTree;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.SimpleQueryCondition;");
-		sg.wl("import gallium.server.data.properties.LinkedtoparentQueryHelper;");
-		sg.wl("import gallium.server.data.properties.FlexibledecimalfieldsDefinitionDynamicHelper;");
+		sg.wl("import org.openlowcode.server.data.properties.LinkedtoparentQueryHelper;");
+		sg.wl("import org.openlowcode.server.data.properties.FlexibledecimalfieldsDefinitionDynamicHelper;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryOperatorEqual;");
-		sg.wl("import gallium.tools.trace.GalliumException;");
-		sg.wl("import gallium.tools.util.CompositeObjectMap;");
+
+		sg.wl("import org.openlowcode.tools.util.CompositeObjectMap;");
 		sg.wl("import org.openlowcode.server.data.storage.AndQueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import java.util.ArrayList;");
@@ -730,14 +728,14 @@ public class SmartReport
 			sg.wl("import " + parentobject.getOwnermodule().getPath() + ".data." + parentobjectclass + ";");
 		}
 
-		sg.wl("import gallium.server.data.NodeTree;");
+		sg.wl("import org.openlowcode.server.data.NodeTree;");
 		sg.wl("import " + modulepath + ".page.generated.AtgReportfor" + reportvariablename + "Page;");
 		sg.wl("import " + modulepath + ".data.Reportfor" + reportvariablename + ";");
-		sg.wl("import gallium.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
-		sg.wl("import gallium.server.graphic.SPage;");
-		sg.wl("import gallium.server.runtime.SModule;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		for (int i = 0; i < filterelements.size(); i++) {
 			FilterElement<?> thisfilterelement = filterelements.get(i);
 
@@ -753,7 +751,6 @@ public class SmartReport
 					sg.wl(importsforaction[j]);
 		}
 
-		sg.wl("import gallium.tools.trace.GalliumException;");
 		sg.wl("");
 		sg.wl("public class AtgLaunchblankreportfor" + reportvariablename + "Action extends AbsLaunchblankreportfor"
 				+ reportvariablename + "Action {");

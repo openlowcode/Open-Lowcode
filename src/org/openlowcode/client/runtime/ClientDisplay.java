@@ -317,7 +317,7 @@ public class ClientDisplay {
 								logger.warning("Error in displaying page " + e.getMessage());
 								for (int i = 0; i < e.getStackTrace().length; i++) {
 									String element = e.getStackTrace()[i].toString();
-									if ((element.startsWith("gallium") || (element.startsWith("org.openlowcode"))))
+									if (element.startsWith("org.openlowcode"))
 										logger.warning(e.getStackTrace()[i].toString());
 								}
 							}
@@ -420,7 +420,7 @@ public class ClientDisplay {
 					logger.warning("Error in displaying page " + e.getMessage());
 					for (int i = 0; i < e.getStackTrace().length; i++) {
 						String element = e.getStackTrace()[i].toString();
-						if ((element.startsWith("gallium") || (element.startsWith("org.openlowcode"))))
+						if (element.startsWith("org.openlowcode"))
 							logger.warning(e.getStackTrace()[i].toString());
 					}
 
@@ -651,7 +651,7 @@ public class ClientDisplay {
 						logger.warning("Exception in setting status bar " + e.getMessage());
 						for (int i = 0; i < e.getStackTrace().length; i++) {
 							String element = e.getStackTrace()[i].toString();
-							if ((element.startsWith("gallium") || (element.startsWith("org.openlowcode"))))
+							if (element.startsWith("org.openlowcode"))
 								logger.warning(e.getStackTrace()[i].toString());
 						}
 					}
@@ -682,7 +682,7 @@ public class ClientDisplay {
 				logger.warning("Exception in setting status bar "+e.getMessage());
 				for (int i=0;i<e.getStackTrace().length;i++) {
 					String element = e.getStackTrace()[i].toString();
-					if ((element.startsWith("gallium") || (element.startsWith("org.openlowcode"))))
+					if (element.startsWith("org.openlowcode"))
 						logger.warning(e.getStackTrace()[i].toString());
 				}
 			}
@@ -718,7 +718,7 @@ public class ClientDisplay {
 					logger.warning("Exception in setting business screen frozen " + e.getMessage());
 					for (int i = 0; i < e.getStackTrace().length; i++) {
 						String element = e.getStackTrace()[i].toString();
-						if ((element.startsWith("gallium") || (element.startsWith("org.openlowcode"))))
+						if (element.startsWith("org.openlowcode"))
 							logger.warning(e.getStackTrace()[i].toString());
 					}
 				}

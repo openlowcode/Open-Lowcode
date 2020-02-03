@@ -24,7 +24,6 @@ public interface DataExtractorFromObject<E extends DataObject<E>, F extends Obje
 	/**
 	 * @param object the object (may not be persisted)
 	 * @return the field
-	 * @throws GalliumException
 	 */
 	public F extract(E object);
 }
