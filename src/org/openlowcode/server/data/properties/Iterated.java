@@ -43,7 +43,6 @@ public class Iterated<E extends DataObject<E> & UniqueidentifiedInterface<E> & I
 	/**
 	 * @param definition
 	 * @param parentpayload
-	 * @throws GalliumException
 	 */
 	@SuppressWarnings("unchecked")
 	public Iterated(DataObjectPropertyDefinition<E> definition, DataObjectPayload parentpayload) {

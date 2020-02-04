@@ -284,7 +284,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.properties.StoredobjectQueryHelper;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import java.util.function.Function;");
-		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
@@ -540,7 +539,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
 		sg.wl("import java.util.function.Function;");
-		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
@@ -762,7 +760,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
 		sg.wl("import java.util.function.Function;");
-		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
@@ -982,7 +979,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.data.properties.AutolinkobjectQueryHelper;");
 		sg.wl("import java.util.function.Function;");
-		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");

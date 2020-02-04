@@ -41,7 +41,8 @@ import org.openlowcode.server.runtime.OLcServer;
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  *
- * @param <E>
+ * @param <E> object being granted access rights
+ * @param <F> links to an app user to grant a personal access
  */
 public class ActionObjectPersonalSecurityManager<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & LinkobjectInterface<F, E, Appuser>>
 		extends ActionObjectSecurityManager<E> {
@@ -52,9 +53,9 @@ public class ActionObjectPersonalSecurityManager<E extends DataObject<E> & Uniqu
 
 	private Function<DataObjectId<Appuser>, F[]> getterfromappuserid;
 	private BiFunction<DataObjectId<Appuser>, DataObjectId<E>, F[]> getterfromappuseridandobject;
-	private StoredFieldSchema<String> maintableid;
-	private StoredFieldSchema<String> securitylinkleftid;
-	private StoredFieldSchema<String> securitylinkrightid;
+	private StoredFieldSchema<DataObjectId<E>> maintableid;
+	private StoredFieldSchema<DataObjectId<E>> securitylinkleftid;
+	private StoredFieldSchema<DataObjectId<Appuser>> securitylinkrightid;
 	private BiFunction<SActionData, SecurityBuffer, E[]> inputactiondataextractor;
 
 	/**
@@ -78,8 +79,8 @@ public class ActionObjectPersonalSecurityManager<E extends DataObject<E> & Uniqu
 			Function<DataObjectId<Appuser>, F[]> getterfromappuserid,
 			BiFunction<DataObjectId<Appuser>, DataObjectId<E>, F[]> getterfromappuseridandobject,
 			BiFunction<SActionData, SecurityBuffer, E[]> inputactiondataextractor,
-			StoredFieldSchema<String> maintableid, StoredFieldSchema<String> securitylinkleftid,
-			StoredFieldSchema<String> securitylinkrightid) {
+			StoredFieldSchema<DataObjectId<E>> maintableid, StoredFieldSchema<DataObjectId<E>> securitylinkleftid,
+			StoredFieldSchema<DataObjectId<Appuser>> securitylinkrightid) {
 		this.securitylinkdefinition = securitylinkdefinition;
 		this.getterfromappuserid = getterfromappuserid;
 		this.getterfromappuseridandobject = getterfromappuseridandobject;
@@ -178,12 +179,13 @@ public class ActionObjectPersonalSecurityManager<E extends DataObject<E> & Uniqu
 			public QueryFilter apply(TableAlias t) {
 				TableAlias personallink = new TableAlias(securitylinkdefinition.getTableschema(),
 						t.getName() + "_" + securitylinkdefinition.getName());
-				JoinQueryCondition<String> joincondition = new JoinQueryCondition<String>(t, maintableid, personallink,
-						securitylinkleftid, new QueryOperatorEqual<String>());
+				JoinQueryCondition<DataObjectId<E>> joincondition = new JoinQueryCondition<DataObjectId<E>>(t, maintableid, personallink,
+						securitylinkleftid, new QueryOperatorEqual<DataObjectId<E>>());
 				try {
 					DataObjectId<Appuser> currentuserid = OLcServer.getServer().getCurrentUserId();
-					SimpleQueryCondition<String> filterlinkbyuser = new SimpleQueryCondition<String>(personallink,
-							securitylinkrightid, new QueryOperatorEqual<String>(), currentuserid.getId());
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					SimpleQueryCondition<?> filterlinkbyuser = new SimpleQueryCondition(personallink,
+							securitylinkrightid, new QueryOperatorEqual(), currentuserid.getId());
 					return QueryFilter.get(new AndQueryCondition(joincondition, filterlinkbyuser), personallink);
 				} catch (RuntimeException e) {
 					logger.severe("Exception while generating Filter Condition " + e.getMessage());
