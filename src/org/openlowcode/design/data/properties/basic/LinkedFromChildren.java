@@ -239,6 +239,7 @@ public class LinkedFromChildren
 					for (int j = 0; j < linkedfromchildren.getParent().getPropertySize(); j++) {
 						Property<?> thisproperty = linkedfromchildren.getParent().getPropertyAt(j);
 						boolean done = false;
+						sg.wl("      // item "+j );
 						if (thisproperty instanceof LinkedFromChildren) {
 							LinkedFromChildren thislinkedfromchildren = (LinkedFromChildren) thisproperty;
 							if (thislinkedfromchildren.getName().compareTo(linkedfromchildren.getName()) == 0) {
@@ -251,9 +252,16 @@ public class LinkedFromChildren
 							}
 
 						}
+						// not clear if needed, see github issue #26
+						
 						if (!done) {
 							for (int k = 0; k < thisproperty.getContextDataForCreationSize(); k++) {
-
+								// treats specific case of recursive linked to parent
+								boolean exception = false;
+								if (thisproperty instanceof LinkedToParent) 
+									exception = true;
+								
+								if (!exception)
 								sg.wl("		create"
 										+ childclassattribute + "withparentaction.set" + StringFormatter
 												.formatForJavaClass(thisproperty.getContextDataForCreation(k).getName())
