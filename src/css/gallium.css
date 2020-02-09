@@ -1,0 +1,103 @@
+/********************************************************************************
+ * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0 .
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ********************************************************************************/
+
+.text-area#readonly {
+    -fx-background-color: white;
+    -fx-text-fill: #000000;
+}
+
+.text-area#readonly .scroll-pane {
+    -fx-background-color: white;
+}
+
+.text-area#readonly .scroll-pane .viewport{
+    -fx-background-color: white;
+}
+
+
+.text-area#readonly .scroll-pane .content{
+    -fx-background-color: white;
+    -fx-padding: 0.0em 0.0em 0.0em 0.0em;
+}
+
+.text-area:focus#readonly {
+    -fx-background-color: white;
+    -fx-text-fill: #000000;
+}
+
+.text-area:focus#readonly .scroll-pane {
+    -fx-background-color: white;
+}
+
+
+.text-area:focus#readonly .scroll-pane .viewport{
+    -fx-background-color: white;
+}
+
+
+.text-area:focus#readonly .scroll-pane .content{
+    -fx-background-color: white;
+    -fx-padding: 0.0em 0.0em 0.0em 0.0em;
+}
+
+.text-area#readonly .scroll-bar:vertical:disabled {
+    -fx-opacity: 0;
+}
+
+.table-view .column-header .label {          
+	-fx-font-weight: normal;    
+	}
+	
+.tree-table-view .column-header .label {          
+	-fx-font-weight: normal;    
+	}
+.root {
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: white;
+    -fx-effect: null;
+    -fx-opacity: 0;
+}
+.tab{
+-fx-base: #ffffff; -fx-hover-base: #ddeeff;
+}
+
+.list-view .scroll-bar:horizontal {
+    -fx-scale-y: 0;
+}
+
+.titled-pane > .title 
+{
+-fx-background-color: white, white, white;
+-fx-background-insets: 0, 1, 2;
+-fx-background-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0;
+-fx-padding: 0.166667em 0.833333em 0.25em 0.833333em; /* 2 10 3 10 */
+}
+
+.table-cell:focused {
+   -fx-padding: 0;
+}
+
+.titled-pane > *.content {
+    -fx-border-color: transparent;
+    -fx-border-insets: -1 -1 -1 -1;
+}
+
+.centeredTextArea .scroll-pane .content .text {
+    -fx-text-alignment: center;
+}
+
+.rightTextArea .scroll-pane .content .text {
+    -fx-text-alignment: right;
+}
+
+
