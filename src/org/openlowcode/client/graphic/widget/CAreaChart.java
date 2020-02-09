@@ -25,7 +25,7 @@ import org.openlowcode.client.graphic.CPageDataRef;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.graphic.Callback;
-import org.openlowcode.client.graphic.widget.tools.DateAxis;
+import org.openlowcode.client.graphic.widget.tools.TemporaryDateAxis;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.DataElt;
@@ -112,7 +112,7 @@ public class CAreaChart
 			TabPane[] parenttabpanes) {
 		currentdata = getExternalContent(inputdata, datareference);
 		setData(currentdata);
-		DateAxis xaxis = new DateAxis();
+		TemporaryDateAxis xaxis = new TemporaryDateAxis();
 		NumberAxis yaxis = new NumberAxis();
 		HashMap<
 				String,

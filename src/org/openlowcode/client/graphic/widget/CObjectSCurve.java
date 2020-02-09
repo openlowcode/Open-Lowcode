@@ -26,7 +26,7 @@ import org.openlowcode.client.graphic.CPageDataRef;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.graphic.Callback;
-import org.openlowcode.client.graphic.widget.tools.DateAxis;
+import org.openlowcode.client.graphic.widget.tools.TemporaryDateAxis;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.DataElt;
@@ -506,7 +506,7 @@ public class CObjectSCurve
 
 			inputdata.addInlineActionDataRef(this.inlineactiondataref);
 		}
-		DateAxis xAxis = new DateAxis(new Date(System.currentTimeMillis() - 86400l * 1000l * 60l),
+		TemporaryDateAxis xAxis = new TemporaryDateAxis(new Date(System.currentTimeMillis() - 86400l * 1000l * 60l),
 				new Date(System.currentTimeMillis() + 86400l * 30l * 1000l));
 
 		NumberAxis yAxis = new NumberAxis();
