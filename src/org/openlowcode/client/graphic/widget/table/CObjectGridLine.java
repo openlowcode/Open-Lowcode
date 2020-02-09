@@ -22,6 +22,7 @@ import org.openlowcode.client.graphic.widget.CTextField.OrderableString;
 import org.openlowcode.client.graphic.widget.tools.CChoiceFieldValue;
 import org.openlowcode.tools.misc.Named;
 import org.openlowcode.tools.misc.NamedList;
+import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.ChoiceDataElt;
 import org.openlowcode.tools.structure.DateDataElt;
 import org.openlowcode.tools.structure.DecimalDataElt;
@@ -239,6 +240,23 @@ public class CObjectGridLine<E extends Comparable<E>>
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * fill the row after an update
+	 * 
+	 * @param updatedobjectlist the updated objects
+	 * @param newelementname    new element name
+	 */
+	public void fillRowUpdated(ArrayDataElt<ObjectDataElt> updatedobjectlist, String newelementname) {
+		List<ObjectInGrid> array = linedata.getFullList();
+		for (int i = 0; i < array.size(); i++) {
+			if (array.get(i).isRowUpdated()) {
+				ObjectDataElt element = array.get(i).object;
+				element.changeName(newelementname);
+				updatedobjectlist.addElement(element);
+			}
+		}
 	}
 
 	/**
