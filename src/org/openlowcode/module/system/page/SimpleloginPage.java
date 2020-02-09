@@ -16,8 +16,8 @@ import org.openlowcode.server.graphic.SPageNode;
 import org.openlowcode.server.graphic.widget.SActionButton;
 import org.openlowcode.server.graphic.widget.SComponentBand;
 import org.openlowcode.server.graphic.widget.SPageText;
-import org.openlowcode.server.graphic.widget.SStringStorage;
 import org.openlowcode.server.graphic.widget.STextField;
+import org.openlowcode.server.graphic.widget.STextStorage;
 
 /**
  * The simple login page for the application. Allows to authenticate with user
@@ -47,7 +47,7 @@ public class SimpleloginPage
 		STextField user = new STextField("User", "USER", "your user account.", 80, "", this, login);
 		STextField password = new STextField("Password", "PASSWORD", "your password", 80, "", this, login);
 		password.hideDisplay();
-		SStringStorage context = new SStringStorage("CONTEXT", this, this.getContextaction());
+		STextStorage context = new STextStorage("CONTEXT", this, this.getContextaction());
 		mainband.addElement(context);
 		login.setUser(user.getTextInput());
 		login.setPassword(password.getTextInput());

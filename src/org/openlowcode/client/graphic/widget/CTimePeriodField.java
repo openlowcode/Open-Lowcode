@@ -22,13 +22,13 @@ import org.openlowcode.client.graphic.CPageSignifPath;
 import javafx.util.Callback;
 
 import org.openlowcode.client.graphic.widget.fields.TimePeriodField;
-import org.openlowcode.client.graphic.widget.richtext.RichTextArea;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.data.TimePeriod;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
+import org.openlowcode.tools.richtext.RichTextArea;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
 import org.openlowcode.tools.structure.ObjectDataElt;

@@ -22,8 +22,6 @@ import org.openlowcode.client.graphic.CPageData;
 import org.openlowcode.client.graphic.CPageDataRef;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
-import org.openlowcode.client.graphic.widget.richtext.RichText;
-import org.openlowcode.client.graphic.widget.richtext.RichTextArea;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
 import org.openlowcode.client.graphic.widget.table.LargeTextTableCell;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
@@ -44,6 +42,8 @@ import org.openlowcode.tools.messages.MessageIntegerField;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.MessageStartStructure;
 import org.openlowcode.tools.messages.OLcRemoteException;
+import org.openlowcode.tools.richtext.RichText;
+import org.openlowcode.tools.richtext.RichTextArea;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
