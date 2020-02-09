@@ -714,7 +714,6 @@ public class Module
 		sg.wl("");
 		sg.wl("import java.util.Date;");
 		sg.wl("import java.util.logging.Logger;");
-		sg.wl("import org.openlowcode.tools.util.Pair;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 

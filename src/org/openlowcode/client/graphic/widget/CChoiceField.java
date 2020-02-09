@@ -255,7 +255,6 @@ public class CChoiceField
 		return thischoiceelement;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Node getNode(
 			PageActionManager actionmanager,
