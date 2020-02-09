@@ -76,6 +76,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
 
 /**
+ * A grid is a way to display objects, with one object displayed per cell,
+ * ordered in a specific place on the grid based on the value of specific
+ * attributes. <br>
+ * This assumes that there is only one object for the combination of lines and
+ * columns
+ * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  *
@@ -118,6 +124,8 @@ public class CGrid
 	private Tooltip tooltip;
 
 	/**
+	 * create a grid component
+	 * 
 	 * @param reader     message reader from the server
 	 * @param parentpath parent path
 	 * @throws OLcRemoteException if anything bad happens on the server
@@ -265,6 +273,9 @@ public class CGrid
 
 	}
 
+	/**
+	 * copy the content of the grid to the clipboard
+	 */
 	public void copyTableToClipboard() {
 		ObservableList<CObjectGridLine<?>> griddata = tableview.getItems();
 		StringBuilder clipboardstring = new StringBuilder();
@@ -327,6 +338,12 @@ public class CGrid
 
 	}
 
+	/**
+	 * change the update state of the grid following user interaction
+	 * 
+	 * @param event      action event
+	 * @param mouseevent mouse event
+	 */
 	public void launchupdate(ActionEvent event, MouseEvent mouseevent) {
 		logger.fine(" --- ** --- display commit update with updatenote on cgrid is " + updatenote);
 		boolean update = true;
@@ -367,9 +384,6 @@ public class CGrid
 
 	}
 
-	/**
-	 * 
-	 */
 	private void resetAllUpdateFlags() {
 		for (int i = 0; i < tableview.getItems().size(); i++) {
 			CObjectGridLine<?> thisrow = tableview.getItems().get(i);
@@ -733,7 +747,6 @@ public class CGrid
 		return tableview;
 	}
 
-	@SuppressWarnings("unchecked")
 	private TableView<CObjectGridLine<?>> generateTableViewModel() {
 		TableView<CObjectGridLine<?>> returntable = new TableView<CObjectGridLine<?>>();
 		Collections.sort(arraycolumns);
@@ -763,6 +776,13 @@ public class CGrid
 		return returntable;
 	}
 
+	/**
+	 * parses the page data to get an array of object data elements
+	 * 
+	 * @param inputdata page input data
+	 * @param dataref   reference of the data to use in the page input data
+	 * @return an array of object data elements
+	 */
 	public ArrayDataElt<ObjectDataElt> getExternalContent(CPageData inputdata, CPageDataRef dataref) {
 		DataElt thiselement = inputdata.lookupDataElementByName(dataref.getName());
 		if (thiselement == null)
