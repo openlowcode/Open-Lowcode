@@ -365,7 +365,7 @@ public class CGanntChart
 
 	private class CGanttTask
 			extends
-			GanttTask {
+			GanttTask<CGanttTask> {
 
 		private ObjectDataElt payload;
 
