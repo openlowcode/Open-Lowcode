@@ -1,0 +1,90 @@
+<!--
+Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License 2.0 which is available at
+http://www.eclipse.org/legal/epl-2.0 .
+
+SPDX-License-Identifier: EPL-2.0
+
+-->
+<project default="cleanjar">
+
+	<target name="cleansecondcompile" depends="generatelinecount">
+		<delete dir="./bin/gallium/" />
+	</target>
+
+	<target name="secondcompile" depends="cleansecondcompile">
+
+		<javac encoding="utf-8" srcdir="./src" destdir="./bin" debug="true" debuglevel="source,lines,vars" classpath="C:\java8\jfxrt8\jfxrt.jar:./lib/javax.mail.jar:./lib/commons-logging-1.2.jar:./lib/fontbox-2.0.7.jar:./lib/pdfbox-2.0.7.jar:./lib/commons-collections4-4.2.jar:./lib/commons-compress-1.18.jar:./lib/xmlbeans-3.0.2.jar:./lib/poi-4.0.1.jar:./lib/poi-ooxml-4.0.1.jar:./lib/poi-ooxml-schemas-4.0.1.jar:C:\java8\extlib\OpenLowcode.jar">
+			<include name="gallium/**" />
+		</javac>
+	</target>
+
+	<target name="cleanfirstcompile">
+		<delete dir="./bin/org/openlowcode/" />
+	</target>
+
+	<target name="firstcompile" depends="cleanfirstcompile">
+
+		<javac encoding="utf-8" srcdir="./src" destdir="./bin" debug="true" debuglevel="source,lines,vars" classpath="C:\java8\jfxrt8\jfxrt.jar:./lib/javax.mail.jar:./lib/commons-logging-1.2.jar:./lib/fontbox-2.0.7.jar:./lib/pdfbox-2.0.7.jar:./lib/commons-collections4-4.2.jar:./lib/commons-compress-1.18.jar:./lib/xmlbeans-3.0.2.jar:./lib/poi-4.0.1.jar:./lib/poi-ooxml-4.0.1.jar:./lib/poi-ooxml-schemas-4.0.1.jar:C:\java8\extlib\OpenLowcode.jar">
+			<include name="org/openlowcode/design/**" />
+			<include name="org/openlowcode/tools/**" />
+			<include name="org/openlowcode/module/system/design/SystemModule.java" />
+
+		</javac>
+	</target>
+
+
+	<target name="generateversion" depends="firstcompile">
+		<java classname="org.openlowcode.OLcVersionGenerator" classpath="./bin/" />
+	</target>
+
+	<target name="generatesystemmodule" depends="generateversion">
+		<java classname="org.openlowcode.design.module.Module" classpath="./bin/">
+			<arg value="org.openlowcode.module.system.design.SystemModule" />
+		</java>
+	</target>
+	<target name="generatelinecount" depends="generatesystemmodule">
+		<java classname="org.openlowcode.stats.CountLinesOfCode" classpath="./bin/">
+			<arg value="./src;C:\Users\demau\git\Open-Lowcode" />
+			<arg value="./src/olccodemetrics.csv" />
+		</java>
+	</target>
+
+	<target name="cleanjar" depends="secondcompile">
+		<delete file="./bin/OLcServer.jar" />
+		<delete file="./bin/OLcUpdater.jar" />
+		<delete file="./bin/OLcClient.jar" />
+	</target>
+	<target name="jar" depends="cleanjar">
+
+		<jar destfile="./bin/OLcServer.jar">
+			<fileset dir="./bin/" includes="org/openlowcode/**" />
+			<fileset dir="./src/" includes="css/*.css" />
+		</jar>
+
+
+		<jar destfile="./bin/OLcClient.jar">
+			<fileset dir="./bin/" includes="org/openlowcode/OLcVersion.class" />
+			<fileset dir="./bin/" includes="org/openlowcode/client/**" />
+			<fileset dir="./bin/" includes="org/openlowcode/tools/**" />
+
+
+			<fileset dir="./bin/" includes="css/*.css" />
+			<fileset dir="./bin/" includes="css/*.png" />
+			<zipfileset includes="**/*" src="C:\java8\extlib\OpenLowcode.jar" />
+		</jar>
+		<jar destfile="./bin/OLcUpdater.jar">
+			<fileset dir="./bin/" includes="org/openlowcode/OLcVersion.class" />
+			<fileset dir="./bin/" includes="org/openlowcode/updater/**" />
+			<fileset dir="./bin/" includes="org/openlowcode/tools/**" />
+
+
+			<fileset dir="./bin/" includes="css/*.css" />
+			<fileset dir="./bin/" includes="css/*.png" />
+		</jar>
+	</target>
+
+
+</project>
