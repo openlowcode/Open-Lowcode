@@ -38,7 +38,8 @@ import org.openlowcode.server.data.storage.TableAlias;
  *
  */
 public class LinkedtoparentQueryHelper {
-	private static HashMap<String, LinkedtoparentQueryHelper> helperlist = new HashMap<String, LinkedtoparentQueryHelper>();
+	private static HashMap<
+			String, LinkedtoparentQueryHelper> helperlist = new HashMap<String, LinkedtoparentQueryHelper>();
 	private static Logger logger = Logger.getLogger(LinkedtoparentQueryHelper.class.getCanonicalName());
 	public final static String CHILD_OBJECT_ALIAS = "SINGLEOBJECT";
 	private static final int BATCH_QUERY_SIZE = 20;
@@ -78,19 +79,23 @@ public class LinkedtoparentQueryHelper {
 	 * @param linkedobjectdefinition definition of the parent object
 	 * @return the specified query condition
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>> QueryCondition getParentIdQueryCondition(
-			TableAlias alias, DataObjectId<F> parentidvalue, DataObjectDefinition<E> parentdefinition,
-			DataObjectDefinition<F> linkedobjectdefinition) {
+	public <
+			E extends DataObject<E> & UniqueidentifiedInterface<E>,
+			F extends DataObject<F> & UniqueidentifiedInterface<F>> QueryCondition getParentIdQueryCondition(
+					TableAlias alias,
+					DataObjectId<F> parentidvalue,
+					DataObjectDefinition<E> parentdefinition,
+					DataObjectDefinition<F> linkedobjectdefinition) {
 
-		LinkedtoparentDefinition<E, F> definition = new LinkedtoparentDefinition<E, F>(parentdefinition, name,
-				linkedobjectdefinition);
+		LinkedtoparentDefinition<
+				E, F> definition = new LinkedtoparentDefinition<E, F>(parentdefinition, name, linkedobjectdefinition);
 
 		String fieldname = name.toUpperCase() + "ID";
 		logger.info("generated field name " + fieldname + " for parentidcondition for parentdefiniton = "
 				+ parentdefinition.getName() + " for linkedobjectdefiniion = " + linkedobjectdefinition.getName());
 		@SuppressWarnings("unchecked")
-		StoredFieldSchema<String> parentid = (StoredFieldSchema<String>) definition.getDefinition()
-				.lookupOnName(fieldname);
+		StoredFieldSchema<
+				String> parentid = (StoredFieldSchema<String>) definition.getDefinition().lookupOnName(fieldname);
 		if (parentid == null)
 			throw new RuntimeException("could not find field in definition with name = '" + fieldname
 					+ "', available values = " + definition.getDefinition().dropNameList());
@@ -112,9 +117,14 @@ public class LinkedtoparentQueryHelper {
 	 *                               the child object
 	 * @return the children for the specified parent ids
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getallchildrenforseveralparents(
-			DataObjectId<F>[] parentid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
-			DataObjectDefinition<F> linkedobjectdefinition, LinkedtoparentDefinition<E, F> propertydefinition) {
+	public <
+			E extends DataObject<E> & UniqueidentifiedInterface<E>,
+			F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getallchildrenforseveralparents(
+					DataObjectId<F>[] parentid,
+					QueryFilter additionalcondition,
+					DataObjectDefinition<E> parentobjectdefinition,
+					DataObjectDefinition<F> linkedobjectdefinition,
+					LinkedtoparentDefinition<E, F> propertydefinition) {
 		ArrayList<E> results = new ArrayList<E>();
 
 		// work by batches to ensure query is not too long
@@ -130,32 +140,35 @@ public class LinkedtoparentQueryHelper {
 					.getUniversalQueryCondition(propertydefinition, CHILD_OBJECT_ALIAS);
 			OrQueryCondition uniqueidcondition = new OrQueryCondition();
 			int min = i * BATCH_QUERY_SIZE;
+			// condition added for issue #28 to avoid query without parent clause
+			if (min < parentid.length) {
+				for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
+					QueryCondition thisuniqueparentidcondition = null;
+					if (j < parentid.length) {
+						thisuniqueparentidcondition = getParentIdQueryCondition(alias, parentid[j],
+								parentobjectdefinition, linkedobjectdefinition);
+						uniqueidcondition.addCondition(thisuniqueparentidcondition);
 
-			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
-				QueryCondition thisuniqueparentidcondition = null;
-				if (j < parentid.length) {
-					thisuniqueparentidcondition = getParentIdQueryCondition(alias, parentid[j], parentobjectdefinition,
-							linkedobjectdefinition);
-					uniqueidcondition.addCondition(thisuniqueparentidcondition);
+					}
 
 				}
 
-			}
+				QueryCondition finalcondition = uniqueidcondition;
+				if (objectuniversalcondition != null) {
+					finalcondition = new AndQueryCondition(objectuniversalcondition, uniqueidcondition);
+				}
 
-			QueryCondition finalcondition = uniqueidcondition;
-			if (objectuniversalcondition != null) {
-				finalcondition = new AndQueryCondition(objectuniversalcondition, uniqueidcondition);
-			}
-
-			QueryCondition extendedcondition = parentobjectdefinition.extendquery(aliaslist, alias, finalcondition);
-			if (additionalcondition != null)
-				if (additionalcondition.getCondition() != null)
-					extendedcondition = new AndQueryCondition(extendedcondition, additionalcondition.getCondition());
-			Row answer = QueryHelper.getHelper().query(new SelectQuery(aliaslist, extendedcondition));
-			while (answer.next()) {
-				E formattedanswer = parentobjectdefinition.generateFromRow(answer, alias);
-				// put all results in a hasmap;
-				results.add(formattedanswer);
+				QueryCondition extendedcondition = parentobjectdefinition.extendquery(aliaslist, alias, finalcondition);
+				if (additionalcondition != null)
+					if (additionalcondition.getCondition() != null)
+						extendedcondition = new AndQueryCondition(extendedcondition,
+								additionalcondition.getCondition());
+				Row answer = QueryHelper.getHelper().query(new SelectQuery(aliaslist, extendedcondition));
+				while (answer.next()) {
+					E formattedanswer = parentobjectdefinition.generateFromRow(answer, alias);
+					// put all results in a hasmap;
+					results.add(formattedanswer);
+				}
 			}
 		}
 
@@ -173,9 +186,14 @@ public class LinkedtoparentQueryHelper {
 	 *                               the child object
 	 * @return the children for the specified parent id
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getallchildren(
-			DataObjectId<F> parentid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
-			DataObjectDefinition<F> linkedobjectdefinition, LinkedtoparentDefinition<E, F> propertydefinition) {
+	public <
+			E extends DataObject<E> & UniqueidentifiedInterface<E>,
+			F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getallchildren(
+					DataObjectId<F> parentid,
+					QueryFilter additionalcondition,
+					DataObjectDefinition<E> parentobjectdefinition,
+					DataObjectDefinition<F> linkedobjectdefinition,
+					LinkedtoparentDefinition<E, F> propertydefinition) {
 		NamedList<TableAlias> aliaslist = new NamedList<TableAlias>();
 		TableAlias alias = parentobjectdefinition.getAlias(CHILD_OBJECT_ALIAS);
 		aliaslist.add(alias);
