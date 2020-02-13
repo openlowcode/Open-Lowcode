@@ -213,7 +213,7 @@ public class AutolinkobjectQueryHelper {
 					.getUniversalQueryCondition(autolinkobjectDefinition, "SINGLEOBJECT");
 			OrQueryCondition uniqueidcondition = new OrQueryCondition();
 			int min = i * BATCH_QUERY_SIZE;
-
+			if (min<leftid.length) {
 			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 				QueryCondition thisuniqueidcondition = null;
 				if (j < leftid.length) {
@@ -244,7 +244,7 @@ public class AutolinkobjectQueryHelper {
 				// put all results in a hasmap;
 				results.add(formattedanswer);
 			}
-		}
+		}}
 
 		if (autolinkobjectDefinition.isSymetricLink()) {
 
@@ -260,7 +260,7 @@ public class AutolinkobjectQueryHelper {
 						.getUniversalQueryCondition(autolinkobjectDefinition, "SINGLEOBJECT");
 				OrQueryCondition uniqueidcondition = new OrQueryCondition();
 				int min = i * BATCH_QUERY_SIZE;
-
+				if (min<leftid.length) {
 				for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 					QueryCondition thisuniqueidcondition = null;
 					if (j < leftid.length) {
@@ -293,7 +293,8 @@ public class AutolinkobjectQueryHelper {
 					// put all results in a hasmap;
 					results.add(formattedanswer);
 				}
-			}
+			}}
+				
 
 		}
 
@@ -375,7 +376,7 @@ public class AutolinkobjectQueryHelper {
 					.getUniversalQueryCondition(autolinkobjectDefinition, "SINGLEOBJECT");
 			OrQueryCondition uniqueidcondition = new OrQueryCondition();
 			int min = i * BATCH_QUERY_SIZE;
-
+			if (min<rightid.length) {
 			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 				QueryCondition thisuniqueidcondition = null;
 				if (j < rightid.length) {
@@ -409,7 +410,7 @@ public class AutolinkobjectQueryHelper {
 				// put all results in a hasmap;
 				results.add(formattedanswer);
 			}
-		}
+		}}
 
 		return results.toArray(parentobjectdefinition.generateArrayTemplate());
 	}

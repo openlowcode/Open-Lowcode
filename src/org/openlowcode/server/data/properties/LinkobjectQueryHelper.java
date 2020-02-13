@@ -191,7 +191,7 @@ public class LinkobjectQueryHelper {
 					.getUniversalQueryCondition(propertydefinition, "SINGLEOBJECT");
 			OrQueryCondition uniqueidcondition = new OrQueryCondition();
 			int min = i * BATCH_QUERY_SIZE;
-
+			if (min < leftid.length) {
 			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 				QueryCondition thisuniqueidcondition = null;
 				if (j < leftid.length) {
@@ -218,6 +218,7 @@ public class LinkobjectQueryHelper {
 				E formattedanswer = parentobjectdefinition.generateFromRow(answer, alias);
 				// put all results in a hasmap;
 				results.add(formattedanswer);
+			}
 			}
 		}
 
@@ -260,7 +261,7 @@ public class LinkobjectQueryHelper {
 							additionalcondition.getCondition());
 			OrQueryCondition uniqueidcondition = new OrQueryCondition();
 			int min = i * BATCH_QUERY_SIZE;
-
+			if (min<rightid.length) {
 			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 				QueryCondition thisuniqueidcondition = null;
 				if (j < rightid.length) {
@@ -288,7 +289,7 @@ public class LinkobjectQueryHelper {
 				// put all results in a hasmap;
 				results.add(formattedanswer);
 			}
-		}
+		}}
 
 		return results.toArray(parentobjectdefinition.generateArrayTemplate());
 	}
@@ -695,7 +696,7 @@ public class LinkobjectQueryHelper {
 
 			OrQueryCondition uniqueidcondition = new OrQueryCondition();
 			int min = i * BATCH_QUERY_SIZE;
-
+			if (min<leftid.length) {
 			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 				QueryCondition thisuniqueidcondition = null;
 				if (j < leftid.length) {
@@ -742,7 +743,7 @@ public class LinkobjectQueryHelper {
 				G objecttwo = rightobjectdefinition.generateFromRow(answer, rightobjectalias);
 				results.add(new TwoDataObjects<F, G>(objectone, objecttwo));
 			}
-		}
+		}}
 
 		return results.toArray(new TwoDataObjects[0]);
 

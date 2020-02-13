@@ -149,7 +149,7 @@ public class UniqueidentifiedQueryHelper {
 					"SINGLEOBJECT");
 			OrQueryCondition uniqueidcondition = new OrQueryCondition();
 			int min = i * BATCH_QUERY_SIZE;
-
+			if (min < id.length) {
 			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 				QueryCondition thisuniqueidcondition = null;
 				if (j < id.length) {
@@ -175,6 +175,7 @@ public class UniqueidentifiedQueryHelper {
 				E formattedanswer = definition.generateFromRow(answer, alias);
 				// put all results in a hasmap;
 				resultsbyid.put(formattedanswer.getId().getId(), formattedanswer);
+			}
 			}
 		}
 		for (int i = 0; i < id.length; i++) {
