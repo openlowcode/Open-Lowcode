@@ -9,32 +9,25 @@ SPDX-License-Identifier: EPL-2.0
 
 -->
 <project default="cleanjar">
-
-	<target name="cleansecondcompile" depends="generatelinecount">
-		<delete dir="./bin/gallium/" />
-	</target>
-
-	<target name="secondcompile" depends="cleansecondcompile">
-
-		<javac encoding="utf-8" srcdir="./src" destdir="./bin" debug="true" debuglevel="source,lines,vars" classpath="C:\java8\jfxrt8\jfxrt.jar:./lib/javax.mail.jar:./lib/commons-logging-1.2.jar:./lib/fontbox-2.0.7.jar:./lib/pdfbox-2.0.7.jar:./lib/commons-collections4-4.2.jar:./lib/commons-compress-1.18.jar:./lib/xmlbeans-3.0.2.jar:./lib/poi-4.0.1.jar:./lib/poi-ooxml-4.0.1.jar:./lib/poi-ooxml-schemas-4.0.1.jar:C:\java8\extlib\OpenLowcode.jar">
-			<include name="gallium/**" />
-		</javac>
-	</target>
-
+	<!-- Those properties should be changed to match your precise installation-->
+	<property name="javafx.path" value="C:\java8\jfxrt8\"/>
+	<property name="libraries.path" value="C:\java8\extlib\"/>
+		
+	
 	<target name="cleanfirstcompile">
 		<delete dir="./bin/org/openlowcode/" />
 	</target>
 
 	<target name="firstcompile" depends="cleanfirstcompile">
 
-		<javac encoding="utf-8" srcdir="./src" destdir="./bin" debug="true" debuglevel="source,lines,vars" classpath="C:\java8\jfxrt8\jfxrt.jar:./lib/javax.mail.jar:./lib/commons-logging-1.2.jar:./lib/fontbox-2.0.7.jar:./lib/pdfbox-2.0.7.jar:./lib/commons-collections4-4.2.jar:./lib/commons-compress-1.18.jar:./lib/xmlbeans-3.0.2.jar:./lib/poi-4.0.1.jar:./lib/poi-ooxml-4.0.1.jar:./lib/poi-ooxml-schemas-4.0.1.jar:C:\java8\extlib\OpenLowcode.jar">
+		<javac encoding="utf-8" srcdir="./src" destdir="./bin" debug="true" debuglevel="source,lines,vars" 
+			classpath="${javafx.path}jfxrt.jar:${libraries.path}javax.mail.jar:${libraries.path}commons-logging-1.2.jar:${libraries.path}fontbox-2.0.7.jar:${libraries.path}pdfbox-2.0.7.jar:${libraries.path}commons-collections4-4.2.jar:${libraries.path}commons-compress-1.18.jar:${libraries.path}xmlbeans-3.0.2.jar:${libraries.path}poi-4.0.1.jar:${libraries.path}poi-ooxml-4.0.1.jar:${libraries.path}poi-ooxml-schemas-4.0.1.jar">
 			<include name="org/openlowcode/design/**" />
 			<include name="org/openlowcode/tools/**" />
 			<include name="org/openlowcode/module/system/design/SystemModule.java" />
 
 		</javac>
 	</target>
-
 
 	<target name="generateversion" depends="firstcompile">
 		<java classname="org.openlowcode.OLcVersionGenerator" classpath="./bin/" />
@@ -45,12 +38,33 @@ SPDX-License-Identifier: EPL-2.0
 			<arg value="org.openlowcode.module.system.design.SystemModule" />
 		</java>
 	</target>
+
+
 	<target name="generatelinecount" depends="generatesystemmodule">
 		<java classname="org.openlowcode.stats.CountLinesOfCode" classpath="./bin/">
 			<arg value="./src;C:\Users\demau\git\Open-Lowcode" />
 			<arg value="./src/olccodemetrics.csv" />
 		</java>
 	</target>
+
+	<target name="cleansecondcompile" depends="generatelinecount">
+		<delete dir="./bin/gallium/" />
+	</target>
+
+	<target name="secondcompile" depends="cleansecondcompile">
+
+		<javac encoding="utf-8" srcdir="./src" destdir="./bin" debug="true" debuglevel="source,lines,vars" 
+			classpath="${javafx.path}jfxrt.jar:${libraries.path}javax.mail.jar:${libraries.path}commons-logging-1.2.jar:${libraries.path}fontbox-2.0.7.jar:${libraries.path}pdfbox-2.0.7.jar:${libraries.path}commons-collections4-4.2.jar:${libraries.path}commons-compress-1.18.jar:${libraries.path}xmlbeans-3.0.2.jar:${libraries.path}poi-4.0.1.jar:${libraries.path}poi-ooxml-4.0.1.jar:${libraries.path}poi-ooxml-schemas-4.0.1.jar">
+			<include name="gallium/**" />
+		</javac>
+	</target>
+
+
+
+
+
+
+
 
 	<target name="cleanjar" depends="secondcompile">
 		<delete file="./bin/OLcServer.jar" />
