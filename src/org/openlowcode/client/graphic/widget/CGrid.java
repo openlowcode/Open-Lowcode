@@ -96,9 +96,9 @@ public class CGrid
 	private String name;
 	private CPageDataRef datareference;
 	private ArrayList<CBusinessField<?>> payloadlist;
-	private TableView<CObjectGridLine<?>> tableview;
-	private NamedList<CObjectGridLine<?>> dataingrid;
-	private ArrayList<ColumnAndStringIndex<?>> arraycolumns;
+	private TableView<CObjectGridLine<String>> tableview;
+	private NamedList<CObjectGridLine<String>> dataingrid;
+	private ArrayList<ColumnAndStringIndex<String>> arraycolumns;
 	private boolean isinlineupdate;
 	private boolean updatemodeactive;
 	private ArrayList<String> updateactionfields;
@@ -253,7 +253,7 @@ public class CGrid
 						if (thisobjectgrid.tableview.getEditingCell() == null) {
 							@SuppressWarnings("unchecked")
 							TablePosition<
-									CObjectGridLine<?>,
+									CObjectGridLine<String>,
 									?> focusedCellPosition = thisobjectgrid.tableview.getFocusModel().getFocusedCell();
 							thisobjectgrid.tableview.edit(focusedCellPosition.getRow(),
 									focusedCellPosition.getTableColumn());
@@ -277,13 +277,13 @@ public class CGrid
 	 * copy the content of the grid to the clipboard
 	 */
 	public void copyTableToClipboard() {
-		ObservableList<CObjectGridLine<?>> griddata = tableview.getItems();
+		ObservableList<CObjectGridLine<String>> griddata = tableview.getItems();
 		StringBuilder clipboardstring = new StringBuilder();
 		clipboardstring.append("<table cellspacing=\"0\" >");
 		// write header
 		clipboardstring.append("<tr>");
 		for (int i = 0; i < this.arraycolumns.size(); i++) {
-			TableColumn<CObjectGridLine<?>, String> thiscolumn = this.arraycolumns.get(i).column;
+			TableColumn<CObjectGridLine<String>, String> thiscolumn = this.arraycolumns.get(i).column;
 			String maincolumnlabel = thiscolumn.getText();
 			if (thiscolumn.getColumns().size() == 0) {
 				clipboardstring.append("<th>");
@@ -292,8 +292,8 @@ public class CGrid
 			} else {
 				for (int j = 0; j < thiscolumn.getColumns().size(); j++) {
 					@SuppressWarnings("unchecked")
-					TableColumn<CObjectGridLine<?>, String> subcolumn = (TableColumn<
-							CObjectGridLine<?>, String>) thiscolumn.getColumns().get(j);
+					TableColumn<CObjectGridLine<String>, String> subcolumn = (TableColumn<
+							CObjectGridLine<String>, String>) thiscolumn.getColumns().get(j);
 					String subcolumnlabel = maincolumnlabel + " " + subcolumn.getText();
 					clipboardstring.append("<th>");
 					clipboardstring.append(subcolumnlabel);
@@ -303,11 +303,11 @@ public class CGrid
 		}
 		clipboardstring.append("</tr>");
 		for (int a = 0; a < griddata.size(); a++) {
-			CObjectGridLine<?> thisgridline = griddata.get(a);
+			CObjectGridLine<String> thisgridline = griddata.get(a);
 
 			clipboardstring.append("<tr>");
 			for (int i = 0; i < this.arraycolumns.size(); i++) {
-				TableColumn<CObjectGridLine<?>, String> thiscolumn = this.arraycolumns.get(i).column;
+				TableColumn<CObjectGridLine<String>, String> thiscolumn = this.arraycolumns.get(i).column;
 
 				if (thiscolumn.getColumns().size() == 0) {
 					clipboardstring.append("<td>");
@@ -316,8 +316,8 @@ public class CGrid
 				} else {
 					for (int j = 0; j < thiscolumn.getColumns().size(); j++) {
 						TableColumn<
-								CObjectGridLine<?>,
-								?> subcolumn = (TableColumn<CObjectGridLine<?>, ?>) thiscolumn.getColumns().get(j);
+								CObjectGridLine<String>,
+								?> subcolumn = (TableColumn<CObjectGridLine<String>, ?>) thiscolumn.getColumns().get(j);
 						clipboardstring.append("<td>");
 						clipboardstring.append(RichText.escapetoHTML(subcolumn.getCellData(thisgridline).toString()));
 
@@ -360,10 +360,10 @@ public class CGrid
 
 			tableview.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-			ObservableList<CObjectGridLine<?>> tabledata = tableview.getItems();
+			ObservableList<CObjectGridLine<String>> tabledata = tableview.getItems();
 			boolean isupdated = false;
 			for (int i = 0; i < tabledata.size(); i++) {
-				CObjectGridLine<?> thisrow = tabledata.get(i);
+				CObjectGridLine<String> thisrow = tabledata.get(i);
 
 				if (thisrow.isRowUpdate())
 					isupdated = true;
@@ -386,7 +386,7 @@ public class CGrid
 
 	private void resetAllUpdateFlags() {
 		for (int i = 0; i < tableview.getItems().size(); i++) {
-			CObjectGridLine<?> thisrow = tableview.getItems().get(i);
+			CObjectGridLine<String> thisrow = tableview.getItems().get(i);
 			thisrow.resetUpdateFlag();
 		}
 
@@ -402,8 +402,8 @@ public class CGrid
 
 		this.actionmanager = actionmanager;
 		this.tooltip = new Tooltip("Double click on cell to see details\nRight click for update and copy");
-		dataingrid = new NamedList<CObjectGridLine<?>>();
-		arraycolumns = new ArrayList<ColumnAndStringIndex<?>>();
+		dataingrid = new NamedList<CObjectGridLine<String>>();
+		arraycolumns = new ArrayList<ColumnAndStringIndex<String>>();
 		// find the label of the line label
 		String linefieldlabel = null;
 		for (int i = 0; i < payloadlist.size(); i++) {
@@ -414,7 +414,7 @@ public class CGrid
 		if (linefieldlabel == null)
 			throw new RuntimeException("line field label not found");
 		// create a column for the line label
-		CObjectGridLineColumn<? extends Comparable<?>> linelabelcolumn = new CObjectGridLineColumn(linefieldlabel);
+		CObjectGridLineColumn<String> linelabelcolumn = new CObjectGridLineColumn(linefieldlabel);
 		linelabelcolumn.setEditable(false);
 		// adding null as index string so that it appears first
 		arraycolumns.add(new ColumnAndStringIndex(linelabelcolumn, null));
@@ -422,8 +422,8 @@ public class CGrid
 		HashMap<
 				String,
 				TableColumn<
-						CObjectGridLine<?>,
-						?>> datacolumnsbyname = new HashMap<String, TableColumn<CObjectGridLine<?>, ?>>();
+						CObjectGridLine<String>,
+						?>> datacolumnsbyname = new HashMap<String, TableColumn<CObjectGridLine<String>, ?>>();
 
 		ArrayDataElt<ObjectDataElt> data = getExternalContent(inputdata, datareference);
 
@@ -510,7 +510,7 @@ public class CGrid
 				if (displayvalue[k] == null)
 					throw new RuntimeException("Display value not found on object " + thisline.getUID());
 			}
-			CObjectGridLine<?> gridline = dataingrid.lookupOnName(Named.cleanName(rowvalue));
+			CObjectGridLine<String> gridline = dataingrid.lookupOnName(Named.cleanName(rowvalue));
 			if (gridline == null) {
 				gridline = new CObjectGridLine(this, rowvalue, rowordercode);
 				dataingrid.add(gridline);
@@ -537,8 +537,8 @@ public class CGrid
 					if (this.hassecondarycolumn) {
 						// just create the missing column for over-column.
 						TableColumn<
-								CObjectGridLine<?>,
-								String> overcolumn = new TableColumn<CObjectGridLine<?>, String>(columnvalue);
+								CObjectGridLine<String>,
+								String> overcolumn = new TableColumn<CObjectGridLine<String>, String>(columnvalue);
 						overcolumn.setId(columnvalue);
 						datacolumnsbyname.put(columnvalue, overcolumn);
 						arraycolumns.add(new ColumnAndStringIndex(overcolumn,
@@ -552,7 +552,7 @@ public class CGrid
 									updatefield = true;
 						if (!updatefield)
 							updatekey = null;
-						TableColumn<CObjectGridLine<?>, ?> datacolumn = displayfields[0]
+						TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[0]
 								.getTableColumnForGrid(actionmanager, 12, updatekey, columnvalue, null, true);
 
 						datacolumnsbyname.put(columnvalue, datacolumn);
@@ -562,8 +562,8 @@ public class CGrid
 				} else {
 					logger.fine(" --**-- adding column " + columnvalue);
 					TableColumn<
-							CObjectGridLine<?>,
-							String> overcolumn = new TableColumn<CObjectGridLine<?>, String>(columnvalue);
+							CObjectGridLine<String>,
+							String> overcolumn = new TableColumn<CObjectGridLine<String>, String>(columnvalue);
 					overcolumn.setId(columnvalue);
 					for (int k = 0; k < valuefield.length; k++) {
 
@@ -575,7 +575,7 @@ public class CGrid
 									updatefield = true;
 						if (!updatefield)
 							updatekey = null;
-						TableColumn<CObjectGridLine<?>, ?> datacolumn = displayfields[k]
+						TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[k]
 								.getTableColumnForGrid(actionmanager, 12, updatekey, columnvalue, null, false);
 						overcolumn.getColumns().add(datacolumn);
 
@@ -595,7 +595,7 @@ public class CGrid
 				// missing the secondary column
 				if (datacolumnsbyname
 						.get(CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue)) == null) {
-					TableColumn<CObjectGridLine<?>, ?> overcolumn = datacolumnsbyname.get(columnvalue);
+					TableColumn<CObjectGridLine<String>, ?> overcolumn = datacolumnsbyname.get(columnvalue);
 					String updatekey = (this.updateinlineaction != null ? this.updateinlineaction.key() : null);
 					boolean updatefield = false;
 					if (this.updateactionfields != null)
@@ -604,7 +604,7 @@ public class CGrid
 								updatefield = true;
 					if (!updatefield)
 						updatekey = null;
-					TableColumn<CObjectGridLine<?>, ?> datacolumn = displayfields[0].getTableColumnForGrid(
+					TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[0].getTableColumnForGrid(
 							actionmanager, 12, updatekey, columnvalue, secondarycolumnvalue, true);
 
 					datacolumnsbyname.put(CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue),
@@ -618,13 +618,13 @@ public class CGrid
 		// ------------------------------------------------------ End of determination
 		// of data-model -----------------------------
 		tableview = this.generateTableViewModel();
-		ObservableList<CObjectGridLine<?>> thistabledata = FXCollections.observableArrayList();
-		List<CObjectGridLine<?>> linestoorder = dataingrid.getFullList();
+		ObservableList<CObjectGridLine<String>> thistabledata = FXCollections.observableArrayList();
+		List<CObjectGridLine<String>> linestoorder = dataingrid.getFullList();
 		Collections.sort(linestoorder);
 
 		for (int i = 0; i < linestoorder.size(); i++) {
 			logger.fine("Display ordered grid key = " + linestoorder.get(i).getCodeToOrder());
-			CObjectGridLine<?> thisgridline = linestoorder.get(i);
+			CObjectGridLine<String> thisgridline = linestoorder.get(i);
 			logger.finest("---------- Audit of objects in grid, line = " + i + " " + thisgridline.getLineLabel() + " ("
 					+ thisgridline.hashCode() + ")---------------- ");
 			for (int j = 0; j < thisgridline.getObjectinlineNumber(); j++) {
@@ -747,22 +747,22 @@ public class CGrid
 		return tableview;
 	}
 
-	private TableView<CObjectGridLine<?>> generateTableViewModel() {
-		TableView<CObjectGridLine<?>> returntable = new TableView<CObjectGridLine<?>>();
+	private TableView<CObjectGridLine<String>> generateTableViewModel() {
+		TableView<CObjectGridLine<String>> returntable = new TableView<CObjectGridLine<String>>();
 		Collections.sort(arraycolumns);
 		for (int i = 0; i < arraycolumns.size(); i++) {
-			TableColumn<CObjectGridLine<?>, String> thiscolumn = arraycolumns.get(i).column;
+			TableColumn<CObjectGridLine<String>, String> thiscolumn = arraycolumns.get(i).column;
 			logger.fine("  GTVM --- " + thiscolumn.getId());
-			ObservableList<TableColumn<CObjectGridLine<?>, ?>> subcolumns = thiscolumn.getColumns();
+			ObservableList<TableColumn<CObjectGridLine<String>, ?>> subcolumns = thiscolumn.getColumns();
 			for (int k = 0; k < subcolumns.size(); k++)
 				logger.fine("    GTVM     ++ " + subcolumns.get(k).getId());
 			returntable.getColumns().add(thiscolumn);
 		}
 		double finalheightinpixel = 29;
-		returntable.setRowFactory(tv -> new TableRow<CObjectGridLine<?>>() {
+		returntable.setRowFactory(tv -> new TableRow<CObjectGridLine<String>>() {
 
 			@Override
-			public void updateItem(CObjectGridLine<?> object, boolean empty) {
+			public void updateItem(CObjectGridLine<String> object, boolean empty) {
 				super.updateItem(object, empty);
 				this.setMaxHeight(finalheightinpixel);
 				this.setMinHeight(finalheightinpixel);
@@ -805,11 +805,11 @@ public class CGrid
 			DataEltType payloadtypeinarray = arraytype.getPayloadType();
 			if (payloadtypeinarray instanceof ObjectDataEltType) {
 				ObjectDataEltType objecttype = (ObjectDataEltType) payloadtypeinarray;
-				ObservableList<CObjectGridLine<?>> tabledata = tableview.getItems();
+				ObservableList<CObjectGridLine<String>> tabledata = tableview.getItems();
 				ArrayDataElt<ObjectDataElt> output = new ArrayDataElt<ObjectDataElt>(eltname, objecttype);
 				int countrowsupdated = 0;
 				for (int i = 0; i < tabledata.size(); i++) {
-					CObjectGridLine<?> thisrow = tabledata.get(i);
+					CObjectGridLine<String> thisrow = tabledata.get(i);
 
 					if (thisrow.isRowUpdate()) {
 						thisrow.fillRowUpdated(output, eltname);
@@ -835,7 +835,7 @@ public class CGrid
 		if (type instanceof ObjectIdDataEltType) {
 			if (objectdataloc == null)
 				throw new RuntimeException("objectid field should have an objectfieldname");
-			CObjectGridLine<?> gridline = this.tableview.getSelectionModel().getSelectedItem();
+			CObjectGridLine<String> gridline = this.tableview.getSelectionModel().getSelectedItem();
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			ObservableList<
 					TablePosition<
@@ -894,7 +894,7 @@ public class CGrid
 		}
 		int updated = 0;
 		for (int i = 0; i < dataingrid.getSize(); i++) {
-			CObjectGridLine<?> currentline = dataingrid.get(i);
+			CObjectGridLine<String> currentline = dataingrid.get(i);
 			for (int j = 0; j < currentline.getObjectinlineNumber(); j++) {
 				ObjectInGrid object = currentline.getObjectinline(j);
 				String uid = object.getObject().getUID();
@@ -936,10 +936,10 @@ public class CGrid
 			startupdate.setOnAction(null);
 			commitupdate.setOnAction(null);
 			this.actionmanager = null;
-			ObservableList<CObjectGridLine<?>> tablerows = tableview.getItems();
-			Iterator<CObjectGridLine<?>> rowiterator = tablerows.iterator();
+			ObservableList<CObjectGridLine<String>> tablerows = tableview.getItems();
+			Iterator<CObjectGridLine<String>> rowiterator = tablerows.iterator();
 			while (rowiterator.hasNext()) {
-				CObjectGridLine<?> thisrow = rowiterator.next();
+				CObjectGridLine<String> thisrow = rowiterator.next();
 				thisrow.mothball();
 			}
 
@@ -962,7 +962,7 @@ public class CGrid
 	private class ColumnAndStringIndex<E extends Comparable<E>>
 			implements
 			Comparable<ColumnAndStringIndex<E>> {
-		private TableColumn<CObjectGridLine<?>, String> column;
+		private TableColumn<CObjectGridLine<String>, String> column;
 		private E orderedcolumnid;
 
 		@Override
@@ -978,14 +978,14 @@ public class CGrid
 			return this.orderedcolumnid.compareTo(o.orderedcolumnid);
 		}
 
-		public ColumnAndStringIndex(TableColumn<CObjectGridLine<?>, String> column, E orderedcolumnid) {
+		public ColumnAndStringIndex(TableColumn<CObjectGridLine<String>, String> column, E orderedcolumnid) {
 			super();
 			this.column = column;
 			this.orderedcolumnid = orderedcolumnid;
 		}
 
 		@SuppressWarnings("unused")
-		public TableColumn<CObjectGridLine<?>, String> getColumn() {
+		public TableColumn<CObjectGridLine<String>, String> getColumn() {
 			return column;
 		}
 
@@ -1006,11 +1006,11 @@ public class CGrid
 	public void reviewDataWarningForGrid() {
 		if (this.unsavedupdatewarning) {
 			logger.fine("------------------- starting evaluating unsaved data -----------------------");
-			ObservableList<CObjectGridLine<?>> objecttablerow = tableview.getItems();
-			Iterator<CObjectGridLine<?>> rowiterator = objecttablerow.iterator();
+			ObservableList<CObjectGridLine<String>> objecttablerow = tableview.getItems();
+			Iterator<CObjectGridLine<String>> rowiterator = objecttablerow.iterator();
 			int updatedrow = 0;
 			while (rowiterator.hasNext()) {
-				CObjectGridLine<?> thisrow = rowiterator.next();
+				CObjectGridLine<String> thisrow = rowiterator.next();
 				if (thisrow.isRowUpdate())
 					updatedrow++;
 			}

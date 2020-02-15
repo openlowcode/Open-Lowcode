@@ -179,7 +179,7 @@ public abstract class CBusinessField<E extends SimpleDataElt>
 	 *                             displays
 	 * @return
 	 */
-	public abstract TableColumn<CObjectGridLine<?>, ?> getTableColumnForGrid(
+	public abstract TableColumn<CObjectGridLine<String>, ?> getTableColumnForGrid(
 			PageActionManager pageactionmanager,
 			int preferedrowheight,
 			String actionkeyforupdate,

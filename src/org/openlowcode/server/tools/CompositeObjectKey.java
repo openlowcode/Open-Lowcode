@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ********************************************************************************/
 
-package org.openlowcode.tools.misc;
+package org.openlowcode.server.tools;
 
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.properties.DataObjectId;

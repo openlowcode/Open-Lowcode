@@ -976,7 +976,7 @@ public class CChoiceField
 	}
 
 	@Override
-	public TableColumn<CObjectGridLine<?>, ?> getTableColumnForGrid(
+	public TableColumn<CObjectGridLine<String>, ?> getTableColumnForGrid(
 			PageActionManager pageactionmanager,
 			int preferedrowheight,
 			String actionkeyforupdate,

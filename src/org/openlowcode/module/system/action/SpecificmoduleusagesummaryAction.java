@@ -35,7 +35,7 @@ import org.openlowcode.server.data.storage.SimpleQueryCondition;
 import org.openlowcode.server.data.storage.TableAlias;
 import org.openlowcode.server.graphic.SPage;
 import org.openlowcode.server.runtime.SModule;
-import org.openlowcode.tools.misc.StandardUtil;
+import org.openlowcode.server.tools.StandardUtil;
 
 /**
  * generates a specific module usage summary according to defined settings

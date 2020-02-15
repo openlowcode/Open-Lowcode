@@ -47,7 +47,7 @@ public class OLcVersionGenerator {
 	 * @throws IOException if any error is encountered writing the file
 	 */
 	public static void generateOLcVersion() throws IOException {
-		SourceGenerator sg = new SourceGenerator(new File("./src/org/openlowcode/GalliumVersion.java"),
+		SourceGenerator sg = new SourceGenerator(new File("./src/org/openlowcode/OLcVersion.java"),
 				"Nicolas de Mauroy", OLcVersionGenerator.version);
 
 		sg.wl("package org.openlowcode;");

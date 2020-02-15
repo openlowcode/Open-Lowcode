@@ -18,7 +18,7 @@ import java.util.List;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Field;
 import org.openlowcode.design.generation.SourceGenerator;
-import org.openlowcode.tools.misc.StandardUtil;
+import org.openlowcode.server.tools.StandardUtil;
 
 /**
  * A node in a smart report (a data object)

@@ -13,6 +13,7 @@ package org.openlowcode.design.data.properties.basic;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.PropertyBusinessRule;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
@@ -27,7 +28,7 @@ import org.openlowcode.design.generation.StringFormatter;
  */
 public class ConstraintOnAutolinkObjectSameParent
 		extends
-		PropertyBusinessRule<AutolinkObject<?>> {
+		PropertyBusinessRule<AutolinkObject<? super DataObjectDefinition>> {
 	private AutolinkObject<?> autolinkproperty;
 	private LinkedToParent<?> sameparent;
 

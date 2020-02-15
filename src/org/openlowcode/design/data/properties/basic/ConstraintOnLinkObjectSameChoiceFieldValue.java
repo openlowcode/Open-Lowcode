@@ -32,7 +32,7 @@ import org.openlowcode.design.generation.StringFormatter;
  */
 public class ConstraintOnLinkObjectSameChoiceFieldValue
 		extends
-		PropertyBusinessRule<LinkObject<?, ?>> {
+		PropertyBusinessRule<LinkObject<? super DataObjectDefinition, ? super DataObjectDefinition>> {
 
 	private LinkObject<?, ?> linkproperty;
 	private DataObjectDefinition leftobject;

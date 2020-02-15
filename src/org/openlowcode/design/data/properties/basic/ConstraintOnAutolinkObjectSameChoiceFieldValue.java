@@ -31,7 +31,7 @@ import org.openlowcode.design.generation.StringFormatter;
  */
 public class ConstraintOnAutolinkObjectSameChoiceFieldValue
 		extends
-		PropertyBusinessRule<AutolinkObject<?>> {
+		PropertyBusinessRule<AutolinkObject<? super DataObjectDefinition>> {
 
 	private AutolinkObject<?> autolinkproperty;
 	private DataObjectDefinition linkedobject;

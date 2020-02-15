@@ -12,6 +12,7 @@ package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
 
+import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.PropertyBusinessRule;
 import org.openlowcode.design.generation.SourceGenerator;
 
@@ -28,7 +29,7 @@ import org.openlowcode.design.generation.SourceGenerator;
  */
 public class DeleteChildrenWhenParentDeleted
 		extends
-		PropertyBusinessRule<LinkedToParent<?>> {
+		PropertyBusinessRule<LinkedToParent<? super DataObjectDefinition>> {
 
 	/**
 	 * creates the property to delete children when parent is deleted

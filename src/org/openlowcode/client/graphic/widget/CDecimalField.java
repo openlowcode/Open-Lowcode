@@ -22,7 +22,6 @@ import org.openlowcode.tools.messages.MessageIntegerField;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.MessageStartStructure;
 import org.openlowcode.tools.messages.OLcRemoteException;
-import org.openlowcode.tools.misc.StandardUtil;
 import org.openlowcode.client.action.CPageAction;
 import org.openlowcode.client.graphic.CPageData;
 import org.openlowcode.client.graphic.CPageDataRef;
@@ -36,6 +35,7 @@ import org.openlowcode.client.graphic.widget.table.LargeTextTreeTableCell;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine.ObjectInGrid;
 import org.openlowcode.client.runtime.PageActionManager;
+import org.openlowcode.server.tools.StandardUtil;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
 import org.openlowcode.tools.structure.DecimalDataElt;
@@ -753,7 +753,7 @@ public class CDecimalField
 	}
 
 	@Override
-	public TableColumn<CObjectGridLine<?>, LockableBigDecimal> getTableColumnForGrid(
+	public TableColumn<CObjectGridLine<String>, LockableBigDecimal> getTableColumnForGrid(
 			PageActionManager pageactionmanager,
 			int preferedrowheight,
 			String actionkeyforupdate,
@@ -761,8 +761,8 @@ public class CDecimalField
 			String secondarycolumnvalue,
 			boolean maincolumnvaluetitle) {
 		TableColumn<
-				CObjectGridLine<?>,
-				LockableBigDecimal> thiscolumn = new TableColumn<CObjectGridLine<?>, LockableBigDecimal>(
+				CObjectGridLine<String>,
+				LockableBigDecimal> thiscolumn = new TableColumn<CObjectGridLine<String>, LockableBigDecimal>(
 						(secondarycolumnvalue != null ? secondarycolumnvalue
 								: (maincolumnvaluetitle ? maincolumnvalue : this.getLabel())));
 		thiscolumn.setStyle("-fx-alignment: CENTER-RIGHT;");
@@ -773,7 +773,7 @@ public class CDecimalField
 		if (actionkeyforupdate != null) {
 			thiscolumn.setEditable(true);
 
-			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<CObjectGridLine<?>, LockableBigDecimal>>() {
+			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<CObjectGridLine<String>, LockableBigDecimal>>() {
 				public ObjectInGrid findObjectInGrid(CObjectGridLine<?> objectingrid) {
 					if (thissecondarycolumnvalue == null)
 						return objectingrid.getObjectInGrid(thismaincolumnvalue);
@@ -781,7 +781,7 @@ public class CDecimalField
 				}
 
 				@Override
-				public void handle(CellEditEvent<CObjectGridLine<?>, LockableBigDecimal> event) {
+				public void handle(CellEditEvent<CObjectGridLine<String>, LockableBigDecimal> event) {
 					try {
 						logger.finer("Triggering cell edit event ");
 						boolean treated = false;
@@ -843,7 +843,7 @@ public class CDecimalField
 
 		BigDecimalFormatValidator validator = new BigDecimalFormatValidator(precision, scale);
 		thiscolumn.setCellFactory(column -> {
-			return new LargeTextTableCell<CObjectGridLine<?>, LockableBigDecimal>(
+			return new LargeTextTableCell<CObjectGridLine<String>, LockableBigDecimal>(
 					new NiceLockableBigDecimalStringConverter(precision, scale), validator, this.decimalformatter,
 					false, true, preferedrowheight) {
 				@Override
@@ -872,7 +872,7 @@ public class CDecimalField
 		});
 
 		thiscolumn.setCellValueFactory(new Callback<
-				CellDataFeatures<CObjectGridLine<?>, LockableBigDecimal>, ObservableValue<LockableBigDecimal>>() {
+				CellDataFeatures<CObjectGridLine<String>, LockableBigDecimal>, ObservableValue<LockableBigDecimal>>() {
 			public ObjectInGrid findObjectInGrid(CObjectGridLine<?> objectingrid) {
 				if (thissecondarycolumnvalue == null)
 					return objectingrid.getObjectInGrid(thismaincolumnvalue);
@@ -881,7 +881,7 @@ public class CDecimalField
 
 			@Override
 			public ObservableValue<LockableBigDecimal> call(
-					CellDataFeatures<CObjectGridLine<?>, LockableBigDecimal> p) {
+					CellDataFeatures<CObjectGridLine<String>, LockableBigDecimal> p) {
 				try {
 					CObjectGridLine<?> gridline = p.getValue();
 					ObjectInGrid objectingrid = findObjectInGrid(gridline);

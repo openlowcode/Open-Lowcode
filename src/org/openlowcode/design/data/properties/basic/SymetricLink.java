@@ -12,6 +12,7 @@ package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
 
+import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.PropertyBusinessRule;
 import org.openlowcode.design.generation.SourceGenerator;
 
@@ -25,7 +26,7 @@ import org.openlowcode.design.generation.SourceGenerator;
  */
 public class SymetricLink
 		extends
-		PropertyBusinessRule<AutolinkObject<?>> {
+		PropertyBusinessRule<AutolinkObject<? super DataObjectDefinition>> {
 
 	/**
 	 * creates a property business rule symetric link to be added to the
