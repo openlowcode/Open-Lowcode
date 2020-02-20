@@ -61,7 +61,7 @@ public class SimpleObjectToAuthorityMapper
 		sg.wl("	private static " + objectclass + "SimpleTaskWorkflowHelper singleton;");
 		sg.wl("	private static DataObjectId<Authority> authority;");
 		sg.wl("	@Override");
-		sg.wl("	public int getDefaultDelay(int arg0)  {");
+		sg.wl("	public int getDefaultDelay()  {");
 		sg.wl("		return " + this.getDefaultDelayForTask() + ";");
 		sg.wl("	}");
 		sg.wl("");
@@ -72,12 +72,7 @@ public class SimpleObjectToAuthorityMapper
 		sg.wl("		return new SimpleObjectToAuthorityMapper<" + objectclass + ">(authority);");
 		sg.wl("	}");
 		sg.wl("");
-		sg.wl("");
-		sg.wl("		@Override");
-		sg.wl("		public ChoiceValue<DelaytypeChoiceDefinition> sendMailOnTask()  {");
-		sg.wl("			return DelaytypeChoiceDefinition.get()." + this.getEmailDelayType() + ";");
-		sg.wl("	}");
-		sg.wl("");
+
 		sg.wl("	@Override");
 		sg.wl("	public String getTaskMessage()  {");
 		sg.wl("		return \"" + this.getMessage() + "\";");

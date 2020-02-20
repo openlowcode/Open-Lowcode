@@ -101,7 +101,7 @@ public class MultiFieldConstraint
 			thisfield.writeDependentClass(sg, module);
 		}
 		sg.wl("import org.openlowcode.server.data.ChoiceValue;");
-		sg.wl("import org.openlowcode.server.utility.SMultiFieldConstraint;");
+		sg.wl("import org.openlowcode.server.data.SMultiFieldConstraint;");
 		sg.wl("import java.math.MathContext;");
 		sg.wl("");
 		sg.wl("public abstract class Abs" + constraintclass + "MultiFieldConstraint {");

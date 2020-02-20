@@ -360,7 +360,7 @@ public class DataObjectDefinitionOtherActions {
 							+ ";");
 					variablename.add(thislinkedfromchildren.getName().toLowerCase());
 					datacreation.add("		" + childclassname + "[] " + thislinkedfromchildren.getName().toLowerCase()
-							+ " = " + childclassname + ".getalllinksfromparentiteration(id, iteration, null);");
+							+ " = " + childclassname + ".getallsubobjectsfromparentiteration(id, iteration, null);");
 					otherattributes = true;
 				}
 			}

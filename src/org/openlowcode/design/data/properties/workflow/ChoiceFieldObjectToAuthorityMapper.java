@@ -173,13 +173,9 @@ public class ChoiceFieldObjectToAuthorityMapper
 		sg.wl("		");
 		sg.wl("	}");
 		sg.wl("");
+	
 		sg.wl("		@Override");
-		sg.wl("		public ChoiceValue<DelaytypeChoiceDefinition> sendMailOnTask()  {");
-		sg.wl("			return DelaytypeChoiceDefinition.get()." + this.getEmailDelayType() + ";");
-		sg.wl("	}");
-		sg.wl("");
-		sg.wl("		@Override");
-		sg.wl("		public int getDefaultDelay(int days) {");
+		sg.wl("		public int getDefaultDelay() {");
 		sg.wl("			return " + this.getDefaultDelayForTask() + ";");
 		sg.wl("		}");
 		sg.wl("}");

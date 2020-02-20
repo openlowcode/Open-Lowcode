@@ -1769,7 +1769,7 @@ public class Module
 									+ constraint.getRightobjectparentproperty().getInstancename().toUpperCase())
 							+ "Action.java";
 					logger.info("generating file " + fullfilepathsearchactionforrightobjectparent);
-					currentobject.getSearchPagesAndActions().generateSearchActionForRightObjectParentToFile(
+					currentobject.getSearchPagesAndActions().generateSearchActionWithParentToFile(
 
 							new SourceGenerator(new File(fullfilepathsearchactionforrightobjectparent),
 									this.getAuthor(), this.getVersionid()),

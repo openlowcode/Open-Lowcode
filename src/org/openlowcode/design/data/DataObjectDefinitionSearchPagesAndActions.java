@@ -224,7 +224,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 	 * @param module parent module
 	 * @throws IOException if anything bad happens while writing the file
 	 */
-	public void generateSearchActionForRightObjectParentToFile(SourceGenerator sg, Module module) throws IOException {
+	public void generateSearchActionWithParentToFile(SourceGenerator sg, Module module) throws IOException {
 		LinkObject<?, ?> linkobject = (LinkObject<?, ?>) object.getPropertyByName("LINKOBJECT");
 		@SuppressWarnings("rawtypes")
 		ConstraintOnLinkObjectSameParent<?, ?> constraintonparent = (ConstraintOnLinkObjectSameParent) linkobject
@@ -426,8 +426,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 
 		sg.wl(" 		QueryCondition parentfilter = LinkedtoparentQueryHelper.get(\"LINKEDTOPARENTFOR"
 				+ constraintonparent.getRightobjectparentproperty().getInstancename().toUpperCase()
-				+ "\").getParentIdQueryCondition(alias, parentid, " + parentobjectclass + ".getDefinition(),"
-				+ objectclass + ".getDefinition());");
+				+ "\").getParentIdQueryCondition(alias, parentid, " + objectclass + ".getDefinition(),"
+				+ parentobjectclass + ".getDefinition());");
 
 		sg.wl("		andconditions.add(parentfilter);");
 

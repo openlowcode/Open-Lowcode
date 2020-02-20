@@ -275,16 +275,16 @@ public abstract class ObjectPrivilege
 								+ "list.add(buffer.getObject(DataObjectId.generatefromDataObjectIdElt(thisobjectid,"
 								+ objectclass + ".getDefinition())));");
 						sg.wl("							} else {");
-						sg.wl("								throw new RuntimeException(\"was expecting an objectid attribute inside array called "
+						sg.wl("								throw new RuntimeException(String.format(\"was expecting an objectid attribute inside array called "
 								+ getaccesscriteria.getName().toUpperCase()
-								+ " as attribute 0, got %s \",thisobjectid.getName());");
+								+ " as attribute 0, got %s \",thisobjectid.getName()));");
 						sg.wl("							}");
 						sg.wl("						}");
 						sg.wl("						");
 						sg.wl("					} else {");
-						sg.wl("						throw new RuntimeException(\"was expecting an ObjectId inside array called "
+						sg.wl("						throw new RuntimeException(String.format(\"was expecting an ObjectId inside array called "
 								+ getaccesscriteria.getName().toUpperCase() + " as attribute 0, got %s \",attribute"
-								+ accesscriteriaindex + ".getArrayPayloadEltType() );");
+								+ accesscriteriaindex + ".getArrayPayloadEltType()));");
 						sg.wl("						");
 						sg.wl("					}	");
 						sg.wl("					" + objectvariable + "s = " + objectvariable + "list.toArray(new "
@@ -292,9 +292,9 @@ public abstract class ObjectPrivilege
 						sg.wl("				}");
 						sg.wl("				");
 						sg.wl("				if (" + objectvariable
-								+ "s == null) throw new RuntimeException( \" was expecting a DataObjectId<"
+								+ "s == null) throw new RuntimeException(String.format( \" was expecting a DataObjectId<"
 								+ objectclass + ">[] attribute called " + getaccesscriteria.getName().toUpperCase()
-								+ " as attribute 0, got %s \",actiondata.getAttribute(0));");
+								+ " as attribute 0, got %s \",actiondata.getAttribute(0)));");
 						sg.wl("				return " + objectvariable + "s;");
 						sg.wl("			}");
 						sg.wl("		}");
@@ -320,10 +320,10 @@ public abstract class ObjectPrivilege
 					sg.wl("				}");
 					sg.wl("				");
 					sg.wl("				if (" + objectvariable
-							+ " == null) throw new RuntimeException( \" was expecting a " + objectclass
+							+ " == null) throw new RuntimeException(String.format( \" was expecting a " + objectclass
 							+ " attribute called " + getaccesscriteria.getName().toUpperCase() + " as attribute "
 							+ accesscriteriaindex + " of action , got %s \",actiondata.getAttribute("
-							+ accesscriteriaindex + "));");
+							+ accesscriteriaindex + ")));");
 					sg.wl("				return new " + objectclass + "[]{" + objectvariable + "};			");
 					sg.wl("			}");
 					sg.wl("			");
