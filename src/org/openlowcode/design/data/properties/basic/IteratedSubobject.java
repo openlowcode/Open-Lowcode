@@ -85,7 +85,7 @@ public class IteratedSubobject
 		archivecurrentiteration
 				.addInputArgument(new MethodArgument("PARENTOLDITER", new IntegerArgument("PARENTOLDITER")));
 		this.addDataAccessMethod(archivecurrentiteration);
-		DataAccessMethod getlinksfromparentiteration = new DataAccessMethod("GETALLLINKSFROMPARENTITERATION",
+		DataAccessMethod getlinksfromparentiteration = new DataAccessMethod("GETALLSUBOBJECTSFROMPARENTITERATION",
 				new ArrayArgument(new ObjectArgument("links", parent)), true);
 		getlinksfromparentiteration.addInputArgument(new MethodArgument("PARENTID",
 				new ObjectIdArgument("leftid", this.linkedtoparent.getParentObjectForLink())));

@@ -55,6 +55,7 @@ public class DataMigratorRefreshAllObjects
 		sg.wl("import org.openlowcode.server.data.migrator.SDataMigrator;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
+		sg.wl("import "+object.getOwnermodule().getPath()+".data."+objectclass+";");
 		sg.wl("");
 		sg.wl("public class " + objectclass + "ComputedFieldsFullRefresh extends SDataMigrator {");
 		sg.wl("	private static String NAME = \"" + object.getOwnermodule().getName().toUpperCase() + "."
