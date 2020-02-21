@@ -74,7 +74,7 @@ public class OLcClient
 				"css/OLCNC64.png", // smallicon
 				"css/OLCNC32.png", // bigicon
 				"css/QM64.png", // Question Mark
-				"css/gallium.css" // CSS
+				"css/openlowcode.css" // CSS
 		);
 
 	}

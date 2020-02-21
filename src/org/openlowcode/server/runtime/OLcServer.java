@@ -235,7 +235,7 @@ public class OLcServer {
 				// this is an agreed exception
 				mainlogger.info("start adding module " + module);
 				Class<?> thismoduleclass = Class.forName(module);
-				Constructor<?> thismoduleconstructor = thismoduleclass.getConstructor((Class<?>) null);
+				Constructor<?> thismoduleconstructor = thismoduleclass.getConstructor();
 				Object thismodule = thismoduleconstructor.newInstance();
 				SModule thismodulecasted = (SModule) thismodule;
 				// reflection horror ended

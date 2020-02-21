@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.NodeTree;
-import org.openlowcode.server.tools.StandardUtil;
+import org.openlowcode.tools.misc.StandardUtil;
 
 /**
  * This class manages report trees,especially:

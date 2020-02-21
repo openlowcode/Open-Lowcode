@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ********************************************************************************/
 
-package org.openlowcode.server.tools;
+package org.openlowcode.tools.misc;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
