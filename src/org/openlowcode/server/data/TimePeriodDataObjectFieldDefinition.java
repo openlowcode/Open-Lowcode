@@ -30,7 +30,9 @@ import org.openlowcode.server.graphic.widget.STimePeriodField;
  *
  * @param <E> data object the field is on
  */
-public class TimePeriodDataObjectFieldDefinition<E extends DataObject<E>> extends DataObjectFieldDefinition<E> {
+public class TimePeriodDataObjectFieldDefinition<E extends DataObject<E>>
+		extends
+		DataObjectFieldDefinition<E> {
 	private static Logger logger = Logger.getLogger(TimePeriodDataObjectFieldDefinition.class.getName());
 	private PeriodType periodtype;
 	private StringStoredField mainfield;
@@ -46,13 +48,45 @@ public class TimePeriodDataObjectFieldDefinition<E extends DataObject<E>> extend
 	 * @param periodtype  type of TimePeriod (Year, Quarter, Month...)
 	 * @param definition  definition of the parent object
 	 */
-	public TimePeriodDataObjectFieldDefinition(String name, String displayname, String tooltip, boolean readonly,
-			PeriodType periodtype, DataObjectDefinition<E> definition) {
+	public TimePeriodDataObjectFieldDefinition(
+			String name,
+			String displayname,
+			String tooltip,
+			boolean readonly,
+			PeriodType periodtype,
+			DataObjectDefinition<E> definition) {
 		super(name, displayname, tooltip, readonly, definition);
 		this.periodtype = periodtype;
 		logger.finest("Period Type in field definition = " + this.periodtype + ", name = " + this.getName());
 		this.mainfield = new StringStoredField(this.getName(), null, 12);
 		this.addFieldSchema(mainfield);
+	}
+
+	/**
+	 * @param name        unique name of the field (without special character,
+	 *                    space...)
+	 * @param displayname display name for the field in the default language
+	 * @param tooltip     a long tooltip display when rolling-over
+	 * @param readonly    readonly if field is not modifiable by the user
+	 * @param periodtype  type of TimePeriod (Year, Quarter, Month...)
+	 * @param priority    priority of the field for client display between -1000
+	 *                    (low) and 1000 (high)
+	 * @param definition  definition of the parent object
+	 */
+	public TimePeriodDataObjectFieldDefinition(
+			String name,
+			String displayname,
+			String tooltip,
+			boolean readonly,
+			PeriodType periodtype,
+			int priority,
+			DataObjectDefinition<E> definition) {
+		super(name, displayname, tooltip, readonly, priority, 20, definition);
+		this.periodtype = periodtype;
+		logger.finest("Period Type in field definition = " + this.periodtype + ", name = " + this.getName());
+		this.mainfield = new StringStoredField(this.getName(), null, 12);
+		this.addFieldSchema(mainfield);
+
 	}
 
 	/**
@@ -62,7 +96,9 @@ public class TimePeriodDataObjectFieldDefinition<E extends DataObject<E>> extend
 	 *         SAS</a>
 	 *
 	 */
-	public static class TimePeriodFormatter implements StringDecoder {
+	public static class TimePeriodFormatter
+			implements
+			StringDecoder {
 
 		@Override
 		public String decode(String storedvalue) {
@@ -82,8 +118,10 @@ public class TimePeriodDataObjectFieldDefinition<E extends DataObject<E>> extend
 	}
 
 	@Override
-	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
-			String[] columnattributes, ChoiceValue<ApplocaleChoiceDefinition> locale) {
+	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
+			DataObjectDefinition<E> objectdefinition,
+			String[] columnattributes,
+			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		return new TimePeriodDataObjectFieldFlatFileLoader<E>(objectdefinition, columnattributes, this.getName(),
 				periodtype);
 

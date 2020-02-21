@@ -27,12 +27,14 @@ import org.openlowcode.tools.data.TimePeriod;
 public class TimePeriodField
 		extends
 		Field {
+	private boolean haspriority=false;
+	
 	/**
 	 * creates a field holding a time period with a specified type with default
 	 * priority
 	 * 
-	 * @param name        unique name for the data object (should be a valid java and
-	 *                    sql field name
+	 * @param name        unique name for the data object (should be a valid java
+	 *                    and sql field name
 	 * @param displayname name in the default language for display in the GUI
 	 * @param tooltip     mouse roll-over tooltip. Can be longer
 	 * @param type        type of Time Period (quarter, month, year...)
@@ -73,6 +75,7 @@ public class TimePeriodField
 		super(name, displayname, tooltip, priority);
 		this.indextype = INDEXTYPE_NONE;
 		init(type, name, displayname);
+		haspriority=true;
 	}
 
 	/**
@@ -108,9 +111,11 @@ public class TimePeriodField
 	}
 
 	@Override
+
 	public String getDataObjectConstructorAttributes() {
 		return "\"" + this.getName() + "\",\"" + this.getDisplayname() + "\",\"" + this.getTooltip() + "\","
-				+ this.isNoUserEdition() + "," + (this.type != null ? "TimePeriod.PeriodType." + type : "null");
+				+ this.isNoUserEdition() + "," + (this.type != null ? "TimePeriod.PeriodType." + type : "null")
+				+ (haspriority ? "," + this.getDisplayPriority() : "");
 
 	}
 
