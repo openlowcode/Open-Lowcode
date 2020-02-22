@@ -61,7 +61,7 @@ public abstract class ActionObjectDomainSecurityManager<E extends DataObject<E> 
 
 	@Override
 	public String toString() {
-		String returnstring = "GalliumActionObjectDomainSecurityManager:" + authoritysuffix;
+		String returnstring = "ActionObjectDomainSecurityManager:" + authoritysuffix;
 		return returnstring;
 	}
 
@@ -160,7 +160,7 @@ public abstract class ActionObjectDomainSecurityManager<E extends DataObject<E> 
 		Function<TableAlias, QueryFilter> returnfunction = new Function<TableAlias, QueryFilter>() {
 			@Override
 			public String toString() {
-				return "GalliumActionObjectDomainSecurityManager authoritysuffix = " + authoritysuffix;
+				return "ActionObjectDomainSecurityManager authoritysuffix = " + authoritysuffix;
 			}
 
 			@Override

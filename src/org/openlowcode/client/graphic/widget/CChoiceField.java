@@ -502,7 +502,7 @@ public class CChoiceField
 				logger.severe("exception in updating ChoiceField " + thischoicefield.getFieldname() + " : "
 						+ e.getClass().getName() + ": " + e.getMessage());
 				for (int i = 0; i < e.getStackTrace().length; i++)
-					if (e.getStackTrace()[i].toString().startsWith("gallium"))
+					if (e.getStackTrace()[i].toString().startsWith("org.openlowcode"))
 						logger.severe("		- " + e.getStackTrace()[i].toString());
 			}
 

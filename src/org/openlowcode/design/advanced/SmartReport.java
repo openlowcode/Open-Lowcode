@@ -271,7 +271,7 @@ public class SmartReport
 		sg.wl("import org.openlowcode.server.action.SActionRef;");
 		sg.wl("import org.openlowcode.server.action.SInlineEchoActionRef;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SFieldSearcher;");
-		sg.wl("import import org.openlowcode.server.data.message.TObjectDataEltType;");
+		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectTreeArray;");
 		sg.wl("import " + modulepath + ".action.generated.AtgLaunchreportfor" + reportvariablename + "Action;");
 		sg.wl("import " + modulepath + ".action.generated.AtgLaunchexcelreportfor" + reportvariablename + "Action;");
@@ -433,7 +433,6 @@ public class SmartReport
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import java.util.List;");
-		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
 		sg.wl("import org.openlowcode.server.data.NodeTree;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.server.data.loader.FlatFileExtractor;");
@@ -442,6 +441,8 @@ public class SmartReport
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
+		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
+		
 		sg.wl("import " + modulepath + ".data.Reportfor" + reportvariablename + ";");
 		sg.wl("");
 		if (hasparentobject) {
@@ -538,7 +539,6 @@ public class SmartReport
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import java.util.List;");
-		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
 		sg.wl("");
 		if (hasparentobject) {
 			sg.wl("import " + parentobject.getOwnermodule().getPath() + ".data." + parentobjectclass + ";");
@@ -568,7 +568,8 @@ public class SmartReport
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
-
+		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
+		
 		sg.wl("import org.openlowcode.server.data.helpers.ReportTree;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
@@ -578,7 +579,7 @@ public class SmartReport
 		sg.wl("import org.openlowcode.server.data.properties.FlexibledecimalfieldsDefinitionDynamicHelper;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryOperatorEqual;");
 
-		sg.wl("import org.openlowcode.tools.util.CompositeObjectMap;");
+		sg.wl("import org.openlowcode.tools.misc.CompositeObjectMap;");
 		sg.wl("import org.openlowcode.server.data.storage.AndQueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import java.util.ArrayList;");

@@ -50,12 +50,12 @@ public class SecurityBuffer {
 		DataObject<?> unparsedcachedobject = buffer.get(objectid);
 		if (unparsedcachedobject != null) {
 			queries++;
-			logger.fine("GalliumSecurityBuffer successful cache (" + buffers + "/" + queries + ")");
+			logger.fine("SecurityBuffer successful cache (" + buffers + "/" + queries + ")");
 			return (E) unparsedcachedobject;
 		}
 		E object = (E) (objectid.lookupObject());
 		buffers++;
-		logger.fine("GalliumSecurityBuffer read data in database (" + buffers + "/" + queries + ")");
+		logger.fine("SecurityBuffer read data in database (" + buffers + "/" + queries + ")");
 		buffer.put((DataObjectId<?>) objectid, object);
 		return object;
 	}

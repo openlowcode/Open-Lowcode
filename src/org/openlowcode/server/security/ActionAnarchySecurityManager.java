@@ -74,7 +74,7 @@ public class ActionAnarchySecurityManager extends ActionSecurityManager {
 	@Override
 	public String toString() {
 
-		return "GalliumActionAnarchySecurityManager";
+		return "ActionAnarchySecurityManager";
 	}
 
 }

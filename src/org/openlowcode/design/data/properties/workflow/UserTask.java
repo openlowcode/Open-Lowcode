@@ -43,7 +43,7 @@ public class UserTask
 	 * @param code                  code of the user task (should be unique)
 	 * @param title                 title of the task
 	 * @param taskmessage           the task message that will be displayed. It can
-	 *                              potentially be rich-text using Gallium rich-text
+	 *                              potentially be rich-text using Open Lowcode rich-text
 	 *                              language
 	 * @param delay                 number of units (see below delayindays) for
 	 *                              delay before task is considered late

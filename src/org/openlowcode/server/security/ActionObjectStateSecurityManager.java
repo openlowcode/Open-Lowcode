@@ -36,7 +36,7 @@ public abstract class ActionObjectStateSecurityManager<E extends DataObject<E> &
 
 	@Override
 	public String toString() {
-		String returnstring = "GalliumActionObjectStateSecurityManager:" + authority + "/";
+		String returnstring = "ActionObjectStateSecurityManager:" + authority + "/";
 		for (int i = 0; i < states.length; i++)
 			returnstring += states[i];
 		return returnstring;

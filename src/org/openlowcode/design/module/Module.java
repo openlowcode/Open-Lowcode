@@ -72,7 +72,7 @@ import org.openlowcode.module.system.design.SystemModule;
 import org.openlowcode.tools.trace.ConsoleFormatter;
 
 /**
- * A module is the basic unit of a gallium application. It is made of a group of
+ * A module is the basic unit of an Open Lowcode application. It is made of a group of
  * data objects ( {@link org.openlowcode.design.data.DataObjectDefinition})
  * tightly linked together.
  * 
@@ -297,8 +297,8 @@ public class Module
 	}
 
 	/**
-	 * Allows to specify an alternative to the default gallium add-on page. The
-	 * default Gallium add-on page has a menu with one menu per module.
+	 * Allows to specify an alternative to the default Open Lowcode add-on page. The
+	 * default Open Lowcode add-on page has a menu with one menu per module.
 	 * 
 	 * @param defaultaddon an addon page
 	 */
@@ -538,7 +538,7 @@ public class Module
 				"the highest authority for the module " + this.label
 						+ ". All actions on the module are available. Warning: Some actions may result in inconsistent data.");
 		moduleoverlordgroup = new Group(modulenameclass + "Overlord", moduleoverlord);
-		moduleadmin = new User(modulevariable + "admin", modulevariable + "admin", "contact@gallium.tech", null,
+		moduleadmin = new User(modulevariable + "admin", modulevariable + "admin", "welcome@openlowcode.com", null,
 				"Administrator for " + modulenameclass);
 		this.addAuthority(moduleoverlord);
 		this.addGroup(moduleoverlordgroup);
@@ -1991,7 +1991,7 @@ public class Module
 		mainlogger.addHandler(handler);
 
 		if (args.length == 0) {
-			logger.severe("Error : syntax java gallium.design.module.Module class1 [class2] ...");
+			logger.severe("Error : syntax java org.openlowcode.design.module.Module class1 [class2] ...");
 			logger.severe(
 					"where class1, class2 and following  are the full class (with path) of the main module of your application");
 			System.exit(1);

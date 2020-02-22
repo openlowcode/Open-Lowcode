@@ -325,8 +325,8 @@ public class PDFPage extends PDFPart {
 	/**
 	 * Generates an A4 format page with dimensions indicated in mm
 	 * @param portrait
-	 * @param leftrightmargin
-	 * @param topbottommargin
+	 * @param leftrightmargin margin at left and right in mm
+	 * @param topbottommargin margin at top and bottom in mm
 	 * @param topatzero
 	 * @throws IOException
 	 */
@@ -358,12 +358,12 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
-	 * @param customwidth
-	 * @param customheight
-	 * @param leftrightmargin
-	 * @param topbottommargin
+	 * @param customwidth custom width in mm
+	 * @param customheight custom height in mm
+	 * @param leftrightmargin margin at left and right in mm
+	 * @param topbottommargin margin at top and bottom in mm
 	 * @param topatzero
-	 * @throws IOException
+	 * @throws IOException if any issue related to file system happens creating the PDF page
 	 */
 	public PDFPage(float customwidth, float customheight, float leftrightmargin, float topbottommargin,
 			boolean topatzero) throws IOException {

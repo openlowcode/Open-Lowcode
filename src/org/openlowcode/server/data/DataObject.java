@@ -111,7 +111,7 @@ public abstract class DataObject<E extends DataObject<E>> extends Named {
 	/**
 	 * A deep copy will return a fresh object that has all fields copied and all
 	 * properties initiatilized like a new object. This is the prefered method for
-	 * creating new iterations or versions of object for the Gallium framework. It
+	 * creating new iterations or versions of object for the Open Lowcode framework. It
 	 * is also a useful framework for the home-made methods that have to perform
 	 * copies of objects.
 	 * 

@@ -110,7 +110,7 @@ public class SecurityManager extends Thread {
 
 	/**
 	 * This method is low performance way to get the user, and check that there is a
-	 * valid session. This method should only be called from the GalliumConnection
+	 * valid session. This method should only be called from the Connection
 	 * management of user authorization for action. Indeed, the method is low
 	 * performance and
 	 * 

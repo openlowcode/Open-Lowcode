@@ -43,7 +43,7 @@ public abstract class ActionTotalSecurityManager extends ActionSecurityManager {
 
 	@Override
 	public String toString() {
-		String returnstring = "GalliumActionTotalSecurityManager:";
+		String returnstring = "ActionTotalSecurityManager:";
 		for (int i = 0; i < relevantauthorities.size(); i++)
 			returnstring += relevantauthorities.get(i) + ":";
 		return returnstring;

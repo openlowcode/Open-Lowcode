@@ -635,7 +635,7 @@ public class ServerConnection extends Thread {
 						logger.severe("Starting treating download client request");
 						writer.startNewMessage();
 						File clienttodownload = new File(
-								"." + File.separator + "client" + File.separator + "GalliumClient.jar");
+								"." + File.separator + "client" + File.separator + "OLcClient.jar");
 						if (!clienttodownload.exists()) {
 							writer.sendMessageError(9999, "Client file missing on server " + clienttodownload
 									+ ". Please contact technical support.");
@@ -646,7 +646,7 @@ public class ServerConnection extends Thread {
 							FileInputStream fisfordownload = new FileInputStream(clienttodownload);
 							fisfordownload.read(filecontent);
 							fisfordownload.close();
-							SFile filetodownload = new SFile("GalliumClient.jar", filecontent);
+							SFile filetodownload = new SFile("OLcClient.jar", filecontent);
 							writer.startStructure("NEWCLIENTJAR");
 							writer.addLongBinaryField("JAR", filetodownload);
 							writer.endStructure("NEWCLIENTJAR");
@@ -832,7 +832,6 @@ public class ServerConnection extends Thread {
 				if (answerpage == null)
 					throw new RuntimeException("Action " + action.getName() + " / " + action.getClass().getName()
 							+ " brought back a null page");
-				// GalliumServer.getServer().executeTriggerList(); now in server execution
 				this.sendPage(answerpage, writer, buffer, clientpagesinbuffer);
 
 				logger.info("sent page " + answerpage.getName() + "for action " + actionname + " to to ip = " + ip

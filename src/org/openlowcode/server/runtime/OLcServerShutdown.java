@@ -52,13 +52,13 @@ public class OLcServerShutdown {
 			mainlogger.addHandler(consolehandler);
 			File file = new File("./log/");
 			System.err.println("log folder = " + file.getAbsolutePath());
-			FileHandler logfilehandler = new FileHandler("./log/GalliumClient%g.log", 10000000, 1000, true);
+			FileHandler logfilehandler = new FileHandler("./log/OpenLowcodeClient%g.log", 10000000, 1000, true);
 			logfilehandler.setLevel(Level.FINEST);
 			logfilehandler.setFormatter(new FileFormatter(true));
 			mainlogger.addHandler(logfilehandler);
 			mainlogger.setUseParentHandlers(false);
 			// ------------------------------------------------------------------------------
-			logger.severe("Connection to Gallium Server on localhost port " + port + " to send shutdown message");
+			logger.severe("Connection to Open-Lowcode Server on localhost port " + port + " to send shutdown message");
 			Socket clientsocket = new Socket("localhost", port);
 			MessageSimpleReader reader = new MessageSimpleReader(
 					new BufferedReader(new InputStreamReader(clientsocket.getInputStream()), 9090));

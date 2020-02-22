@@ -132,7 +132,7 @@ public class PrintOut
 
 	@Override
 	public void writeDependentClass(SourceGenerator sg, Module module) throws IOException {
-		sg.wl("import org.openlowcode.server.pdfprint.PrintOutGenerator;");
+		sg.wl("import org.openlowcode.server.data.properties.PrintOutGenerator;");
 		sg.wl("import " + parent.getOwnermodule().getPath() + ".utility." + printouthelperclass + ";");
 	}
 

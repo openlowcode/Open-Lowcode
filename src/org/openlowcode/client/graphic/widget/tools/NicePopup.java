@@ -100,7 +100,7 @@ public class NicePopup {
 
 				}
 
-				dialogScene.getStylesheets().add("css/gallium.css");
+				dialogScene.getStylesheets().add("css/openlowcode.css");
 				dialog.setScene(dialogScene);
 				dialog.show();
 				dialog.sizeToScene();

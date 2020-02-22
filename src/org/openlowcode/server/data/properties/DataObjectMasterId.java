@@ -55,7 +55,7 @@ public class DataObjectMasterId<E extends DataObject<E>> {
 
 	/**
 	 * 
-	 * can only be called from the gallium.server.data.properties package
+	 * can only be called from the org.openlowcode.server.data.properties package
 	 * 
 	 * @param id the string encapsulated in the object
 	 */

@@ -104,7 +104,7 @@ public class ObjectStateDomainPrivilege
 
 	@Override
 	public String getSecurityManagerClassName() {
-		return "GalliumActionObjectStateDomainSecurityManager";
+		return "ActionObjectStateDomainSecurityManager";
 	}
 
 	@Override

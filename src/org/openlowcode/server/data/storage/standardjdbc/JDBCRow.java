@@ -167,7 +167,7 @@ public class JDBCRow implements Row {
 			for (int i = 0; i < e.getStackTrace().length; i++) {
 
 				String thisline = e.getStackTrace()[i].toString();
-				if (thisline.indexOf("gallium.server.data") != -1) {
+				if (thisline.indexOf("org.openlowcode.server.data") != -1) {
 					exceptionline = thisline;
 					break;
 				}

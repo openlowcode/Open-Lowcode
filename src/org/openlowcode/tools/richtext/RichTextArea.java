@@ -355,7 +355,7 @@ public class RichTextArea {
 	}
 
 	/**
-	 * a control that allows to display and edit a text, potentially with Gallium
+	 * a control that allows to display and edit a text, potentially with 
 	 * specific rich-text file. It always displays the full size of the text
 	 * 
 	 * @param richtext true if rich text

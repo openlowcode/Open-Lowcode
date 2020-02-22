@@ -1100,8 +1100,6 @@ public class CObjectArray
 	 * When this method is triggered, it reviews the number of rows in the table
 	 * that have been edited, and according to total data table, create or remove
 	 * the data update warning
-	 * 
-	 * @throws GalliumException
 	 */
 	public void reviewDataWarningForTable() {
 		if (this.unsavedupdatewarning) {

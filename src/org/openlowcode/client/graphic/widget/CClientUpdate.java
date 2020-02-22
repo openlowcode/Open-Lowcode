@@ -80,7 +80,7 @@ public class CClientUpdate
 				logger.severe("---------------------------------------------------------------");
 				try {
 					Runtime.getRuntime()
-							.exec("javaw -classpath ./lib/GalliumUpdater.jar gallium.updater.ClientUpdater \""
+							.exec("javaw -classpath ./lib/OLcUpdater.jar org.openlowcode.updater.ClientUpdater \""
 									+ argumentcontent + "\"");
 
 					logger.warning("Successfully launched updater. Client will shutdown");

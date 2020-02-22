@@ -228,7 +228,6 @@ public class FilterElementLink<E extends Object>
 		imports.add("import " + linkobject.getParent().getOwnermodule().getPath() + ".data."
 				+ StringFormatter.formatForJavaClass(linkobject.getParent().getName()) + ";");
 		imports.add("import org.openlowcode.server.action.utility.SmartReportUtility;");
-
 		return imports.toArray(new String[0]);
 	}
 
