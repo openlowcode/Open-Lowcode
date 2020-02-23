@@ -486,7 +486,7 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("package " + module.getPath() + ".action.generated;");
 		sg.wl("");
 		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
-		sg.wl("import " + module.getPath() + ".data." + parentobjectclass + ";");
+		sg.wl("import " + parentobject.getOwnermodule().getPath() + ".data." + parentobjectclass + ";");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");

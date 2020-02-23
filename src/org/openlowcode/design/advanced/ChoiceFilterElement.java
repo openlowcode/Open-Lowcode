@@ -192,7 +192,7 @@ public class ChoiceFilterElement<E extends Object>
 					+ fieldclass + "SelectionHelperFor" + reportnameclass + ";");
 			imports.add("import org.openlowcode.server.data.storage.OrQueryCondition;");
 			imports.add("import java.util.List;");
-			imports.add("import java.util.Function;");
+			imports.add("import java.util.function.Function;");
 		}
 		return imports.toArray(new String[0]);
 	}
