@@ -46,7 +46,7 @@ import javafx.scene.control.TableRow;
 public class OLcClient
 		extends
 		Application {
-
+	
 	private static String urltoconnect;
 	private static boolean nolog = false;
 
@@ -60,7 +60,20 @@ public class OLcClient
 		launch(args);
 
 	}
-
+	
+	/**
+	 * @return
+	 */
+	public String getUpdaterJar() {
+		return "OLcUpdater.jar";
+	}
+	/**
+	 * @return
+	 */
+	public String getUpdaterClass() {
+		return "org.openlowcode.updater.ClientUpdater";
+	}
+	
 	@Override
 	public void start(Stage stage) throws Exception {
 		EncrypterHolder.InitEncrypterHolder(OLcEncrypter.getEncrypter());
@@ -84,7 +97,7 @@ public class OLcClient
 
 			@Override
 			public CPage generateClientUpgradePage(String clientversion, String serverversion, Date serverupdatedate) {
-				return new ClientUpgradePage(clientversion, serverversion, serverupdatedate);
+				return new ClientUpgradePage(clientversion, serverversion, serverupdatedate,getUpdaterJar(),getUpdaterClass());
 			}
 
 		};

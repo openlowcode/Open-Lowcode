@@ -74,7 +74,12 @@ public class OLcServer {
 	private static OLcServer serversingleton;
 	private InetAddress localhost;
 	private ConnectionListener connectionlisterner;
+	private String clientjar;
 
+	public String getClientJar() {
+		return this.clientjar;
+	}
+	
 	/**
 	 * gets the internet address of the server
 	 * 
@@ -170,17 +175,36 @@ public class OLcServer {
 	 *                             server
 	 * @param reducedlogs          if true, only warnings and severe logs are set in
 	 *                             logs
+	 * @param clientjar            name of the clientjar to send for the client
+	 *                             updater (default: OLcClient.jar). The file has to
+	 *                             be in the ./client/ folder.
 	 */
-	public OLcServer(String logfolder, String dbtype, String jdbcurl, String jdbcuser, String jdbcpassword,
-			int minconnection, int maxconnection, int port, String[] modulenamelist, boolean messageaudit,
-			String ldapconnectionstring, String ldapuser, String ldappassword, String smtpurl, int smtpport,
-			String smtpuser, String stmppassword, boolean reducedlogs) {
+	public OLcServer(
+			String logfolder,
+			String dbtype,
+			String jdbcurl,
+			String jdbcuser,
+			String jdbcpassword,
+			int minconnection,
+			int maxconnection,
+			int port,
+			String[] modulenamelist,
+			boolean messageaudit,
+			String ldapconnectionstring,
+			String ldapuser,
+			String ldappassword,
+			String smtpurl,
+			int smtpport,
+			String smtpuser,
+			String stmppassword,
+			boolean reducedlogs,
+			String clientjar) {
 		serversingleton = this; // to make sure singleton is initiated for what happens at launch (inside server
 								// creation method)
-
+		this.clientjar = clientjar;
 		try {
 			// init encrypter
-
+			
 			EncrypterHolder.InitEncrypterHolder(OLcEncrypter.getEncrypter());
 
 			String initmessage = "Startup of server version " + getServerVersion();
@@ -399,16 +423,16 @@ public class OLcServer {
 		String dbtype = args[7 + smtpargnumber];
 
 		boolean isargvalid = false;
-		if (args.length == 9 + smtpargnumber)
+		if (args.length == 10 + smtpargnumber)
 			if (dbtype.equals(DBTYPE_DERBY))
+				isargvalid = true;
+		if (args.length == 13 + smtpargnumber)
+			if (dbtype.equals(DBTYPE_MARIA10_2))
 				isargvalid = true;
 		if (args.length == 12 + smtpargnumber)
 			if (dbtype.equals(DBTYPE_MARIA10_2))
 				isargvalid = true;
 		if (args.length == 11 + smtpargnumber)
-			if (dbtype.equals(DBTYPE_MARIA10_2))
-				isargvalid = true;
-		if (args.length == 10 + smtpargnumber)
 			if (dbtype.equals(DBTYPE_MARIA10_2))
 				isargvalid = true;
 
@@ -447,7 +471,7 @@ public class OLcServer {
 			System.err.println(" 10- Connection pool size (not needed for DERBY, compulsory for MARIA10.2)");
 			System.err.println(" 11- User : jdbc database user (not needed for DERBY)");
 			System.err.println(" 12- Password : jdbc database password (not needed for DERBY)");
-
+			System.err.println(" 13- Clientjar : name of the client JAR (default is OLcClient.jar)");
 			System.exit(1);
 		}
 
@@ -507,10 +531,11 @@ public class OLcServer {
 		if (smtptype.equals("SIMPLESMTPNOPORT")) {
 			smtpurl = args[7];
 		}
-
+		// client jar is the last argument
+		String clientjar = args[args.length-1];
 		serversingleton = new OLcServer(logfolder, dbtype, jdbcurl, jdbcuser, jdbcpassword, 1, connectionpool, port,
 				modules, auditmessages, ldapconnectionstring, ldapuser, ldappassword, smtpurl, smtpport, smtpuser,
-				smtppassword, reducedlogs);
+				smtppassword, reducedlogs,clientjar);
 	}
 
 	/**
@@ -809,8 +834,10 @@ public class OLcServer {
 	private ThreadLocal<DataObjectId<Appuser>> connectionuserid = new ThreadLocal<DataObjectId<Appuser>>();
 	private ThreadLocal<Integer> currentriggerexecution = new ThreadLocal<Integer>();
 	private ThreadLocal<Long> sequenceperthread = new ThreadLocal<Long>();
-	private ThreadLocal<ArrayList<TriggerToExecute<?>>> triggerstoexecute = new ThreadLocal<ArrayList<TriggerToExecute<?>>>();
-	private ThreadLocal<HashMap<String, UniqueidentifiedInterface<?>>> triggersobjectbuffer = new ThreadLocal<HashMap<String, UniqueidentifiedInterface<?>>>();
+	private ThreadLocal<
+			ArrayList<TriggerToExecute<?>>> triggerstoexecute = new ThreadLocal<ArrayList<TriggerToExecute<?>>>();
+	private ThreadLocal<HashMap<String, UniqueidentifiedInterface<?>>> triggersobjectbuffer = new ThreadLocal<
+			HashMap<String, UniqueidentifiedInterface<?>>>();
 
 	/**
 	 * gets a transient sequence for the given thread

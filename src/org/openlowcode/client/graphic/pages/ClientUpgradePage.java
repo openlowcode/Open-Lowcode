@@ -34,11 +34,21 @@ public class ClientUpgradePage
 	/**
 	 * Creates a hardcoded page allowing client upgrade
 	 * 
-	 * @param clientversion
-	 * @param serverclientversion
-	 * @param serverclientdate
+	 * @param clientversion       client version currently installed
+	 * @param serverclientversion client version requested by the server
+	 * @param serverclientdate    date of the new build of the client
+	 * @param updaterjar          name of the updater jar (e.g. OLcUpdater.jar ).
+	 *                            Example given is default
+	 * @param updaterclass        name of the updater class (e.g.
+	 *                            org.openlowcode.updater.ClientUpdater ). Example
+	 *                            given is default
 	 */
-	public ClientUpgradePage(String clientversion, String serverclientversion, Date serverclientdate) {
+	public ClientUpgradePage(
+			String clientversion,
+			String serverclientversion,
+			Date serverclientdate,
+			String updaterjar,
+			String updaterclass) {
 		super("CLIENTUPGRADEPAGE");
 		CComponentBand mainband = new CComponentBand(CComponentBand.DIRECTION_DOWN, this.getRootPath());
 		mainband.addNode(new CPageText("Client Upgrade Required", true, this.getRootPath()));
@@ -48,7 +58,7 @@ public class ClientUpgradePage
 				+ sdf.format(serverclientdate) + ".", false, this.getRootPath()));
 		mainband.addNode(new CPageText("To start client update, you may wait 10 seconds or click on below button.",
 				false, this.getRootPath()));
-		mainband.addNode(new CClientUpdate(this.getRootPath()));
+		mainband.addNode(new CClientUpdate(this.getRootPath(), updaterjar, updaterclass));
 		this.setPageNode(mainband);
 	}
 

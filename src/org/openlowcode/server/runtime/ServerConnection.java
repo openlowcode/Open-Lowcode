@@ -71,7 +71,9 @@ import org.openlowcode.server.security.SecurityBuffer;
  *         SAS</a>
  *
  */
-public class ServerConnection extends Thread {
+public class ServerConnection
+		extends
+		Thread {
 	private static Logger logger = Logger.getLogger(ServerConnection.class.getName());
 	private Socket socket;
 	private String ip; // ip of the computer connecting
@@ -634,8 +636,8 @@ public class ServerConnection extends Thread {
 						reader.returnNextEndMessage();
 						logger.severe("Starting treating download client request");
 						writer.startNewMessage();
-						File clienttodownload = new File(
-								"." + File.separator + "client" + File.separator + "OLcClient.jar");
+						File clienttodownload = new File("." + File.separator + "client" + File.separator
+								+ OLcServer.getServer().getClientJar());
 						if (!clienttodownload.exists()) {
 							writer.sendMessageError(9999, "Client file missing on server " + clienttodownload
 									+ ". Please contact technical support.");
@@ -646,7 +648,7 @@ public class ServerConnection extends Thread {
 							FileInputStream fisfordownload = new FileInputStream(clienttodownload);
 							fisfordownload.read(filecontent);
 							fisfordownload.close();
-							SFile filetodownload = new SFile("OLcClient.jar", filecontent);
+							SFile filetodownload = new SFile(OLcServer.getServer().getClientJar(), filecontent);
 							writer.startStructure("NEWCLIENTJAR");
 							writer.addLongBinaryField("JAR", filetodownload);
 							writer.endStructure("NEWCLIENTJAR");
@@ -788,7 +790,10 @@ public class ServerConnection extends Thread {
 		}
 	}
 
-	private void treatThrowable(Throwable e, String actionname, DataObjectId<Appuser> userid,
+	private void treatThrowable(
+			Throwable e,
+			String actionname,
+			DataObjectId<Appuser> userid,
 			MessageBufferedWriter writer) throws IOException {
 		// send error message instead of sending page. Else, it is the same
 		// note: no possibility now to send error properly if exception while sending
@@ -808,13 +813,20 @@ public class ServerConnection extends Thread {
 
 	}
 
-	private void executeAction(DataObjectId<Appuser> userid, ActionExecution action, SActionData actiondata,
+	private void executeAction(
+			DataObjectId<Appuser> userid,
+			ActionExecution action,
+			SActionData actiondata,
 			MessageBufferedWriter writer) throws IOException {
 		executeAction(userid, action, actiondata, writer, null);
 	}
 
-	private void executeAction(DataObjectId<Appuser> userid, ActionExecution action, SActionData actiondata,
-			MessageBufferedWriter writer, ArrayList<PageBufferSpec> clientpagesinbuffer) throws IOException {
+	private void executeAction(
+			DataObjectId<Appuser> userid,
+			ActionExecution action,
+			SActionData actiondata,
+			MessageBufferedWriter writer,
+			ArrayList<PageBufferSpec> clientpagesinbuffer) throws IOException {
 		String actionname = action.getName();
 		SecurityBuffer buffer = new SecurityBuffer();
 		ActionAuthorization thisactionauthorization = isAuthorized(action, actiondata, buffer);
@@ -885,7 +897,10 @@ public class ServerConnection extends Thread {
 	 * @param clientpagesinbuffer client pages already on the client
 	 * @throws IOException if any communication issue is encountered
 	 */
-	public void sendPage(SPage page, MessageWriter writer, SecurityBuffer buffer,
+	public void sendPage(
+			SPage page,
+			MessageWriter writer,
+			SecurityBuffer buffer,
 			ArrayList<PageBufferSpec> clientpagesinbuffer) throws IOException {
 		if (page == null)
 			logger.severe("page was not found");
@@ -1004,7 +1019,9 @@ public class ServerConnection extends Thread {
 	 * @param buffer     security buffer
 	 * @return the action authorization
 	 */
-	public static ActionAuthorization isAuthorized(ActionExecution action, SActionData actiondata,
+	public static ActionAuthorization isAuthorized(
+			ActionExecution action,
+			SActionData actiondata,
 			SecurityBuffer buffer) {
 		ActionSecurityManager[] securitymanagers = action.getActionSecurityManager();
 		if (securitymanagers == null)
@@ -1033,7 +1050,8 @@ public class ServerConnection extends Thread {
 
 		// third check security managers with object data, case output argument (need to
 		// cumulate filters)
-		ArrayList<Function<TableAlias, QueryFilter>> filterfunctions = new ArrayList<Function<TableAlias, QueryFilter>>();
+		ArrayList<
+				Function<TableAlias, QueryFilter>> filterfunctions = new ArrayList<Function<TableAlias, QueryFilter>>();
 		for (int i = 0; i < securitymanagers.length; i++) {
 			ActionSecurityManager thismanager = securitymanagers[i];
 			if (thismanager.filterObjectData()) {

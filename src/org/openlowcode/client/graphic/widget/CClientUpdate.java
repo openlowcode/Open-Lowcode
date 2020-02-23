@@ -40,14 +40,20 @@ public class CClientUpdate
 		CPageNode {
 
 	private static Logger logger = Logger.getLogger(CClientUpdate.class.getName());
+	private String updaterjar;
+	private String updaterclass;
 
 	/**
 	 * creates a client update for the special client update message
 	 * 
 	 * @param parentpath page of the parent widget
+     * @param updaterjar name of the updater jar (e.g. OLcUpdater.jar ). Example given is default
+	 * @param updaterclass name of the updater class (e.g. org.openlowcode.updater.ClientUpdater ). Example given is default 
 	 */
-	public CClientUpdate(CPageSignifPath parentpath) {
+	public CClientUpdate(CPageSignifPath parentpath,String updaterjar,String updaterclass) {
 		super(parentpath, "UPGRADEBUTTON");
+		this.updaterjar = updaterjar;
+		this.updaterclass = updaterclass;
 
 	}
 
@@ -80,7 +86,7 @@ public class CClientUpdate
 				logger.severe("---------------------------------------------------------------");
 				try {
 					Runtime.getRuntime()
-							.exec("javaw -classpath ./lib/OLcUpdater.jar org.openlowcode.updater.ClientUpdater \""
+							.exec("javaw -classpath ./lib/"+updaterjar+" "+updaterclass+" \""
 									+ argumentcontent + "\"");
 
 					logger.warning("Successfully launched updater. Client will shutdown");
