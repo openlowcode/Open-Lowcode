@@ -23,9 +23,7 @@ import javax.crypto.spec.DESKeySpec;
 import org.openlowcode.tools.encrypt.Encrypter;
 
 /**
- * The encrypting mechanism for communication between client and server. It is
- * highly recommended that users change the deskey, as, else, anyone with access
- * to this code would be able to decode encrypted communication
+ * The encrypting mechanism for communication between client and server. 
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
@@ -35,23 +33,15 @@ public class OLcEncrypter
 		implements
 		Encrypter {
 	private static Logger logger = Logger.getLogger(OLcEncrypter.class.getName());
-	private static String deskey = "HeureuxQuiCommeUlysse";
 	private String DES_ENCRYPTION_SCHEME = "DES";
-	private byte[] bytekey = deskey.getBytes(StandardCharsets.UTF_8);
+	private byte[] bytekey = OLcEncrypterString.getEncryptionString().getBytes(StandardCharsets.UTF_8);
 	private DESKeySpec myKeySpec;
 	private SecretKeyFactory mySecretKeyFactory;
 	private Cipher cipher;
 	private static OLcEncrypter singleton;
 	private SecretKey key;
 
-	/**
-	 * Replaces the encoding key by the new key specified
-	 * 
-	 * @param deskey
-	 */
-	public static void overridesDeskey(String deskey) {
-		OLcEncrypter.deskey = deskey;
-	}
+	
 
 	/**
 	 * gets the singleton encrypter. Encoding and decoding is thread-safe
