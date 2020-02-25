@@ -47,6 +47,12 @@ public class OLcClient
 		extends
 		Application {
 	
+	public static void setUrlToConnect(String urltoconnect) {
+		OLcClient.urltoconnect = urltoconnect;
+	}
+	public static void setNoLog(boolean nolog) {
+		OLcClient.nolog = nolog;
+	}
 	private static String urltoconnect;
 	private static boolean nolog = false;
 
