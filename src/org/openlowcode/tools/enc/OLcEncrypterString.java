@@ -10,6 +10,10 @@
 
 package org.openlowcode.tools.enc;
 
+import java.util.logging.Logger;
+
+
+
 /***
  * This class just holds the encoding key for 2-ways encoding. Recommendation is
  * for companies to override this class in their client and server build
@@ -19,12 +23,15 @@ package org.openlowcode.tools.enc;
  *
  */
 public class OLcEncrypterString {
+	private static Logger logger = Logger.getLogger(OLcEncrypterString.class.getName());
+	
 	/**
 	 * gets the encryption string
 	 * 
 	 * @return the encryption string
 	 */
 	protected static String getEncryptionString() {
+		logger.severe("Using default encryption key. This is not recommended for production purpose. Please refer to operation manual");
 		return "HeureuxQuiCommeUlysse";
 	}
 }

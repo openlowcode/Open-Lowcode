@@ -49,7 +49,7 @@ public class OLcEncrypter
 	 * @return the singleton encrypter
 	 */
 	public static OLcEncrypter getEncrypter() {
-		if (singleton == null)
+		if (singleton == null) 
 			singleton = new OLcEncrypter();
 		return singleton;
 	}
