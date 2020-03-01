@@ -98,7 +98,9 @@ public class ObjectStatePrivilege
 
 	@Override
 	public void generateSecurityManagerSuperStatement(SourceGenerator sg) throws IOException {
-		sg.wl("				super(\"" + this.getAuthority().getName().toUpperCase() + "\",new String[]{");
+		sg.wl("                         super(\""
+				+ (this.getAuthority().getModule() != null ? this.getAuthority().getModule().getCode() + "_" : "")
+				+ this.getAuthority().getName().toUpperCase() + "\",new String[]{");
 		for (int i = 0; i < allowedstates.length; i++) {
 			sg.wl("						" + (i > 0 ? "," : "") + "\"" + allowedstates[i].getName().toUpperCase()
 					+ "\"");
