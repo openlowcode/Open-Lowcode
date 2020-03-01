@@ -1,5 +1,5 @@
 # Open-Lowcode
-**A framework for custom enterprise software development **
+**A framework for custom enterprise software development**
 
 Open Lowcode allows organizations with limited IT budget to build good software, and run it cheaply for years. 
 
