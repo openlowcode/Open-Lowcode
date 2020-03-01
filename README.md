@@ -3,7 +3,7 @@
 
 Open Lowcode allows organizations with limited IT budget to build good software, and run it cheaply for years. 
 
-published by [Open Lowcode SAS](https://openlowcode.com). To understand the design decisions, head for the [tech blog)(https://openlowcode.com/tech-blog/)
+published by [Open Lowcode SAS](https://openlowcode.com). To understand the design decisions, head for the [tech blog](https://openlowcode.com/tech-blog/)
 
 **New** Open Lowcode [v1.0.0](https://github.com/openlowcode/Open-Lowcode/releases/tag/v1.0.0) is Released (1st of March 2020)
 
