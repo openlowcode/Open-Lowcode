@@ -821,6 +821,15 @@ public class DataObjectDefinition
 	}
 
 	/**
+	 * a convenience method to add several properties to the data object definition
+	 * 
+	 * @param properties properties
+	 */
+	public void addProperties(Property<?>...properties) {
+		if (properties!=null) for (int i=0;i<properties.length;i++) this.addProperty(properties[i]);
+	}
+	
+	/**
 	 * adds a new property to the data object
 	 * 
 	 * @param property property to add
