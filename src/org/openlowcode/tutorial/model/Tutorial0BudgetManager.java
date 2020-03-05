@@ -24,6 +24,13 @@ import org.openlowcode.design.data.properties.basic.UpdateLog;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.tools.data.TimePeriod.PeriodType;
 
+/**
+ * A tutorial to learn how to design an application template
+ * 
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+ *         SAS</a>
+ *
+ */
 public class Tutorial0BudgetManager extends Module {
 
 	private DataObjectDefinition product;
