@@ -72,6 +72,7 @@ public class Tutorial0BudgetManager extends Module {
 		productnode.addChildNode(new LinkedToChildrenNodeLink(workitemnode, workitemlinkedtoparent));
 		workitemnode.addChildNode(new LinkedToChildrenNodeLink(budgetnode,budgetlinkedtoparent));
 		this.addAdvancedFeature(new SmartReport("PRODUCTREPORT", "Product Budget Report", productnode));
+		
 	}
 
 }
