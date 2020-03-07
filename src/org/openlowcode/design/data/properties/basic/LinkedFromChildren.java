@@ -392,7 +392,7 @@ public class LinkedFromChildren
 							sg.wl("		SPopupButton exportchildrenfor" + linknameshortname
 									+ "popupbutton = new SPopupButton(this, exportchildrenfor" + linknameshortname
 									+ "popup, \"Export children to File\", \"\");");
-							sg.wl("		childrenactionbandforworkitem.addElement(exportchildrenfor" + linknameshortname
+							sg.wl("		childrenactionbandfor" + childclassattribute + ".addElement(exportchildrenfor" + linknameshortname
 									+ "popupbutton);			");
 
 						}
