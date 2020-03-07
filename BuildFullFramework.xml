@@ -51,14 +51,14 @@ SPDX-License-Identifier: EPL-2.0
 	</target>
 
 	<target name="cleansecondcompile" depends="generatelinecount">
-		<delete dir="./bin/gallium/" />
+		<delete dir="./bin/org/openlowcode/" />
 	</target>
 
 	<target name="secondcompile" depends="cleansecondcompile">
 
 		<javac encoding="utf-8" srcdir="./src" destdir="./bin" debug="true" debuglevel="source,lines,vars" 
 			classpath="${javafx.path}jfxrt.jar:${libraries.path}javax.mail.jar:${libraries.path}commons-logging-1.2.jar:${libraries.path}fontbox-2.0.7.jar:${libraries.path}pdfbox-2.0.7.jar:${libraries.path}commons-collections4-4.2.jar:${libraries.path}commons-compress-1.18.jar:${libraries.path}xmlbeans-3.0.2.jar:${libraries.path}poi-4.0.1.jar:${libraries.path}poi-ooxml-4.0.1.jar:${libraries.path}poi-ooxml-schemas-4.0.1.jar">
-			<include name="**" />
+			<include name="org/openlowcode/**" />
 		</javac>
 	</target>
 
@@ -90,7 +90,6 @@ SPDX-License-Identifier: EPL-2.0
 
 			<fileset dir="./bin/" includes="css/*.css" />
 			<fileset dir="./bin/" includes="css/*.png" />
-			<zipfileset includes="**/*" src="C:\java8\extlib\OpenLowcode.jar" />
 		</jar>
 		<jar destfile="./bin/OLcUpdater.jar">
 			<fileset dir="./bin/" includes="org/openlowcode/OLcVersion.class" />
