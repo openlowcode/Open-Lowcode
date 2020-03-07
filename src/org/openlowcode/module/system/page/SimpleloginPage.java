@@ -58,7 +58,7 @@ public class SimpleloginPage
 		mainband.addElement(user);
 		mainband.addElement(password);
 		mainband.addElement(send);
-		mainband.addElement(new SPageText("Welcome to Gallium Server.", SPageText.TYPE_NORMAL, this));
+		mainband.addElement(new SPageText("Welcome to Open Lowcode Server.", SPageText.TYPE_NORMAL, this));
 		return mainband;
 	}
 
