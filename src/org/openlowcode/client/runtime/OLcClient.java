@@ -90,8 +90,8 @@ public class OLcClient
 				getPageCatalog(), // page catalog
 				urltoconnect, // urltoconnect
 				nolog, // nolog
-				"css/OLCNC64.png", // smallicon
-				"css/OLCNC32.png", // bigicon
+				"css/OLC64-new.png", // icon
+				"css/OLC32-new.png", // bigicon
 				"css/QM64.png", // Question Mark
 				"css/openlowcode.css" // CSS
 		);

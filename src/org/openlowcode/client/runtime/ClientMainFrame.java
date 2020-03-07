@@ -12,6 +12,7 @@ package org.openlowcode.client.runtime;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -41,6 +42,8 @@ import javafx.stage.Stage;
  */
 public class ClientMainFrame {
 
+	private static Logger logger = Logger.getLogger(ClientMainFrame.class.getName());
+	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy.MM.dd G 'at' HH:mm:ss z");
 	/**
 	 * The client upgrade page generator is a page shown when client has an older
 	 * client to connect to the server
@@ -152,7 +155,8 @@ public class ClientMainFrame {
 
 		CPageNode.setPageCatelog(pagenodecatalog);
 		initiateLog();
-
+		logger.severe("--------------- * * * Open Lowcode client * * * ---------------");
+		logger.severe(" * * version="+clientversion+", client built date="+sdf.format(clientversiondate)+"* *");
 		// ---------------------------------------- initiates the first tab
 		uniqueclientsession = new ClientSession(this, actionsourcetransformer, urltoconnectto, questionmarkicon);
 		if (smallicon != null)
@@ -203,6 +207,16 @@ public class ClientMainFrame {
 			mainlogger.addHandler(logfilehandler);
 
 			mainlogger.setUseParentHandlers(false);
+			
+			Logger rootlogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+			for (int i = 0; i < rootlogger.getHandlers().length; i++) {
+				rootlogger.removeHandler(rootlogger.getHandlers()[i]);
+			}
+			rootlogger.addHandler(logfilehandler);
+			rootlogger.setLevel(Level.ALL);
+
+			rootlogger.addHandler(consolehandler);
+			rootlogger.setUseParentHandlers(false);
 		}
 	}
 

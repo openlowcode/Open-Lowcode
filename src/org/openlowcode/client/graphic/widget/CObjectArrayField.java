@@ -344,9 +344,12 @@ public class CObjectArrayField
 			objectbutton.setTooltip(this.tooltip);
 			objectbutton.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
 
-			if (this.defaultaction != null)
+			if (this.defaultaction != null) {
 				actionmanager.registerEventWithModifier(objectbutton, defaultaction,
 						PageActionModifier.getNothingPressed());
+				actionmanager.registerEventWithModifier(objectbutton, defaultaction,
+					PageActionModifier.getCtrlPressed());
+			}
 			if (this.deleteaction != null)
 				actionmanager.registerEventWithModifier(objectbutton, deleteaction,
 						PageActionModifier.getShiftPressed());

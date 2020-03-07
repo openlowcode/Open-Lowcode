@@ -424,8 +424,8 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 							return;
 						}
 
-						throw new RuntimeException(
-								String.format("Unknown event from page", event.getSource().toString()));
+						if (event.getClickCount() > 1) throw new RuntimeException(
+								"Unknown event from page "+ event.getSource().toString()+", click="+event.getClickCount()+", Ctrl ="+event.isControlDown()+", shift="+event.isShiftDown());
 					}
 					// managing monoclick. Typically, this may have modifiers
 
@@ -451,11 +451,10 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 							PageActionModifier modifier = modifierlist.next();
 							if (modifier.isActionWithModifier(event)) {
 								CPageAction currentaction = actionswithmodifier.get(modifier);
-								if (currentaction == null)
-									throw new RuntimeException(
-											String.format("Unknown event from page", event.getSource().toString()));
-								processAction(currentaction);
-								return;
+									if (currentaction!=null) {
+									processAction(currentaction);
+									return;
+								}
 							}
 						}
 					}
@@ -475,10 +474,7 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 							PageActionModifier modifier = modifierlist.next();
 							if (modifier.isActionWithModifier(event)) {
 								CPageInlineAction currentaction = inlineactionswithmodifier.get(modifier);
-								if (currentaction == null)
-									throw new RuntimeException(
-											String.format("Unknown event from page", event.getSource().toString()));
-								processInlineAction(currentaction);
+								if (currentaction!=null) processInlineAction(currentaction);
 								return;
 							}
 						}
@@ -487,6 +483,8 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 				} catch (Throwable e) {
 					logger.warning("exception while processing event " + e.getMessage());
 					for (int i = 0; i < e.getStackTrace().length; i++) {
+						String stacktrace = e.getStackTrace()[i].toString();
+						if (stacktrace.startsWith("com.sun")) break;
 						logger.warning("  - " + e.getStackTrace()[i].toString());
 					}
 					serverconnection.getActiveClientDisplay()
