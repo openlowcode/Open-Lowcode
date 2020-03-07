@@ -386,7 +386,7 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 			@Override
 			public void handle(MouseEvent event) {
 				try {
-					logger.warning(" --- ### --- Mouse event detected " + event.getClickCount() + " on object "
+					logger.warning(" --- ### --- Mouse event detected, click count=" + event.getClickCount() + " on object "
 							+ event.getSource() + " Ctrlpressed = " + event.isControlDown() + " Shiftpressed "
 							+ event.isShiftDown());
 
