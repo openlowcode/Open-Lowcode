@@ -1136,11 +1136,16 @@ public class DataObjectDefinition
 
 	private ActionDefinition generateDeleteLinkAndShowLeft() {
 		String deleteactionname = "DELETE" + this.getName() + "ANDSHOWLEFT";
-		DynamicActionDefinition deleteaction = new DynamicActionDefinition(deleteactionname, true);
-		deleteaction.addInputArgument(new ObjectIdArgument(this.getName() + "ID", this));
 		LinkObject<?, ?> linkobject = (LinkObject<?, ?>) this.getPropertyByName("LINKOBJECT");
+		DynamicActionDefinition deleteaction = new DynamicActionDefinition(deleteactionname, true);
+		deleteaction.addInputArgumentAsAccessCriteria(
+				new ObjectIdArgument("LEFT" + linkobject.getLeftobjectforlink().getName() + "ID",
+						linkobject.getLeftobjectforlink()));
+		deleteaction.addInputArgument(new ObjectIdArgument(this.getName() + "ID", this));
+		
 		deleteaction.addOutputArgument(new ObjectIdArgument(
 				"PARENT" + linkobject.getLeftobjectforlink().getName() + "ID", linkobject.getLeftobjectforlink()));
+		linkobject.getLeftobjectforlink().addActionToModifyGroup(deleteaction);
 		this.addActionToCreateNewGroup(deleteaction);
 		return deleteaction;
 	}

@@ -1128,6 +1128,8 @@ public class DataObjectDefinitionShowPage
 				sg.wl("		AtgDelete" + linkobjectvariable + "andshowleftAction.ActionRef deleteoneofleft"
 						+ linkobjectvariable + " = AtgDelete" + linkobjectvariable
 						+ "andshowleftAction.get().getActionRef();");
+				sg.wl("		deleteoneofleft" + linkobjectvariable + ".setLeft" + objectvariable
+						+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
 				sg.wl("		deleteoneofleft" + linkobjectvariable + ".set" + linkobjectclass + "id(left"
 						+ linkobjectvariable + "s.getAttributeInput(" + linkobjectclass + ".getIdMarker()));");
 				sg.wl("		left" + linkobjectvariable + "s.addDeleteAction(deleteoneofleft" + linkobjectvariable

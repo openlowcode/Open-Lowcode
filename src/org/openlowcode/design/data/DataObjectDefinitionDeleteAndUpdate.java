@@ -311,14 +311,12 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
-		sg.wl("	public ActionOutputData executeActionLogic(");
+		sg.wl("	public ActionOutputData executeActionLogic(DataObjectId<" + leftobjectclass + "> " + leftobjectvariable + "id,");
 		sg.wl("			DataObjectId<" + objectclass + "> " + objectvariable
 				+ "id,Function<TableAlias,QueryFilter> datafilter)");
 		sg.wl("			 {");
 		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(" + objectvariable
 				+ "id);");
-		sg.wl("		DataObjectId<" + leftobjectclass + "> " + leftobjectvariable + "id = " + objectvariable
-				+ ".getLfid();");
 		sg.wl("		" + objectvariable + ".delete();");
 		sg.wl("		return new ActionOutputData(" + leftobjectvariable + "id);");
 		sg.wl("			");
