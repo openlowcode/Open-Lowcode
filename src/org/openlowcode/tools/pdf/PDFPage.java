@@ -292,10 +292,16 @@ public class PDFPage extends PDFPart {
 		FontAndSize fontandsize = getFontAndSize(texttype);
 		float maxwidth = 0f;
 		for (int i = 0; i < lines.length; i++) {
-			float thiswidth = fontandsize.getFont().getStringWidth(lines[i]) / (MM_TO_POINT * 1000)
+			try {
+				float thiswidth = fontandsize.getFont().getStringWidth(lines[i]) / (MM_TO_POINT * 1000)
 					* fontandsize.getFontsize();
-			if (thiswidth > maxwidth)
-				maxwidth = thiswidth;
+				if (thiswidth > maxwidth)
+					maxwidth = thiswidth;
+			} catch (Exception e) {
+				String message = "Invalid text for PDF printing '"+lines[i]+"' originmessage "+e.getMessage()+"-"+e.getClass().getName();
+				logger.severe(message);
+				throw new RuntimeException(message);
+			}
 		}
 		return maxwidth;
 	}
@@ -1110,6 +1116,8 @@ public class PDFPage extends PDFPart {
 		return calculateBoxAndMaybeWriteText(left, top, right, text, write, false, 0, page, texttype, false);
 	}
 
+
+	
 	/**
 	 * @param left 			left of the printing zone in mm
 	 * @param top			top of the prining zone in mm
@@ -1135,7 +1143,7 @@ public class PDFPage extends PDFPart {
 				throw new RuntimeException("For write mode, specifying a PDFPage is compulsory");
 		String[] paragraphs;
 		if (text != null) {
-			paragraphs = text.split("\n");
+			paragraphs = text.split("\\R");
 		} else {
 			paragraphs = new String[0];
 		}
@@ -1156,15 +1164,17 @@ public class PDFPage extends PDFPart {
 			if (i > 0)
 				currentsplitparagraph = false;
 			String paragraphtext = paragraphs[i];
+			logger.severe("audit on line "+paragraphtext);
 			ArrayList<String> paragraphlines = new ArrayList<String>();
 			int lastspace = -1;
+			// in this version, tab is treated as any other space
+			paragraphtext = paragraphtext.replace('\u00A0', ' ').replace('\u0009', ' ');
 			while (paragraphtext.length() > 0) {
 				int spaceIndex = paragraphtext.indexOf(' ', lastspace + 1);
 				if (spaceIndex < 0)
 					spaceIndex = paragraphtext.length();
 				String subString = paragraphtext.substring(0, spaceIndex);
 				float sizeinmm = PDFPage.getTextSize(new String[] { subString }, texttype);
-
 				if (sizeinmm > boxwidthinmm) {
 					if (lastspace < 0)
 						lastspace = spaceIndex;
