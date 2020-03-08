@@ -744,7 +744,7 @@ public class CTextField
 		TableColumn<
 				ObjectTableRow,
 				OrderableString> thiscolumn = new TableColumn<ObjectTableRow, OrderableString>(this.getLabel());
-		if (actionkeyforupdate != null) {
+		if ((actionkeyforupdate != null) && (this.isEditable())) {
 			thiscolumn.setEditable(true);
 			CTextField thistextfield = this;
 			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<ObjectTableRow, OrderableString>>() {
