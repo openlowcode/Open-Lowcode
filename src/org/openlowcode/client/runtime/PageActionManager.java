@@ -21,6 +21,7 @@ import org.openlowcode.client.graphic.CPage;
 import org.openlowcode.client.graphic.CPageData;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.Callback;
+import org.openlowcode.tools.misc.Pair;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -61,7 +62,7 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 
 	private HashMap<String, UnsavedDataWarning> warningspernodepath;
 	private HashMap<Object, CPageAction> registeredevents;
-	private HashMap<Object, HashMap<PageActionModifier, CPageAction>> registeredeventswithmodifier;
+	private HashMap<Object, HashMap<PageActionModifier, Pair<CPageAction,Boolean>>> registeredeventswithmodifier;
 	private HashMap<Object, HashMap<PageActionModifier, CPageInlineAction>> registeredinlineeventswithmodifier;
 	private HashMap<Object, Callback> registeredcallbacks;
 	private HashMap<Object, CPageInlineAction> registeredinlineactions;
@@ -112,7 +113,7 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 	public void reset() {
 		logger.fine("   --- *** --- Registered Events are cleaned");
 		registeredevents = new HashMap<Object, CPageAction>();
-		registeredeventswithmodifier = new HashMap<Object, HashMap<PageActionModifier, CPageAction>>();
+		registeredeventswithmodifier = new HashMap<Object, HashMap<PageActionModifier, Pair<CPageAction,Boolean>>>();
 		registeredinlineeventswithmodifier = new HashMap<Object, HashMap<PageActionModifier, CPageInlineAction>>();
 		registeredinlineactions = new HashMap<Object, CPageInlineAction>();
 		registeredcallbacks = new HashMap<Object, Callback>();
@@ -145,19 +146,39 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 	}
 
 	/**
+	 * Register an event with modifier for display of action result in the same tab
 	 * @param object the object (JAVAFX widget) that will fire an event
 	 * @param action the action to launch in that case
 	 * @param modifier relevant modifier (like Control, Shift pressed)
 	 */
 	public void registerEventWithModifier(Object object, CPageAction action, PageActionModifier modifier) {
-		HashMap<PageActionModifier, CPageAction> actions = registeredeventswithmodifier.get(object);
-		if (actions == null) {
-			actions = new HashMap<PageActionModifier, CPageAction>();
-			registeredeventswithmodifier.put(object, actions);
-		}
-		actions.put(modifier, action);
+		registerEventWithModifier(object,action,modifier,false);
 	}
 
+	/**
+	 * Register an event with modifier for display of action result in the same tab
+	 * 
+	 * @param object       the object (JAVAFX widget) that will fire an event
+	 * @param action       the action to launch in that case
+	 * @param modifier     relevant modifier (like Control, Shift pressed)
+	 * @param openinnewtab if true, action result shown in new tab (keeping current
+	 *                     page in current tab), if false action result shown on
+	 *                     current tab (overwriting current page)
+	 * @since 1.1
+	 */
+	public void registerEventWithModifier(
+			Object object,
+			CPageAction action,
+			PageActionModifier modifier,
+			boolean openinnewtab) {
+		HashMap<PageActionModifier, Pair<CPageAction,Boolean>> actions = registeredeventswithmodifier.get(object);
+		if (actions == null) {
+			actions = new HashMap<PageActionModifier, Pair<CPageAction,Boolean>>();
+			registeredeventswithmodifier.put(object, actions);
+		}
+		actions.put(modifier, new Pair<CPageAction,Boolean>(action,new Boolean(openinnewtab)));
+
+	}
 	
 	/**
 	 * @return the mouse handler from this page action manager
@@ -429,7 +450,7 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 					}
 					// managing monoclick. Typically, this may have modifiers
 
-					HashMap<PageActionModifier, CPageAction> actionswithmodifier = registeredeventswithmodifier
+					HashMap<PageActionModifier, Pair<CPageAction,Boolean>> actionswithmodifier = registeredeventswithmodifier
 							.get(finalobject);
 					if (actionswithmodifier == null) {
 						CPageAction currentaction = registeredevents.get(finalobject);
@@ -450,9 +471,9 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 						while (modifierlist.hasNext()) {
 							PageActionModifier modifier = modifierlist.next();
 							if (modifier.isActionWithModifier(event)) {
-								CPageAction currentaction = actionswithmodifier.get(modifier);
+								Pair<CPageAction,Boolean> currentaction = actionswithmodifier.get(modifier);
 									if (currentaction!=null) {
-									processAction(currentaction);
+									processAction(currentaction.getFirstobject(),currentaction.getSecondobject().booleanValue());
 									return;
 								}
 							}
