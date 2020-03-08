@@ -72,7 +72,7 @@ public class PDFPageWithRichText
 	/**
 	 * draw rich text in a box
 	 * 
-	 * d@param left     the left limit in mm (note: margins are inside)
+	 * @param left     the left limit in mm (note: margins are inside)
 	 * @param top      the top of the box in mm (note: margins are inside)
 	 * @param right    the right limit in mm (note: margins are inside)
 	 * @param richtext the Open Lowcode richtext to print
