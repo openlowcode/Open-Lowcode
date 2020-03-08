@@ -348,7 +348,7 @@ public class CObjectArrayField
 				actionmanager.registerEventWithModifier(objectbutton, defaultaction,
 						PageActionModifier.getNothingPressed());
 				actionmanager.registerEventWithModifier(objectbutton, defaultaction,
-					PageActionModifier.getCtrlPressed());
+					PageActionModifier.getCtrlPressed(),true);
 			}
 			if (this.deleteaction != null)
 				actionmanager.registerEventWithModifier(objectbutton, deleteaction,
