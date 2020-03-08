@@ -427,7 +427,7 @@ public class CDateField
 				ObjectTableRow,
 				LockableDate> thiscolumn = new TableColumn<ObjectTableRow, LockableDate>(this.getLabel());
 
-		if ((actionkeyforupdate != null) && (this.isEditable())) {
+		if ((actionkeyforupdate != null) && (this.isEditable()))  {
 			thiscolumn.setEditable(true);
 			CDateField thisdatefield = this;
 			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<ObjectTableRow, LockableDate>>() {

@@ -731,7 +731,7 @@ public class CChoiceField
 		TableColumn<
 				ObjectTableRow,
 				CChoiceFieldValue> thiscolumn = new TableColumn<ObjectTableRow, CChoiceFieldValue>(this.getLabel());
-		if ((actionkeyforupdate != null) && (this.isEditable())) {
+		if ((actionkeyforupdate != null) && (this.isEditable()))  {
 			thiscolumn.setEditable(true);
 			thiscolumn.setOnEditCommit(new TableColumnOnEditCommit(this));
 		} else {

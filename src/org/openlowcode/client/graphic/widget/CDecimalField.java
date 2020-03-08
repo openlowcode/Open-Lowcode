@@ -449,7 +449,7 @@ public class CDecimalField
 				ObjectTableRow,
 				LockableBigDecimal> thiscolumn = new TableColumn<ObjectTableRow, LockableBigDecimal>(this.getLabel());
 		thiscolumn.setStyle("-fx-alignment: CENTER-RIGHT;");
-		if ((actionkeyforupdate != null) && (this.isEditable())) {
+		if ((actionkeyforupdate != null) && (this.isEditable()))  {
 			thiscolumn.setEditable(true);
 			CDecimalField thisdecimalfield = this;
 			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<ObjectTableRow, LockableBigDecimal>>() {
