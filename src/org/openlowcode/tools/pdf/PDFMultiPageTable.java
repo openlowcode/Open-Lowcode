@@ -78,6 +78,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	private float[] columnrelativewidth;
 	private String[] headertexts;
 	private ArrayList<CellText[]> cellscontent;
+	private ArrayList<Boolean> linehasbarabove;
 	protected float[] columnwidthinmm;
 	private int columnnumber;
 	private int indexlastlineprinted;
@@ -164,6 +165,7 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 				throw new RuntimeException("Column Relative Width should be strictly positive");
 		this.columnnumber = columnrelativewidth.length;
 		this.cellscontent = new ArrayList<CellText[]>();
+		this.linehasbarabove = new ArrayList<Boolean>();
 		this.indexlastlineprinted = -1;
 
 	}
@@ -207,16 +209,26 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 		}
 		this.cellscontent.add(celltexts);
 	}
-
+	
 	/**
 	 * Creates a new line without content. Content can then be added by
-	 * setCellContent
-	 */
-	public void addBlankLine() {
+	 * setCellContent. The new line is created with or without a
+	 * bar above
+	 */	
+	public void addBlankLine(boolean drawlineabove) {
 		CellText[] blankline = new CellText[columnnumber];
 		for (int i = 0; i < blankline.length; i++)
 			blankline[i] = new CellText("");
 		this.cellscontent.add(blankline);
+		this.linehasbarabove.add(new Boolean(drawlineabove));
+	}
+	
+	/**
+	 * Creates a new line without content. Content can then be added by
+	 * setCellContent. The new line is created with a bar above
+	 */
+	public void addBlankLine() {
+		addBlankLine(true);
 	}
 
 	/**
@@ -344,8 +356,12 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 		float currentleft = leftinmm;
 		for (int i = 0; i < columnwidthinmm.length; i++) {
 			float currentcolumnwidth = columnwidthinmm[i];
+			boolean drawtop=this.linehasbarabove.get(rowindex).booleanValue();
+			boolean drawbottom=true;
+			if (rowindex+1<this.linehasbarabove.size()) drawbottom = this.linehasbarabove.get(rowindex+1).booleanValue();
+			
 			currentpage.drawBoxWithWidthAndHeight(false, currentleft, mmfromtopforsection, currentcolumnwidth,
-					rowheight);
+					rowheight,drawtop,drawbottom,true,true);
 			printOneCell(currentpage, rowindex, i, mmfromtopforsection, currentleft, currentcolumnwidth);
 			currentleft += currentcolumnwidth;
 

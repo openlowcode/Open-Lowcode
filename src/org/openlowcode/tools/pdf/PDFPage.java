@@ -428,6 +428,33 @@ public class PDFPage extends PDFPart {
 	 *                except if topatzero is set)
 	 * @param width   width in mm, a positive number
 	 * @param height  height in mm, a positive number
+	 * @param drawtop if true, draw the top line
+	 * @param drawbottom if true, draw the bottom line
+	 * @param drawleft if true, draw the left line
+	 * @param drawright if true, draw the right line
+	 * @throws IOException
+	 */
+	
+	public void drawBoxWithWidthAndHeight(boolean fatline, float left, float top, float width, float height,
+			boolean drawtop,boolean drawbottom,boolean drawleft,boolean drawright)
+			throws IOException {
+
+		float right = left + width;
+		float bottom = top - height;
+		if (this.topatzero) {
+			bottom = top + height;
+		}
+		drawBox(fatline, left, top, right, bottom,Color.BLACK,drawtop,drawbottom,drawleft,drawright);
+	}	
+	
+	/**
+	 * @param fatline fatline true if line is fat, false if line is standard
+	 *                (thinner)
+	 * @param left    left coordinates in mm (note: in PDF, left starts at zero)
+	 * @param top     top coordinates in mm (note: in PDF, bottom starts at zero
+	 *                except if topatzero is set)
+	 * @param width   width in mm, a positive number
+	 * @param height  height in mm, a positive number
 	 * @throws IOException
 	 */
 	public void drawBoxWithWidthAndHeight(boolean fatline, float left, float top, float width, float height)
@@ -489,35 +516,40 @@ public class PDFPage extends PDFPart {
 	 * @param bottom  bottom coordinates in mm (note: in PDF, bottom starts at zero
 	 *                except if topatzero is set)
 	 * @param color   color of the box.
+	 * @param drawtop if true, draw the top line of the box
+	 * @param drawbottom if bottom, draw  the bottom line of the box
+	 * @param drawleft if left ... well, draw the left line of the box
+	 * @param drawright if right (I think you got it) draw the right line of the box
+	 * @throws IOException if anything bad happens with the file being printed
+	 */
+	
+	public void drawBox(boolean fatline, float left, float top, float right, float bottom, Color color,
+			boolean drawtop,boolean drawbottom,boolean drawleft,boolean drawright)
+			throws IOException {
+		this.widgetstoprint.add(() -> {
+			
+			if (drawtop) this.drawLine(fatline, left,top, right,top, color);
+			if (drawbottom) this.drawLine(fatline, left,bottom, right,bottom, color);
+			if (drawleft) this.drawLine(fatline, left,top,left,bottom, color);
+			if (drawright) this.drawLine(fatline, right,top,right,bottom, color);
+		});
+
+	}
+	
+	/**
+	 * @param fatline true if line is fat, false if line is standard (thinner)
+	 * @param left    left coordinates in mm (note: in PDF, left starts at zero)
+	 * @param top     top coordinates in mm (note: in PDF, bottom starts at zero
+	 *                except if topatzero is set)
+	 * @param right   right coordinates in mm (note: in PDF, left starts at zero)
+	 * @param bottom  bottom coordinates in mm (note: in PDF, bottom starts at zero
+	 *                except if topatzero is set)
+	 * @param color   color of the box.
 	 * @throws IOException
 	 */
 	public void drawBox(boolean fatline, float left, float top, float right, float bottom, Color color)
 			throws IOException {
-		this.widgetstoprint.add(() -> {
-			contentStream.setStrokingColor(color);
-			contentStream.setNonStrokingColor(color);
-
-			if (!fatline)
-				contentStream.setLineWidth(NORMAL_LINE_WIDTH);
-			if (fatline)
-				contentStream.setLineWidth(FAT_LINE_WIDTH);
-
-			float newtop = top;
-			float newbottom = bottom;
-			if (this.topatzero) {
-				newtop = height - top;
-				newbottom = height - bottom;
-			}
-
-			contentStream.moveTo(left * MM_TO_POINT, newtop * MM_TO_POINT);
-			contentStream.lineTo(right * MM_TO_POINT, newtop * MM_TO_POINT);
-			contentStream.lineTo(right * MM_TO_POINT, newbottom * MM_TO_POINT);
-			contentStream.lineTo(left * MM_TO_POINT, newbottom * MM_TO_POINT);
-			contentStream.lineTo(left * MM_TO_POINT, newtop * MM_TO_POINT);
-			contentStream.closeAndStroke();
-			contentStream.setStrokingColor(Color.BLACK);
-			contentStream.setNonStrokingColor(Color.BLACK);
-		});
+		drawBox(fatline,left,top,right,bottom,color,true,true,true,true);
 
 	}
 
@@ -1164,7 +1196,7 @@ public class PDFPage extends PDFPart {
 			if (i > 0)
 				currentsplitparagraph = false;
 			String paragraphtext = paragraphs[i];
-			logger.severe("audit on line "+paragraphtext);
+			logger.finest("audit on line "+paragraphtext);
 			ArrayList<String> paragraphlines = new ArrayList<String>();
 			int lastspace = -1;
 			// in this version, tab is treated as any other space
