@@ -5,9 +5,9 @@ Open Lowcode allows organizations with limited IT budget to build good software,
 
 published by [Open Lowcode SAS](https://openlowcode.com). To understand the design decisions, head for the [tech blog](https://openlowcode.com/tech-blog/). For a quick intro, head for the [10 minutes tutorial](https://openlowcode.com/10-minutes-open-lowcode-tutorial/). 
 
-**Reference Documentation** [Operation Guide](https://github.com/openlowcode/Open-Lowcode/wiki/Open-Lowcode-Operation-Guide), [javadoc](https://openlowcode.org/javadoc/] and [Developer Guide](https://github.com/openlowcode/Open-Lowcode/wiki/Open--Lowcode-Developper-Guide) provide all informations to use the framework, and will also provide dependencies for recompiling the project.
+**Reference Documentation** [Operation Guide](https://github.com/openlowcode/Open-Lowcode/wiki/Open-Lowcode-Operation-Guide), [javadoc](https://openlowcode.org/javadoc/) and [Developer Guide](https://github.com/openlowcode/Open-Lowcode/wiki/Open--Lowcode-Developper-Guide) provide all informations to use the framework, and will also provide dependencies for recompiling the project.
 
-**New** Open Lowcode [v1.0.0](https://github.com/openlowcode/Open-Lowcode/releases/tag/v1.0.0) is Released (1st of March 2020)
+**New** Open Lowcode [v1.1.0](https://github.com/openlowcode/Open-Lowcode/releases/tag/v1.1.0) is Released (10th of March 2020)
 
 You are welcome to get involved and contribute to the project. The project has started as a one-man effort, and to grow, it needs your help, opinions and talent: especially, your field experience in IT departments is invaluable. 
 
