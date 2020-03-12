@@ -10,9 +10,21 @@
 
 package org.openlowcode.server.data;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import org.apache.poi.hssf.usermodel.DVConstraint;
+import org.apache.poi.hssf.usermodel.HSSFDataValidation;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataValidation;
+import org.apache.poi.ss.usermodel.DataValidationConstraint;
+import org.apache.poi.ss.usermodel.DataValidationHelper;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFDataValidation;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.openlowcode.server.data.loader.FlatFileLoader;
 import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
 import org.openlowcode.server.data.loader.PostUpdateProcessingStore;
@@ -29,12 +41,13 @@ import org.openlowcode.server.data.loader.PostUpdateProcessingStore;
  * 
  */
 public class ChoiceDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>, F extends FieldChoiceDefinition<F>>
-		extends FlatFileLoaderColumn<E> {
+		extends
+		FlatFileLoaderColumn<E> {
 	private static Logger logger = Logger.getLogger(ChoiceDataObjectFieldFlatFileLoaderColumn.class.getName());
 	@SuppressWarnings("unused")
 	private DataObjectDefinition<E> objectdefinition;
 	private String name;
-	private FieldChoiceDefinition<F> fieldchoicedefinition;
+	private F fieldchoicedefinition;
 	private boolean lenient;
 
 	/**
@@ -47,8 +60,12 @@ public class ChoiceDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>, 
 	 * @param lenient               if true, will not blow-up the line with an
 	 *                              exception if the value is wrong
 	 */
-	public ChoiceDataObjectFieldFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
-			String[] columnattributes, String name, FieldChoiceDefinition<F> fieldchoicedefinition, boolean lenient) {
+	public ChoiceDataObjectFieldFlatFileLoaderColumn(
+			DataObjectDefinition<E> objectdefinition,
+			String[] columnattributes,
+			String name,
+			F fieldchoicedefinition,
+			boolean lenient) {
 		this.objectdefinition = objectdefinition;
 		this.name = name;
 		this.fieldchoicedefinition = fieldchoicedefinition;
@@ -126,7 +143,30 @@ public class ChoiceDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>, 
 					+ " would be of type ChoiceDataObjectField but in reality, it is " + field.getClass().toString());
 		ChoiceDataObjectField<F, E> choicefield = (ChoiceDataObjectField<F, E>) field;
 		cell.setCellValue((choicefield.getValue() == null ? "" : choicefield.getValue().getDisplayValue()));
+		ChoiceDataObjectFieldFlatFileLoaderColumn.setRestrictionsOnCell(cell,fieldchoicedefinition);
 		return false;
+	}
+
+	/**
+	 * sets restriction on cell so that only display values in the list of value, or
+	 * empty string, can be entered
+	 * 
+	 * @param cell             cell
+	 * @param choicedefinition choice definition
+	 */
+	public static <E extends FieldChoiceDefinition<E>> void setRestrictionsOnCell(Cell cell, E choicedefinition) {
+		ArrayList<String> restrictions = new ArrayList<String>();
+		restrictions.add("");
+		ChoiceValue<E>[] choices = choicedefinition.getChoiceValue();
+		for (int i=0;i<choices.length;i++) restrictions.add(choices[i].getDisplayValue());
+		XSSFSheet sheet = (XSSFSheet) cell.getSheet();
+		DataValidationHelper validationHelper = new XSSFDataValidationHelper(sheet);
+		DataValidationConstraint constraint = validationHelper.createExplicitListConstraint(restrictions.toArray(new String[0]));
+		CellRangeAddressList addressList = new CellRangeAddressList(cell.getRowIndex(),cell.getRowIndex(), cell.getColumnIndex(),cell.getColumnIndex());
+		DataValidation dataValidation = validationHelper.createValidation(constraint, addressList);
+		dataValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+		dataValidation.setSuppressDropDownArrow(true);
+		sheet.addValidationData(dataValidation);
 	}
 
 }
