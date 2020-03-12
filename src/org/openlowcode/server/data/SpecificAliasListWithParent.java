@@ -13,8 +13,9 @@ package org.openlowcode.server.data;
 import org.openlowcode.server.data.properties.DataObjectId;
 
 /**
- * A data object definition implements this library if it manages several
- * typical list of aliases
+ * A data object definition implements this interface if it manages several
+ * typical list of aliases (managed by parameter) and conditions on alias based
+ * on values on parent object
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>

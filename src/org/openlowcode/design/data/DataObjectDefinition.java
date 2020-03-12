@@ -2746,6 +2746,8 @@ public class DataObjectDefinition
 
 			sg.wl("import " + this.categoryforextractor.getParentModule().getPath() + ".data.choice."
 					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition;");
+		} else {
+			if (this.aliasfilteronparent!=null) sg.wl("import java.util.ArrayList;");
 		}
 		for (int i = 0; i < this.constraintsforobject.getSize(); i++) {
 			MultiFieldConstraint thisconstraint = this.constraintsforobject.get(i);
@@ -2793,7 +2795,13 @@ public class DataObjectDefinition
 				interfacestring += ",\n			SpecificAliasListWithParent<"
 						+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition,"
 						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";
+		} else {
+			if (this.aliasfilteronparent != null)
+				interfacestring += "\n		implements SpecificAliasListWithParentWithoutParameter<"
+	
+						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";			
 		}
+		
 		sg.wl("public class " + classname + "Definition extends DataObjectDefinition<" + classname + "> "
 				+ interfacestring + " {");
 		sg.wl("");
@@ -3355,7 +3363,7 @@ public class DataObjectDefinition
 			sg.wl("		return specificaliaslist.toArray(new String[0]);");
 			sg.wl("	}			");
 
-			if (this.aliasfilteronparent != null) {
+			if (this.aliasfilteronparent != null)  {
 
 				String parentclass = StringFormatter.formatForJavaClass(aliasfilteronparent.getName());
 
@@ -3373,8 +3381,25 @@ public class DataObjectDefinition
 				sg.wl("	}	");
 
 			}
+			
+			
 
+		} else {
+			if (this.aliasfilteronparent != null)  {
+				String parentclass = StringFormatter.formatForJavaClass(aliasfilteronparent.getName());
+
+				sg.wl("	@Override");
+				sg.wl("	public String[] getSpecificAliasList(DataObjectId<" + parentclass + "> parentid)  {");
+				sg.wl("		ArrayList<String> aliasfilteredforparent = new ArrayList<String>();");
+				sg.wl("		" + parentclass + " parent = " + parentclass + ".readone(parentid);");
+				sg.wl("		for (int i=0;i<this.getAliasNumber();i++) {");
+				sg.wl("			if (parentaliasfilter.isvalid(this,this.getAliasat(i),parent)) aliasfilteredforparent.add(this.getAliasat(i));");
+				sg.wl("		}");
+				sg.wl("		return aliasfilteredforparent.toArray(new String[0]);");
+				sg.wl("	}	");				
+			}
 		}
+
 
 		sg.wl("}");
 		sg.close();

@@ -111,7 +111,14 @@ public class DataObjectDefinitionFileActions {
 
 			}
 			extraparameter = ",specificalias";
+		} else {
+			if (linkedfromchildren.getChildObject().getAliasFilterOnParent()!=null) if (linkedfromchildren.getChildObject().getAliasFilterOnParent().getName().equals(name)) {
+				sg.wl("		String[] specificalias = " + childclass
+						+ ".getDefinition().getSpecificAliasList(parentid);");
+				extraparameter = ",specificalias";
+			}
 		}
+		
 		sg.wl("		SFile returnfile = extractor.extractToExcel(" + childvariable + extraparameter + ");");
 		if (hasextractorchoice) {
 			sg.wl("		return returnfile;");
