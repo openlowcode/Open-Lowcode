@@ -143,13 +143,14 @@ public class ChoiceDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>, 
 					+ " would be of type ChoiceDataObjectField but in reality, it is " + field.getClass().toString());
 		ChoiceDataObjectField<F, E> choicefield = (ChoiceDataObjectField<F, E>) field;
 		cell.setCellValue((choicefield.getValue() == null ? "" : choicefield.getValue().getDisplayValue()));
-		ChoiceDataObjectFieldFlatFileLoaderColumn.setRestrictionsOnCell(cell,fieldchoicedefinition);
+		// ChoiceDataObjectFieldFlatFileLoaderColumn.setRestrictionsOnCell(cell,fieldchoicedefinition);
 		return false;
 	}
 
 	/**
 	 * sets restriction on cell so that only display values in the list of value, or
-	 * empty string, can be entered
+	 * empty string, can be entered. Warning: in current version, does not work in
+	 * excel (works with Libre Office though)
 	 * 
 	 * @param cell             cell
 	 * @param choicedefinition choice definition
@@ -158,11 +159,14 @@ public class ChoiceDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>, 
 		ArrayList<String> restrictions = new ArrayList<String>();
 		restrictions.add("");
 		ChoiceValue<E>[] choices = choicedefinition.getChoiceValue();
-		for (int i=0;i<choices.length;i++) restrictions.add(choices[i].getDisplayValue());
+		for (int i = 0; i < choices.length; i++)
+			restrictions.add(choices[i].getDisplayValue());
 		XSSFSheet sheet = (XSSFSheet) cell.getSheet();
 		DataValidationHelper validationHelper = new XSSFDataValidationHelper(sheet);
-		DataValidationConstraint constraint = validationHelper.createExplicitListConstraint(restrictions.toArray(new String[0]));
-		CellRangeAddressList addressList = new CellRangeAddressList(cell.getRowIndex(),cell.getRowIndex(), cell.getColumnIndex(),cell.getColumnIndex());
+		DataValidationConstraint constraint = validationHelper
+				.createExplicitListConstraint(restrictions.toArray(new String[0]));
+		CellRangeAddressList addressList = new CellRangeAddressList(cell.getRowIndex(), cell.getRowIndex(),
+				cell.getColumnIndex(), cell.getColumnIndex());
 		DataValidation dataValidation = validationHelper.createValidation(constraint, addressList);
 		dataValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
 		dataValidation.setSuppressDropDownArrow(true);
