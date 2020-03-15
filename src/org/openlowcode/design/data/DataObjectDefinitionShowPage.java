@@ -780,13 +780,17 @@ public class DataObjectDefinitionShowPage
 			if (parentlink != null) {
 				String parentname = parentlink.getParentObjectForLink().getName().toLowerCase();
 				String linkname = parentlink.getName().toLowerCase();
+				String parentextralabel = parentlink.getDisplayname();
+				boolean hasextralabel=false;
+				if (parentextralabel!=null) if (parentextralabel.trim().length()>0) hasextralabel=true;
+				if (!hasextralabel) parentextralabel = parentlink.getParentObjectForLink().getLabel();
 				sg.wl("		if (hasparent) {");
 				sg.wl("			AtgShow" + parentname + "Action.ActionRef showparent" + parentname + " = AtgShow"
 						+ parentname + "Action.get().getActionRef();");
 				sg.wl("			showparent" + parentname + ".setId(objectdisplaydefinition.getAttributeInput("
 						+ objectclass + ".get" + StringFormatter.formatForJavaClass(linkname) + "idMarker()));");
 				sg.wl("			SActionButton gotoparent" + parentname + " = new SActionButton(\"parent "
-						+ parentlink.getDisplayname() + "\",\"opens the parent "
+						+ parentextralabel + "\",\"opens the parent "
 						+ parentlink.parent.getName().toLowerCase() + " for this " + objectclass + "\",showparent"
 						+ parentname + ",this);");
 				sg.wl("			objectbuttonband.addElement(gotoparent" + parentname + ");");
