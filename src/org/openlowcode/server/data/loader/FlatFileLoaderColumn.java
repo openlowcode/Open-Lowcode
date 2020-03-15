@@ -73,7 +73,8 @@ public abstract class FlatFileLoaderColumn<E extends DataObject<E>> {
 	 * @param linepreparatorextracriterias extra criterias for the line prepataion
 	 * @return
 	 */
-	public LinePreparation<E> LinePreparation(Object maincolumnvalue,
+	public LinePreparation<E> LinePreparation(
+			Object maincolumnvalue,
 			ArrayList<LinePreparationExtra<E>> linepreparatorextracriterias) {
 		throw new RuntimeException("no line  preparator with two attribute");
 	}
@@ -152,7 +153,9 @@ public abstract class FlatFileLoaderColumn<E extends DataObject<E>> {
 	 */
 	public static interface LinePreparationExtra<E extends DataObject<E>> {
 		/**
-		 * generates a query condition to query relevant data to the object being processed
+		 * generates a query condition to query relevant data to the object being
+		 * processed
+		 * 
 		 * @param definition object definition
 		 * @param alias      alias of the query
 		 * @return
@@ -162,6 +165,7 @@ public abstract class FlatFileLoaderColumn<E extends DataObject<E>> {
 
 	/**
 	 * performs the load
+	 * 
 	 * @param object                    the object on which to load data
 	 * @param value                     an object, either Date, String or Double
 	 * @param postupdateprocessingstore a store to perform post processing after the
@@ -225,6 +229,18 @@ public abstract class FlatFileLoaderColumn<E extends DataObject<E>> {
 	 */
 	public String[] initComplexExtractorForObject(E currentobject) {
 		throw new RuntimeException("Not implemented for non-complex extractor");
+	}
+
+	/**
+	 * allows to define a restriction (list of potential values) for a cell when
+	 * exporting data in a spreadsheet. The column should return null if no
+	 * restriction applies to cell.<br>
+	 * Should be overridden only by loaders that need to restrict values
+	 * 
+	 * @return the list of potential values, or null if no restriction.
+	 */
+	public String[] getValueRestriction() {
+		return null;
 	}
 
 }

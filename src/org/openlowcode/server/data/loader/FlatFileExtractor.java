@@ -24,15 +24,25 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.DataValidation;
+import org.apache.poi.ss.usermodel.DataValidationConstraint;
+import org.apache.poi.ss.usermodel.DataValidationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
+import org.openlowcode.server.data.FieldChoiceDefinition;
 import org.openlowcode.server.data.NodeTree;
 import org.openlowcode.tools.file.StringParser;
 import org.openlowcode.tools.messages.SFile;
@@ -75,7 +85,9 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 		try {
 			Workbook workbook = new XSSFWorkbook();
 			Sheet sheet = workbook.createSheet("Export Data");
-			loadWorkbook(sheet, objectarray, specificaliaslist);
+			Sheet referencessheet = workbook.createSheet("Reference Values");
+			loadWorkbook(sheet,referencessheet, objectarray, specificaliaslist);
+			workbook.setActiveSheet(0); // setting active sheet to export data
 			ByteArrayOutputStream documentinmemory = new ByteArrayOutputStream();
 			workbook.write(documentinmemory);
 			workbook.close();
@@ -266,11 +278,12 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 	 * loads into specified sheet the array of objects
 	 * 
 	 * @param sheet             active sheet
+	 * @param referencessheet   sheet to store reference values
 	 * @param objectarray       array of objects
 	 * @param specificaliaslist the alias to put as column headers (also gives the
 	 *                          order of fields)
 	 */
-	private void loadWorkbook(Sheet sheet, E[] objectarray, String[] specificaliaslist) {
+	private void loadWorkbook(Sheet sheet,Sheet referencessheet, E[] objectarray, String[] specificaliaslist) {
 		String[] aliaslisttoconsider = specificaliaslist;
 		// if zero element, put it to null
 		if (aliaslisttoconsider != null)
@@ -306,6 +319,8 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 			int[] columnmaxchar = new int[aliaslisttoconsider.length];
 			for (int i = 0; i < columnmaxchar.length; i++)
 				columnmaxchar[i] = 0;
+			ArrayList<String[]> restrictionsperalias = new ArrayList<String[]>();
+			int maxrestrictionvalues=0;
 			for (int i = 0; i < aliaslisttoconsider.length; i++) {
 				Cell cell = headerrow.createCell(i);
 				cell.setCellStyle(headerstyle);
@@ -316,6 +331,15 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 				String[] headlinesplit = StringParser.splitwithdoubleescape(loaderdef, '&');
 				FlatFileLoaderColumn<E> column = definition.getFlatFileLoaderColumn(transientproperties, headlinesplit,
 						null);
+				restrictionsperalias.add(null);
+				if (column!=null) {
+					String[] valuesrestriction = column.getValueRestriction();
+					if (valuesrestriction!=null) {
+					restrictionsperalias.set(i,valuesrestriction);
+					int valuesnr = valuesrestriction.length;
+					if (valuesnr>maxrestrictionvalues) maxrestrictionvalues=valuesnr;
+				}
+				}
 				columns.add(column);
 				if (column != null)
 					if (column.isComplexExtractor()) {
@@ -326,12 +350,26 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 						logger.info("Complex extractor defined as column " + column);
 					}
 			}
+			
+			
+			// write restrictions in referencesheet
+			for (int i=0;i<maxrestrictionvalues;i++) {
+				Row currentrow = referencessheet.createRow(i);
+				for (int j=0;j<restrictionsperalias.size();j++) {
+					String[] restrictionsvaluesperalias = restrictionsperalias.get(j);
+					if (restrictionsvaluesperalias!=null) if (i<restrictionsvaluesperalias.length) {
+						Cell cell = currentrow.createCell(j);
+						cell.setCellValue(restrictionsvaluesperalias[i]);
+					}
+			}
+			}
 			// by default, set height for two lines
 			headerrow.setHeightInPoints(headerrow.getHeightInPoints() * 2);
 			// parse objects
 			int rowindex = 1;
 			CellStyle normalstyle = createBorderedStyle(sheet.getWorkbook());
 			logger.info("parsing objects in array, nr = " + objectarray.length);
+			
 			for (int i = 0; i < objectarray.length; i++) {
 				E currentobject = objectarray[i];
 				String[] context = new String[] { null };
@@ -360,6 +398,15 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 				}
 
 			}
+			
+			// Put restrictions on cells if exists
+			for (int i=0;i<aliaslisttoconsider.length;i++) {
+				String[] restrictions = restrictionsperalias.get(i);
+				if (restrictions!=null) {
+					setRestrictionsOnCell(sheet,referencessheet,i,restrictions.length,rowindex-2);
+				}
+			}
+			
 			// at the end, size columns
 			for (int i = 0; i < columnmaxchar.length; i++) {
 				int width = (int) (columnmaxchar[i] * 1.14388 * 256);
@@ -443,5 +490,26 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 		style.setDataFormat(createHelper.createDataFormat().getFormat(simpledateformat));
 		return style;
 	}
-
+	
+	/**
+	 * create restrictions on the data cells
+	 * 
+	 * @param mainsheet sheet with data
+	 * @param restrictionsheet sheet with restriction values
+	 * @param column index of column (starting with zero)
+	 * @param nbofchoices number of choices (starting with zero)
+	 * @param nbofrows number of rows (starting with zero)
+	 */
+	public static  void setRestrictionsOnCell(Sheet mainsheet,Sheet restrictionsheet,int column,int nbofchoices,int nbofrows) {
+		DataValidationHelper validationHelper = new XSSFDataValidationHelper((XSSFSheet)mainsheet);
+		String columnletter =  CellReference.convertNumToColString(column);
+		String formula = "'"+restrictionsheet.getSheetName()+ "'!$"+columnletter+"$"+1+":$"+columnletter+"$"+nbofchoices;
+		DataValidationConstraint constraint = validationHelper.createFormulaListConstraint(formula);
+		CellRangeAddressList addressList = new CellRangeAddressList(1,nbofrows+1,column,column);
+		
+		DataValidation dataValidation = validationHelper.createValidation(constraint, addressList);
+		dataValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+		dataValidation.setSuppressDropDownArrow(true);
+		mainsheet.addValidationData(dataValidation);
+	}
 }
