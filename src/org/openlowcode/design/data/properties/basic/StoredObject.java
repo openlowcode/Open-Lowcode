@@ -38,12 +38,32 @@ public class StoredObject
 		Property<StoredObject> {
 
 	private NamedList<DynamicActionDefinition> actionsonobject;
+	private boolean saveasincreatenewgroup;
 
 	/**
-	 * creates a stored object property
+	 * @return
+	 */
+	public boolean isSaveAsInCreateNewGroup() {
+		return this.saveasincreatenewgroup;
+	}
+
+	/**
+	 * creates a stored object property with default save-as / duplicate action
+	 * visible in create new group
 	 */
 	public StoredObject() {
+		this(true);
+	}
+
+	/**
+	 * creates a stored object property with specified visibility for save-as /
+	 * duplicate action
+	 * 
+	 * @param saveasincreatenewgroup
+	 */
+	public StoredObject(boolean saveasincreatenewgroup) {
 		super("STOREDOBJECT");
+		this.saveasincreatenewgroup = saveasincreatenewgroup;
 	}
 
 	@Override

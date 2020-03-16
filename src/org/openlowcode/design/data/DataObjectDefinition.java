@@ -51,6 +51,7 @@ import org.openlowcode.design.data.properties.basic.PrintOut;
 import org.openlowcode.design.data.properties.basic.RightForLink;
 import org.openlowcode.design.data.properties.basic.Schedule;
 import org.openlowcode.design.data.properties.basic.SimpleTaskWorkflow;
+import org.openlowcode.design.data.properties.basic.StoredObject;
 import org.openlowcode.design.data.properties.basic.SubObject;
 import org.openlowcode.design.data.properties.basic.TargetDate;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
@@ -1913,6 +1914,7 @@ public class DataObjectDefinition
 			if (((linkobject == null) && (autolinkobject == null)) || (this.isShowActionAutomaticallyGenerated())) {
 				module.addAction(this.generatePrepareStandardCreateAction());
 				module.addAction(this.generateStandardCreateAction());
+				
 				this.addActionOnObjectPage(this.generateSaveAsAction());
 				module.AddPage(this.generateStandardCreatePage());
 			}
@@ -2098,8 +2100,8 @@ public class DataObjectDefinition
 				true);
 		saveasaction.addInputArgument(new ObjectIdArgument("ORIGINID", this));
 		saveasaction.addOutputArgument(new ObjectArgument("COPYOBJECT", this));
-		saveasaction.setButtonlabel("Save as");
-		this.addActionToCreateNewGroup(saveasaction);
+		saveasaction.setButtonlabel("Duplicate");
+		if (this.isSaveAsInCreateNewGroup()) this.addActionToCreateNewGroup(saveasaction);
 
 		return saveasaction;
 	}
@@ -2318,6 +2320,12 @@ public class DataObjectDefinition
 		return true;
 	}
 
+	public boolean isSaveAsInCreateNewGroup() {
+		StoredObject storedobject = (StoredObject) this.getPropertyByName("STOREDOBJECT");
+		if (storedobject!=null) return storedobject.isSaveAsInCreateNewGroup();
+		return false;
+	}
+	
 	/**
 	 * @return true if the data object has the property Iterated
 	 */
