@@ -369,10 +369,10 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 			int rowindex = 1;
 			CellStyle normalstyle = createBorderedStyle(sheet.getWorkbook());
 			logger.info("parsing objects in array, nr = " + objectarray.length);
-			
+			String[] context = new String[] { null };
 			for (int i = 0; i < objectarray.length; i++) {
 				E currentobject = objectarray[i];
-				String[] context = new String[] { null };
+				
 				if (complexextractor != null)
 					context = complexextractor.initComplexExtractorForObject(currentobject);
 				logger.finer("for line " + i + ", context length = " + context.length);
@@ -399,11 +399,21 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 
 			}
 			
+			// format two more lines to allow people to use data to enter template
+			for (int i = 0; i < 2; i++) {
+					Row datarow = sheet.createRow(rowindex);
+					rowindex++;
+					for (int k = 0; k < aliaslisttoconsider.length; k++) {
+						Cell cell = datarow.createCell(k);
+						cell.setCellStyle(normalstyle);
+					}
+				
+			}
 			// Put restrictions on cells if exists
 			for (int i=0;i<aliaslisttoconsider.length;i++) {
 				String[] restrictions = restrictionsperalias.get(i);
 				if (restrictions!=null) {
-					setRestrictionsOnCell(sheet,referencessheet,i,restrictions.length,rowindex-2);
+					setRestrictionsOnCell(sheet,referencessheet,i,restrictions.length,rowindex+1);
 				}
 			}
 			
@@ -505,7 +515,7 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 		String columnletter =  CellReference.convertNumToColString(column);
 		String formula = "'"+restrictionsheet.getSheetName()+ "'!$"+columnletter+"$"+1+":$"+columnletter+"$"+nbofchoices;
 		DataValidationConstraint constraint = validationHelper.createFormulaListConstraint(formula);
-		CellRangeAddressList addressList = new CellRangeAddressList(1,nbofrows+1,column,column);
+		CellRangeAddressList addressList = new CellRangeAddressList(1,nbofrows,column,column);
 		
 		DataValidation dataValidation = validationHelper.createValidation(constraint, addressList);
 		dataValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
