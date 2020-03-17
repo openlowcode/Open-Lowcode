@@ -365,7 +365,7 @@ public class LinkedFromChildren
 
 						if (linkedfromchildren.getChildObject().getCategoryForExtractor() == null) {
 							sg.wl("		SActionButton exportchildrenfor" + linknameshortname
-									+ "button = new SActionButton(\"Export children to File\",exportchildrenfor"
+									+ "button = new SActionButton(\"Export Loadable File\",exportchildrenfor"
 									+ linknameshortname + ",true,this); ");
 							sg.wl("		childrenactionbandfor" + childclassattribute + ".addElement(exportchildrenfor"
 									+ linknameshortname + "button);			");
