@@ -23,15 +23,19 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.openlowcode.tools.misc.SplitString;
 
 /**
  * A framework to generate pdfpages. This uses Apache PDFBOX. All dimensions are
  * in mm.
  * 
- * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+ *         SAS</a>
  *
  */
-public class PDFPage extends PDFPart {
+public class PDFPage
+		extends
+		PDFPart {
 
 	/**
 	 * This code will be executed when printing the page. It is defined when widget
@@ -294,11 +298,12 @@ public class PDFPage extends PDFPart {
 		for (int i = 0; i < lines.length; i++) {
 			try {
 				float thiswidth = fontandsize.getFont().getStringWidth(lines[i]) / (MM_TO_POINT * 1000)
-					* fontandsize.getFontsize();
+						* fontandsize.getFontsize();
 				if (thiswidth > maxwidth)
 					maxwidth = thiswidth;
 			} catch (Exception e) {
-				String message = "Invalid text for PDF printing '"+lines[i]+"' originmessage "+e.getMessage()+"-"+e.getClass().getName();
+				String message = "Invalid text for PDF printing '" + lines[i] + "' originmessage " + e.getMessage()
+						+ "-" + e.getClass().getName();
 				logger.severe(message);
 				throw new RuntimeException(message);
 			}
@@ -330,6 +335,7 @@ public class PDFPage extends PDFPart {
 
 	/**
 	 * Generates an A4 format page with dimensions indicated in mm
+	 * 
 	 * @param portrait
 	 * @param leftrightmargin margin at left and right in mm
 	 * @param topbottommargin margin at top and bottom in mm
@@ -364,14 +370,19 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
-	 * @param customwidth custom width in mm
-	 * @param customheight custom height in mm
+	 * @param customwidth     custom width in mm
+	 * @param customheight    custom height in mm
 	 * @param leftrightmargin margin at left and right in mm
 	 * @param topbottommargin margin at top and bottom in mm
 	 * @param topatzero
-	 * @throws IOException if any issue related to file system happens creating the PDF page
+	 * @throws IOException if any issue related to file system happens creating the
+	 *                     PDF page
 	 */
-	public PDFPage(float customwidth, float customheight, float leftrightmargin, float topbottommargin,
+	public PDFPage(
+			float customwidth,
+			float customheight,
+			float leftrightmargin,
+			float topbottommargin,
 			boolean topatzero) throws IOException {
 		width = customwidth;
 		height = customheight;
@@ -384,6 +395,7 @@ public class PDFPage extends PDFPart {
 
 	/**
 	 * generates an A4 page with margin size indicated in mm, with topatzero = true
+	 * 
 	 * @param portrait        true if portrait, false is landscape
 	 * @param leftrightmargin margin at left and right in mm
 	 * @param topbottommargin margin at top and bottom in mm
@@ -421,32 +433,39 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
-	 * @param fatline fatline true if line is fat, false if line is standard
-	 *                (thinner)
-	 * @param left    left coordinates in mm (note: in PDF, left starts at zero)
-	 * @param top     top coordinates in mm (note: in PDF, bottom starts at zero
-	 *                except if topatzero is set)
-	 * @param width   width in mm, a positive number
-	 * @param height  height in mm, a positive number
-	 * @param drawtop if true, draw the top line
+	 * @param fatline    fatline true if line is fat, false if line is standard
+	 *                   (thinner)
+	 * @param left       left coordinates in mm (note: in PDF, left starts at zero)
+	 * @param top        top coordinates in mm (note: in PDF, bottom starts at zero
+	 *                   except if topatzero is set)
+	 * @param width      width in mm, a positive number
+	 * @param height     height in mm, a positive number
+	 * @param drawtop    if true, draw the top line
 	 * @param drawbottom if true, draw the bottom line
-	 * @param drawleft if true, draw the left line
-	 * @param drawright if true, draw the right line
+	 * @param drawleft   if true, draw the left line
+	 * @param drawright  if true, draw the right line
 	 * @throws IOException
 	 */
-	
-	public void drawBoxWithWidthAndHeight(boolean fatline, float left, float top, float width, float height,
-			boolean drawtop,boolean drawbottom,boolean drawleft,boolean drawright)
-			throws IOException {
+
+	public void drawBoxWithWidthAndHeight(
+			boolean fatline,
+			float left,
+			float top,
+			float width,
+			float height,
+			boolean drawtop,
+			boolean drawbottom,
+			boolean drawleft,
+			boolean drawright) throws IOException {
 
 		float right = left + width;
 		float bottom = top - height;
 		if (this.topatzero) {
 			bottom = top + height;
 		}
-		drawBox(fatline, left, top, right, bottom,Color.BLACK,drawtop,drawbottom,drawleft,drawright);
-	}	
-	
+		drawBox(fatline, left, top, right, bottom, Color.BLACK, drawtop, drawbottom, drawleft, drawright);
+	}
+
 	/**
 	 * @param fatline fatline true if line is fat, false if line is standard
 	 *                (thinner)
@@ -508,34 +527,47 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
-	 * @param fatline true if line is fat, false if line is standard (thinner)
-	 * @param left    left coordinates in mm (note: in PDF, left starts at zero)
-	 * @param top     top coordinates in mm (note: in PDF, bottom starts at zero
-	 *                except if topatzero is set)
-	 * @param right   right coordinates in mm (note: in PDF, left starts at zero)
-	 * @param bottom  bottom coordinates in mm (note: in PDF, bottom starts at zero
-	 *                except if topatzero is set)
-	 * @param color   color of the box.
-	 * @param drawtop if true, draw the top line of the box
-	 * @param drawbottom if bottom, draw  the bottom line of the box
-	 * @param drawleft if left ... well, draw the left line of the box
-	 * @param drawright if right (I think you got it) draw the right line of the box
+	 * @param fatline    true if line is fat, false if line is standard (thinner)
+	 * @param left       left coordinates in mm (note: in PDF, left starts at zero)
+	 * @param top        top coordinates in mm (note: in PDF, bottom starts at zero
+	 *                   except if topatzero is set)
+	 * @param right      right coordinates in mm (note: in PDF, left starts at zero)
+	 * @param bottom     bottom coordinates in mm (note: in PDF, bottom starts at
+	 *                   zero except if topatzero is set)
+	 * @param color      color of the box.
+	 * @param drawtop    if true, draw the top line of the box
+	 * @param drawbottom if bottom, draw the bottom line of the box
+	 * @param drawleft   if left ... well, draw the left line of the box
+	 * @param drawright  if right (I think you got it) draw the right line of the
+	 *                   box
 	 * @throws IOException if anything bad happens with the file being printed
 	 */
-	
-	public void drawBox(boolean fatline, float left, float top, float right, float bottom, Color color,
-			boolean drawtop,boolean drawbottom,boolean drawleft,boolean drawright)
-			throws IOException {
+
+	public void drawBox(
+			boolean fatline,
+			float left,
+			float top,
+			float right,
+			float bottom,
+			Color color,
+			boolean drawtop,
+			boolean drawbottom,
+			boolean drawleft,
+			boolean drawright) throws IOException {
 		this.widgetstoprint.add(() -> {
-			
-			if (drawtop) this.drawLine(fatline, left,top, right,top, color);
-			if (drawbottom) this.drawLine(fatline, left,bottom, right,bottom, color);
-			if (drawleft) this.drawLine(fatline, left,top,left,bottom, color);
-			if (drawright) this.drawLine(fatline, right,top,right,bottom, color);
+
+			if (drawtop)
+				this.drawLine(fatline, left, top, right, top, color);
+			if (drawbottom)
+				this.drawLine(fatline, left, bottom, right, bottom, color);
+			if (drawleft)
+				this.drawLine(fatline, left, top, left, bottom, color);
+			if (drawright)
+				this.drawLine(fatline, right, top, right, bottom, color);
 		});
 
 	}
-	
+
 	/**
 	 * @param fatline true if line is fat, false if line is standard (thinner)
 	 * @param left    left coordinates in mm (note: in PDF, left starts at zero)
@@ -549,7 +581,7 @@ public class PDFPage extends PDFPart {
 	 */
 	public void drawBox(boolean fatline, float left, float top, float right, float bottom, Color color)
 			throws IOException {
-		drawBox(fatline,left,top,right,bottom,color,true,true,true,true);
+		drawBox(fatline, left, top, right, bottom, color, true, true, true, true);
 
 	}
 
@@ -691,7 +723,12 @@ public class PDFPage extends PDFPart {
 	 * @throws IOException
 	 * 
 	 */
-	public float drawBoxWithLineNumber(boolean fatline, float left, float top, float right, int numberoflines,
+	public float drawBoxWithLineNumber(
+			boolean fatline,
+			float left,
+			float top,
+			float right,
+			int numberoflines,
 			int numberofparagraphs) throws IOException {
 		float bottom = top - (this.topatzero ? -1 : 1)
 				* new BoxTextContent(numberoflines, numberofparagraphs, PDFPage.TEXTTYPE_PLAIN).getHeight();
@@ -699,7 +736,12 @@ public class PDFPage extends PDFPart {
 		return bottom;
 	}
 
-	public float fillBoxWithLineNumber(Color color, float left, float top, float right, int numberoflines,
+	public float fillBoxWithLineNumber(
+			Color color,
+			float left,
+			float top,
+			float right,
+			int numberoflines,
 			int numberofparagraphs) throws IOException {
 		float bottom = top - (this.topatzero ? -1 : 1)
 				* new BoxTextContent(numberoflines, numberofparagraphs, PDFPage.TEXTTYPE_PLAIN).getHeight();
@@ -741,8 +783,15 @@ public class PDFPage extends PDFPart {
 	 * @param text        Text
 	 * @throws IOException
 	 */
-	public void drawFreeFontTextAt(float left, float top, Color color, boolean bold, boolean italic, boolean serif,
-			float fontinpoint, String text) throws IOException {
+	public void drawFreeFontTextAt(
+			float left,
+			float top,
+			Color color,
+			boolean bold,
+			boolean italic,
+			boolean serif,
+			float fontinpoint,
+			String text) throws IOException {
 		this.widgetstoprint.add(() -> {
 			float newtop = top;
 			if (this.topatzero) {
@@ -750,7 +799,7 @@ public class PDFPage extends PDFPart {
 			}
 
 			contentStream.beginText();
-			contentStream.newLineAtOffset(left * MM_TO_POINT, newtop * MM_TO_POINT-fontinpoint);
+			contentStream.newLineAtOffset(left * MM_TO_POINT, newtop * MM_TO_POINT - fontinpoint);
 
 			PDFont font = PDType1Font.HELVETICA;
 			if (!serif) {
@@ -821,8 +870,14 @@ public class PDFPage extends PDFPart {
 	 * @param calculatedtext  text to write
 	 * @throws IOException
 	 */
-	public void drawCalculatedText(boolean label, float xcoordinates, float top, int linenumber, int paragraphnumber,
-			boolean alignleft, TextAfterLayout calculatedtext) throws IOException {
+	public void drawCalculatedText(
+			boolean label,
+			float xcoordinates,
+			float top,
+			int linenumber,
+			int paragraphnumber,
+			boolean alignleft,
+			TextAfterLayout calculatedtext) throws IOException {
 		this.widgetstoprint.add(() -> {
 			float newtop = top;
 
@@ -869,8 +924,13 @@ public class PDFPage extends PDFPart {
 	 * @param calculatedtext  text to write
 	 * @throws IOException
 	 */
-	public void drawCalculatedText(float xcoordinates, float top, int linenumber, int paragraphnumber,
-			boolean alignleft, TextAfterLayout calculatedtext) throws IOException {
+	public void drawCalculatedText(
+			float xcoordinates,
+			float top,
+			int linenumber,
+			int paragraphnumber,
+			boolean alignleft,
+			TextAfterLayout calculatedtext) throws IOException {
 		drawCalculatedText(false, xcoordinates, top, linenumber, paragraphnumber, alignleft, calculatedtext);
 	}
 
@@ -922,7 +982,13 @@ public class PDFPage extends PDFPart {
 	 *                                  diagram axis
 	 * @throws IOException
 	 */
-	public void drawSimpleTextAt(boolean label, float left, float top, int linenumber, int paragraphnumber, String text,
+	public void drawSimpleTextAt(
+			boolean label,
+			float left,
+			float top,
+			int linenumber,
+			int paragraphnumber,
+			String text,
 			boolean horizontalparagraphmargin) throws IOException {
 		this.widgetstoprint.add(() -> {
 			float newtop = top;
@@ -959,7 +1025,13 @@ public class PDFPage extends PDFPart {
 	 * @throws IOException
 	 * 
 	 */
-	public void drawTextWidget(int texttype, float left, float top, float newleft, int linenumber, int paragraphnumber,
+	public void drawTextWidget(
+			int texttype,
+			float left,
+			float top,
+			float newleft,
+			int linenumber,
+			int paragraphnumber,
 			boolean newparagraph) throws IOException {
 		if (newparagraph) {
 			logger.finest("--- new  paragraph");
@@ -993,7 +1065,12 @@ public class PDFPage extends PDFPart {
 	 * @param text
 	 * @throws IOException
 	 */
-	public void drawLeftPaddedTextAt(int texttype, float left, float top, int linenumber, int paragraphnumber,
+	public void drawLeftPaddedTextAt(
+			int texttype,
+			float left,
+			float top,
+			int linenumber,
+			int paragraphnumber,
 			String text) throws IOException {
 		this.widgetstoprint.add(() -> {
 			float newtop = top;
@@ -1053,12 +1130,12 @@ public class PDFPage extends PDFPart {
 
 			}
 			float fontSize = LINE_HEIGHT_NORMAL_TEXT;
-			float verticaloffset = (LINE_HEIGHT_NORMAL_TEXT) * (paragraphnumber+1)
+			float verticaloffset = (LINE_HEIGHT_NORMAL_TEXT) * (paragraphnumber + 1)
 					+ (PARAGRAPH_SPACING_NORMAL_TEXT * paragraphnumber);
 			if (title) {
 				font = titlefont;
 				fontSize = LINE_HEIGHT_TITLE_TEXT;
-				verticaloffset = (LINE_HEIGHT_TITLE_TEXT) * (paragraphnumber+1)
+				verticaloffset = (LINE_HEIGHT_TITLE_TEXT) * (paragraphnumber + 1)
 						+ (PARAGRAPH_SPACING_TITLE_TEXT * paragraphnumber);
 
 			}
@@ -1112,21 +1189,28 @@ public class PDFPage extends PDFPart {
 	}
 
 	/**
-	 * @param left				left of the printing zone in mm
-	 * @param top				top of the prining zone in mm
-	 * @param right				right of the printing zone in mm
-	 * @param remainingheight	the maximum height to print
-	 * @param text				 the full text to write
-	 * @param page				page to print in
-	 * @param texttype			text type as defined in PDFPage constant
+	 * @param left            left of the printing zone in mm
+	 * @param top             top of the prining zone in mm
+	 * @param right           right of the printing zone in mm
+	 * @param remainingheight the maximum height to print
+	 * @param text            the full text to write
+	 * @param page            page to print in
+	 * @param texttype        text type as defined in PDFPage constant
 	 * @param                 splitparagraph: true if this is the non-first part of
 	 *                        a split paragraph. Typically, widget does not have to
 	 *                        be printed
 	 * @return
 	 * @throws IOException
 	 */
-	public static BoxTextContent writeAsMuchTextAsPossible(float left, float top, float right, float remainingheight,
-			String text, PDFPage page, int texttype, boolean splitparagraph) throws IOException {
+	public static BoxTextContent writeAsMuchTextAsPossible(
+			float left,
+			float top,
+			float right,
+			float remainingheight,
+			String text,
+			PDFPage page,
+			int texttype,
+			boolean splitparagraph) throws IOException {
 		return calculateBoxAndMaybeWriteText(left, top, right, text, true, true, remainingheight, page, texttype,
 				splitparagraph);
 	}
@@ -1138,26 +1222,31 @@ public class PDFPage extends PDFPart {
 	 * @param remainingheight the maximum height to print
 	 * @param text            the full text to write
 	 * @param page            page to print in
-	 * @param write			  true to write the text, false just to calculate
+	 * @param write           true to write the text, false just to calculate
 	 * @param texttype        text type as defined in PDFPage constant
 	 * @return the remaining text that could not be printed
 	 * @throws IOException
 	 */
-	public static BoxTextContent calculateBoxAndMaybeWriteText(float left, float top, float right, String text, boolean write,
-			PDFPage page, int texttype) throws IOException {
+	public static BoxTextContent calculateBoxAndMaybeWriteText(
+			float left,
+			float top,
+			float right,
+			String text,
+			boolean write,
+			PDFPage page,
+			int texttype) throws IOException {
 		return calculateBoxAndMaybeWriteText(left, top, right, text, write, false, 0, page, texttype, false);
 	}
 
-
-	
 	/**
-	 * @param left 			left of the printing zone in mm
-	 * @param top			top of the prining zone in mm
-	 * @param right			right of the printing zone in mm
-	 * @param text			the full text to write
-	 * @param write         true to write the text, false just to calculate
-	 * @param partial       true to write only partial content within the maximum height limit specified
-	 * @param maxheight		max height to print partial content
+	 * @param left           left of the printing zone in mm
+	 * @param top            top of the prining zone in mm
+	 * @param right          right of the printing zone in mm
+	 * @param text           the full text to write
+	 * @param write          true to write the text, false just to calculate
+	 * @param partial        true to write only partial content within the maximum
+	 *                       height limit specified
+	 * @param maxheight      max height to print partial content
 	 * @param page           page to print in
 	 * @param texttype       one of the constants prefixed by 'TEXTTYPE_' in the
 	 *                       class
@@ -1167,18 +1256,23 @@ public class PDFPage extends PDFPart {
 	 * @return
 	 * @throws IOException
 	 */
-	public static BoxTextContent calculateBoxAndMaybeWriteText(float left, float top, float right, String text, boolean write,
-			boolean partial, float maxheight, PDFPage page, int texttype, boolean splitparagraph) throws IOException {
+	public static BoxTextContent calculateBoxAndMaybeWriteText(
+			float left,
+			float top,
+			float right,
+			String text,
+			boolean write,
+			boolean partial,
+			float maxheight,
+			PDFPage page,
+			int texttype,
+			boolean splitparagraph) throws IOException {
 		boolean currentsplitparagraph = splitparagraph;
 		if (write)
 			if (page == null)
 				throw new RuntimeException("For write mode, specifying a PDFPage is compulsory");
-		String[] paragraphs;
-		if (text != null) {
-			paragraphs = text.split("\\R");
-		} else {
-			paragraphs = new String[0];
-		}
+		SplitString paragraphs = new SplitString(text);
+
 		// newleft is left taking into account left margin for special display (e.g.
 		// bullet);
 		float margin = (right - left) * getLeftMarginRatio(texttype);
@@ -1189,18 +1283,22 @@ public class PDFPage extends PDFPart {
 		float boxwidthinmm = ((right - newleft) * MM_TO_POINT - 2 * PARAGRAPH_MARGIN_HORIZONTAL) / MM_TO_POINT;
 
 		int totallinecounter = 0;
+		int totalparagraphcounter = -1; // will move to zero at first paragraph
 		boolean inlimitedbox = true;
 		StringBuffer textnotprinted = new StringBuffer();
-		for (int i = 0; i < paragraphs.length; i++) {
+		for (int i = 0; i < paragraphs.getNumberOfSections(); i++) {
+
 			// split paragraph limit is for first paragraph only.
 			if (i > 0)
 				currentsplitparagraph = false;
-			String paragraphtext = paragraphs[i];
-			logger.finest("audit on line "+paragraphtext);
+			String paragraphtext = paragraphs.getSplitStringAt(i);
+			if (paragraphs.getTransitionAt(i))
+				totalparagraphcounter++;
+			logger.finest("audit on line " + paragraphtext);
 			ArrayList<String> paragraphlines = new ArrayList<String>();
 			int lastspace = -1;
 			// in this version, tab is treated as any other space
-			paragraphtext = paragraphtext.replace('\u00A0', ' ').replace('\u0009', ' ').replace('\u0003',' ');
+			paragraphtext = paragraphtext.replace('\u0009', ' ').replace('\u0003', ' ');
 			while (paragraphtext.length() > 0) {
 				int spaceIndex = paragraphtext.indexOf(' ', lastspace + 1);
 				if (spaceIndex < 0)
@@ -1225,11 +1323,11 @@ public class PDFPage extends PDFPart {
 			for (int j = 0; j < paragraphlines.size(); j++) {
 				if (write) {
 					if (!partial) {
-						page.drawLeftPaddedTextAt(texttype, newleft, top, totallinecounter + j, i,
+						page.drawLeftPaddedTextAt(texttype, newleft, top, totallinecounter + j, totalparagraphcounter,
 								paragraphlines.get(j));
 						if (!currentsplitparagraph)
-							page.drawTextWidget(texttype, left, top, newleft, totallinecounter + j, i,
-									(j == 0 ? true : false));
+							page.drawTextWidget(texttype, left, top, newleft, totallinecounter + j,
+									totalparagraphcounter, (j == 0 ? true : false));
 					} else {
 						if (!inlimitedbox) {
 							// do nothing, archive the stuff
@@ -1238,8 +1336,12 @@ public class PDFPage extends PDFPart {
 							if (j < paragraphlines.size() - 1)
 								textnotprinted.append(' ');
 							if (j == paragraphlines.size() - 1)
-								if (i < paragraphs.length - 1)
-									textnotprinted.append('\n');
+								if (i < paragraphs.getNumberOfSections() - 1)
+									if (paragraphs.getTransitionAt(i + 1)) {
+										textnotprinted.append('\n');
+									} else {
+										textnotprinted.append('\r');
+									}
 						} else {
 							// check if still in box
 							int partialparagraphcount = i + 1;
@@ -1248,11 +1350,11 @@ public class PDFPage extends PDFPart {
 									.getHeight();
 							if (heightsofar <= maxheight) {
 								// if so, print
-								page.drawLeftPaddedTextAt(texttype, newleft, top, totallinecounter + j, i,
-										paragraphlines.get(j));
+								page.drawLeftPaddedTextAt(texttype, newleft, top, totallinecounter + j,
+										totalparagraphcounter, paragraphlines.get(j));
 								if (!currentsplitparagraph)
-									page.drawTextWidget(texttype, left, top, newleft, totallinecounter + j, i,
-											(j == 0 ? true : false));
+									page.drawTextWidget(texttype, left, top, newleft, totallinecounter + j,
+											totalparagraphcounter, (j == 0 ? true : false));
 
 							} else {
 								// if not, do nothing and archive the stuff
@@ -1266,8 +1368,12 @@ public class PDFPage extends PDFPart {
 								if (j < paragraphlines.size() - 1)
 									textnotprinted.append(' ');
 								if (j == paragraphlines.size() - 1)
-									if (i < paragraphs.length - 1)
-										textnotprinted.append('\n');
+									if (i < paragraphs.getNumberOfSections() - 1)
+										if (paragraphs.getTransitionAt(i + 1)) {
+											textnotprinted.append('\n');
+										} else {
+											textnotprinted.append('\r');
+										}
 							}
 
 						}
@@ -1275,8 +1381,9 @@ public class PDFPage extends PDFPart {
 				}
 			}
 			totallinecounter += paragraphlines.size();
+
 		}
-		return new BoxTextContent(totallinecounter, paragraphs.length + 1, texttype, textnotprinted.toString(),
+		return new BoxTextContent(totallinecounter, totalparagraphcounter + 1, texttype, textnotprinted.toString(),
 				paragraphcut);
 	}
 
@@ -1309,7 +1416,12 @@ public class PDFPage extends PDFPart {
 	 * @return
 	 * @throws IOException
 	 */
-	public BoxTextContent drawTextWithLabelInBox(float left, float top, float right, String label, String text,
+	public BoxTextContent drawTextWithLabelInBox(
+			float left,
+			float top,
+			float right,
+			String label,
+			String text,
 			int maxline) throws IOException {
 		float labelwidth = PDFPage.getTextSize(new String[] { label }, PDFPage.TEXTTYPE_LABEL);
 		this.drawTextInBox(left,
@@ -1408,7 +1520,11 @@ public class PDFPage extends PDFPart {
 			this.texttype = texttype;
 		}
 
-		public BoxTextContent(int nblines, int nbparagraph, int texttype, String textleftout,
+		public BoxTextContent(
+				int nblines,
+				int nbparagraph,
+				int texttype,
+				String textleftout,
 				boolean cutinsideparagraph) {
 			this.nblines = nblines;
 			this.nbparagraph = nbparagraph;
@@ -1438,6 +1554,7 @@ public class PDFPage extends PDFPart {
 		/**
 		 * this method will show the height in mm, without the final spacing. This is
 		 * especially useful to print in a table, where there is no spacing in the end
+		 * 
 		 * @return height without final spacing
 		 */
 		public float getHeightWithoutFinalSpacing() {
@@ -1542,7 +1659,12 @@ public class PDFPage extends PDFPart {
 	 * @param filecontent a byte array with the file content
 	 * @param filename    the name of the file with suffix
 	 */
-	public void drawImageInsideBox(float left, float top, float right, float bottom, byte[] filecontent,
+	public void drawImageInsideBox(
+			float left,
+			float top,
+			float right,
+			float bottom,
+			byte[] filecontent,
 			String filename) {
 		this.widgetstoprint.add(() -> {
 			float newtop = top;
@@ -1623,7 +1745,11 @@ public class PDFPage extends PDFPart {
 	 * @param text
 	 * @throws IOException
 	 */
-	public void drawFixWidthRightAlignedTextAt(float rightForColumn, float topofline, int lineindex, int paragraphindex,
+	public void drawFixWidthRightAlignedTextAt(
+			float rightForColumn,
+			float topofline,
+			int lineindex,
+			int paragraphindex,
 			String text) throws IOException {
 		this.widgetstoprint.add(() -> {
 
