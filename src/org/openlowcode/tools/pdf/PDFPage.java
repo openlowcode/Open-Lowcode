@@ -1097,7 +1097,7 @@ public class PDFPage
 				newtop = height - top;
 
 			}
-			logger.severe("   - drawLeftPaddedTextAt ("+texttype+") ---> "+compactprint+" ||"+text);
+			logger.finest("   - drawLeftPaddedTextAt ("+texttype+") ---> "+compactprint+" ||"+text);
 			contentStream.setStrokingColor(Color.BLACK);
 			contentStream.beginText();
 			float yinpoint = newtop * MM_TO_POINT - (PARAGRAPH_MARGIN_VERTICAL * (compactprint?0:1))
@@ -1392,7 +1392,7 @@ public class PDFPage
 							// check if still in box
 							int partialparagraphcount = i + 1;
 							int partiallinecount = totallinecounter + j + 1;
-							float heightsofar = new BoxTextContent(partiallinecount, partialparagraphcount, texttype)
+							float heightsofar = new BoxTextContent(partiallinecount, partialparagraphcount, texttype,compactprint)
 									.getHeight();
 							if (heightsofar <= maxheight) {
 								// if so, print

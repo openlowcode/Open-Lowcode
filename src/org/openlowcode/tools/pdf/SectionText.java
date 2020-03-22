@@ -17,33 +17,65 @@ import org.openlowcode.tools.pdf.PDFPageBand.PartialPrintFeedback;
 
 /**
  * Plain text in a document
- * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
+ * 
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+ *         SAS</a>
  *
  */
-public class SectionText implements PDFPageBandSection {
+public class SectionText
+		implements
+		PDFPageBandSection {
 	private String text;
 	private static Logger logger = Logger.getLogger(SectionText.class.getName());
 	private String remainingtext;
 	private boolean firstprint;
+	private boolean compactprint;
 
+	/**
+	 * creates a section text, to be added in a page band
+	 * 
+	 * @param text         text to print. it can be several lines, including '\r'
+	 *                     (small carriage return) and '\n' (big carriage return)
+	 * @param compactprint if true, print in a compact form, if false print in
+	 *                     normal (non-compact) way
+	 */
+	public SectionText(String text, boolean compactprint) {
+		this.text = text;
+		this.remainingtext = text;
+		this.firstprint = true;
+		this.compactprint = compactprint;
+	}
+
+	/**
+	 * create a section text with normal (not compact) print, to be added in a page
+	 * band
+	 * 
+	 * @param text text to print. it can be several lines, including '\r' (small
+	 *             carriage return) and '\n' (big carriage return)
+	 */
 	public SectionText(String text) {
 		this.text = text;
 		this.remainingtext = text;
 		this.firstprint = true;
+		this.compactprint = false;
 	}
 
 	@Override
-	public void print(PDFPageBand pageband, PDFPage currentpage, float mmfromtopforsection, float leftinmm,
+	public void print(
+			PDFPageBand pageband,
+			PDFPage currentpage,
+			float mmfromtopforsection,
+			float leftinmm,
 			float rightinmm) throws IOException {
-		PDFPage.calculateBoxAndMaybeWriteText(leftinmm, mmfromtopforsection, rightinmm, text, true, currentpage,
-				PDFPage.TEXTTYPE_PLAIN);
+		PDFPage.calculateBoxAndMaybeWriteText(leftinmm, mmfromtopforsection, rightinmm, text, true, false, 0,
+				currentpage, PDFPage.TEXTTYPE_PLAIN, false, compactprint);
 
 	}
 
 	@Override
 	public float getSectionHeight(float leftinmm, float rightinmm) throws IOException {
-		return PDFPage.calculateBoxAndMaybeWriteText(leftinmm, 0, rightinmm, text, false, null, PDFPage.TEXTTYPE_PLAIN)
-				.getHeight();
+		return PDFPage.calculateBoxAndMaybeWriteText(leftinmm, 0, rightinmm, text, false, false, 0, null,
+				PDFPage.TEXTTYPE_PLAIN, false, compactprint).getHeight();
 	}
 
 	@Override
@@ -52,13 +84,18 @@ public class SectionText implements PDFPageBandSection {
 	}
 
 	@Override
-	public PartialPrintFeedback printPartial(PDFPageBand pageband, float spaceleft, PDFPage currentpage,
-			float mmfromtopforsection, float leftinmm, float rightinmm) throws IOException {
+	public PartialPrintFeedback printPartial(
+			PDFPageBand pageband,
+			float spaceleft,
+			PDFPage currentpage,
+			float mmfromtopforsection,
+			float leftinmm,
+			float rightinmm) throws IOException {
 		float heightforremaining = PDFPage.calculateBoxAndMaybeWriteText(leftinmm, 0, rightinmm, remainingtext, false,
-				null, PDFPage.TEXTTYPE_PLAIN).getHeight();
+				false,0,null, PDFPage.TEXTTYPE_PLAIN,false,compactprint).getHeight();
 
 		this.remainingtext = PDFPage.writeAsMuchTextAsPossible(leftinmm, mmfromtopforsection, rightinmm, spaceleft,
-				remainingtext, currentpage, PDFPage.TEXTTYPE_PLAIN, !firstprint).getTextleftout();
+				remainingtext, currentpage, PDFPage.TEXTTYPE_PLAIN, !firstprint,compactprint).getTextleftout();
 		logger.fine("drop remaining textn space left " + spaceleft + "-----------------------------------------------");
 		logger.fine("remaining text length = " + (this.remainingtext != null ? this.remainingtext.length() : "NULL"));
 		firstprint = false;
