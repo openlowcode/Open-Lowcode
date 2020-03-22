@@ -522,23 +522,23 @@ public class Paragraph {
 
 	}
 
-	private QualifiedCaretPosition getTextAtCaret() {
+	private QualifiedCaretPosition getTextAtTextFlowPosition(int textflowposition) {
 		int currenttextlayoutcharacter = 0;
 		int currenttextindex = 0;
 		FormattedText selectedtext = textlist.get(0);
-		logger.finest("-------------------------- getting qualified carret with selection = " + selectionintextflow
+		logger.finest("-------------------------- getting qualified carret with selection = " + textflowposition
 				+ "-----------------------");
-		while ((currenttextlayoutcharacter < selectionintextflow) && (currenttextindex < textlist.size())) {
+		while ((currenttextlayoutcharacter < textflowposition) && (currenttextindex < textlist.size())) {
 			selectedtext = textlist.get(currenttextindex);
 			currenttextlayoutcharacter += selectedtext.getTextPayload().length();
 			logger.finest("reviewing FormattedText " + currenttextindex + ", length = "
 					+ selectedtext.getTextPayload().length() + ", total length = " + currenttextlayoutcharacter
-					+ ", caretselection = " + selectionintextflow);
+					+ ", caretselection = " + textflowposition);
 			currenttextindex++;
 		}
-		if (selectionintextflow == currenttextlayoutcharacter) {
+		if (textflowposition == currenttextlayoutcharacter) {
 			logger.finest("found end of FormattedText , text length = " + selectedtext.getTextPayload().length()
-					+ " selection in flow = " + selectionintextflow + ", current text layout = "
+					+ " selection in flow = " + textflowposition + ", current text layout = "
 					+ currenttextlayoutcharacter);
 
 			// just at the end of text, adding all elements of size 0
@@ -552,15 +552,18 @@ public class Paragraph {
 				}
 		}
 		logger.finest("-------------------------- qualified carret end (" + (currenttextindex - 1) + ","
-				+ (selectionintextflow - currenttextlayoutcharacter + selectedtext.getTextPayload().length()) + ","
+				+ (textflowposition - currenttextlayoutcharacter + selectedtext.getTextPayload().length()) + ","
 				+ selectedtext.getTextPayload() + ")-----------------------");
 		// special case for first text of first paragraph, where it was adding letter at
 		// the end.
 		if (currenttextindex == 0)
 			return new QualifiedCaretPosition(0, 0, selectedtext);
 		return new QualifiedCaretPosition(currenttextindex - 1,
-				selectionintextflow - currenttextlayoutcharacter + selectedtext.getTextPayload().length(),
-				selectedtext);
+				textflowposition - currenttextlayoutcharacter + selectedtext.getTextPayload().length(), selectedtext);
+	}
+
+	private QualifiedCaretPosition getTextAtCaret() {
+		return getTextAtTextFlowPosition(selectionintextflow);
 	}
 
 	/**
@@ -874,7 +877,6 @@ public class Paragraph {
 			public void handle(MouseEvent event) {
 				double x = event.getScreenX();
 				double y = event.getScreenY();
-
 				selectionintextflow = thisparagraph.getCharSelectionOnCoordinates(x, y);
 				textflow.requestFocus();
 
@@ -1185,6 +1187,7 @@ public class Paragraph {
 		hideSelection();
 		this.dragstartindex = -1;
 		this.dragendindex = -1;
+		this.dragactive = false;
 
 	}
 
@@ -1282,52 +1285,123 @@ public class Paragraph {
 		displayCaretAt(selectionintextflow);
 	}
 
-	private FormattedText insertSectionAtCaretIfRequired() {
+	private FormattedText insertSectionAtSelectionIfRequired() {
+		QualifiedCaretPosition startposition = this.getTextAtTextFlowPosition(dragstartindex);
+		QualifiedCaretPosition endposition = this.getTextAtTextFlowPosition(dragendindex);
+		FormattedText uniquetext = null;
+		if (startposition.localcaretindex == startposition.selectedtext.getTextPayload().length())
+			if (this.textlist.size() > startposition.formattedtextindex + 1) {
+				QualifiedCaretPosition newstartposition = new QualifiedCaretPosition(
+						startposition.formattedtextindex + 1, 0,
+						this.textlist.get(startposition.formattedtextindex + 1));
+				startposition = newstartposition;
+			}
 
-		QualifiedCaretPosition currentposition = this.getTextAtCaret();
+		if (startposition.selectedtext == endposition.selectedtext)
+			uniquetext = startposition.selectedtext;
+
+		if (uniquetext != null) {
+
+			if (startposition.localcaretindex == 0) {
+				// selection starts at beginning of section
+				if (endposition.localcaretindex == uniquetext.getTextPayload().length()) {
+					// return current, full section is selected
+					return uniquetext;
+				} else {
+					// split in 2 and return the first section
+					String starttext = uniquetext.getTextPayload().substring(0, endposition.localcaretindex);
+					String endtext = uniquetext.getTextPayload().substring(endposition.localcaretindex);
+					uniquetext.setString(starttext);
+					FormattedText end = new FormattedText(uniquetext, this);
+					end.setString(endtext);
+					textlist.add(startposition.formattedtextindex + 1, end);
+					textflow.getChildren().add(startposition.formattedtextindex + 1, end.getNode());
+					return uniquetext;
+				}
+			} else {
+				// selection starts at middle of section
+				if (endposition.localcaretindex == uniquetext.getTextPayload().length()) {
+					// split in 2 and return the second section
+					String starttext = uniquetext.getTextPayload().substring(0, startposition.localcaretindex);
+					String endtext = uniquetext.getTextPayload().substring(startposition.localcaretindex);
+					uniquetext.setString(starttext);
+					FormattedText end = new FormattedText(uniquetext, this);
+					end.setString(endtext);
+					textlist.add(startposition.formattedtextindex + 1, end);
+					textflow.getChildren().add(startposition.formattedtextindex + 1, end.getNode());
+					return end;
+				} else {
+					String starttext = uniquetext.getTextPayload().substring(0, startposition.localcaretindex);
+					String middletext = uniquetext.getTextPayload().substring(startposition.localcaretindex,
+							endposition.localcaretindex);
+					String endtext = uniquetext.getTextPayload().substring(endposition.localcaretindex);
+					uniquetext.setString(starttext);
+					FormattedText middle = new FormattedText(uniquetext, this);
+					FormattedText end = new FormattedText(uniquetext, this);
+					middle.setString(middletext);
+					end.setString(endtext);
+					textlist.add(startposition.formattedtextindex + 1, middle);
+					textflow.getChildren().add(startposition.formattedtextindex + 1, middle.getNode());
+					textlist.add(startposition.formattedtextindex + 2, end);
+					textflow.getChildren().add(startposition.formattedtextindex + 2, end.getNode());
+					return middle;
+				}
+			}
+		} else {
+			return null;
+		}
+	}
+
+	private FormattedText insertSectionAtCaretPosition(QualifiedCaretPosition position) {
 		// if already created a zero length text, stick on it.
-		if (currentposition.selectedtext.getTextPayload().length() == 0) {
+		if (position.selectedtext.getTextPayload().length() == 0) {
 			logger.finer("current text has zero length, do not modify it");
-			return currentposition.selectedtext;
+			return position.selectedtext;
 		}
 		// longer text 3 cases to mange
 		// at beginning of section, just insert text before
-		if (currentposition.localcaretindex == 0) {
+		if (position.localcaretindex == 0) {
 			logger.finer("new text will be inserted at the beginning of current text");
 
-			FormattedText formattedtext = new FormattedText(currentposition.selectedtext, this);
-			textlist.add(currentposition.formattedtextindex, formattedtext);
-			textflow.getChildren().add(currentposition.formattedtextindex, formattedtext.getNode());
+			FormattedText formattedtext = new FormattedText(position.selectedtext, this);
+			textlist.add(position.formattedtextindex, formattedtext);
+			textflow.getChildren().add(position.formattedtextindex, formattedtext.getNode());
 			return formattedtext;
 		}
 		// at end of section, insert text at the end (case last text last char of
 		// paragraph
-		if (currentposition.localcaretindex == currentposition.selectedtext.getTextPayload().length()) {
+		if (position.localcaretindex == position.selectedtext.getTextPayload().length()) {
 			logger.finer("new text will be inserted at the end of current text");
-			FormattedText formattedtext = new FormattedText(currentposition.selectedtext, this);
-			textlist.add(currentposition.formattedtextindex + 1, formattedtext);
-			textflow.getChildren().add(currentposition.formattedtextindex + 1, formattedtext.getNode());
+			FormattedText formattedtext = new FormattedText(position.selectedtext, this);
+			textlist.add(position.formattedtextindex + 1, formattedtext);
+			textflow.getChildren().add(position.formattedtextindex + 1, formattedtext.getNode());
 			return formattedtext;
 		}
 
 		// at middle of section - step 1 - add new text
-		FormattedText newformattedtext = new FormattedText(currentposition.selectedtext, this);
+		FormattedText newformattedtext = new FormattedText(position.selectedtext, this);
 		newformattedtext.setString("");
-		textlist.add(currentposition.formattedtextindex + 1, newformattedtext);
-		textflow.getChildren().add(currentposition.formattedtextindex + 1, newformattedtext.getNode());
+		textlist.add(position.formattedtextindex + 1, newformattedtext);
+		textflow.getChildren().add(position.formattedtextindex + 1, newformattedtext.getNode());
 		// at middle of section - step 2 - reduce current text
-		String beginning = currentposition.selectedtext.getTextPayload().substring(0, currentposition.localcaretindex);
-		String end = currentposition.selectedtext.getTextPayload().substring(currentposition.localcaretindex);
-		currentposition.selectedtext.setString(beginning);
+		String beginning = position.selectedtext.getTextPayload().substring(0, position.localcaretindex);
+		String end = position.selectedtext.getTextPayload().substring(position.localcaretindex);
+		position.selectedtext.setString(beginning);
 		// at middle of section - step 3 - add reminder of existing text
-		FormattedText endofcurrentext = new FormattedText(currentposition.selectedtext, this);
+		FormattedText endofcurrentext = new FormattedText(position.selectedtext, this);
 		endofcurrentext.setString(end);
 		logger.finer("splitting current text in 2 and inserting in the middle [" + beginning + "|" + end + "]");
-		textlist.add(currentposition.formattedtextindex + 2, endofcurrentext);
-		textflow.getChildren().add(currentposition.formattedtextindex + 2, endofcurrentext.getNode());
+		textlist.add(position.formattedtextindex + 2, endofcurrentext);
+		textflow.getChildren().add(position.formattedtextindex + 2, endofcurrentext.getNode());
 		textflow.requestLayout();
 		dropDescription();
 		return newformattedtext;
+	}
+
+	private FormattedText insertSectionAtCaretIfRequired() {
+
+		QualifiedCaretPosition currentposition = this.getTextAtCaret();
+		return insertSectionAtCaretPosition(currentposition);
 	}
 
 	/**
@@ -1336,9 +1410,29 @@ public class Paragraph {
 	 * @param value color indicator
 	 */
 	public void insertColorIndicator(Color value) {
-		FormattedText relevanttext = insertSectionAtCaretIfRequired();
-		relevanttext.setSpecialcolor(value);
+		if (this.dragactive) {
+			if (this.dragstartindex > 0)
+				if (this.dragendindex > 0)
+					if (this.dragendindex > this.dragstartindex) {
+						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
+						if (relevanttext != null)
+							relevanttext.setSpecialcolor(value);
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									Thread.sleep(5);
+								} catch (Exception e) {
+								}
+								displaySelection();
 
+							}
+						});
+					}
+		} else {
+			FormattedText relevanttext = insertSectionAtCaretIfRequired();
+			relevanttext.setSpecialcolor(value);
+		}
 	}
 
 	/**
@@ -1347,8 +1441,30 @@ public class Paragraph {
 	 * @param selected true to put bold, false, to put back to normal
 	 */
 	public void insertBoldIndicator(boolean selected) {
-		FormattedText relevanttext = insertSectionAtCaretIfRequired();
-		relevanttext.setBold(selected);
+		if (this.dragactive) {
+			if (this.dragstartindex > 0)
+				if (this.dragendindex > 0)
+					if (this.dragendindex > this.dragstartindex) {
+						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
+						if (relevanttext != null)
+							relevanttext.setBold(!relevanttext.isBold());
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									Thread.sleep(5);
+								} catch (Exception e) {
+								}
+								displaySelection();
+
+							}
+						});
+					}
+		} else {
+			FormattedText relevanttext = insertSectionAtCaretIfRequired();
+			relevanttext.setBold(selected);
+
+		}
 	}
 
 	/**
@@ -1358,8 +1474,29 @@ public class Paragraph {
 	 *                 section
 	 */
 	public void insertItalicIndicator(boolean selected) {
-		FormattedText relevanttext = insertSectionAtCaretIfRequired();
-		relevanttext.setItalic(selected);
+		if (this.dragactive) {
+			if (this.dragstartindex > 0)
+				if (this.dragendindex > 0)
+					if (this.dragendindex > this.dragstartindex) {
+						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
+						if (relevanttext != null)
+							relevanttext.setItalic(!relevanttext.isItalic());
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									Thread.sleep(5);
+								} catch (Exception e) {
+								}
+								displaySelection();
+
+							}
+						});
+					}
+		} else {
+			FormattedText relevanttext = insertSectionAtCaretIfRequired();
+			relevanttext.setItalic(selected);
+		}
 	}
 
 	/**
