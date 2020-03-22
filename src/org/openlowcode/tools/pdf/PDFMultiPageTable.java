@@ -197,7 +197,8 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 	}
 
 	/**
-	 * @param linecontent
+	 * create a new  line with the given content and a line above
+	 * @param linecontent content of the line
 	 */
 	public void addOneLineContent(String[] linecontent) {
 		if (linecontent.length != columnnumber)
@@ -208,12 +209,14 @@ public class PDFMultiPageTable implements PDFPageBandSection {
 			celltexts[i] = new CellText(linecontent[i]);
 		}
 		this.cellscontent.add(celltexts);
+		this.linehasbarabove.add(new Boolean(true));
 	}
 	
 	/**
 	 * Creates a new line without content. Content can then be added by
 	 * setCellContent. The new line is created with or without a
 	 * bar above
+	 * @param drawlineabove if true,draws a line above
 	 */	
 	public void addBlankLine(boolean drawlineabove) {
 		CellText[] blankline = new CellText[columnnumber];
