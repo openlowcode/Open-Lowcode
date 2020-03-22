@@ -1032,30 +1032,29 @@ public class PDFPage
 			float newleft,
 			int linenumber,
 			int paragraphnumber,
-			boolean newparagraph) throws IOException {
+			boolean newparagraph,boolean compactprint) throws IOException {
 		if (newparagraph) {
 			logger.finest("--- new  paragraph");
 			if (texttype == PDFPage.TEXTTYPE_BULLET_L1) {
 				// drawLeftPaddedTextAt(PDFPage.TEXTTYPE_PLAIN,left,top,linenumber,paragraphnumber,"\u2022");
 				drawLeftPaddedTextAt(PDFPage.TEXTTYPE_PLAIN, left + (newleft - left) * 2 / 3, top, linenumber,
-						paragraphnumber, "\u2022");
+						paragraphnumber, "\u2022",compactprint);
 
 			}
 			if (texttype == PDFPage.TEXTTYPE_BULLET_L2) {
 				drawLeftPaddedTextAt(PDFPage.TEXTTYPE_PLAIN, left + (newleft - left) * 5 / 6, top, linenumber,
-						paragraphnumber, "\u2022");
+						paragraphnumber, "\u2022",compactprint);
 
 			}
 			if (texttype == PDFPage.TEXTTYPE_BULLET_L3) {
 				drawLeftPaddedTextAt(PDFPage.TEXTTYPE_PLAIN, left + (newleft - left) * 8 / 9, top, linenumber,
-						paragraphnumber, "\u2022");
+						paragraphnumber, "\u2022",compactprint);
 			}
 		} else {
 			logger.finest("--- not new  paragraph");
 		}
 
 	}
-
 	/**
 	 * @param texttype
 	 * @param left
@@ -1071,7 +1070,26 @@ public class PDFPage
 			float top,
 			int linenumber,
 			int paragraphnumber,
-			String text) throws IOException {
+			String text)  throws IOException {
+		drawLeftPaddedTextAt(texttype,left,top,linenumber,paragraphnumber,text,false);
+	}
+	
+	/**
+	 * @param texttype
+	 * @param left
+	 * @param top
+	 * @param linenumber
+	 * @param paragraphnumber
+	 * @param text
+	 * @throws IOException
+	 */
+	public void drawLeftPaddedTextAt(
+			int texttype,
+			float left,
+			float top,
+			int linenumber,
+			int paragraphnumber,
+			String text,boolean compactprint) throws IOException {
 		this.widgetstoprint.add(() -> {
 			float newtop = top;
 			boolean underline = isUnderLined(texttype);
@@ -1079,17 +1097,15 @@ public class PDFPage
 				newtop = height - top;
 
 			}
-
+			logger.severe("   - drawLeftPaddedTextAt ("+texttype+") ---> "+compactprint+" ||"+text);
 			contentStream.setStrokingColor(Color.BLACK);
 			contentStream.beginText();
-			float yinpoint = newtop * MM_TO_POINT - PARAGRAPH_MARGIN_VERTICAL
+			float yinpoint = newtop * MM_TO_POINT - (PARAGRAPH_MARGIN_VERTICAL * (compactprint?0:1))
 					- (linenumber) * (PDFPage.getLineSpacing(texttype))
 					- PDFPage.getLineHeight(texttype) * (linenumber + 1)
 					- (paragraphnumber) * PDFPage.getParagraphSpacing(texttype);
 			contentStream.newLineAtOffset(left * MM_TO_POINT + PARAGRAPH_MARGIN_HORIZONTAL,
-					newtop * MM_TO_POINT - PARAGRAPH_MARGIN_VERTICAL - (linenumber) * (PDFPage.getLineSpacing(texttype))
-							- PDFPage.getLineHeight(texttype) * (linenumber + 1)
-							- (paragraphnumber) * PDFPage.getParagraphSpacing(texttype));
+					yinpoint);
 			FontAndSize fontandsize = PDFPage.getFontAndSize(texttype);
 			contentStream.setFont(fontandsize.getFont(), fontandsize.getFontsize());
 			securedShowText(contentStream, text);
@@ -1214,6 +1230,34 @@ public class PDFPage
 		return calculateBoxAndMaybeWriteText(left, top, right, text, true, true, remainingheight, page, texttype,
 				splitparagraph);
 	}
+	
+	/**
+	 * @param left            left of the printing zone in mm
+	 * @param top             top of the prining zone in mm
+	 * @param right           right of the printing zone in mm
+	 * @param remainingheight the maximum height to print
+	 * @param text            the full text to write
+	 * @param page            page to print in
+	 * @param texttype        text type as defined in PDFPage constant
+	 * @param                 splitparagraph: true if this is the non-first part of
+	 *                        a split paragraph. Typically, widget does not have to
+	 *                        be printed
+	 * @return
+	 * @throws IOException
+	 */
+	public static BoxTextContent writeAsMuchTextAsPossible(
+			float left,
+			float top,
+			float right,
+			float remainingheight,
+			String text,
+			PDFPage page,
+			int texttype,
+			boolean splitparagraph,
+			boolean compactprint) throws IOException {
+		return calculateBoxAndMaybeWriteText(left, top, right, text, true, true, remainingheight, page, texttype,
+				splitparagraph,compactprint);
+	}
 
 	/**
 	 * @param left            left of the printing zone in mm
@@ -1253,8 +1297,9 @@ public class PDFPage
 	 * @param splitparagraph : true if this is the non-first part of a section split
 	 *                       across pages. Typically bullet character is not printed
 	 *                       if this argument is true.
+	 * @param compactprint if true, text is written without paragraphmargin
 	 * @return
-	 * @throws IOException
+	 * @throws IOException if anything bad happens
 	 */
 	public static BoxTextContent calculateBoxAndMaybeWriteText(
 			float left,
@@ -1266,7 +1311,8 @@ public class PDFPage
 			float maxheight,
 			PDFPage page,
 			int texttype,
-			boolean splitparagraph) throws IOException {
+			boolean splitparagraph,
+			boolean compactprint) throws IOException {
 		boolean currentsplitparagraph = splitparagraph;
 		if (write)
 			if (page == null)
@@ -1324,10 +1370,10 @@ public class PDFPage
 				if (write) {
 					if (!partial) {
 						page.drawLeftPaddedTextAt(texttype, newleft, top, totallinecounter + j, totalparagraphcounter,
-								paragraphlines.get(j));
+								paragraphlines.get(j),compactprint);
 						if (!currentsplitparagraph)
 							page.drawTextWidget(texttype, left, top, newleft, totallinecounter + j,
-									totalparagraphcounter, (j == 0 ? true : false));
+									totalparagraphcounter, (j == 0 ? true : false),compactprint);
 					} else {
 						if (!inlimitedbox) {
 							// do nothing, archive the stuff
@@ -1351,10 +1397,10 @@ public class PDFPage
 							if (heightsofar <= maxheight) {
 								// if so, print
 								page.drawLeftPaddedTextAt(texttype, newleft, top, totallinecounter + j,
-										totalparagraphcounter, paragraphlines.get(j));
+										totalparagraphcounter, paragraphlines.get(j),compactprint);
 								if (!currentsplitparagraph)
 									page.drawTextWidget(texttype, left, top, newleft, totallinecounter + j,
-											totalparagraphcounter, (j == 0 ? true : false));
+											totalparagraphcounter, (j == 0 ? true : false),compactprint);
 
 							} else {
 								// if not, do nothing and archive the stuff
@@ -1384,7 +1430,39 @@ public class PDFPage
 
 		}
 		return new BoxTextContent(totallinecounter, totalparagraphcounter + 1, texttype, textnotprinted.toString(),
-				paragraphcut);
+				paragraphcut,compactprint);
+	}
+
+	/**
+	 * @param left           left of the printing zone in mm
+	 * @param top            top of the prining zone in mm
+	 * @param right          right of the printing zone in mm
+	 * @param text           the full text to write
+	 * @param write          true to write the text, false just to calculate
+	 * @param partial        true to write only partial content within the maximum
+	 *                       height limit specified
+	 * @param maxheight      max height to print partial content
+	 * @param page           page to print in
+	 * @param texttype       one of the constants prefixed by 'TEXTTYPE_' in the
+	 *                       class
+	 * @param splitparagraph : true if this is the non-first part of a section split
+	 *                       across pages. Typically bullet character is not printed
+	 *                       if this argument is true.
+	 * @return
+	 * @throws IOException
+	 */
+	public static BoxTextContent calculateBoxAndMaybeWriteText(
+			float left,
+			float top,
+			float right,
+			String text,
+			boolean write,
+			boolean partial,
+			float maxheight,
+			PDFPage page,
+			int texttype,
+			boolean splitparagraph) throws IOException {
+		return calculateBoxAndMaybeWriteText(left,top,right,text,write,partial,maxheight,page,texttype,splitparagraph,false);
 	}
 
 	/**
@@ -1498,7 +1576,9 @@ public class PDFPage
 		private int nbparagraph;
 		private int texttype;
 		private String textleftout;
-
+		private boolean compactprint;
+		
+		
 		public String getTextleftout() {
 			return textleftout;
 		}
@@ -1518,6 +1598,15 @@ public class PDFPage
 			this.nblines = nblines;
 			this.nbparagraph = nbparagraph;
 			this.texttype = texttype;
+			this.compactprint=false;
+		}
+		
+		public BoxTextContent(int nblines, int nbparagraph, int texttype,boolean compactprint) {
+			this.nblines = nblines;
+			this.nbparagraph = nbparagraph;
+			this.texttype = texttype;
+			this.compactprint=compactprint;
+			
 		}
 
 		public BoxTextContent(
@@ -1531,6 +1620,22 @@ public class PDFPage
 			this.texttype = texttype;
 			this.textleftout = textleftout;
 			this.cutinsideparagraph = cutinsideparagraph;
+			this.compactprint=false;
+		}
+		
+		public BoxTextContent(
+				int nblines,
+				int nbparagraph,
+				int texttype,
+				String textleftout,
+				boolean cutinsideparagraph,
+				boolean compactprint) {
+			this.nblines = nblines;
+			this.nbparagraph = nbparagraph;
+			this.texttype = texttype;
+			this.textleftout = textleftout;
+			this.cutinsideparagraph = cutinsideparagraph;
+			this.compactprint=compactprint;
 		}
 
 		/**
@@ -1567,23 +1672,23 @@ public class PDFPage
 					|| (texttype == PDFPage.TEXTTYPE_PARAGRAPH_HEADER))
 				return ((nblines * LINE_HEIGHT_NORMAL_TEXT) + ((nblines - 1) * LINE_SPACING_NORMAL_TEXT)
 						+ (PARAGRAPH_SPACING_NORMAL_TEXT * (nbparagraph - 1))
-						+ PARAGRAPH_SPACING_NORMAL_TEXT * (finalspacing ? 2 : 1)) / MM_TO_POINT;
+						+ PARAGRAPH_SPACING_NORMAL_TEXT  *((finalspacing ? 2 : 1)-(compactprint?1:0))) / MM_TO_POINT;
 
 			if (texttype == PDFPage.TEXTTYPE_SECTION_HEADER)
 				return ((nblines * LINE_HEIGHT_SECTION_HEADER) + ((nblines - 1) * LINE_SPACING_SECTION_HEADER)
 						+ (PARAGRAPH_SPACING_SECTION_HEADER * (nbparagraph - 1))
-						+ PARAGRAPH_SPACING_SECTION_HEADER * (finalspacing ? 2 : 1)) / MM_TO_POINT;
+						+ PARAGRAPH_SPACING_SECTION_HEADER *((finalspacing ? 2 : 1)-(compactprint?1:0))) / MM_TO_POINT;
 
 			if (texttype == PDFPage.TEXTTYPE_TITLE)
 				return ((nblines * PDFPage.LINE_HEIGHT_TITLE_TEXT) + ((nblines - 1) * LINE_SPACING_TITLE_TEXT)
 						+ (PARAGRAPH_SPACING_TITLE_TEXT * (nbparagraph - 1))
-						+ PARAGRAPH_SPACING_TITLE_TEXT * (finalspacing ? 2 : 1)) / MM_TO_POINT;
+						+ PARAGRAPH_SPACING_TITLE_TEXT *((finalspacing ? 2 : 1)-(compactprint?1:0))) / MM_TO_POINT;
 
 			if (texttype == PDFPage.TEXTTYPE_LABEL)
 				return ((nblines * LINE_HEIGHT_NORMAL_TEXT * PDFPage.LABEL_SIZE_REDUCTION)
 						+ ((nblines - 1) * LINE_SPACING_NORMAL_TEXT)
 						+ (PARAGRAPH_SPACING_NORMAL_TEXT * (nbparagraph - 1))
-						+ PARAGRAPH_SPACING_NORMAL_TEXT * (finalspacing ? 2 : 1)) / MM_TO_POINT;
+						+ PARAGRAPH_SPACING_NORMAL_TEXT *((finalspacing ? 2 : 1)-(compactprint?1:0))) / MM_TO_POINT;
 
 			throw new RuntimeException("Text type not supported " + texttype);
 		}
