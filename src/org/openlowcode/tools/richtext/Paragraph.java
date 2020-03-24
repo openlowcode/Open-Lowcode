@@ -1410,10 +1410,12 @@ public class Paragraph {
 	 * @param value color indicator
 	 */
 	public void insertColorIndicator(Color value) {
+		boolean processed=false;
 		if (this.dragactive) {
 			if (this.dragstartindex > 0)
 				if (this.dragendindex > 0)
 					if (this.dragendindex > this.dragstartindex) {
+						processed=true;
 						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
 						if (relevanttext != null)
 							relevanttext.setSpecialcolor(value);
@@ -1429,7 +1431,8 @@ public class Paragraph {
 							}
 						});
 					}
-		} else {
+		} 
+		if (!processed) {
 			FormattedText relevanttext = insertSectionAtCaretIfRequired();
 			relevanttext.setSpecialcolor(value);
 		}
@@ -1441,10 +1444,12 @@ public class Paragraph {
 	 * @param selected true to put bold, false, to put back to normal
 	 */
 	public void insertBoldIndicator(boolean selected) {
+		boolean processed=false;
 		if (this.dragactive) {
 			if (this.dragstartindex > 0)
 				if (this.dragendindex > 0)
 					if (this.dragendindex > this.dragstartindex) {
+						processed=true;
 						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
 						if (relevanttext != null)
 							relevanttext.setBold(!relevanttext.isBold());
@@ -1460,7 +1465,8 @@ public class Paragraph {
 							}
 						});
 					}
-		} else {
+		} 
+		if (!processed) {
 			FormattedText relevanttext = insertSectionAtCaretIfRequired();
 			relevanttext.setBold(selected);
 
@@ -1474,10 +1480,12 @@ public class Paragraph {
 	 *                 section
 	 */
 	public void insertItalicIndicator(boolean selected) {
+		boolean processed=false;
 		if (this.dragactive) {
 			if (this.dragstartindex > 0)
 				if (this.dragendindex > 0)
 					if (this.dragendindex > this.dragstartindex) {
+						processed=true;
 						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
 						if (relevanttext != null)
 							relevanttext.setItalic(!relevanttext.isItalic());
@@ -1493,7 +1501,9 @@ public class Paragraph {
 							}
 						});
 					}
-		} else {
+		}
+		
+		if (!processed) {
 			FormattedText relevanttext = insertSectionAtCaretIfRequired();
 			relevanttext.setItalic(selected);
 		}
