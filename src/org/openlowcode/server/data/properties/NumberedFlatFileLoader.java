@@ -38,6 +38,7 @@ public class NumberedFlatFileLoader<E extends DataObject<E> & NumberedInterface<
 		this.objectdefinition = objectdefinition;
 		this.updateifexists=updateifexists;
 		this.propertyextractor = propertyextractor;
+		this.numberedproperty = numberedproperty;
 	}
 
 	
@@ -53,7 +54,12 @@ public class NumberedFlatFileLoader<E extends DataObject<E> & NumberedInterface<
 		String string = FlatFileLoader.parseObject(object,"LinePreparation for Numbered");
 		QueryCondition extracondition = null;
 		if (string==null) throw new RuntimeException("Number cannot be null on flat file loading.");
-		if (string.trim().length()==0) throw new RuntimeException("Number cannot be an empty string on flat file loading. At least one significant character is expected.");
+		if (string.trim().length()==0) {
+			if (numberedproperty.getAutonumberingRule()!=null) {
+				return new LinePreparation<E>(objectdefinition.generateBlank(),false);
+			}
+			throw new RuntimeException("Number cannot be an empty string on flat file loading. At least one significant character is expected.");
+		}
 		
 		if (objectdefinition.hasProperty("VERSIONED")) {
 			extracondition = VersionedQueryHelper.getLatestVersionQueryCondition(objectdefinition.getAlias("SINGLEOBJECT"), objectdefinition);
@@ -84,7 +90,8 @@ public class NumberedFlatFileLoader<E extends DataObject<E> & NumberedInterface<
 		Numbered<E> numbered = (Numbered<E>) property;
 		String oldnumber = numbered.getNr();
 		String newnumber = FlatFileLoader.parseObject(value,"property 'Numbered'");
-		
+		if (newnumber==null) if (numberedproperty.getAutonumberingRule()!=null) newnumber = numberedproperty.getAutonumberingRule().generateNumber(object);
+		if (newnumber!=null) if (newnumber.trim().length()==0) if (numberedproperty.getAutonumberingRule()!=null) newnumber = numberedproperty.getAutonumberingRule().generateNumber(object);
 		if (FlatFileLoader.isTheSame(oldnumber,newnumber)) {
 			return false;
 		} else {
