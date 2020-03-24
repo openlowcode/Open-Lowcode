@@ -108,7 +108,7 @@ public class SectionText
 
 	@Override
 	public String dropContentSample() {
-		return "Section header sample: "
+		return "Section text sample: "
 				+ (this.text != null ? (this.text.length() > 100 ? this.text.substring(0, 100) + "..." : this.text)
 						: "NULLSTRING");
 	}
