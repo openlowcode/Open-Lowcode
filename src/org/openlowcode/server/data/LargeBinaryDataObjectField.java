@@ -12,6 +12,7 @@ package org.openlowcode.server.data;
 
 import org.openlowcode.tools.messages.SFile;
 import org.openlowcode.server.data.storage.StoredField;
+import org.openlowcode.tools.structure.LargeBinaryDataElt;
 import org.openlowcode.tools.structure.SimpleDataElt;
 
 /**
@@ -68,7 +69,7 @@ public class LargeBinaryDataObjectField<E extends DataObject<E>>
 
 	@Override
 	public SimpleDataElt getDataElement() {
-		throw new RuntimeException("Not yet implemented");
+		return new LargeBinaryDataElt(this.getName(),this.largebinaryfield.getPayload());
 	}
 
 }
