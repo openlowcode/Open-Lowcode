@@ -134,6 +134,8 @@ public class FormattableSectionText
 			float leftinmm,
 			float rightinmm) throws IOException {
 		logger.finest("  >>>> print partial");
+		
+		
 		BoxTextContent lastfeedback = null;
 		for (int i=this.activesectionindex;i<this.sectionstoprint.size();i++) {
 			FormattedText activetext = this.sectionstoprint.get(i);
@@ -148,6 +150,7 @@ public class FormattableSectionText
 				this.activesectionremainingtext=lastfeedback.getTextleftout();
 				return new PartialPrintFeedback(0, false);
 			}
+			
 			if (i<this.sectionstoprint.size()-1) {
 				this.activesectionindex++;
 				this.activesectionremainingtext=this.sectionstoprint.get(activesectionindex).getText();

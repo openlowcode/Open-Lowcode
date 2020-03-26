@@ -1477,8 +1477,8 @@ public class PDFPage
 									}
 						} else {
 							// check if still in box
-							int partialparagraphcount = i + 1;
-							int partiallinecount = totallinecounter + j + 1;
+							int partialparagraphcount = i + 1+startatparagraph;
+							int partiallinecount = totallinecounter + j + 1+startatline;
 							float heightsofar = new BoxTextContent(partiallinecount, partialparagraphcount, texttype,
 									compactprint).getHeight();
 							if (heightsofar <= maxheight) {
@@ -1844,6 +1844,8 @@ public class PDFPage
 			return getHeight(false);
 		}
 
+		
+	
 		private float getHeight(boolean finalspacing) {
 			if ((texttype == PDFPage.TEXTTYPE_PLAIN) || (texttype == PDFPage.TEXTTYPE_PLAIN_ITALIC)
 					|| (texttype == PDFPage.TEXTTYPE_PLAIN_BOLD) || (texttype == PDFPage.TEXTTYPE_PLAIN_BOLD_ITALIC)
@@ -1883,6 +1885,8 @@ public class PDFPage
 			return getHeight(true);
 
 		}
+
+		
 	}
 
 	/**
