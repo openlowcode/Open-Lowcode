@@ -241,15 +241,9 @@ public class CGrid
 							thisobjectgrid.commitupdate.setDisable(false);
 							return;
 						}
-					if (thisobjectgrid.isinlineupdate)
-						if (thisobjectgrid.updatemodeactive) {
-							logger.fine("moving tableview " + thisobjectgrid.name + " back to read-only mode");
-							thisobjectgrid.launchupdate(null, event);
-
-						}
-				}
-				if (thisobjectgrid.isinlineupdate)
-					if (event.getClickCount() == 1 && (!event.isShiftDown())) {
+									}
+				if (thisobjectgrid.isinlineupdate) if (thisobjectgrid.updatemodeactive)
+					if (event.getClickCount() == 1 ) {
 						if (thisobjectgrid.tableview.getEditingCell() == null) {
 							@SuppressWarnings("unchecked")
 							TablePosition<
