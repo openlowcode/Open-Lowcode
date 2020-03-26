@@ -204,9 +204,9 @@ public class PDFPage
 		if (texttype == TEXTTYPE_PLAIN)
 			return datafont;
 		if (texttype == TEXTTYPE_PLAIN_BOLD)
-			return datafontitalic;
-		if (texttype == TEXTTYPE_PLAIN_ITALIC)
 			return datafontbold;
+		if (texttype == TEXTTYPE_PLAIN_ITALIC)
+			return datafontitalic;
 		if (texttype == TEXTTYPE_PLAIN_BOLD_ITALIC)
 			return datafontitalicbold;
 
