@@ -121,9 +121,13 @@ public class CImageChooser
 			Window parentwindow,
 			TabPane[] parenttabpanes) {
 		BorderPane borderpane = new BorderPane();
-		Button launchaction = new Button(title);
+		Button launchaction = new Button(title+" (selection)");
+		Button launchactionfull = new Button(title+" (full)");
 		launchaction.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
+		launchactionfull.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
 		actionmanager.registerEvent(launchaction, actiontolaunch);
+		actionmanager.registerEvent(launchactionfull, actiontolaunch);
+		
 		Pane buttonbox = CComponentBand.returnBandPane(CComponentBand.DIRECTION_RIGHT);
 		mainscrollpane = new ScrollPane();
 		mainscrollpane.setMinHeight(500 + 16);
@@ -168,6 +172,34 @@ public class CImageChooser
 
 		});
 
+		launchactionfull.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				if (referenceimage != null) {
+					try {
+					BufferedImage referenceimagebuffered = SwingFXUtils.fromFXImage(referenceimage, null);
+					ByteArrayOutputStream referenceimageoutputstream = new ByteArrayOutputStream();
+					ImageIO.write(referenceimagebuffered, "PNG", referenceimageoutputstream);
+					fullimage = referenceimageoutputstream.toByteArray();
+					ByteArrayInputStream bigimageinputstream = new ByteArrayInputStream(fullimage);
+					Image Thumbnail = new Image(bigimageinputstream, thumbnailsize, thumbnailsize, true, true);
+					BufferedImage thumbnailimage = SwingFXUtils.fromFXImage(Thumbnail, null);
+					ByteArrayOutputStream thumbnailstream = new ByteArrayOutputStream();
+					ImageIO.write(thumbnailimage, "PNG", thumbnailstream);
+					thumbnail = thumbnailstream.toByteArray();
+					filesgenerated = true;
+					actionmanager.handle(event);
+					
+					} catch (Exception e) {
+						logger.warning("Error in file generation " + e.getClass().getName() + " - " + e.getMessage());
+						for (int i = 0; i < e.getStackTrace().length; i++)
+							logger.warning("   " + e.getStackTrace()[i]);
+					}
+					
+				}
+			}
+		});
+		
 		Button button = new Button("get Image from clipboard");
 		button.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
 		button.setOnAction(new EventHandler<ActionEvent>() {
@@ -248,6 +280,7 @@ public class CImageChooser
 		buttonbox.getChildren().add(button);
 		buttonbox.getChildren().add(loadfromfile);
 		buttonbox.getChildren().add(launchaction);
+		buttonbox.getChildren().add(launchactionfull);
 
 		borderpane.setTop(buttonbox);
 		borderpane.setCenter(mainscrollpane);
