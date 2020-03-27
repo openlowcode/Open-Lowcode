@@ -35,7 +35,11 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.Parent;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -242,6 +246,7 @@ public class RichTextArea {
 	private final double RIGHT_MARGIN = 5;
 	private double paragraphwidth = 400 - LEFT_MARGIN - RIGHT_MARGIN;
 	private PageActionManager pageactionmanager;
+	private ContextMenu contextmenu;
 
 	/**
 	 * @return the page action manager
@@ -538,7 +543,31 @@ public class RichTextArea {
 
 			toolbar.getChildren().add(titlebutton);
 
-			Button clear = new Button("Clear");
+	
+			
+			
+			contextmenu = new ContextMenu();
+			contextmenu.focusedProperty().addListener(new ChangeListener<Boolean>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldvalue, Boolean newvalue) {
+					if (!newvalue)
+						contextmenu.hide();
+
+				}
+
+			});
+			toolbar.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent event) {
+					contextmenu.show(toolbar, event.getScreenX(), event.getScreenY());
+					
+				}
+				
+			});
+			
+			MenuItem clear = new MenuItem("Clear");
 			clear.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
@@ -557,7 +586,38 @@ public class RichTextArea {
 				}
 
 			});
-			toolbar.getChildren().add(clear);
+			contextmenu.getItems().add(clear);
+			
+			MenuItem exportsource = new MenuItem("Export Source");
+			exportsource.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+					try {
+						String source = generateText();
+						final ClipboardContent content = new ClipboardContent();
+						content.putString(source);
+						Clipboard.getSystemClipboard().setContent(content);
+						pageactionmanager.getClientSession().getActiveClientDisplay()
+						.updateStatusBar("text source copied to clipboard, size = "+source.length()+"ch");
+					} catch (Exception e) {
+						logger.warning("Error while executing export source " + e.getMessage());
+						for (int i = 0; i < e.getStackTrace().length; i++)
+							logger.warning("  " + e.getStackTrace()[i]);
+						;
+						pageactionmanager.getClientSession().getActiveClientDisplay()
+								.updateStatusBar("Error while executing export source " + e.getMessage(), true);
+					}
+					
+				}
+				
+			});
+			contextmenu.getItems().add(exportsource);
+		
+			
+			
+			
+			
 			area.setTop(toolbar);
 
 		}
