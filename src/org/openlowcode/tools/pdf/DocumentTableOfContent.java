@@ -10,6 +10,7 @@
 
 package org.openlowcode.tools.pdf;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -40,7 +41,9 @@ public class DocumentTableOfContent implements PDFPageBandSection {
 			float rightinmm) throws IOException {
 		for (int i = 0; i < content.size(); i++) {
 			PagedLabel label = content.get(i);
-			currentpage.drawSimpleTextAt(false, leftinmm, mmfromtopforsection, i, 0, label.getLabel());
+			float textsize = PDFPage.getTextSize(new String[] {label.getLabel()}, PDFPage.TEXTTYPE_PLAIN);
+			currentpage.drawLine(false, leftinmm+10+textsize+ label.getOriginalOffset() / 3,mmfromtopforsection+i*PDFPage.LINE_SPACING_NORMAL_TEXT+PDFPage.PARAGRAPH_MARGIN_VERTICAL,rightinmm-25,mmfromtopforsection+i*PDFPage.LINE_SPACING_NORMAL_TEXT+PDFPage.PARAGRAPH_MARGIN_VERTICAL,Color.GRAY);
+			currentpage.drawSimpleTextAt(false, leftinmm+ label.getOriginalOffset() / 3, mmfromtopforsection, i, 0, label.getLabel());
 			currentpage.drawCalculatedText(rightinmm, mmfromtopforsection, i, 0, false,
 					() -> "" + label.getPageNumber());
 		}
@@ -69,10 +72,12 @@ public class DocumentTableOfContent implements PDFPageBandSection {
 		}
 		for (int i = 0; i < linestoprint; i++) {
 			PagedLabel label = content.get(i + currentindex);
-			currentpage.drawSimpleTextAt(false, leftinmm + 15 + label.getOriginalOffset() / 3, mmfromtopforsection, i,
+			float textsize = PDFPage.getTextSize(new String[] {label.getLabel()}, PDFPage.TEXTTYPE_PLAIN);
+			currentpage.drawSimpleTextAt(false, leftinmm+ label.getOriginalOffset() / 3, mmfromtopforsection, i,
 					0, label.getLabel());
-			currentpage.drawCalculatedText(leftinmm + 15, mmfromtopforsection, i, 0, false,
+			currentpage.drawCalculatedText(rightinmm-20, mmfromtopforsection, i, 0, false,
 					() -> "" + label.getPageNumber());
+			currentpage.drawLine(false, leftinmm+5+PDFPage.PARAGRAPH_MARGIN_HORIZONTAL/PDFPage.MM_TO_POINT+textsize+ label.getOriginalOffset() / 3,mmfromtopforsection+PDFPage.getTextVerticalOffsetInMM(i,0),rightinmm-25,mmfromtopforsection+PDFPage.getTextVerticalOffsetInMM(i,0),Color.GRAY);
 		}
 		currentindex = currentindex + linestoprint;
 		return new PartialPrintFeedback(
