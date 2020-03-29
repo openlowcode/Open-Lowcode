@@ -94,6 +94,7 @@ public class DocumentTableOfContent implements PDFPageBandSection {
 
 	@Override
 	public void initialize() {
+		if (parentdocument==null) throw new RuntimeException("Table of content has not been added correctly to Page Band.");
 		for (int i = 0; i < parentdocument.getPartsNumber(); i++) {
 			PDFPart thispart = parentdocument.getPart(i);
 			if (thispart instanceof PDFPageBand) {
@@ -102,6 +103,14 @@ public class DocumentTableOfContent implements PDFPageBandSection {
 					PDFPageBandSection section = thisband.getSectionAt(j);
 					if (section instanceof SectionHeader)
 						this.content.add((SectionHeader) (section));
+				}
+			}
+			if (thispart instanceof PDFPage) {
+				PDFPage thispage = (PDFPage) thispart;
+				PagedLabel[] labelsforpage = thispage.getTOCLabelsForPage();
+				if (labelsforpage!=null) for (int j=0;j<labelsforpage.length;j++) {
+					this.content.add(labelsforpage[j]);
+					
 				}
 			}
 		}

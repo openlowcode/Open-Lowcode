@@ -172,8 +172,8 @@ public class PDFPageBand extends PDFPart {
 	 * @param sectiontoprint
 	 */
 	public void printNewSection(PDFPageBandSection sectiontoprint) throws IOException {
+		if (sectiontoprint==null) throw new RuntimeException("Adding null section in page band ");
 		this.sections.add(sectiontoprint);
-		sectiontoprint.setParentDocument(this.getParent());
 	}
 
 	/**
@@ -234,6 +234,8 @@ public class PDFPageBand extends PDFPart {
 
 	@Override
 	protected void initialize() {
+		for (int i = 0; i < this.sections.size(); i++)
+			this.sections.get(i).setParentDocument(this.getParent());
 		for (int i = 0; i < this.sections.size(); i++)
 			this.sections.get(i).initialize();
 	}

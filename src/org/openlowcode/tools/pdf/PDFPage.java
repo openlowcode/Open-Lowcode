@@ -113,7 +113,9 @@ public class PDFPage
 	private PDPage page;
 	private PDPageContentStream contentStream;
 	private PDDocument document;
-
+	private ArrayList<PagedLabel> toclabelsforpage;
+	
+	
 	/**
 	 * This method should only be called during the final layout. Please use the
 	 * method PDFPage.drawCalculatedText
@@ -377,6 +379,7 @@ public class PDFPage
 
 		this.topatzero = topatzero;
 		widgetstoprint = new ArrayList<PageExecutable>();
+		toclabelsforpage = new ArrayList<PagedLabel>();
 	}
 
 	public void addHeader(PDFPageBandHeaders header) throws IOException {
@@ -408,6 +411,7 @@ public class PDFPage
 		this.topatzero = topatzero;
 
 		widgetstoprint = new ArrayList<PageExecutable>();
+		toclabelsforpage = new ArrayList<PagedLabel>();
 	}
 
 	/**
@@ -2103,6 +2107,10 @@ public class PDFPage
 		return b.toString();
 	}
 
+	/**
+	 * @param contentStream
+	 * @param text
+	 */
 	public static void securedShowText(PDPageContentStream contentStream, String text) {
 		try {
 			contentStream.showText(remove(text));
@@ -2112,6 +2120,23 @@ public class PDFPage
 		}
 	}
 
+	/**
+	 * @return all the labels to be inserted in the table of content for this page
+	 */
+	public PagedLabel[] getTOCLabelsForPage() {
+		return toclabelsforpage.toArray(new PagedLabel[0]);
+	}
+	
+	/**
+	 * Adds a label for this page to be added in table of content
+	 * 
+	 * @param label text of the label
+	 * @param offset offset in mm
+	 */
+	public void setTOCLabelForPage(String label,float offset) {
+		toclabelsforpage.add(new PagedLabelInPage(label,offset));
+	}
+	
 	@Override
 	protected int getPageNumber() {
 		// only a page is used by a PDFPage
@@ -2129,5 +2154,33 @@ public class PDFPage
 		this.pageindex = pagesbefore + 1;
 
 	}
+	
+	private class PagedLabelInPage implements PagedLabel {
+
+		private String label;
+		private float offset;
+
+		public PagedLabelInPage(String label,float offset) {
+			this.label = label;
+			this.offset = offset;
+		}
+		
+		@Override
+		public String getLabel() {
+			return label;
+		}
+
+		@Override
+		public int getPageNumber() {
+			return getPageIndex();
+		}
+
+		@Override
+		public float getOriginalOffset() {
+			return offset;
+		}
+		
+	}
+	
 
 }
