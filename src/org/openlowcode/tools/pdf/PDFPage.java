@@ -114,8 +114,7 @@ public class PDFPage
 	private PDPageContentStream contentStream;
 	private PDDocument document;
 	private ArrayList<PagedLabel> toclabelsforpage;
-	
-	
+
 	/**
 	 * This method should only be called during the final layout. Please use the
 	 * method PDFPage.drawCalculatedText
@@ -984,6 +983,12 @@ public class PDFPage
 			drawSimpleTextAt(label, left, top, linenumber, paragraphnumber, "", true);
 	}
 
+	public static float getTextVerticalOffsetInMM( int linenumber, int paragraphnumber) {
+		return (PARAGRAPH_MARGIN_VERTICAL + linenumber * LINE_SPACING_NORMAL_TEXT
+				+ (linenumber + 1) * LINE_HEIGHT_NORMAL_TEXT + (paragraphnumber) * PARAGRAPH_SPACING_NORMAL_TEXT)
+				/ MM_TO_POINT;
+	}
+
 	/**
 	 * Draws a single text from the point of origin (adding necessary margins).
 	 * Typically, the function is used entering directly in left and top the
@@ -1024,9 +1029,7 @@ public class PDFPage
 			contentStream.beginText();
 			contentStream.newLineAtOffset(
 					left * MM_TO_POINT + (horizontalparagraphmargin ? PARAGRAPH_MARGIN_HORIZONTAL : 0),
-					newtop * MM_TO_POINT - PARAGRAPH_MARGIN_VERTICAL - (linenumber) * (LINE_SPACING_NORMAL_TEXT)
-							- LINE_HEIGHT_NORMAL_TEXT * (linenumber + 1)
-							- (paragraphnumber) * PARAGRAPH_SPACING_NORMAL_TEXT);
+					newtop * MM_TO_POINT - getTextVerticalOffsetInMM(linenumber,paragraphnumber)*MM_TO_POINT);
 			if (label)
 				contentStream.setFont(labelfont, LINE_HEIGHT_NORMAL_TEXT * LABEL_SIZE_REDUCTION);
 			if (!label)
@@ -1136,7 +1139,7 @@ public class PDFPage
 
 			logger.finest("   - drawLeftPaddedTextAt (" + texttype + ") ---> " + compactprint + " ||" + text + " Color "
 					+ color);
-			contentStream.setNonStrokingColor((color==null?Color.BLACK:color));
+			contentStream.setNonStrokingColor((color == null ? Color.BLACK : color));
 			contentStream.beginText();
 			float yinpoint = newtop * MM_TO_POINT - (PARAGRAPH_MARGIN_VERTICAL * (compactprint ? 0 : 1))
 					- (linenumber) * (PDFPage.getLineSpacing(texttype))
@@ -1150,7 +1153,7 @@ public class PDFPage
 			contentStream.endText();
 			contentStream.setNonStrokingColor(Color.BLACK);
 			if (underline) {
-				contentStream.setStrokingColor((color==null?Color.BLACK:color));
+				contentStream.setStrokingColor((color == null ? Color.BLACK : color));
 				contentStream.setLineWidth(PARAGRAPH_HEADER_UNDERLINE_WIDTH);
 
 				contentStream.moveTo(left * MM_TO_POINT + PARAGRAPH_MARGIN_HORIZONTAL,
@@ -1385,8 +1388,9 @@ public class PDFPage
 			int startatline,
 			int startatparagraph) throws IOException {
 		float lastlineinmm = 0f;
-		logger.finest("Starting Paragraph print at "+startatline+" lines, "+startatparagraph+" paragraphes, offset in mm = "+startfirstlineoffset);
-		
+		logger.finest("Starting Paragraph print at " + startatline + " lines, " + startatparagraph
+				+ " paragraphes, offset in mm = " + startfirstlineoffset);
+
 		boolean currentsplitparagraph = splitparagraph;
 		if (write)
 			if (page == null)
@@ -1448,18 +1452,20 @@ public class PDFPage
 				if (i == paragraphs.getNumberOfSections() - 1)
 					if (j == paragraphlines.size() - 1) {
 						lastlineinmm = PDFPage.getTextSize(new String[] { paragraphlines.get(j) }, texttype);
-						logger.finest("               ---> calculate lastlineinmm "+lastlineinmm+" for i="+i+", j="+j+" text ="+paragraphlines.get(j)); 
+						logger.finest("               ---> calculate lastlineinmm " + lastlineinmm + " for i=" + i
+								+ ", j=" + j + " text =" + paragraphlines.get(j));
 					}
-				
+
 				if (i == 0)
 					if (j == 0) {
 						specialoffset = startfirstlineoffset;
-						lastlineinmm+=specialoffset;
+						lastlineinmm += specialoffset;
 					}
 
 				if (write) {
 					if (!partial) {
-						logger.finest("                  -----> draw with offset (!partial): "+specialoffset+" left = "+(newleft+specialoffset));
+						logger.finest("                  -----> draw with offset (!partial): " + specialoffset
+								+ " left = " + (newleft + specialoffset));
 						page.drawLeftPaddedTextAt(texttype, newleft + specialoffset, top,
 								totallinecounter + j + startatline, totalparagraphcounter + startatparagraph,
 								paragraphlines.get(j), compactprint, color);
@@ -1483,13 +1489,14 @@ public class PDFPage
 									}
 						} else {
 							// check if still in box
-							int partialparagraphcount = i + 1+startatparagraph;
-							int partiallinecount = totallinecounter + j + 1+startatline;
+							int partialparagraphcount = i + 1 + startatparagraph;
+							int partiallinecount = totallinecounter + j + 1 + startatline;
 							float heightsofar = new BoxTextContent(partiallinecount, partialparagraphcount, texttype,
 									compactprint).getHeight();
 							if (heightsofar <= maxheight) {
 								// if so, print
-								logger.finest("                  -----> draw with offset (partial): "+specialoffset+" left = "+(newleft+specialoffset));
+								logger.finest("                  -----> draw with offset (partial): " + specialoffset
+										+ " left = " + (newleft + specialoffset));
 								page.drawLeftPaddedTextAt(texttype, newleft + specialoffset, top,
 										totallinecounter + j + startatline, totalparagraphcounter + startatparagraph,
 										paragraphlines.get(j), compactprint, color);
@@ -1524,7 +1531,8 @@ public class PDFPage
 				}
 			}
 			totallinecounter += paragraphlines.size();
-			if (paragraphlines.size()==0) totallinecounter+=1;
+			if (paragraphlines.size() == 0)
+				totallinecounter += 1;
 
 		}
 		return new BoxTextContent(totallinecounter + startatline, totalparagraphcounter + 1 + startatparagraph,
@@ -1851,8 +1859,6 @@ public class PDFPage
 			return getHeight(false);
 		}
 
-		
-	
 		private float getHeight(boolean finalspacing) {
 			if ((texttype == PDFPage.TEXTTYPE_PLAIN) || (texttype == PDFPage.TEXTTYPE_PLAIN_ITALIC)
 					|| (texttype == PDFPage.TEXTTYPE_PLAIN_BOLD) || (texttype == PDFPage.TEXTTYPE_PLAIN_BOLD_ITALIC)
@@ -1893,7 +1899,6 @@ public class PDFPage
 
 		}
 
-		
 	}
 
 	/**
@@ -2126,17 +2131,17 @@ public class PDFPage
 	public PagedLabel[] getTOCLabelsForPage() {
 		return toclabelsforpage.toArray(new PagedLabel[0]);
 	}
-	
+
 	/**
 	 * Adds a label for this page to be added in table of content
 	 * 
-	 * @param label text of the label
+	 * @param label  text of the label
 	 * @param offset offset in mm
 	 */
-	public void setTOCLabelForPage(String label,float offset) {
-		toclabelsforpage.add(new PagedLabelInPage(label,offset));
+	public void setTOCLabelForPage(String label, float offset) {
+		toclabelsforpage.add(new PagedLabelInPage(label, offset));
 	}
-	
+
 	@Override
 	protected int getPageNumber() {
 		// only a page is used by a PDFPage
@@ -2154,17 +2159,19 @@ public class PDFPage
 		this.pageindex = pagesbefore + 1;
 
 	}
-	
-	private class PagedLabelInPage implements PagedLabel {
+
+	private class PagedLabelInPage
+			implements
+			PagedLabel {
 
 		private String label;
 		private float offset;
 
-		public PagedLabelInPage(String label,float offset) {
+		public PagedLabelInPage(String label, float offset) {
 			this.label = label;
 			this.offset = offset;
 		}
-		
+
 		@Override
 		public String getLabel() {
 			return label;
@@ -2179,8 +2186,7 @@ public class PDFPage
 		public float getOriginalOffset() {
 			return offset;
 		}
-		
+
 	}
-	
 
 }
