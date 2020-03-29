@@ -1381,6 +1381,8 @@ public class PDFPage
 			int startatline,
 			int startatparagraph) throws IOException {
 		float lastlineinmm = 0f;
+		logger.finest("Starting Paragraph print at "+startatline+" lines, "+startatparagraph+" paragraphes, offset in mm = "+startfirstlineoffset);
+		
 		boolean currentsplitparagraph = splitparagraph;
 		if (write)
 			if (page == null)
@@ -1518,6 +1520,7 @@ public class PDFPage
 				}
 			}
 			totallinecounter += paragraphlines.size();
+			if (paragraphlines.size()==0) totallinecounter+=1;
 
 		}
 		return new BoxTextContent(totallinecounter + startatline, totalparagraphcounter + 1 + startatparagraph,

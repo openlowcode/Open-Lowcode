@@ -100,6 +100,7 @@ public class FormattableSectionText
 					(lastfeedback!=null?lastfeedback.getMmWrittenOnLastLine():0),
 					(lastfeedback!=null?lastfeedback.getNblines()-1:0),
 					(lastfeedback!=null?lastfeedback.getNbparagraph()-1:0));
+			logger.finest("launch feedback "+lastfeedback.getNblines()+" lines, "+lastfeedback.getNbparagraph()+" paragraphs");
 		}
 
 	}
@@ -116,7 +117,9 @@ public class FormattableSectionText
 					(lastfeedback!=null?lastfeedback.getMmWrittenOnLastLine():0),
 					(lastfeedback!=null?lastfeedback.getNblines()-1:0),
 					(lastfeedback!=null?lastfeedback.getNbparagraph()-1:0));
+			logger.finest("launch feedback "+lastfeedback.getNblines()+" lines, "+lastfeedback.getNbparagraph()+" paragraphs");
 		}
+		logger.finest(" >>> Finished section, consumed "+lastfeedback.getNblines()+" lines, "+lastfeedback.getNbparagraph()+" paragraphes");
 		return lastfeedback.getHeight();		
 	}
 
