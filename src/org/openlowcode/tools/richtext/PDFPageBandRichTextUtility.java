@@ -47,9 +47,9 @@ public class PDFPageBandRichTextUtility {
 					pageband.printNewSection(sectionsforrichtext[i]);
 		} else {
 			ArrayList<RichTextSection> parsedtext = RichTextParser.parseText(sourcetext);
-			logger.severe("Text parsed with sections = "+parsedtext.size());
+			logger.finest("Text parsed with sections = "+parsedtext.size());
 			ArrayList<PDFPageBandSection> sections = parseSections(parsedtext);
-			logger.severe("Printing sections without simplify in black, sections = "+sections.size());
+			logger.finest("Printing sections without simplify in black, sections = "+sections.size());
 			for (int i=0;i<sections.size();i++) {
 				pageband.printNewSection(sections.get(i));
 			}

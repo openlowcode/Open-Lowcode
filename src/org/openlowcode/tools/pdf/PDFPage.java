@@ -1396,7 +1396,13 @@ public class PDFPage
 			if (page == null)
 				throw new RuntimeException("For write mode, specifying a PDFPage is compulsory");
 		SplitString paragraphs = new SplitString(text);
-
+		
+		logger.finest("-------------------------------------------------------- PARAGRAPHSPLIT --------------------");
+		for (int i=0;i<paragraphs.getNumberOfSections();i++) {
+			logger.finest("  >>> "+paragraphs.getTransitionAt(i)+"-"+paragraphs.getSplitStringAt(i));
+		}
+		logger.finest("---------------------------------------------------------------------------------------------");
+		
 		// newleft is left taking into account left margin for special display (e.g.
 		// bullet);
 		float margin = (right - left) * getLeftMarginRatio(texttype);
@@ -1531,8 +1537,14 @@ public class PDFPage
 				}
 			}
 			totallinecounter += paragraphlines.size();
-			if (paragraphlines.size() == 0)
-				totallinecounter += 1;
+			if (paragraphlines.size() == 0) {
+				
+				if (totallinecounter>0) totallinecounter += 1;
+				if (totallinecounter==0) totallinecounter += 2;
+				
+				logger.finest("        ----> adding one line counter, value after = "+totallinecounter);
+			}
+				
 
 		}
 		return new BoxTextContent(totallinecounter + startatline, totalparagraphcounter + 1 + startatparagraph,
