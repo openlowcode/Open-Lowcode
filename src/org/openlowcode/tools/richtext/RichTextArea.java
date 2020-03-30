@@ -16,7 +16,6 @@ import javafx.scene.text.FontPosture;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import org.openlowcode.client.runtime.PageActionManager;
-import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -360,8 +359,8 @@ public class RichTextArea {
 	}
 
 	/**
-	 * a control that allows to display and edit a text, potentially with 
-	 * specific rich-text file. It always displays the full size of the text
+	 * a control that allows to display and edit a text, potentially with specific
+	 * rich-text file. It always displays the full size of the text
 	 * 
 	 * @param richtext true if rich text
 	 * @param editable true if editable
@@ -543,9 +542,6 @@ public class RichTextArea {
 
 			toolbar.getChildren().add(titlebutton);
 
-	
-			
-			
 			contextmenu = new ContextMenu();
 			contextmenu.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -562,11 +558,11 @@ public class RichTextArea {
 				@Override
 				public void handle(MouseEvent event) {
 					contextmenu.show(toolbar, event.getScreenX(), event.getScreenY());
-					
+
 				}
-				
+
 			});
-			
+
 			MenuItem clear = new MenuItem("Clear");
 			clear.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
@@ -587,7 +583,7 @@ public class RichTextArea {
 
 			});
 			contextmenu.getItems().add(clear);
-			
+
 			MenuItem exportsource = new MenuItem("Export Source");
 			exportsource.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -599,7 +595,7 @@ public class RichTextArea {
 						content.putString(source);
 						Clipboard.getSystemClipboard().setContent(content);
 						pageactionmanager.getClientSession().getActiveClientDisplay()
-						.updateStatusBar("text source copied to clipboard, size = "+source.length()+"ch");
+								.updateStatusBar("text source copied to clipboard, size = " + source.length() + "ch");
 					} catch (Exception e) {
 						logger.warning("Error while executing export source " + e.getMessage());
 						for (int i = 0; i < e.getStackTrace().length; i++)
@@ -608,16 +604,39 @@ public class RichTextArea {
 						pageactionmanager.getClientSession().getActiveClientDisplay()
 								.updateStatusBar("Error while executing export source " + e.getMessage(), true);
 					}
-					
+
 				}
-				
+
 			});
 			contextmenu.getItems().add(exportsource);
-		
-			
-			
-			
-			
+
+			MenuItem exportsourceescape = new MenuItem("Export Source (Dev)");
+			exportsourceescape.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+					try {
+						String source = generateText();
+						source = RichTextArea.escapeforjavasource(source);
+						final ClipboardContent content = new ClipboardContent();
+						content.putString(source);
+						Clipboard.getSystemClipboard().setContent(content);
+						pageactionmanager.getClientSession().getActiveClientDisplay()
+								.updateStatusBar("text source copied to clipboard, size = " + source.length() + "ch");
+					} catch (Exception e) {
+						logger.warning("Error while executing export source " + e.getMessage());
+						for (int i = 0; i < e.getStackTrace().length; i++)
+							logger.warning("  " + e.getStackTrace()[i]);
+						;
+						pageactionmanager.getClientSession().getActiveClientDisplay()
+								.updateStatusBar("Error while executing export source " + e.getMessage(), true);
+					}
+
+				}
+
+			});
+			contextmenu.getItems().add(exportsourceescape);
+
 			area.setTop(toolbar);
 
 		}
@@ -793,6 +812,53 @@ public class RichTextArea {
 
 		}
 
+	}
+
+	/**
+	 * a utility method to escape a string
+	 * 
+	 * @param source
+	 * @return
+	 */
+	public static String escapeforjavasource(String source) {
+		StringBuffer returnstring = new StringBuffer();
+		returnstring.append('"');
+		if (source != null)
+			for (int i = 0; i < source.length(); i++) {
+				char currentchar = source.charAt(i);
+				if (currentchar == '\n') {
+					returnstring.append("\\n");
+					continue;
+				}
+				if (currentchar == '\\') {
+					returnstring.append("\\\\");
+					continue;
+				}
+				if (currentchar == '\r') {
+					returnstring.append("\\r");
+					continue;
+				}
+				if (currentchar == '"') {
+					returnstring.append("\\\"");
+					continue;
+				}
+				if (currentchar == '\u2022') {
+					returnstring.append("\\u2022");
+					continue;
+				}
+				if (currentchar == '\u0009') {
+					returnstring.append("\\u0009");
+					continue;
+				}
+				if (currentchar == '\u0003') {
+					returnstring.append("\\u0003");
+					continue;
+				}
+				returnstring.appendCodePoint(currentchar);
+
+			}
+		returnstring.append('"');
+		return returnstring.toString();
 	}
 
 }
