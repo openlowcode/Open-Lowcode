@@ -21,6 +21,7 @@ import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectProperty;
 import org.openlowcode.server.data.TransitionFieldChoiceDefinition;
 import org.openlowcode.server.data.storage.StoredField;
+import org.openlowcode.server.runtime.OLcServer;
 
 /**
  * A property providing a lifecycle to the object. A lifecycle determines what
@@ -146,7 +147,13 @@ public class Lifecycle<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 					"  -----------------------------------------------------------------------------------------------------------------------");
 			return;
 		}
-		if (lifecyclehelper.parseValueFromStorageCode(this.getState()).isAuthorizedTransitions(newvalue)) {
+		boolean valid  = false;
+		if (lifecyclehelper.parseValueFromStorageCode(this.getState()).isAuthorizedTransitions(newvalue)) valid=true;
+		if (!valid) if (OLcServer.getServer().isCurrentUserAdmin(object.getDefinitionFromObject().getModuleName())) {
+			valid=true;
+			logger.warning("Bypassing change state rule for object "+object.dropIdToString()+" old state = "+this.getState()+", new state = "+newvalue.getDisplayValue()+" as admin request");
+		}
+		if (valid) {
 
 			if (lifecyclehelper.isChoiceFinal(newvalue))
 				this.finalstatetime.setPayload(new Date());
@@ -156,7 +163,7 @@ public class Lifecycle<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 			}
 		} else {
 			throw new RuntimeException("Transition from state '" + this.getState() + "' to state '"
-					+ newvalue.getStorageCode() + "' is not authorized");
+					+ newvalue.getStorageCode() + "' is not authorized for normal user");
 
 		}
 	}
@@ -189,7 +196,15 @@ public class Lifecycle<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 			// ------------------ state valid control
 			// ---------------------------------------------
 			for (int i = 0; i < objectbatch.length; i++) {
-				if (lifecyclearrayformethod[i].getState().equals(newstate[i].getStorageCode())) {
+				
+				boolean valid  = false;
+				if (lifecyclearrayformethod[i].getState().equals(newstate[i].getStorageCode())) valid=true;
+				if (!valid) if (OLcServer.getServer().isCurrentUserAdmin(objectbatch[i].getDefinitionFromObject().getModuleName())) {
+					valid=true;
+					logger.warning("Bypassing change state rule for object "+objectbatch[i].dropIdToString()+" old state = "+lifecyclearrayformethod[i].getState()+", new state = "+newstate[i].getDisplayValue()+" as admin request");
+				}
+				
+				if (valid) {
 					String lastupdatestring = "";
 					if (objectbatch[i] instanceof UpdatelogInterface) {
 						UpdatelogInterface<E> updatelog = (UpdatelogInterface<E>) objectbatch[i];

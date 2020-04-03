@@ -44,6 +44,7 @@ import org.openlowcode.design.pages.SearchWidgetDefinition;
 import org.openlowcode.module.system.design.SystemModule;
 import org.openlowcode.tools.misc.NamedList;
 
+
 /**
  * this class generates the show object page. This is the biggest automatically
  * generated class in the framework
@@ -292,7 +293,7 @@ public class DataObjectDefinitionShowPage
 			sg.wl("import " + module.getPath() + ".action.generated.AtgNewversionfor" + objectvariable + "Action;");
 		}
 		if (dataobject.hasLifecycle()) {
-
+			sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 			sg.wl("import org.openlowcode.server.data.ChoiceValue;");
 			sg.wl("import " + lifecycle.getParentModule().getPath() + ".data.choice." + lifecycleclass
 					+ "ChoiceDefinition;");
@@ -868,7 +869,14 @@ public class DataObjectDefinitionShowPage
 				sg.wl("				" + lifecycleclass
 						+ "ChoiceDefinition.get(),null,this,true, false, false, false, changestateaction);");
 				sg.wl("		newstatesfield.setCompactShow(true);");
-				sg.wl("		newstatesfield.setLinkedData(this.getPotentialstates());");
+				
+			
+				sg.wl("		if (!OLcServer.getServer().isCurrentUserAdmin("+objectclass+".getDefinition().getModuleName())) {");
+				sg.wl("			newstatesfield.setLinkedData(this.getPotentialstates());");
+				sg.wl("		} else {");
+				sg.wl("			managepopup.addElement(new SPageText(\"Warning: admin access\",SPageText.TYPE_WARNING,this));");
+				sg.wl("		}");
+				
 				sg.wl("		changestateaction.setId(objectdisplaydefinition.getAttributeInput(" + objectclass
 						+ ".getDefinition().getIdMarker()));");
 				sg.wl("		changestateaction.setNewstate(newstatesfield.getChoiceInput());");
