@@ -100,7 +100,21 @@ public class ServerSecurityBuffer {
 		logger.finer(" query on groupid, not found");
 		return new Appuser[0];
 	}
+	/**
+	 * get all the authorities for a user
+	 * @param userid id of a user of the application 
+	 * @return all authorities for the user (with potential duplicates)
+	 * @since 1.5
+	 */
 	
+	public Authority[] getAuthoritiesForUser(DataObjectId<Appuser> userid) {
+		ArrayList<Usergroup> groups = this.groupsperuser.get(userid);
+		ArrayList<Authority> allauthorities = new ArrayList<Authority>();
+		for (int i=0;i<groups.size();i++) {
+			allauthorities.addAll(this.authoritiespergroup.get(groups.get(i).getId()));
+		}
+		return allauthorities.toArray(new Authority[0]);
+	}
 	
 	/**
 	 * gets all the authority for a group from the buffer

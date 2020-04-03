@@ -45,7 +45,20 @@ public abstract class SModule extends Named {
 	private boolean frameworkfinalversion;
 	private Date generationdate;
 	private String label;
+	
 
+	/**
+	 * A helper method confirming if the given authority is the admin of the module
+	 * @param authoritynr number of the authority
+	 * @return true if the authority given is the admin of the module
+	 * @since 1.5
+	 */
+	public boolean isAuthorityAdmin(String authoritynr) {
+		String moduleadminauthority=code+"_"+this.getName()+"OVERLORD";
+		if (moduleadminauthority.equals(authoritynr)) return true;
+		return false;
+	}
+	
 	/**
 	 * @return the front page message to show on the module home page
 	 */
