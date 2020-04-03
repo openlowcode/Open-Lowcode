@@ -957,11 +957,15 @@ public class OLcServer {
 	 * checks if the current user is admin for the given module (either directly
 	 * overlord of the module or sovereign on the server)
 	 * 
-	 * @param module the module to check for
+	 * @param module the name of the module to check for
 	 * @return true if the current user if admin for the module as of rules set above
 	 */
-	public boolean isCurrentUserAdmin(SModule module) {
+	public boolean isCurrentUserAdmin(String modulename) {
+		
+		SModule module = this.getModuleByName(modulename);
+		if (module==null) throw new RuntimeException("Could not find module for name = "+modulename);
 		DataObjectId<Appuser> currentuserid = getCurrentUserId();
+		if (currentuserid==null) throw new RuntimeException("Could not find user for id = "+currentuserid);
 		Authority[] userauthorities = ServerSecurityBuffer.getUniqueInstance().getAuthoritiesForUser(currentuserid);
 		for (int i = 0; i < userauthorities.length; i++) {
 			if (module.isAuthorityAdmin(userauthorities[i].getNr()))
