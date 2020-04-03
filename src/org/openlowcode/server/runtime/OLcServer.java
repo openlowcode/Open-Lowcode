@@ -81,7 +81,7 @@ public class OLcServer {
 	public String getClientJar() {
 		return this.clientjar;
 	}
-	
+
 	/**
 	 * gets the internet address of the server
 	 * 
@@ -206,7 +206,7 @@ public class OLcServer {
 		this.clientjar = clientjar;
 		try {
 			// init encrypter
-			
+
 			EncrypterHolder.InitEncrypterHolder(OLcEncrypter.getEncrypter());
 
 			String initmessage = "Startup of server version " + getServerVersion();
@@ -534,10 +534,10 @@ public class OLcServer {
 			smtpurl = args[7];
 		}
 		// client jar is the last argument
-		String clientjar = args[args.length-1];
+		String clientjar = args[args.length - 1];
 		serversingleton = new OLcServer(logfolder, dbtype, jdbcurl, jdbcuser, jdbcpassword, 1, connectionpool, port,
 				modules, auditmessages, ldapconnectionstring, ldapuser, ldappassword, smtpurl, smtpport, smtpuser,
-				smtppassword, reducedlogs,clientjar);
+				smtppassword, reducedlogs, clientjar);
 	}
 
 	/**
@@ -952,14 +952,22 @@ public class OLcServer {
 	public Appuser getCurrentUser() {
 		return ServerSecurityBuffer.getUniqueInstance().getUserPerUserId(getCurrentUserId());
 	}
-	
-	public boolean isCurrentUserAdmin(ActionExecution action) {
-		SModule module = action.getParent();
+
+	/**
+	 * checks if the current user is admin for the given module (either directly
+	 * overlord of the module or sovereign on the server)
+	 * 
+	 * @param module the module to check for
+	 * @return true if the current user if admin for the module as of rules set above
+	 */
+	public boolean isCurrentUserAdmin(SModule module) {
 		DataObjectId<Appuser> currentuserid = getCurrentUserId();
 		Authority[] userauthorities = ServerSecurityBuffer.getUniqueInstance().getAuthoritiesForUser(currentuserid);
-		for (int i=0;i<userauthorities.length;i++) {
-			if (module.isAuthorityAdmin(userauthorities[i].getNr())) return true;
-			if ("SOVEREIGN".equals(userauthorities[i].getNr())) return true;
+		for (int i = 0; i < userauthorities.length; i++) {
+			if (module.isAuthorityAdmin(userauthorities[i].getNr()))
+				return true;
+			if ("SOVEREIGN".equals(userauthorities[i].getNr()))
+				return true;
 		}
 		return false;
 	}
