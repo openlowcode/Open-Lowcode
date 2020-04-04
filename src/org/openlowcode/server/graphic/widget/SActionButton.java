@@ -32,7 +32,11 @@ import org.openlowcode.server.security.SecurityBuffer;
  *         SAS</a>
  *
  */
-public class SActionButton extends SPageNode implements SDefaultPath {
+public class SActionButton
+		extends
+		SPageNode
+		implements
+		SDefaultPath {
 	private String label;
 	private String rollovertip; // note: can be void;
 	private SActionRef actionref;
@@ -43,6 +47,14 @@ public class SActionButton extends SPageNode implements SDefaultPath {
 	private String confirmationmessage;
 	private String oklabel;
 	private String kolabel;
+
+	/**
+	 * this method will ensure that if button is pressed for online action, the
+	 * popup window is closed.
+	 */
+	public void setForcePopupCloseForInline() {
+		this.forcepopupcloseforinline = true;
+	}
 
 	/**
 	 * puts condition to show the button depending on data sent to the page
@@ -153,7 +165,11 @@ public class SActionButton extends SPageNode implements SDefaultPath {
 	 *                                 part on while executing an inline action
 	 * @param parent                   parent page
 	 */
-	public SActionButton(String label, String rollovertip, SActionRef action, boolean forcepopupcloseforinline,
+	public SActionButton(
+			String label,
+			String rollovertip,
+			SActionRef action,
+			boolean forcepopupcloseforinline,
 			SPage parent) {
 		super(parent);
 		this.label = label;
