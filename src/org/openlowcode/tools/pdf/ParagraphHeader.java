@@ -42,14 +42,14 @@ public class ParagraphHeader implements PDFPageBandSection {
 	@Override
 	public void print(PDFPageBand pageband, PDFPage currentpage, float mmfromtopforsection, float leftinmm,
 			float rightinmm) throws IOException {
-		PDFPage.calculateBoxAndMaybeWriteText(leftinmm, mmfromtopforsection, rightinmm, text, true, currentpage,
+		PDFPage.calculateBoxAndMaybeWriteText(leftinmm+mmleftmargin, mmfromtopforsection, rightinmm, text, true, currentpage,
 				PDFPage.TEXTTYPE_PARAGRAPH_HEADER);
 
 	}
 
 	@Override
 	public float getSectionHeight(float leftinmm, float rightinmm) throws IOException {
-		return PDFPage.calculateBoxAndMaybeWriteText(leftinmm, 0, rightinmm, text, false, null,
+		return PDFPage.calculateBoxAndMaybeWriteText(leftinmm+mmleftmargin, 0, rightinmm, text, false, null,
 				PDFPage.TEXTTYPE_PARAGRAPH_HEADER).getHeight();
 	}
 
@@ -61,7 +61,7 @@ public class ParagraphHeader implements PDFPageBandSection {
 	@Override
 	public PartialPrintFeedback printPartial(PDFPageBand pageband, float spaceleft, PDFPage currentpage,
 			float mmfromtopforsection, float leftinmm, float rightinmm) throws IOException {
-		float heightforremaining = PDFPage.calculateBoxAndMaybeWriteText(leftinmm, 0, rightinmm, remainingtext, false,
+		float heightforremaining = PDFPage.calculateBoxAndMaybeWriteText(leftinmm+mmleftmargin, 0, rightinmm, remainingtext, false,
 				null, PDFPage.TEXTTYPE_PARAGRAPH_HEADER).getHeight();
 
 		this.remainingtext = PDFPage.writeAsMuchTextAsPossible(leftinmm + mmleftmargin, mmfromtopforsection, rightinmm,
