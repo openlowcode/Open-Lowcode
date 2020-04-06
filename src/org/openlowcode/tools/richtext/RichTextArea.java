@@ -97,8 +97,14 @@ public class RichTextArea {
 			return document.get(0).dropText();
 		} else {
 			StringBuffer answer = new StringBuffer();
+			Paragraph previousparagraph=null;
 			for (int i = 0; i < document.size(); i++) {
-				answer.append(document.get(i).dropText());
+				Paragraph currentparagraph = document.get(i);
+				if (previousparagraph!=null) if (previousparagraph.isNormal()) if (currentparagraph.isNormal()) {
+					answer.append("\n");
+				}
+				answer.append(currentparagraph.dropText());
+				previousparagraph = currentparagraph;
 			}
 			return answer.toString();
 		}
@@ -299,13 +305,70 @@ public class RichTextArea {
 		this.setTextInput(content);
 	}
 
+	
+	/**
+	 * merge the current Paragraph with the previous one.<ul>
+	 * <li>if previous paragraph is not a normal paragraph, will simplify the paragraph for black</li>
+	 * <li>if previous paragraph is a normal paragraph, just merge the sections</li></ul>
+	 * @since 1.5
+	 */
+	void mergeCurrentParagraphWithPrevious() {
+		int activeparagraphindex = getActiveParagraphIndex();
+		if (activeparagraphindex>0) {
+			// only do something if not first pargraph
+			Paragraph previousparagraph = document.get(activeparagraphindex-1);
+			int previousparagraphsize = previousparagraph.getCharNb();
+			
+			Paragraph paragraphtomerge = document.get(activeparagraphindex);
+			
+			previousparagraph.mergeWith(paragraphtomerge);
+
+			document.remove(activeparagraphindex);
+			paragraphbox.getChildren().remove(activeparagraphindex);
+			activeparagraph = previousparagraph;
+			
+			previousparagraph.moveCaretTo(previousparagraphsize);
+			logger.finest("    merge with previous, size = ("+previousparagraphsize+"/"+previousparagraph.getCharNb()+")");
+		}
+	}
+	
+	/**
+	 * this method will introduce a paragraph split at the current character.
+	 * @since 1.5
+	 */
+	void splitparagraphatcurrentchar() {
+		Paragraph newprevious = activeparagraph.generateParagraphBeforeCarret();
+		Paragraph newnext = activeparagraph.generateParagraphAfterCarret();
+		logger.finest("        >>> split current paragraph length/caret ("+activeparagraph.getCharNb()+"/"+activeparagraph.getSelectionInTextFlow()+")");
+		logger.finest("        >>> split firstparagraph = "+newprevious.getCharNb()+", secondparagraph = "+newnext.getCharNb());
+		int activeparagraphindex = getActiveParagraphIndex();
+		document.remove(activeparagraphindex);
+		paragraphbox.getChildren().remove(activeparagraphindex);
+		
+		document.add(activeparagraphindex, newprevious);
+		paragraphbox.getChildren().add(activeparagraphindex, newprevious.getNode());
+		
+		document.add(activeparagraphindex+1, newnext);
+		paragraphbox.getChildren().add(activeparagraphindex+1, newnext.getNode());
+		activeparagraph = newnext;
+		newnext.setCarretAtFirst();
+				
+		
+	}
+
+	
+	
+	
 	/**
 	 * this method will analyse current paragraph, and find, in the active text the
 	 * previous "break" (either carriage return or change of formatting) and the
 	 * next break (either carriage return or change of formatting). Then, it does
-	 * the following: - create a paragraph with everything before the previous
-	 * breaker - create and insert in graphic a new paragraph with the selected text
-	 * - create a paragraph with everything after the next breaker
+	 * the following:
+	 * <ul>
+	 * <li>create a paragraph with everything before the previous breaker</li>
+	 * <li>create and insert in graphic a new paragraph with the selected text</li>
+	 * <li>create a paragraph with everything after the next breaker</li>
+	 * </ul>
 	 */
 	void splitcurrentlineinparagraph() {
 		logger.finer(" -------------------------- split paragraph ---------------------------");
@@ -621,15 +684,17 @@ public class RichTextArea {
 						final ClipboardContent content = new ClipboardContent();
 						content.putString(source);
 						Clipboard.getSystemClipboard().setContent(content);
-						pageactionmanager.getClientSession().getActiveClientDisplay()
-								.updateStatusBar("text source copied to clipboard, size = " + source.length() + "ch");
+						if (pageactionmanager != null)
+							pageactionmanager.getClientSession().getActiveClientDisplay().updateStatusBar(
+									"text source copied to clipboard, size = " + source.length() + "ch");
 					} catch (Exception e) {
 						logger.warning("Error while executing export source " + e.getMessage());
 						for (int i = 0; i < e.getStackTrace().length; i++)
 							logger.warning("  " + e.getStackTrace()[i]);
 						;
-						pageactionmanager.getClientSession().getActiveClientDisplay()
-								.updateStatusBar("Error while executing export source " + e.getMessage(), true);
+						if (pageactionmanager != null)
+							pageactionmanager.getClientSession().getActiveClientDisplay()
+									.updateStatusBar("Error while executing export source " + e.getMessage(), true);
 					}
 
 				}
@@ -860,5 +925,7 @@ public class RichTextArea {
 		returnstring.append('"');
 		return returnstring.toString();
 	}
+
+
 
 }

@@ -15,6 +15,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
+import org.openlowcode.tools.misc.SplitString;
+
 import javafx.concurrent.Task;
 import com.sun.javafx.scene.text.GlyphList;
 import com.sun.javafx.scene.text.HitInfo;
@@ -152,7 +155,16 @@ public class Paragraph {
 	}
 
 	/**
-	 * sets the carret at the first charater of this paragrahp
+	 * gets the selection index in text flow
+	 * @return the selection in the current text flow
+	 * @since 1.5
+	 */
+	public int getSelectionInTextFlow() {
+		return this.selectionintextflow;
+	}
+	
+	/**
+	 * sets the carret at the first character of this paragraph
 	 */
 	void setCarretAtFirst() {
 		textflow.requestFocus();
@@ -296,11 +308,11 @@ public class Paragraph {
 		if (!bulletpoint)
 			if (!title) {
 				Label normalleftspace = new Label(" ");
-				normalleftspace.setPadding(new Insets(2, 0, 2, 0));
+				normalleftspace.setPadding(new Insets(3, 0, 2, 0));
 				normalleftspace.setMinWidth(8);
 				normalleftspace.setMaxWidth(8);
 				HBox paragraphwithmargin = new HBox();
-				paragraphwithmargin.setPadding(new Insets(0, 0, 0, 0));
+				paragraphwithmargin.setPadding(new Insets(3, 0, 2, 0));
 				textflow.setMaxWidth(parent.getParagraphwidth());
 				textflow.setMinWidth(parent.getParagraphwidth());
 				textflow.setPadding(new Insets(0, 0, 0, 0));
@@ -367,6 +379,16 @@ public class Paragraph {
 
 		});
 		return paragraphwithmargin;
+	}
+
+	/**
+	 * move the caret to the given selection
+	 * 
+	 * @param selectionintextflow position in text flow
+	 */
+	public void moveCaretTo(int selectionintextflow) {
+		this.selectionintextflow = selectionintextflow;
+		displayCaretAt(selectionintextflow);
 	}
 
 	/**
@@ -486,7 +508,8 @@ public class Paragraph {
 								textflow.getChildren().add(caretpath);
 								textflow.requestLayout();
 								textflow.requestFocus();
-								parent.getPageActionManager().getClientDisplay().ensureNodeVisible(caretpath);
+								if (parent.getPageActionManager() != null)
+									parent.getPageActionManager().getClientDisplay().ensureNodeVisible(caretpath);
 
 								break;
 							}
@@ -892,12 +915,19 @@ public class Paragraph {
 
 			@Override
 			public void handle(KeyEvent keyevent) {
+
 				boolean istreated = false;
+				boolean iscarriagereturn = false;
+				if (keyevent.getCode().equals(KeyCode.ENTER))
+					iscarriagereturn = true;
+				if (keyevent.getCharacter().equals("\r"))
+					iscarriagereturn = true;
+				logger.finest("  ---------------> Pressing key " + iscarriagereturn);
 				if (keyevent.getCharacter().compareTo(KeyEvent.CHAR_UNDEFINED) != 0)
 					if (!isNonPrintable(keyevent.getCharacter().charAt(0))) {
 						logger.finest("Key typed '" + keyevent.getCharacter() + "'");
 						if ((bulletpoint) || (title))
-							if ((keyevent.getCode().equals(KeyCode.ENTER)) || (keyevent.getCharacter().equals("\r"))) {
+							if ((iscarriagereturn) && (!keyevent.isShiftDown())) {
 								logger.finest("Special treatment for ENTER key in title or bullet point");
 								// if bullet point and text before caret create new bullet point with all text
 								// after caret
@@ -958,11 +988,28 @@ public class Paragraph {
 								istreated = true;
 							}
 
+						if (!istreated)
+							if ((iscarriagereturn) && (!keyevent.isShiftDown())) {
+								// normal paragraph and real carriage return: create new paragraph
+								if (richtext) if (parent.okToAdd(4)) {
+									parent.splitparagraphatcurrentchar();
+									parent.redrawActiveParagraph();
+									istreated = true;
+								}
+								
+							}
+
 						if (!istreated) {
+							String character = keyevent.getCharacter();
+							if ((iscarriagereturn) && (keyevent.isShiftDown())) {
+								logger.finest("Adding backslash R");
+								character = "\r";
+							}
+
 							QualifiedCaretPosition caretposition = getTextAtCaret();
 							if (parent.okToAdd(1)) {
 								logger.finest("-- adding character at " + caretposition.localcaretindex + ", char="
-										+ keyevent.getCharacter());
+										+ character);
 								FormattedText thistext = caretposition.selectedtext;
 								String before = "";
 								if (thistext.getTextPayload().length() > 0)
@@ -977,7 +1024,7 @@ public class Paragraph {
 									if (caretposition.localcaretindex >= 0)
 										if (caretposition.localcaretindex <= thistext.getTextPayload().length())
 											after = thistext.getTextPayload().substring(caretposition.localcaretindex);
-								thistext.setString(before + keyevent.getCharacter() + after);
+								thistext.setString(before + character + after);
 								selectionintextflow++;
 								displayCaretAt(selectionintextflow);
 							}
@@ -1012,7 +1059,7 @@ public class Paragraph {
 					}
 				}
 				if (keyevent.getCode().equals(KeyCode.BACK_SPACE)) {
-
+					logger.finest("             - BACKSPACE detected");
 					if ((caretposition.localcaretindex > 0)) {
 						logger.finest(
 								"processing BACKSPACE event for text '" + thistext.getTextPayload() + "' at index "
@@ -1026,11 +1073,25 @@ public class Paragraph {
 						keyevent.consume();
 						selectionintextflow--;
 						displayCaretAt(selectionintextflow);
+						logger.finest("             - BACKSPACE inside section");
 
 					}
 					if ((caretposition.localcaretindex == 0)
-							&& (caretposition.selectedtext.getTextPayload().length() == 0)) {
-
+							&& (Paragraph.this.getCharNb()>0)) {
+						// merging the current section in the previous section.
+						RichTextArea parent = Paragraph.this.parent;
+						parent.mergeCurrentParagraphWithPrevious();
+						logger.finest("             - BACKSPACE at first position with content");
+					}
+					if ((caretposition.localcaretindex == 0)
+							&& (Paragraph.this.getCharNb() == 0)) {
+						logger.finest("             - BACKSPACE at first position without content");
+						for (int i=0;i<Paragraph.this.textlist.size();i++) {
+							boolean selected=false;
+							FormattedText debugtext = Paragraph.this.textlist.get(i);
+							if (debugtext==caretposition.selectedtext) selected=true;
+							logger.finest("                     >"+i+":"+debugtext.getTextPayload()+(selected?" SELECTED":""));
+						}
 						int index = caretposition.formattedtextindex;
 						logger.finest("processing BACKSPACE of empty section for index = " + index);
 						if (textlist.size() > 1) {
@@ -1150,15 +1211,18 @@ public class Paragraph {
 
 					if (clipboardcontent != null) {
 						if (parent.okToAdd(clipboardcontent.length())) {
-							String concatenatestring = currenttext.substring(0, caretposition.localcaretindex)
-									+ clipboardcontent
-									+ (currenttext.length() > caretposition.localcaretindex
-											? currenttext.substring(caretposition.localcaretindex)
-											: "");
-							thistext.setString(concatenatestring);
-							selectionintextflow += clipboardcontent.length();
-							displayCaretAt(selectionintextflow);
-
+							
+								// processing non rich text, put all text
+								String concatenatestring = currenttext.substring(0, caretposition.localcaretindex)
+										+ clipboardcontent
+										+ (currenttext.length() > caretposition.localcaretindex
+												? currenttext.substring(caretposition.localcaretindex)
+														: "");
+								thistext.setString(concatenatestring);
+								selectionintextflow += clipboardcontent.length();
+								displayCaretAt(selectionintextflow);
+							
+							
 						} else {
 							parent.getPageActionManager().getClientSession().getActiveClientDisplay()
 									.updateStatusBar("Warning: you tried to paste a string of "
@@ -1410,12 +1474,12 @@ public class Paragraph {
 	 * @param value color indicator
 	 */
 	public void insertColorIndicator(Color value) {
-		boolean processed=false;
+		boolean processed = false;
 		if (this.dragactive) {
 			if (this.dragstartindex > 0)
 				if (this.dragendindex > 0)
 					if (this.dragendindex > this.dragstartindex) {
-						processed=true;
+						processed = true;
 						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
 						if (relevanttext != null)
 							relevanttext.setSpecialcolor(value);
@@ -1431,7 +1495,7 @@ public class Paragraph {
 							}
 						});
 					}
-		} 
+		}
 		if (!processed) {
 			FormattedText relevanttext = insertSectionAtCaretIfRequired();
 			relevanttext.setSpecialcolor(value);
@@ -1444,12 +1508,12 @@ public class Paragraph {
 	 * @param selected true to put bold, false, to put back to normal
 	 */
 	public void insertBoldIndicator(boolean selected) {
-		boolean processed=false;
+		boolean processed = false;
 		if (this.dragactive) {
 			if (this.dragstartindex > 0)
 				if (this.dragendindex > 0)
 					if (this.dragendindex > this.dragstartindex) {
-						processed=true;
+						processed = true;
 						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
 						if (relevanttext != null)
 							relevanttext.setBold(!relevanttext.isBold());
@@ -1465,7 +1529,7 @@ public class Paragraph {
 							}
 						});
 					}
-		} 
+		}
 		if (!processed) {
 			FormattedText relevanttext = insertSectionAtCaretIfRequired();
 			relevanttext.setBold(selected);
@@ -1480,12 +1544,12 @@ public class Paragraph {
 	 *                 section
 	 */
 	public void insertItalicIndicator(boolean selected) {
-		boolean processed=false;
+		boolean processed = false;
 		if (this.dragactive) {
 			if (this.dragstartindex > 0)
 				if (this.dragendindex > 0)
 					if (this.dragendindex > this.dragstartindex) {
-						processed=true;
+						processed = true;
 						FormattedText relevanttext = insertSectionAtSelectionIfRequired();
 						if (relevanttext != null)
 							relevanttext.setItalic(!relevanttext.isItalic());
@@ -1502,7 +1566,7 @@ public class Paragraph {
 						});
 					}
 		}
-		
+
 		if (!processed) {
 			FormattedText relevanttext = insertSectionAtCaretIfRequired();
 			relevanttext.setItalic(selected);
@@ -1521,6 +1585,69 @@ public class Paragraph {
 		if ((returncarriageindex == -1) || (returncarriageindex > text.indexOf("\r", startindex) + 1))
 			returncarriageindex = text.indexOf("\r", startindex);
 		return returncarriageindex;
+	}
+
+	/**
+	 * @param paragraphtomergeafter paragraph to merge after this paragraph
+	 */
+	public void mergeWith(Paragraph paragraphtomergeafter) {
+		if (this.isNormal()) {
+			for (int i = 0; i < paragraphtomergeafter.textlist.size(); i++) {
+				FormattedText formattedtext = paragraphtomergeafter.textlist.get(i);
+				this.addText(formattedtext);
+			}
+		} else {
+			StringBuffer buffer = new StringBuffer();
+			for (int i = 0; i < paragraphtomergeafter.textlist.size(); i++) {
+				FormattedText formattedtext = paragraphtomergeafter.textlist.get(i);
+				buffer.append(formattedtext.getTextPayload());
+			}
+			FormattedText previoussection = this.textlist.get(this.textlist.size() - 1);
+			previoussection.setString(previoussection.getTextPayload() + buffer.toString());
+		}
+	}
+
+	public Paragraph generateParagraphBeforeCarret() {
+		QualifiedCaretPosition caretposition = getTextAtCaret();
+		Paragraph returnparagraph = new Paragraph(richtext, editable, parent);
+		// getting all formatted text before
+		if (caretposition.formattedtextindex != 0) {
+
+			for (int i = 0; i < caretposition.formattedtextindex; i++) {
+				returnparagraph.addText(this.textlist.get(i));
+			}
+		}
+		FormattedText selectedtext = caretposition.selectedtext;
+		String text = selectedtext.getTextPayload();
+		FormattedText cuttext = new FormattedText(selectedtext.getSection(), this);
+		cuttext.setString(text.substring(0, caretposition.localcaretindex));
+		returnparagraph.addText(cuttext);
+		return returnparagraph;
+	}
+
+	public Paragraph generateParagraphAfterCarret() {
+		QualifiedCaretPosition caretposition = getTextAtCaret();
+		Paragraph returnparagraph = null;
+
+		FormattedText selectedtext = caretposition.selectedtext;
+		String text = selectedtext.getTextPayload();
+
+		returnparagraph = new Paragraph(richtext, editable, parent);
+		FormattedText cuttext = new FormattedText(selectedtext.getSection(), this);
+		if (caretposition.localcaretindex + 1 < text.length()) {
+			cuttext.setString(text.substring(caretposition.localcaretindex));
+		} else {
+			cuttext.setString("");
+		}
+		returnparagraph.addText(cuttext);
+
+		if (caretposition.formattedtextindex < textlist.size() - 1) {
+			for (int i = caretposition.formattedtextindex + 1; i < textlist.size(); i++) {
+				returnparagraph.addText(this.textlist.get(i));
+			}
+		}
+
+		return returnparagraph;
 	}
 
 	/**

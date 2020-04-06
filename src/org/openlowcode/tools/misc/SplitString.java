@@ -54,12 +54,15 @@ public class SplitString {
 	}
 
 	/**
-	 * create a Split chain, parsing the string for carriage return and new lines
+	 * create a Split chain, parsing the string for new lines only (\n or \r\n)
+	 * (carriage returns are kept in sections), or for all
 	 * 
 	 * @param chaintosplit the string to split
+	 * @param onlymajor    if true, only new lines are considered, if false, new
+	 *                     lines and carriage returns are considered
+	 *                     @since 1.5
 	 */
-	public SplitString(String chaintosplit) {
-
+	public SplitString(String chaintosplit, boolean onlymajor) {
 		stringsplit = new ArrayList<String>();
 		transitions = new ArrayList<Boolean>();
 
@@ -70,10 +73,10 @@ public class SplitString {
 		while (parseindex < chaintosplit.length()) {
 			int currentchar = chaintosplit.charAt(parseindex);
 			boolean specialcharacter = false;
-			if (currentchar == 13) {
+			if (currentchar == 13) { // \r
 				specialcharacter = true;
 			}
-			if (currentchar == 10) {
+			if (currentchar == 10) { // \n
 				specialcharacter = true;
 				stringsplit.add(currentstring.toString());
 				transitions.add(new Boolean(lastsplitismajor));
@@ -83,10 +86,14 @@ public class SplitString {
 			}
 			if (!specialcharacter) {
 				if (lastisbackslashr) {
-					stringsplit.add(currentstring.toString());
-					transitions.add(new Boolean(lastsplitismajor));
-					lastsplitismajor = false;
-					currentstring = new StringBuffer();
+					if (!onlymajor) {
+						stringsplit.add(currentstring.toString());
+						transitions.add(new Boolean(lastsplitismajor));
+						lastsplitismajor = false;
+						currentstring = new StringBuffer();
+					} else {
+						currentstring.append((char) '\r');
+					}
 				}
 				lastisbackslashr = false;
 				currentstring.append((char) currentchar);
@@ -98,5 +105,15 @@ public class SplitString {
 		}
 		stringsplit.add(currentstring.toString());
 		transitions.add(new Boolean(lastsplitismajor));
+	}
+
+	/**
+	 * create a Split chain, parsing the string for carriage return and new lines
+	 * 
+	 * @param chaintosplit the string to split
+	 */
+	public SplitString(String chaintosplit) {
+		this(chaintosplit, false);
+
 	}
 }

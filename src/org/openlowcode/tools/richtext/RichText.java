@@ -13,6 +13,8 @@ package org.openlowcode.tools.richtext;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import org.openlowcode.tools.misc.SplitString;
+
 /**
  * A rich-text is an element of text with formatting on sections of text.
  * Formatting includes the following options (with the codes):
@@ -47,7 +49,26 @@ public class RichText {
 	public RichText(String richtext) {
 		section = RichTextParser.parseText(richtext);
 	}
-
+	
+	/**
+	 * 
+	 * @param sectiontobreak the section to analyze for strong carriage returns and break
+	 * @return the splitted sections if split is needed, or the original section if no carriage return
+	 * @since 1.5
+	 */
+	public static RichTextSection[] breakForParagraphs(RichTextSection sectiontobreak) {
+		String textbeforebreak = sectiontobreak.getText();
+		SplitString splitformajor = new SplitString(textbeforebreak, true);
+		if (splitformajor.getNumberOfSections()==1) return new RichTextSection[] {sectiontobreak};
+		ArrayList<RichTextSection> paragraphs = new ArrayList<RichTextSection>();
+		for (int i=0;i<splitformajor.getNumberOfSections();i++) {
+			RichTextSection thissection = new RichTextSection(sectiontobreak);
+			thissection.setText(splitformajor.getSplitStringAt(i));
+			paragraphs.add(thissection);
+		}
+		return paragraphs.toArray(new RichTextSection[0]);
+	}
+	
 	/**
 	 * generates all paragraphes in this rich text. This method should only be
 	 * called on the client with javafx package in the classpath. The rest of rich
@@ -64,7 +85,17 @@ public class RichText {
 		Paragraph currentparagraph = null;
 		for (int i = 0; i < section.size(); i++) {
 			RichTextSection thissection = section.get(i);
+			RichTextSection[] sectionbrokeninparagraphs = breakForParagraphs(thissection);
+			for (int j=0;j<sectionbrokeninparagraphs.length;j++) {
+				RichTextSection thisbrokensection = sectionbrokeninparagraphs[j];
 			logger.finest("starting formatting of section " + i);
+			
+			if (j>0) {
+				if (currentparagraph.hasSignificantContent())
+					answer.add(currentparagraph);
+				currentparagraph = new Paragraph(true, editable, parent);
+			}
+			
 			if (!lastisstandard) {
 				if (currentparagraph != null)
 					if (currentparagraph.hasSignificantContent())
@@ -74,19 +105,19 @@ public class RichText {
 
 			}
 
-			if (!thissection.isBullet())
-				if (!thissection.isSectiontitle()) {
+			if (!thisbrokensection.isBullet())
+				if (!thisbrokensection.isSectiontitle()) {
 					lastisstandard = true;
 
 				}
-			if (thissection.isSectiontitle()) {
+			if (thisbrokensection.isSectiontitle()) {
 				lastisstandard = false;
 				if (currentparagraph.hasSignificantContent())
 					answer.add(currentparagraph);
 				currentparagraph = new Paragraph(true, editable, parent);
 				currentparagraph.setTitleParagraph();
 			}
-			if (thissection.isBullet()) {
+			if (thisbrokensection.isBullet()) {
 				lastisstandard = false;
 				lastisstandard = false;
 				if (currentparagraph.hasSignificantContent())
@@ -95,9 +126,10 @@ public class RichText {
 				currentparagraph.setBulletParagraph();
 
 			}
-			FormattedText formattedtext = new FormattedText(thissection, currentparagraph);
+			FormattedText formattedtext = new FormattedText(thisbrokensection, currentparagraph);
 			currentparagraph.addText(formattedtext);
 			logger.finest("adding text to paragraph " + i);
+			}
 		}
 		if (currentparagraph != null)
 			if (currentparagraph.hasSignificantContent())
