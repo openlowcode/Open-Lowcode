@@ -16,8 +16,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.openlowcode.tools.misc.SplitString;
-
 import javafx.concurrent.Task;
 import com.sun.javafx.scene.text.GlyphList;
 import com.sun.javafx.scene.text.HitInfo;
