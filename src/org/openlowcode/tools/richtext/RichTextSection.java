@@ -158,4 +158,14 @@ public class RichTextSection {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "[" + (this.bullet ? "bullet " : "") + (this.italic ? "italic " : "") + (this.bold ? "bold " : "")
+				+ (this.sectiontitle ? "title " : "")
+				+ (this.specialcolor != null ? this.specialcolor : "DEFAULTCOLOR ")
+				+ RichTextArea.escapeforjavasource(this.text) + "]";
+
+	}
+
 }
