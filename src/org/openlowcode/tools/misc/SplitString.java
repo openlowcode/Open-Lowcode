@@ -78,26 +78,41 @@ public class SplitString {
 			}
 			if (currentchar == 10) { // \n
 				specialcharacter = true;
-				stringsplit.add(currentstring.toString());
-				transitions.add(new Boolean(lastsplitismajor));
-				lastsplitismajor = true;
-				lastisbackslashr = false;
-				currentstring = new StringBuffer();
-			}
-			if (!specialcharacter) {
+				
 				if (lastisbackslashr) {
+					// treats \r\n as a maj carriage return ()
+					stringsplit.add(currentstring.toString());
+					transitions.add(new Boolean(lastsplitismajor));
+					lastsplitismajor = true;
+					currentstring = new StringBuffer();
+					
+				} else {
+					// treats \n as minor carriage return (print as \n)
 					if (!onlymajor) {
 						stringsplit.add(currentstring.toString());
 						transitions.add(new Boolean(lastsplitismajor));
 						lastsplitismajor = false;
 						currentstring = new StringBuffer();
 					} else {
-						currentstring.append((char) '\r');
+						currentstring.append((char) '\n');
 					}
 				}
 				lastisbackslashr = false;
+			}
+			if (!specialcharacter) {
+				if (lastisbackslashr) {
+					// treats \r\n as a maj carriage return ()
+					specialcharacter = true;
+					stringsplit.add(currentstring.toString());
+					transitions.add(new Boolean(lastsplitismajor));
+					lastsplitismajor = true;
+					lastisbackslashr = false;
+					currentstring = new StringBuffer();
+			
+					
+				} 
 				currentstring.append((char) currentchar);
-
+				
 			}
 			if (currentchar == 13)
 				lastisbackslashr = true;

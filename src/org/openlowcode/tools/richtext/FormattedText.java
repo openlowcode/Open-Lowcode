@@ -28,11 +28,12 @@ import javafx.scene.paint.Color;
  *
  */
 public class FormattedText {
-	private RichTextSection section;
+
 	private Text text;
 	private boolean bold;
 	private boolean italic;
 	private boolean title;
+	private boolean bullet;
 	private Color specialcolor;
 
 	void setTitle(boolean title) {
@@ -40,16 +41,16 @@ public class FormattedText {
 		formatText();
 	}
 
+	/**
+	 * @return a newly generated rich text section
+	 */
 	RichTextSection getSection() {
-		return section;
+		java.awt.Color awtcolor=null;
+		if (specialcolor!=null) awtcolor = new java.awt.Color((float)specialcolor.getRed(),(float) specialcolor.getGreen(), (float)specialcolor.getBlue());
+		return new RichTextSection(title,bullet,italic,bold,awtcolor,text.getText());
 	}
 
-	/**
-	 * @param section
-	 */
-	public void setSection(RichTextSection section) {
-		this.section = section;
-	}
+	
 
 	/**
 	 * @param bold
@@ -133,7 +134,7 @@ public class FormattedText {
 	 * @param parent  parent paragraph
 	 */
 	public FormattedText(RichTextSection section, Paragraph parent) {
-		this.section = section;
+	
 		this.text = new Text(section.getText());
 
 		this.text.textProperty().addListener(new ChangeListener<String>() {
@@ -160,16 +161,20 @@ public class FormattedText {
 		this.bold = false;
 		this.italic = false;
 		this.title = false;
+		this.bullet=false;
+		
 		this.specialcolor = null;
-		if (this.section.isBold())
+		if (section.isBullet()) 
+			this.bullet=true;
+		if (section.isBold())
 			this.bold = true;
-		if (this.section.isItalic())
+		if (section.isItalic())
 			this.italic = true;
-		if (this.section.getSpecialcolor() != null) {
-			java.awt.Color awtcolor = this.section.getSpecialcolor();
+		if (section.getSpecialcolor() != null) {
+			java.awt.Color awtcolor = section.getSpecialcolor();
 			this.specialcolor = Color.rgb(awtcolor.getRed(), awtcolor.getGreen(), awtcolor.getBlue());
 		}
-		if (this.section.isSectiontitle())
+		if (section.isSectiontitle())
 			this.title = true;
 		formatText();
 
@@ -180,7 +185,6 @@ public class FormattedText {
 	 */
 	public void refreshText(String newtext) {
 		this.text = new Text(newtext);
-		section.setText(newtext);
 		formatText();
 	}
 
@@ -191,7 +195,7 @@ public class FormattedText {
 	 * @param selectedtext
 	 */
 	public FormattedText(FormattedText selectedtext, Paragraph parent) {
-		this(new RichTextSection(selectedtext.section), parent);
+		this(new RichTextSection(selectedtext.getSection()), parent);
 	}
 
 	/**

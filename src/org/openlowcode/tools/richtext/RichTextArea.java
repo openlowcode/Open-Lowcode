@@ -16,6 +16,8 @@ import javafx.scene.text.FontPosture;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import org.openlowcode.client.runtime.PageActionManager;
+import org.openlowcode.tools.misc.SplitString;
+
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -101,7 +103,7 @@ public class RichTextArea {
 			for (int i = 0; i < document.size(); i++) {
 				Paragraph currentparagraph = document.get(i);
 				if (previousparagraph!=null) if (previousparagraph.isNormal()) if (currentparagraph.isNormal()) {
-					answer.append("\n");
+					answer.append("\r\n");
 				}
 				answer.append(currentparagraph.dropText());
 				previousparagraph = currentparagraph;
@@ -329,7 +331,63 @@ public class RichTextArea {
 			
 			previousparagraph.moveCaretTo(previousparagraphsize);
 			logger.finest("    merge with previous, size = ("+previousparagraphsize+"/"+previousparagraph.getCharNb()+")");
+		} 
+	}
+	
+	/**
+	 * insert a multi-line split string at the current carret. Only works with SplitString with several sections
+	 * @param templatetext a FormattedText that has the target format for the inserted text
+	 * 
+	 * @param splistring a splitstring with 
+	 * @since 1.5
+	 */
+	void insertSplitStringAtCarret(SplitString splitstring, FormattedText templatetext) {
+		logger.finest("starting multiple split string insert, number of sections to insert = "+splitstring.getNumberOfSections()+", number of paragraphes before = "+this.document.size());
+		if (splitstring.getNumberOfSections()<2) throw new RuntimeException("Can only be used with splitstring with several sections");
+		// split section at current carret
+		Paragraph newprevious = activeparagraph.generateParagraphBeforeCarret();
+		Paragraph newnext = activeparagraph.generateParagraphAfterCarret();
+		
+		// add text before first carriage return to before section
+		newprevious.addTextAtEnd(splitstring.getSplitStringAt(0));
+		logger.finest("added text in new previous "+splitstring.getSplitStringAt(0));
+		// if intermediate,add each intermediate at standaalone with previous section formatting
+		ArrayList<Paragraph> middleparagraphestoadd = new ArrayList<Paragraph>();
+		for (int i=1;i<splitstring.getNumberOfSections()-1;i++) {
+			Paragraph paragraph = new Paragraph(this.richtext,this.editable, this);
+			FormattedText formattedtext = new FormattedText(templatetext,paragraph);
+			formattedtext.refreshText(splitstring.getSplitStringAt(i));
+			paragraph.addText(formattedtext);
+			middleparagraphestoadd.add(paragraph);
 		}
+		// add last text to the section after caret
+		newnext.addTextAtStart(splitstring.getSplitStringAt(splitstring.getNumberOfSections()-1));
+		logger.finest("added text in new next "+splitstring.getSplitStringAt(splitstring.getNumberOfSections()-1));
+		// remove old paragraph
+		int activeparagraphindex = getActiveParagraphIndex();
+		document.remove(activeparagraphindex);
+		paragraphbox.getChildren().remove(activeparagraphindex);
+		// insert all new paragraphes
+		document.add(activeparagraphindex, newprevious);
+		paragraphbox.getChildren().add(activeparagraphindex, newprevious.getNode());
+		logger.finest("Adding previous, size="+document.size());
+		for (int i=0;i<middleparagraphestoadd.size();i++) {
+			document.add(activeparagraphindex+i+1, middleparagraphestoadd.get(i));
+			paragraphbox.getChildren().add(activeparagraphindex+i+1, middleparagraphestoadd.get(i).getNode());
+			logger.finest("Adding middleparagraph, size = "+document.size());
+		}
+		document.add(activeparagraphindex+middleparagraphestoadd.size()+1, newnext);
+		paragraphbox.getChildren().add(activeparagraphindex+middleparagraphestoadd.size()+1, newnext.getNode());
+		logger.finest("Adding next, size="+document.size());
+		
+		// set the newnext at active and display caret
+		activeparagraph = newnext;
+		this.redrawActiveParagraph();
+		newnext.displayCaretAt(splitstring.getSplitStringAt(splitstring.getNumberOfSections()-1).length());
+		
+		this.paragraphbox.layout();
+		logger.finest("ending multiple string insert, number of paragraphes after = "+this.document.size());
+		
 	}
 	
 	/**
@@ -638,8 +696,8 @@ public class RichTextArea {
 						logger.warning("Error while executing clear " + e.getMessage());
 						for (int i = 0; i < e.getStackTrace().length; i++)
 							logger.warning("  " + e.getStackTrace()[i]);
-						;
-						pageactionmanager.getClientSession().getActiveClientDisplay()
+						
+						if (pageactionmanager!=null)pageactionmanager.getClientSession().getActiveClientDisplay()
 								.updateStatusBar("Error while executing clear " + e.getMessage(), true);
 					}
 				}
@@ -657,14 +715,14 @@ public class RichTextArea {
 						final ClipboardContent content = new ClipboardContent();
 						content.putString(source);
 						Clipboard.getSystemClipboard().setContent(content);
-						pageactionmanager.getClientSession().getActiveClientDisplay()
+						if (pageactionmanager!=null) pageactionmanager.getClientSession().getActiveClientDisplay()
 								.updateStatusBar("text source copied to clipboard, size = " + source.length() + "ch");
 					} catch (Exception e) {
 						logger.warning("Error while executing export source " + e.getMessage());
 						for (int i = 0; i < e.getStackTrace().length; i++)
 							logger.warning("  " + e.getStackTrace()[i]);
 						;
-						pageactionmanager.getClientSession().getActiveClientDisplay()
+						if (pageactionmanager!=null) pageactionmanager.getClientSession().getActiveClientDisplay()
 								.updateStatusBar("Error while executing export source " + e.getMessage(), true);
 					}
 
@@ -672,7 +730,9 @@ public class RichTextArea {
 
 			});
 			contextmenu.getItems().add(exportsource);
-
+			
+			
+			
 			MenuItem exportsourceescape = new MenuItem("Export Source (Dev)");
 			exportsourceescape.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -702,6 +762,39 @@ public class RichTextArea {
 			});
 			contextmenu.getItems().add(exportsourceescape);
 
+			MenuItem exportparagraphescape = new MenuItem("Export Paragraphs (Dev)");
+			exportparagraphescape.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent arg0) {
+					try {
+						StringBuffer exportcontent = new StringBuffer();
+						for (int i=0;i<RichTextArea.this.document.size();i++) {
+							Paragraph currentparagraph = RichTextArea.this.document.get(i);
+							exportcontent.append(">>> >>> PARAGRAPH "+i+", title = "+currentparagraph.isTitle()+", bullet = "+currentparagraph.isBulletPoint()+"\n");
+							for (int j=0;j<currentparagraph.getTextNumber();j++) {
+								FormattedText thistext = currentparagraph.getFormattedText(j);
+								exportcontent.append("   --- Formatted Text bold = "+thistext.isBold()+", italic = "+thistext.isItalic()+", color = "+thistext.getSpecialcolor()+"\n");
+								exportcontent.append("        |"+RichTextArea.escapeforjavasource(thistext.getTextPayload())+"\n");
+							}
+						}
+						final ClipboardContent content = new ClipboardContent();
+						content.putString(exportcontent.toString());
+						Clipboard.getSystemClipboard().setContent(content);
+					} catch (Exception e) {
+						logger.warning("Error while executing export Paragraphs " + e.getMessage());
+						for (int i = 0; i < e.getStackTrace().length; i++)
+							logger.warning("  " + e.getStackTrace()[i]);
+						;
+						if (pageactionmanager != null)
+							pageactionmanager.getClientSession().getActiveClientDisplay()
+									.updateStatusBar("Error while executing export source " + e.getMessage(), true);
+					}
+				}
+				
+			});
+			contextmenu.getItems().add(exportparagraphescape);
+			
 			area.setTop(toolbar);
 
 		}

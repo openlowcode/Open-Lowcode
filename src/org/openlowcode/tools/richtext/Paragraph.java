@@ -16,6 +16,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import org.openlowcode.tools.misc.SplitString;
+
 import javafx.concurrent.Task;
 import com.sun.javafx.scene.text.GlyphList;
 import com.sun.javafx.scene.text.HitInfo;
@@ -107,6 +109,25 @@ public class Paragraph {
 	private boolean title;
 
 	/**
+	 * @return the number of FormattedText sections in this paragraph
+	 * @since 1.5
+	 */
+	public int getTextNumber() {
+		return textlist.size();
+	}
+
+	/**
+	 * gets the formatted text at the given section
+	 * 
+	 * @param index index between 0 (included) and getTextNumber (excluded)
+	 * @return the formatted text at the given section
+	 * @since 1.5
+	 */
+	public FormattedText getFormattedText(int index) {
+		return textlist.get(index);
+	}
+
+	/**
 	 * this field will be true when a drag is active on the component. This is to
 	 * avoid to lose the drag when focused is lost. This case happens when trying to
 	 * select a second list of text while
@@ -154,13 +175,14 @@ public class Paragraph {
 
 	/**
 	 * gets the selection index in text flow
+	 * 
 	 * @return the selection in the current text flow
 	 * @since 1.5
 	 */
 	public int getSelectionInTextFlow() {
 		return this.selectionintextflow;
 	}
-	
+
 	/**
 	 * sets the carret at the first character of this paragraph
 	 */
@@ -215,6 +237,16 @@ public class Paragraph {
 	void addText(FormattedText text) {
 		textlist.add(text);
 		textflow.getChildren().add(text.getNode());
+	}
+
+	public void addTextAtStart(String texttoadd) {
+		if (textlist.size() > 0)
+			textlist.get(0).setString(texttoadd + textlist.get(0).getTextPayload());
+	}
+
+	public void addTextAtEnd(String texttoadd) {
+		if (textlist.size() > 0)
+			textlist.get(textlist.size() - 1).setString(textlist.get(textlist.size() - 1).getTextPayload() + texttoadd);
 	}
 
 	private RichTextArea parent;
@@ -989,19 +1021,20 @@ public class Paragraph {
 						if (!istreated)
 							if ((iscarriagereturn) && (!keyevent.isShiftDown())) {
 								// normal paragraph and real carriage return: create new paragraph
-								if (richtext) if (parent.okToAdd(4)) {
-									parent.splitparagraphatcurrentchar();
-									parent.redrawActiveParagraph();
-									istreated = true;
-								}
-								
+								if (richtext)
+									if (parent.okToAdd(4)) {
+										parent.splitparagraphatcurrentchar();
+										parent.redrawActiveParagraph();
+										istreated = true;
+									}
+
 							}
 
 						if (!istreated) {
 							String character = keyevent.getCharacter();
 							if ((iscarriagereturn) && (keyevent.isShiftDown())) {
-								logger.finest("Adding backslash R");
-								character = "\r";
+								logger.finest("Adding backslash n");
+								character = "\n";
 							}
 
 							QualifiedCaretPosition caretposition = getTextAtCaret();
@@ -1045,7 +1078,7 @@ public class Paragraph {
 				}
 				FormattedText thistext = caretposition.selectedtext;
 				if (keyevent.getCode().equals(KeyCode.DELETE)) {
-
+					logger.finest("Press DELETE");
 					if ((caretposition.localcaretindex >= 0)
 							&& (caretposition.localcaretindex < thistext.getTextPayload().length() - 1)) {
 						logger.finest("processing DELETE event at index " + selectionintextflow);
@@ -1057,52 +1090,10 @@ public class Paragraph {
 					}
 				}
 				if (keyevent.getCode().equals(KeyCode.BACK_SPACE)) {
-					logger.finest("             - BACKSPACE detected");
-					if ((caretposition.localcaretindex > 0)) {
-						logger.finest(
-								"processing BACKSPACE event for text '" + thistext.getTextPayload() + "' at index "
-										+ selectionintextflow + ", localcaretindex = " + caretposition.localcaretindex);
+					logger.finest("             - BACKSPACE detected at index " + caretposition.localcaretindex);
+					processBackSpace(caretposition, thistext);
+					keyevent.consume();
 
-						String textbefore = thistext.getTextPayload().substring(0, caretposition.localcaretindex - 1);
-
-						String textafter = thistext.getTextPayload().substring(caretposition.localcaretindex);
-
-						thistext.setString(textbefore + textafter);
-						keyevent.consume();
-						selectionintextflow--;
-						displayCaretAt(selectionintextflow);
-						logger.finest("             - BACKSPACE inside section");
-
-					}
-					if ((caretposition.localcaretindex == 0)
-							&& (Paragraph.this.getCharNb()>0)) {
-						// merging the current section in the previous section.
-						RichTextArea parent = Paragraph.this.parent;
-						parent.mergeCurrentParagraphWithPrevious();
-						logger.finest("             - BACKSPACE at first position with content");
-					}
-					if ((caretposition.localcaretindex == 0)
-							&& (Paragraph.this.getCharNb() == 0)) {
-						logger.finest("             - BACKSPACE at first position without content");
-						for (int i=0;i<Paragraph.this.textlist.size();i++) {
-							boolean selected=false;
-							FormattedText debugtext = Paragraph.this.textlist.get(i);
-							if (debugtext==caretposition.selectedtext) selected=true;
-							logger.finest("                     >"+i+":"+debugtext.getTextPayload()+(selected?" SELECTED":""));
-						}
-						int index = caretposition.formattedtextindex;
-						logger.finest("processing BACKSPACE of empty section for index = " + index);
-						if (textlist.size() > 1) {
-
-							textlist.remove(index);
-							textflow.getChildren().remove(index);
-
-							displayCaretAt(selectionintextflow);
-						}
-						if (textlist.size() == 1) {
-							parent.deleteActiveParagraphIfNotLast();
-						}
-					}
 				}
 				// simple right: move cursor
 				if ((keyevent.getCode().equals(KeyCode.LEFT)) && (!keyevent.isControlDown())) {
@@ -1209,18 +1200,38 @@ public class Paragraph {
 
 					if (clipboardcontent != null) {
 						if (parent.okToAdd(clipboardcontent.length())) {
-							
-								// processing non rich text, put all text
+							boolean complex = false;
+							logger.finest("Starting to add clipboard stuff");
+							if (parent.isRichtext()) {
+								logger.finest("clipboard content '" + RichTextArea.escapeforjavasource(clipboardcontent)
+										+ "'");
+								SplitString splitstring = new SplitString(clipboardcontent, true);
+								logger.finest(" ----- Rich String, number of sections = "
+										+ splitstring.getNumberOfSections() + " --- ");
+								for (int i = 0; i < splitstring.getNumberOfSections(); i++)
+									logger.finest("                 |" + splitstring.getTransitionAt(i) + "| "
+											+ splitstring.getSplitStringAt(i));
+								logger.finest(" ---------------------------------------------------------------");
+								if (splitstring.getNumberOfSections() > 1) {
+									parent.insertSplitStringAtCarret(splitstring, thistext);
+									complex = true;
+								}
+
+							}
+
+							if (!complex) {
+								logger.finest("Non complex processing");
+								// processing if non rich-text, or if rich text with no carriage return
 								String concatenatestring = currenttext.substring(0, caretposition.localcaretindex)
 										+ clipboardcontent
 										+ (currenttext.length() > caretposition.localcaretindex
 												? currenttext.substring(caretposition.localcaretindex)
-														: "");
+												: "");
 								thistext.setString(concatenatestring);
 								selectionintextflow += clipboardcontent.length();
 								displayCaretAt(selectionintextflow);
-							
-							
+							}
+
 						} else {
 							parent.getPageActionManager().getClientSession().getActiveClientDisplay()
 									.updateStatusBar("Warning: you tried to paste a string of "
@@ -1235,6 +1246,122 @@ public class Paragraph {
 
 		});
 
+	}
+
+	/**
+	 * process all cases of a backspace
+	 * 
+	 * @param caretposition caret position
+	 * @param thistext      current text
+	 * @since 1.5
+	 */
+	protected void processBackSpace(QualifiedCaretPosition caretposition, FormattedText thistext) {
+		logger.finest("processing BACKSPACE event for text '" + thistext.getTextPayload() + "' at index "
+				+ selectionintextflow + ", localcaretindex = " + caretposition.localcaretindex);
+		if ((caretposition.localcaretindex > 0)) {
+			// ---------------- Manage caret position not at the start of a section
+			String textbefore = thistext.getTextPayload().substring(0, caretposition.localcaretindex - 1);
+			String textafter = thistext.getTextPayload().substring(caretposition.localcaretindex);
+
+			if (textbefore.length() + textafter.length() > 0) {
+				thistext.setString(textbefore + textafter);
+				selectionintextflow--;
+				displayCaretAt(selectionintextflow);
+
+			} else {
+				// deleted the last character of a formatted text, remove the formatted text
+				int index = caretposition.formattedtextindex;
+				if (textlist.size() > 1) {
+					textlist.remove(index);
+					textflow.getChildren().remove(index);
+					selectionintextflow--;
+					displayCaretAt(selectionintextflow);
+					logger.finest("             - BACKSPACE inside section, section is now null, removed");
+				} else {
+					logger.finest(
+							"             - BACKSPACE inside section, section is now  null, last section, just empty it");
+					thistext.setString(textbefore + textafter);
+					selectionintextflow--;
+					displayCaretAt(selectionintextflow);
+				}
+			}
+
+		} else {
+			// ---------------- Manage caret position at the start of a text section
+			// ---------------------
+
+			// ---------------- First paragraph: merge with previous
+			// --------------------------------
+			if (caretposition.formattedtextindex == 0) {
+				RichTextArea parent = Paragraph.this.parent;
+				parent.mergeCurrentParagraphWithPrevious();
+				logger.finest("             - BACKSPACE at first position in paragraph, merge with previous");
+			} else {
+				// ----------- Go as much as necessary back until character is removed
+				// -----------------
+				int index = caretposition.formattedtextindex;
+				if (selectionintextflow == 0) {
+					for (int i = 0; i < index; i++) {
+						// remove 0 as each time, section to remove goes back to zero
+						textlist.remove(0);
+						textflow.getChildren().remove(0);
+					}
+					displayCaretAt(selectionintextflow);
+					// rare situation with parasite empty sections, remove all sections
+					logger.finest("                  - remove parasite sections");
+				} else {
+					logger.finest(
+							"                  - starting processing remove empty section until content is found");
+					// remove empty section until section with content is found
+					int currentindex = index - 1;
+					while (textlist.get(currentindex).getTextPayload().length() == 0) {
+						textlist.remove(currentindex);
+						textflow.getChildren().remove(currentindex);
+						logger.finest("                                    * remove empty section " + currentindex);
+						currentindex--;
+					}
+					logger.finest("                                      * remove one char at section " + currentindex);
+					FormattedText text = textlist.get(currentindex);
+					text.setString(text.getTextPayload().substring(0, text.getTextPayload().length() - 1));
+					selectionintextflow--;
+					displayCaretAt(selectionintextflow);
+
+				}
+
+			}
+
+			if ((caretposition.formattedtextindex > 0)) {
+				// merging the current section in the previous section.
+				RichTextArea parent = Paragraph.this.parent;
+				parent.mergeCurrentParagraphWithPrevious();
+				logger.finest("             - BACKSPACE at first position with content");
+			} else {
+
+				if ((caretposition.localcaretindex == 0) && (Paragraph.this.getCharNb() == 0)) {
+					logger.finest("             - BACKSPACE at first position without content");
+					for (int i = 0; i < Paragraph.this.textlist.size(); i++) {
+						boolean selected = false;
+						FormattedText debugtext = Paragraph.this.textlist.get(i);
+						if (debugtext == caretposition.selectedtext)
+							selected = true;
+						logger.finest("                     >" + i + ":" + debugtext.getTextPayload()
+								+ (selected ? " SELECTED" : ""));
+					}
+					int index = caretposition.formattedtextindex;
+					logger.finest("processing BACKSPACE of empty section for index = " + index);
+					if (textlist.size() > 1) {
+
+						textlist.remove(index);
+						textflow.getChildren().remove(index);
+
+						displayCaretAt(selectionintextflow);
+					}
+					if (textlist.size() == 1) {
+						parent.deleteActiveParagraphIfNotLast();
+					}
+				}
+			}
+		}
 	}
 
 	protected void hideSelection() {
@@ -1605,9 +1732,17 @@ public class Paragraph {
 		}
 	}
 
+	/**
+	 * Generate a paragraph with half of the content of existing paragraph. It is
+	 * assumed the existing paragraph will be removed
+	 * 
+	 * @return a paragraph with all content before the carret.
+	 * @since 1.5
+	 */
 	public Paragraph generateParagraphBeforeCarret() {
 		QualifiedCaretPosition caretposition = getTextAtCaret();
 		Paragraph returnparagraph = new Paragraph(richtext, editable, parent);
+
 		// getting all formatted text before
 		if (caretposition.formattedtextindex != 0) {
 
@@ -1617,21 +1752,32 @@ public class Paragraph {
 		}
 		FormattedText selectedtext = caretposition.selectedtext;
 		String text = selectedtext.getTextPayload();
-		FormattedText cuttext = new FormattedText(selectedtext.getSection(), this);
-		cuttext.setString(text.substring(0, caretposition.localcaretindex));
+		logger.finest("creating cut section text afer with formatting = " + selectedtext.getSection());
+		RichTextSection cutsectiontext = new RichTextSection(selectedtext.getSection());
+		cutsectiontext.setText(text.substring(0, caretposition.localcaretindex));
+		FormattedText cuttext = new FormattedText(cutsectiontext, this);
 		returnparagraph.addText(cuttext);
 		return returnparagraph;
 	}
 
+	/**
+	 * Generate a paragraph with half of the content of existing paragraph. It is
+	 * assumed the existing paragraph will be removed
+	 * 
+	 * @return a paragraph with all content before the carret.
+	 * @since 1.5
+	 */
 	public Paragraph generateParagraphAfterCarret() {
 		QualifiedCaretPosition caretposition = getTextAtCaret();
 		Paragraph returnparagraph = null;
 
 		FormattedText selectedtext = caretposition.selectedtext;
 		String text = selectedtext.getTextPayload();
-
+		logger.finest("creating cut section text afer with formatting = " + selectedtext.getSection());
+		RichTextSection cutsectiontext = new RichTextSection(selectedtext.getSection());
 		returnparagraph = new Paragraph(richtext, editable, parent);
-		FormattedText cuttext = new FormattedText(selectedtext.getSection(), this);
+		FormattedText cuttext = new FormattedText(cutsectiontext, this);
+
 		if (caretposition.localcaretindex + 1 < text.length()) {
 			cuttext.setString(text.substring(caretposition.localcaretindex));
 		} else {
@@ -1770,6 +1916,20 @@ public class Paragraph {
 		logger.finer("	** --- ending generate paragraph between breaks, text = [" + cuttextpayload + "] ---");
 
 		return returnparagraph;
+	}
+
+	/**
+	 * @return true if paragraph is title
+	 */
+	public boolean isTitle() {
+		return title;
+	}
+
+	/**
+	 * @return true if paragraph is bullet point
+	 */
+	public boolean isBulletPoint() {
+		return bulletpoint;
 	}
 
 	/**

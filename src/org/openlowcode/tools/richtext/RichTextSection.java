@@ -50,6 +50,25 @@ public class RichTextSection {
 		this();
 		this.setText(text);
 	}
+	
+	/**
+	 * Create a rich text section by giving directly all parameters at once
+	 * @param sectiontitle is section title
+	 * @param bullet is bullet
+	 * @param italic is italic (bullet and title should not be italic)
+	 * @param bold is bold (bullet and title should not be bold)
+	 * @param specialcolor (should not be used for bullet and title)
+	 * @param text text to print
+	 * @since 1.5
+	 */
+	public RichTextSection(boolean sectiontitle,boolean bullet,boolean italic,boolean bold,Color specialcolor,String text) {
+		this.sectiontitle = sectiontitle;
+		this.italic = italic;
+		this.bold = bold;
+		this.bullet = bullet;
+		this.specialcolor = specialcolor;
+		this.text = text;
+	}
 
 	/**
 	 * creates a default text rich text section
