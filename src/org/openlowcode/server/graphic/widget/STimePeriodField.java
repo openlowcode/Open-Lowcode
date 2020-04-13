@@ -145,7 +145,7 @@ public class STimePeriodField extends SPageNode implements SDefaultPath {
 	}
 
 	/**
-	 * @return the data hold in the field, to be used as input paramter for an
+	 * @return the data hold in the field, to be used as input paramater for an
 	 *         action
 	 */
 	public Function<SActionInputDataRef<TimePeriodDataEltType>, SActionDataLoc<TimePeriodDataEltType>> getTimePeriodInput() {
