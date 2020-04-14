@@ -222,7 +222,9 @@ public class OLcClient
 				case "ACHART":
 					answer = new CAreaChart(reader, path);
 					break;
-
+				case "TRE":
+					answer = new CTimeRangeEntry(reader,path);
+					break;
 				default:
 					throw new RuntimeException(String.format(
 							"no valid component found for CSP Node parsing, node = '" + structure + "' %s ",

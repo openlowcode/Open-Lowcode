@@ -67,8 +67,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Window;
 
 /**
- * A field to show and update a time period, either to be used standalone or as
- * part of the data object
+ * A field to show and update a time period (in the sense of accounting time
+ * period: year, quarter, month..., either to be used standalone or as part of
+ * the data object
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
