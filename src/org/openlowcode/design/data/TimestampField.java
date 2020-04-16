@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.design.pages.SearchWidgetDefinition;
 
 /**
  * A field holding a timestamp in a data object
@@ -25,13 +26,25 @@ public class TimestampField
 		extends
 		Field {
 	private int indextype;
+	/**
+	 * no index, and the field is not searchable
+	 */
 	public static int INDEXTYPE_NONE = 0;
+	/**
+	 * 
+	 */
 	public static int INDEXTYPE_RAWINDEX = 2;
+	/**
+	 * 
+	 * @since 1.6
+	 */
+	public static int INDEXTYPE_RAWINDEXWITHSEARCH = 3;
 	private boolean timeedit;
 	private TimestampStoredElement field;
 
 	/**
-	 * Creates a timestamp field with no time edit and no search index and default priority
+	 * Creates a timestamp field with no time edit and no search index and default
+	 * priority
 	 * 
 	 * @param name        unique name for the data object (should be a valid java
 	 *                    and sql field name
@@ -44,15 +57,20 @@ public class TimestampField
 		super(name, displayname, tooltip);
 		this.indextype = indextype;
 		field = new TimestampStoredElement(getName());
-		this.addElement(field);
-		if (this.indextype == INDEXTYPE_RAWINDEX) {
+		if (this.indextype == INDEXTYPE_RAWINDEXWITHSEARCH) {
+			this.AddElementWithSearch(field, new SearchWidgetDefinition(true, this.getName(), this.getDisplayname(),
+					SearchWidgetDefinition.TYPE_DATE, SearchWidgetDefinition.POSTTREATMENT_NONE));
+		} else {
+			this.addElement(field);
+		}
+		if ((this.indextype == INDEXTYPE_RAWINDEX) || (this.indextype == INDEXTYPE_RAWINDEXWITHSEARCH)) {
 			this.addIndex(new Index("RAWSEARCH", field, false));
 		}
 		this.timeedit = false;
 	}
 
 	/**
-	 * creates a timestamp field  with no time edit
+	 * creates a timestamp field with no time edit
 	 * 
 	 * @param name            unique name for the data object (should be a valid
 	 *                        java and sql field name
