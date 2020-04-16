@@ -522,11 +522,11 @@ public class SystemModule
 
 		this.usersession = new DataObjectDefinition("usersession", "User Session", this, true);
 		usersession.addField(new TimestampField("STARTTIME", "Session start", "the server time the session was opened",
-				TimestampField.INDEXTYPE_RAWINDEX));
+				TimestampField.INDEXTYPE_RAWINDEXWITHSEARCH));
 		usersession.addField(new TimestampField("ENDTIME", "Session end", "the server time the session was ended",
 				TimestampField.INDEXTYPE_NONE));
 		usersession.addField(new TimestampField("LASTACTION", "Last action",
-				"the last time a request was made to server for this session", TimestampField.INDEXTYPE_NONE));
+				"the last time a request was made to server for this session", TimestampField.INDEXTYPE_RAWINDEXWITHSEARCH));
 		usersession
 				.addField(new IntegerField("ACTIONS", "Action number", "the number of interactions with the server"));
 		usersession.addField(new StringField("CLIENTIP", "Client IP", "the IP of the client as visible from the server",
