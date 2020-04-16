@@ -910,8 +910,7 @@ public abstract class Property<E extends Property<E>>
 	 * @param e                    element to store
 	 * @param display              display label
 	 * @param tooltip              tooltip for roll-over mouse
-	 * @param fielddisplaymode     the type of display as defined in the class
-	 *                             PropertyElementDisplayDefinition
+	 * @param fielddisplaymode     the type of display as defined in this class
 	 * @param fielddisplaypriority priority display
 	 * @param showcaractersintable number of characters of width of the column
 	 * @param searchdef            definition of the search widget

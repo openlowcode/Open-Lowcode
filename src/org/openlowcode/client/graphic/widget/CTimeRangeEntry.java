@@ -178,10 +178,10 @@ public class CTimeRangeEntry
 				TimeRangeSlot compactvalue = defaultchoicebox.getValue();
 				if (compactvalue != null)
 					return new DateDataElt(eltname, compactvalue.startdategenerator.get());
-				return null;
+				return new DateDataElt(eltname,null);
 			} else {
 				if (startdatepicker.getDateTimeValue() == null)
-					return null;
+					return new DateDataElt(eltname,null);
 				return new DateDataElt(eltname,
 						Date.from(startdatepicker.getDateTimeValue().atZone(ZoneId.systemDefault()).toInstant()));
 			}
@@ -191,10 +191,10 @@ public class CTimeRangeEntry
 				TimeRangeSlot compactvalue = defaultchoicebox.getValue();
 				if (compactvalue != null)
 					return new DateDataElt(eltname, compactvalue.enddategenerator.get());
-				return null;
+				return new DateDataElt(eltname,null);
 			} else {
 				if (enddatepicker.getDateTimeValue() == null)
-					return null;
+					return new DateDataElt(eltname,null);
 				return new DateDataElt(eltname,
 						Date.from(enddatepicker.getDateTimeValue().atZone(ZoneId.systemDefault()).toInstant()));
 			}

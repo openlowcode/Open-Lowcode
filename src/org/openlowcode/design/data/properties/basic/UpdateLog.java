@@ -22,6 +22,7 @@ import org.openlowcode.design.data.StoredElement;
 import org.openlowcode.design.data.TimestampStoredElement;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.design.pages.SearchWidgetDefinition;
 import org.openlowcode.module.system.design.SystemModule;
 
 /**
@@ -65,7 +66,9 @@ public class UpdateLog
 		this.addElement(updateuser);
 		this.addIndex(new Index("UPDATEUSER", updateuser, false));
 		StoredElement updatetime = new TimestampStoredElement("UPDATETIME");
-		this.addElement(updatetime);
+		this.addElementasSearchElement(updatetime, "Updated on", "", FIELDDISPLAY_NORMAL, -150, 30, 
+				new SearchWidgetDefinition(true,"UPDATETIME", "Updated on",SearchWidgetDefinition.TYPE_DATE, SearchWidgetDefinition.POSTTREATMENT_NONE));
+	
 		this.addIndex(new Index("UPDATETIME", updatetime, false));
 	}
 

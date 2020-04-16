@@ -115,13 +115,13 @@ public class UpdatelogDefinition<E extends DataObject<E>>
 				"Technical id of the user who created the object", updateuserid, false, true, -160, 20,
 				this.parentobject);
 		if (this.fieldsinbottomnotes)
-			returnvalue[1] = new FieldSchemaForDisplay<E>("Update Time", "Time the object has been created", updatetime,
+			returnvalue[1] = new FieldSchemaForDisplay<E>("Updated on", "Time the object has been updated for the last time", updatetime,
 					false, true, -150, 30, this.parentobject);
 		if (this.fieldsintitle)
-			returnvalue[1] = new FieldSchemaForDisplay<E>("Update Time", "Time the object has been created", updatetime,
+			returnvalue[1] = new FieldSchemaForDisplay<E>("Updated on", "Time the object has been updated for the last time", updatetime,
 					true, false, -150, 30, this.parentobject);
 		if (!((this.fieldsinbottomnotes) || (this.fieldsintitle)))
-			returnvalue[1] = new FieldSchemaForDisplay<E>("Update Time", "Time the object has been created", updatetime,
+			returnvalue[1] = new FieldSchemaForDisplay<E>("Updated on", "Time the object has been updated for the last time", updatetime,
 					false, false, -150, 30, this.parentobject);
 		return returnvalue;
 	}

@@ -1237,8 +1237,15 @@ public class DataObjectDefinitionShowPage
 					SearchWidgetDefinition searchwidget = leftlinkedproperty.getRightObjectForLink()
 							.getSearchWidgets()[j];
 					if (searchwidget.getFieldname().compareTo("NR") != 0)
+						if (searchwidget.getType()!=SearchWidgetDefinition.TYPE_DATE) {
 						sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
 								+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "(null);");
+						} else {
+							sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
+									+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "from(null);");
+							sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
+									+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "to(null);");
+						}
 				}
 
 				sg.wl("				addtoleft" + linkobjectvariable + "ssearcher.setSearchInlineOutput(AtgSearchright"

@@ -39,6 +39,12 @@ public class SearchWidgetDefinition {
 	 * performs a post treatment for easy text search
 	 */
 	public static int POSTTREATMENT_EASYTEXTSEARCH = 1;
+
+	public static int TYPE_TEXT = 100;
+	public static int TYPE_DATE = 101;
+	public static int TYPE_CHOICE = 102;
+	public static int TYPE_TIMEPERIOD = 103;
+
 	private ChoiceCategory multiplechoicecategory = null;
 
 	/**
@@ -47,7 +53,15 @@ public class SearchWidgetDefinition {
 	 */
 	private boolean choicesearchinstring;
 	private PeriodType periodtype;
+	private int type;
 
+	/**
+	 * @return the type of search widget (defined as a static int)
+	 */
+	public int getType() {
+		return this.type;
+	}
+	
 	/**
 	 * @return true if the search is using a choice
 	 */
@@ -71,6 +85,7 @@ public class SearchWidgetDefinition {
 		this.fieldname = fieldname;
 		this.displayname = displayname;
 		this.posttreatment = POSTTREATMENT_NONE;
+		this.type = TYPE_TEXT;
 	}
 
 	/**
@@ -90,6 +105,7 @@ public class SearchWidgetDefinition {
 		this.fieldname = fieldname;
 		this.displayname = displayname;
 		this.posttreatment = posttreatment;
+		this.type = TYPE_TEXT;
 	}
 
 	/**
@@ -138,6 +154,30 @@ public class SearchWidgetDefinition {
 	}
 
 	/**
+	 * Creates a search widget definition for a specified type (in practice text or
+	 * date)
+	 * 
+	 * @param primary       true if the element should be shown as primary, false if
+	 *                      the field should be shown in the collapsible part of the
+	 *                      search screen
+	 * @param fieldname     name of the field (should be unique for the object)
+	 * @param displayname   the display name if the name of the element should be
+	 *                      overridden, null else
+	 * @param type          type of field as defined in a static int in this class
+	 * @param posttreatment post treatment as defined in a static int in this class
+	 * @since 1.6
+	 */
+	public SearchWidgetDefinition(boolean primary, String fieldname, String displayname, int type, int posttreatment) {
+		super();
+		this.primary = primary;
+		this.fieldname = fieldname;
+		this.displayname = displayname;
+		this.type = type;
+		this.posttreatment = posttreatment;
+
+	}
+
+	/**
 	 * @return get the period type if the search widget is a time period
 	 */
 	public PeriodType getPeriodType() {
@@ -168,6 +208,7 @@ public class SearchWidgetDefinition {
 		this.posttreatment = POSTTREATMENT_NONE;
 		this.multiplechoicecategory = multiplechoicecategory;
 		this.choicesearchinstring = searchasstring;
+		this.type = TYPE_CHOICE;
 	}
 
 	/**
@@ -189,6 +230,7 @@ public class SearchWidgetDefinition {
 		this.primary = primary;
 		this.displayname = null;
 		this.posttreatment = POSTTREATMENT_NONE;
+		this.type = TYPE_TEXT;
 	}
 
 	/**
@@ -227,7 +269,6 @@ public class SearchWidgetDefinition {
 		return posttreatment;
 	}
 
-	
 	/**
 	 * @return the element the search widget is refering to
 	 */

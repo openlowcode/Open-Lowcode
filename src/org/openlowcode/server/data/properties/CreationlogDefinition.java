@@ -103,13 +103,13 @@ public class CreationlogDefinition<E extends DataObject<E>> extends DataObjectPr
 				"Technical id of the user who created the object", createuserid, false, true, -140, 20,
 				this.parentobject);
 		if (this.fieldsinbottomnotes)
-			returnvalue[1] = new FieldSchemaForDisplay<E>("Create Time", "Time the object has been created", createtime,
+			returnvalue[1] = new FieldSchemaForDisplay<E>("Created on", "Time the object has been created", createtime,
 					false, true, -130, 30, this.parentobject);
 		if (this.fieldsintitle)
-			returnvalue[1] = new FieldSchemaForDisplay<E>("Create Time", "Time the object has been created", createtime,
+			returnvalue[1] = new FieldSchemaForDisplay<E>("Created on", "Time the object has been created", createtime,
 					true, false, 6, 30, this.parentobject);
 		if (!((this.fieldsinbottomnotes) || (this.fieldsintitle)))
-			returnvalue[1] = new FieldSchemaForDisplay<E>("Create Time", "Time the object has been created", createtime,
+			returnvalue[1] = new FieldSchemaForDisplay<E>("Created on", "Time the object has been created", createtime,
 					false, false, -130, 30, this.parentobject);
 		return returnvalue;
 	}

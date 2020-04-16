@@ -22,6 +22,7 @@ import org.openlowcode.design.data.StoredElement;
 import org.openlowcode.design.data.TimestampStoredElement;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.design.pages.SearchWidgetDefinition;
 import org.openlowcode.module.system.design.SystemModule;
 
 /**
@@ -59,7 +60,8 @@ public class CreationLog
 		this.addElement(createuser);
 		this.addIndex(new Index("CREATEUSER", createuser, false));
 		StoredElement creationtime = new TimestampStoredElement("CREATETIME");
-		this.addElement(creationtime);
+		this.addElementasSearchElement(creationtime, "Created on", "", FIELDDISPLAY_NORMAL, -130, 30, 
+				new SearchWidgetDefinition(true,"CREATETIME", "Created On",SearchWidgetDefinition.TYPE_DATE, SearchWidgetDefinition.POSTTREATMENT_NONE));
 		this.addIndex(new Index("CREATETIME", creationtime, false));
 
 	}
