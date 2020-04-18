@@ -181,10 +181,10 @@ public interface PersistentStorage {
 	public void extendField(StoredTableSchema object, int fieldindex);
 
 	/**
-	 * @param name
-	 * @param object
-	 * @param fields
-	 * @param unique
+	 * @param name name of the index
+	 * @param object table of the database the index applies to
+	 * @param fields list of fields (in the index order)
+	 * @param unique true if index is unique
 	 */
 	public void createSearchIndex(String name, StoredTableSchema object, StoredFieldSchema[] fields, boolean unique);
 
