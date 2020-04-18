@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -11,6 +11,7 @@
 package org.openlowcode.server.data.storage;
 
 import java.util.Date;
+
 
 
 /**
@@ -77,5 +78,8 @@ public class TimestampStoredField extends StoredFieldSchema<Date> {
 	public Date defaultValueAtColumnCreation() {
 		return this.defaulttimestamp;
 	}
-	
+	@Override
+	public <F> F accept(TestVisitor<F> visitor) {
+		return visitor.visit(this);
+	}
 }

@@ -44,6 +44,7 @@ import org.openlowcode.server.data.storage.StoredTableIndex;
 import org.openlowcode.server.data.storage.StoredTableSchema;
 import org.openlowcode.server.data.storage.TableAlias;
 import org.openlowcode.server.data.storage.TableAlias.FieldSelectionAlias;
+import org.openlowcode.server.data.storage.standardjdbc.BaseJDBCStorage;
 import org.openlowcode.server.graphic.SPageData;
 import org.openlowcode.server.security.SecurityBuffer;
 import org.openlowcode.tools.structure.ChoiceDataElt;
@@ -960,12 +961,23 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 			} else {
 				// object exists, check fields
 				for (int i = 0; i < tableschema.getStoredFieldNumber(); i++) {
-					if (!storage.DoesFieldExist(tableschema, i)) {
+					int fieldstatus = storage.DoesFieldExist(tableschema, i);
+					if (fieldstatus == BaseJDBCStorage.FIELD_NOT_PRESENT) {
 						// create missing fields
 						logger.warning("PERSISTENCE: adding field " + tableschema.getStoredField(i).getName()
 								+ " in table " + tableschema.getName());
 						storage.createField(tableschema, i);
 					}
+					if (fieldstatus == BaseJDBCStorage.FIELD_INCOMPATIBLE) {
+						PersistenceGateway.checkinStorage(storage);
+						throw new RuntimeException("Field "+tableschema.getStoredField(i).toString()+" already exists in database, but with a wrong type. You should change the field name");
+					}
+					if (fieldstatus == BaseJDBCStorage.FIELD_UPDATABLE) {
+						logger.warning("PERSISTENCE: modifying field " + tableschema.getStoredField(i).getName()
+								+ " in table " + tableschema.getName());
+						storage.extendField(tableschema,i);
+					}
+					
 				}
 				for (int i = 0; i < tableschema.getIndexSize(); i++) {
 					StoredTableIndex thisindex = tableschema.getIndex(i);

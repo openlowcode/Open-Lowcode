@@ -21,7 +21,9 @@ import org.openlowcode.server.data.storage.standardjdbc.BaseJDBCStorage;
  *         SAS</a>
  *
  */
-public class MariadDBJDBCStorage extends BaseJDBCStorage {
+public class MariadDBJDBCStorage
+		extends
+		BaseJDBCStorage {
 
 	/**
 	 * creates a MariaDB storage for the given connection
@@ -29,7 +31,7 @@ public class MariadDBJDBCStorage extends BaseJDBCStorage {
 	 * @param connection a valid JDBC connection
 	 */
 	public MariadDBJDBCStorage(Connection connection) {
-		super(connection, (a -> new MariaDBSQLTableFieldDefinition(a)));
+		super(connection, (a -> new MariaDBSQLTableFieldDefinition(a)), (a -> new MariaDBSQLTableFieldCheck(a)));
 
 	}
 

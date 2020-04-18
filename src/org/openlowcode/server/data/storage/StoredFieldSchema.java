@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -65,11 +65,38 @@ public abstract class StoredFieldSchema<E extends Object> extends FieldSchema<E>
 	}
 
 	/**
+	 * A visitor for stored field schema able to provide a feedback
+     * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+     *         SAS</a>
+	 * @param <Z> type of data being fedback
+	 */
+	public interface TestVisitor<Z extends Object> {
+		public Z visit(StringStoredField stringfield);
+
+		public Z visit(TimestampStoredField timestampfield);
+
+		public Z visit(DecimalStoredField decimalStoredField);
+
+		public Z visit(IntegerStoredField integerStoredField);
+
+		public Z visit(LargeBinaryStoredField largebinarystoredfield);
+	}
+	
+	/**
 	 * gateway for a visitor
 	 * @param visitor visitor
 	 */
 	public abstract void accept(StoredFieldSchema.Visitor visitor);
 
+
+	/**
+	 * @param visitor a test visitor
+	 * @return the result of the test performed
+	 * @since 1.6
+	 */
+
+	public abstract  <F extends Object>  F accept(StoredFieldSchema.TestVisitor<F> visitor);
+	
 	/**
 	 * returns default value of the field
 	 * @return the default value

@@ -41,9 +41,8 @@ public class MariaDBSQLTableFieldDefinition implements Visitor {
 
 	@Override
 	public void visit(StringStoredField stringfield) {
-		buffer.append(stringfield.getName());
-		buffer.append(" ");
-		// TODO to workaround 64K row limit, declare texts bugger than 500 CHAR as large
+
+		// TODO to workaround 64K row limit, declare texts bigger than 500 CHAR as large
 		// text
 		buffer.append(" VARCHAR(");
 		buffer.append(stringfield.getMaximumLength());
@@ -57,7 +56,7 @@ public class MariaDBSQLTableFieldDefinition implements Visitor {
 
 	@Override
 	public void visit(TimestampStoredField timestampfield) {
-		buffer.append(timestampfield.getName());
+
 		buffer.append(" TIMESTAMP ");
 		if (timestampfield.defaultValueAtColumnCreation() != null) {
 			buffer.append(" DEFAULT '");
@@ -72,8 +71,7 @@ public class MariaDBSQLTableFieldDefinition implements Visitor {
 
 	@Override
 	public void visit(DecimalStoredField decimalStoredField) {
-		buffer.append(decimalStoredField.getName());
-		buffer.append(" ");
+
 		buffer.append(" DECIMAL(");
 		buffer.append(decimalStoredField.getPrecision());
 		buffer.append(",");
@@ -85,8 +83,7 @@ public class MariaDBSQLTableFieldDefinition implements Visitor {
 
 	@Override
 	public void visit(IntegerStoredField integerStoredField) {
-		buffer.append(integerStoredField.getName());
-		buffer.append(" ");
+
 		buffer.append(" INTEGER");
 		if (integerStoredField.defaultValueAtColumnCreation() != null) {
 			buffer.append(" DEFAULT ");
@@ -98,8 +95,7 @@ public class MariaDBSQLTableFieldDefinition implements Visitor {
 
 	@Override
 	public void visit(LargeBinaryStoredField largebinarystoredfield) {
-		buffer.append(largebinarystoredfield.getName());
-		buffer.append(" ");
+
 		buffer.append(" LONGBLOB ");
 		if (largebinarystoredfield.getMaxFileSize() > 0) {
 			if (largebinarystoredfield.getMaxFileSize() >= 1024 * 1024 * 4)

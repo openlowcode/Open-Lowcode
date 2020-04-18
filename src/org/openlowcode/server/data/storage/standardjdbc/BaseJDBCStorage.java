@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -43,6 +44,7 @@ import org.openlowcode.server.data.storage.StringStoredField;
 import org.openlowcode.server.data.storage.TableAlias;
 import org.openlowcode.server.data.storage.TimestampStoredField;
 import org.openlowcode.server.data.storage.UpdateQuery;
+import org.openlowcode.server.data.storage.StoredFieldSchema.TestVisitor;
 import org.openlowcode.server.data.storage.StoredFieldSchema.Visitor;
 import org.openlowcode.server.data.storage.TableAlias.FieldSelectionAlias;
 import org.openlowcode.server.data.storage.derbyjdbc.DerbyJDBCStorage;
@@ -56,7 +58,10 @@ import org.openlowcode.tools.messages.SFile;
  *
  */
 @SuppressWarnings("rawtypes")
-public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage {
+public abstract class BaseJDBCStorage
+		implements
+		PersistentStorage,
+		JDBCstorage {
 	public static int MAX_SQLERROR_RETRY = 5;
 	public static int TIMEOUT_SQLERROR_RETRY_MS = 20; // in ms
 	private static Logger LOGGER = Logger.getLogger(DerbyJDBCStorage.class.getName());
@@ -66,21 +71,28 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 		return connection;
 	}
 
-	private HashMap<String, HashMap<String, String>> existingfields;
+	private HashMap<String, HashMap<String, DatabaseColumnType>> existingfields;
 	protected Connection connection;
 	private DatabaseMetaData metadata;
-	private Function<StringBuffer, Visitor> fieldvisitorgenerator;
+	protected Function<StringBuffer, Visitor> fieldvisitorgenerator;
+	protected Function<DatabaseColumnType, TestVisitor<Integer>> fieldanalyzer;
 
 	/**
 	 * creates a new JDBC storage
 	 * 
 	 * @param connection            the connection
 	 * @param fieldvisitorgenerator relevant field visitor
+	 * @param fieldanalyzer      relevant field testvisitor for checking if
+	 *                              current field is OK in the database 
+	 * @since 1.6
 	 */
-	public BaseJDBCStorage(Connection connection,
-			Function<StringBuffer, StoredFieldSchema.Visitor> fieldvisitorgenerator) {
+	public BaseJDBCStorage(
+			Connection connection,
+			Function<StringBuffer, StoredFieldSchema.Visitor> fieldvisitorgenerator,
+			Function<DatabaseColumnType,StoredFieldSchema.TestVisitor<Integer>> fieldanalyzer) {
 		this.connection = connection;
 		this.fieldvisitorgenerator = fieldvisitorgenerator;
+		this.fieldanalyzer = fieldanalyzer;
 	}
 
 	/**
@@ -92,6 +104,9 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 	 */
 	public RuntimeException treatThrowable(Throwable t, String query) {
 		if (t instanceof RuntimeException) {
+			LOGGER.warning(" Runtime Exception during persistent storage, checking-in storage");
+			PersistenceGateway.checkinStorage(this);
+			LOGGER.warning("Persistent Storage checked-in");
 			return (RuntimeException) t;
 		}
 		LOGGER.severe("---------------------- SQLException during SQL Query ------------------------");
@@ -137,8 +152,9 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 
 		/**
 		 * creates a new sql execution
+		 * 
 		 * @param forceautocommitiferror behaviour in case of error
-		 * @param stringquery query to execute
+		 * @param stringquery            query to execute
 		 */
 		public SQLExecution(boolean forceautocommitiferror, String stringquery) {
 			this.stringquery = stringquery;
@@ -147,6 +163,7 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 
 		/**
 		 * creates a new sql execution with force auto commit = false
+		 * 
 		 * @param stringquery the string query to execute
 		 */
 		public SQLExecution(String stringquery) {
@@ -156,6 +173,7 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 
 		/**
 		 * executes the query
+		 * 
 		 * @return data if the query returns any data
 		 * @throws SQLException
 		 */
@@ -732,7 +750,7 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 
 	public void initMedaData() throws SQLException {
 		this.metadata = connection.getMetaData();
-		this.existingfields = new HashMap<String, HashMap<String, String>>();
+		this.existingfields = new HashMap<String, HashMap<String, DatabaseColumnType>>();
 
 	}
 
@@ -757,8 +775,9 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean DoesFieldExist(StoredTableSchema object, int fieldindex) {
+	public int DoesFieldExist(StoredTableSchema object, int fieldindex) {
 
 		if (fieldindex >= object.getStoredFieldNumber())
 			throw new RuntimeException(String.format("field index %d is outside of table %s range (%d)", fieldindex,
@@ -768,30 +787,39 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 				initMedaData();
 			if (this.existingfields.get(object.getName()) == null) {
 				ResultSet fulltable = this.metadata.getColumns(null, null, object.getName(), null);
-				HashMap<String, String> fieldlistfortable = new HashMap<String, String>();
+				HashMap<String, DatabaseColumnType> fieldlistfortable = new HashMap<String, DatabaseColumnType>();
 				this.existingfields.put(object.getName(), fieldlistfortable);
 				while (fulltable.next()) {
 					String columnname = fulltable.getString("COLUMN_NAME");
-
-					fieldlistfortable.put(columnname, columnname);
+					String columntype = fulltable.getString("TYPE_NAME");
+					int columnsize = fulltable.getInt("COLUMN_SIZE");
+					int precision = fulltable.getInt("DECIMAL_DIGITS");
+					String columndefault = fulltable.getString("COLUMN_DEF");
+					fieldlistfortable.put(columnname,
+							new DatabaseColumnType(columntype, columnsize, precision, columndefault));
 				}
 				fulltable.close();
 			}
 
-			String fieldname = this.existingfields.get(object.getName())
-					.get(object.getStoredField(fieldindex).getName());
-			return (fieldname != null);
+			StoredFieldSchema fieldtocheck = object.getStoredField(fieldindex);
+			DatabaseColumnType columntype = existingfields.get(object.getName()).get(fieldtocheck.getName());
 
-			/*
-			 * ResultSet rs = this.metadata.getColumns(null, null,
-			 * object.getName(),object.getStoredField(fieldindex).getName()); boolean
-			 * hascolumns=false; if (rs.next()) hascolumns=true; rs.close(); return
-			 * hascolumns;
-			 */
-			/*
-			 * PreparedStatement ps = connection.prepareStatement(stringquery);
-			 * ps.executeQuery(); return true;
-			 */
+			if (columntype == null) {
+				LOGGER.warning("[PERSISTENCE] --------------------------------- TABLE AUDIT ------------------------");
+				LOGGER.warning("[PERSISTENCE]   Table name "+object.getName()+", field name = "+object.getStoredField(fieldindex).getName()+" is missing ");
+				HashMap<String, DatabaseColumnType> fieldsforobject = this.existingfields.get(object.getName());
+				Iterator<String> keyiterator = fieldsforobject.keySet().iterator();
+				while (keyiterator.hasNext()) {
+					String key = keyiterator.next();
+					DatabaseColumnType columndetail = fieldsforobject.get(key);
+					LOGGER.warning("[PERSISTENCE]                - "+key+", "+columndetail);
+				}
+				LOGGER.warning("[PERSISTENCE] -----------------------------------------------------------------------");
+				return FIELD_NOT_PRESENT;
+			}
+			TestVisitor<Integer> fieldresult = fieldanalyzer.apply(columntype);
+			return (Integer)(fieldtocheck.accept(fieldresult));
+
 		} catch (Throwable e) {
 			throw treatThrowable(e, "METADATA.GETGOLUMNS");
 
@@ -848,8 +876,10 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 		for (int i = 0; i < object.getStoredFieldNumber(); i++) {
 			if (i > 0)
 				query.append(',');
-			object.getStoredField(i).accept(fielddefvisitor);
-
+			StoredFieldSchema field = object.getStoredField(i);
+			query.append(field.getName().toUpperCase());
+			query.append(" ");
+			field.accept(fielddefvisitor);
 		}
 		query.append(" ) ");
 		String stringquery = query.toString();
@@ -874,6 +904,34 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 		query.append(" ALTER TABLE ");
 		query.append(object.getName());
 		query.append(" ADD COLUMN ");
+		StoredFieldSchema field = object.getStoredField(fieldindex);
+		query.append(field.getName().toUpperCase());
+		query.append(" ");
+		Visitor fielddefvisitor = fieldvisitorgenerator.apply(query);
+		field.accept(fielddefvisitor);
+		String stringquery = query.toString();
+		try {
+			PreparedStatement ps = connection.prepareStatement(stringquery);
+			ps.execute();
+			ps.close();
+			LOGGER.info("[PERSISTENCE] Model update: " + stringquery);
+		} catch (Throwable e) {
+			throw treatThrowable(e, stringquery);
+		}
+
+	}
+
+	@Override
+	public void extendField(StoredTableSchema object, int fieldindex) {
+		if (fieldindex >= object.getStoredFieldNumber())
+			throw new RuntimeException(String.format("field index %d is outside of table %s range (%d)", fieldindex,
+					object.getName(), object.getStoredFieldNumber()));
+		StringBuffer query = new StringBuffer();
+		query.append(" ALTER TABLE ");
+		query.append(object.getName());
+		query.append(" MODIFY COLUMN ");
+		query.append(object.getStoredField(fieldindex).getName().toUpperCase());
+		query.append(" ");
 		Visitor fielddefvisitor = fieldvisitorgenerator.apply(query);
 		object.getStoredField(fieldindex).accept(fielddefvisitor);
 		String stringquery = query.toString();
@@ -885,7 +943,6 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 		} catch (Throwable e) {
 			throw treatThrowable(e, stringquery);
 		}
-
 	}
 
 	@Override
@@ -1186,4 +1243,70 @@ public abstract class BaseJDBCStorage implements PersistentStorage, JDBCstorage 
 
 	}
 
+	/**
+	 * A simple class to store the definition of a field as extracted from the JDBC
+	 * metadata query on table columns
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 * @since 1.6
+	 */
+	public static class DatabaseColumnType {
+		private String type;
+		private int length;
+		private int scale;
+		private String defaultvalue;
+
+		/**
+		 * @return the type (may be specific per database)
+		 */
+		public String getType() {
+			return type;
+		}
+
+		/**
+		 * @return the length (may not always be relevant)
+		 */
+		public int getLength() {
+			return length;
+		}
+
+		/**
+		 * @return the precision (may not always be relevant)
+		 */
+		public int getScale() {
+			return scale;
+		}
+		
+		/**
+		 * @return the default value as defined in the database. If String, is inserted
+		 *         inside simple quotes
+		 */
+		public String getDefaultvalue() {
+			return defaultvalue;
+		}
+
+		/**
+		 * Creates a database column type
+		 * 
+		 * @param type         database type
+		 * @param length       length (if relevant for the type)
+		 * @param scale    	scale (if relevant for the type)
+		 * @param defaultvalue default value if defined, may be null
+		 */
+		public DatabaseColumnType(String type, int length, int scale, String defaultvalue) {
+			super();
+			this.type = type;
+			this.length = length;
+			this.scale = scale;
+			this.defaultvalue = defaultvalue;
+		}
+
+		@Override
+		public String toString() {
+			return type+";LEN="+length+";SCALE="+scale+";DEFAULT="+defaultvalue;
+		}
+
+		
+	}
 }

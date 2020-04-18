@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -90,9 +90,9 @@ public interface PersistentStorage {
 	/**
 	 * @param object     the table schema to check
 	 * @param fieldindex field to check (by index)
-	 * @return
+	 * @return since 1.6, an integer defined as a static integer of this class
 	 */
-	public boolean DoesFieldExist(StoredTableSchema object, int fieldindex);
+	public int DoesFieldExist(StoredTableSchema object, int fieldindex);
 
 	/**
 	 * value if index is OK in persistence layer
@@ -103,9 +103,40 @@ public interface PersistentStorage {
 	 */
 	public static final int INDEX_DIFFERENT = 1;
 	/**
-	 * value if indes is not present at all
+	 * value if index is not present at all
 	 */
 	public static final int INDEX_NOT_PRESENT = 2;
+
+	/**
+	 * field is present and is of the correct type
+	 * 
+	 * @since 1.6
+	 */
+	public static final int FIELD_OK = 100;
+
+	/**
+	 * field is present, with the correct type, but with a deviation that can be
+	 * processed by modifying the field (typically field is too short or default
+	 * value has changed)
+	 * 
+	 * @since 1.6
+	 */
+	public static final int FIELD_UPDATABLE = 101;
+
+	/**
+	 * field is present, but with an incompatible type, this is not a recoverable
+	 * error, and will cause the server to stop
+	 * 
+	 * @since 1.6
+	 */
+	public static final int FIELD_INCOMPATIBLE = 102;
+
+	/**
+	 * field is not present, will just be added
+	 * 
+	 * @since 1.6
+	 */
+	public static final int FIELD_NOT_PRESENT = 103;
 
 	/**
 	 * drops the index as specified by name
@@ -138,6 +169,16 @@ public interface PersistentStorage {
 	 * @param fieldindex index of the field to create
 	 */
 	public void createField(StoredTableSchema object, int fieldindex);
+
+	/**
+	 * Extends the n-th field of the specified object. This method will modify the
+	 * field, lengthening it and if relevant, redefining the default value
+	 * 
+	 * @param object     object definition (schema) of the stored table
+	 * @param fieldindex index of the field to extend
+	 * @since 1.6
+	 */
+	public void extendField(StoredTableSchema object, int fieldindex);
 
 	/**
 	 * @param name

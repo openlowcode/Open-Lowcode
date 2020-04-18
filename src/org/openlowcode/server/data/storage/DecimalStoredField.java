@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -92,6 +92,11 @@ public class DecimalStoredField extends StoredFieldSchema<BigDecimal> {
 	@Override
 	public BigDecimal defaultValueAtColumnCreation() {
 		return null;
+	}
+
+	@Override
+	public <F> F accept(TestVisitor<F> visitor) {
+		return visitor.visit(this);
 	}
 
 }
