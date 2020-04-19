@@ -12,6 +12,7 @@ package org.openlowcode.server.data;
 
 import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
 import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
+import org.openlowcode.server.data.storage.FieldSchema;
 import org.openlowcode.server.data.storage.StoredFieldSchema;
 import org.openlowcode.server.data.storage.StoredTableIndex;
 import org.openlowcode.server.data.storage.StringStoredField;
@@ -32,7 +33,6 @@ public class StringDataObjectFieldDefinition<E extends DataObject<E>>
 	private int maxlength;
 	private boolean easysearch;
 	private boolean richtextedit;
-	public final static String EASY_SEARCH_FIELD_SUFFIX = "_ESR";
 	private boolean orderedasinteger = false;
 	private int integeroffset;
 	private StringStoredField mainfield;
@@ -102,9 +102,9 @@ public class StringDataObjectFieldDefinition<E extends DataObject<E>>
 		mainfield = new StringStoredField(this.getName(), null, maxlength);
 		this.addFieldSchema(mainfield);
 		if (easysearch) {
-			easysearchfield = new StringStoredField(this.getName() + EASY_SEARCH_FIELD_SUFFIX, null, maxlength);
+			easysearchfield = new StringStoredField(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX, null, maxlength);
 			this.addFieldSchema(easysearchfield);
-			StoredTableIndex easysearchindex = new StoredTableIndex(this.getName() + EASY_SEARCH_FIELD_SUFFIX);
+			StoredTableIndex easysearchindex = new StoredTableIndex(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX);
 			easysearchindex.addStoredFieldSchame(easysearchfield);
 			this.addIndex(easysearchindex);
 		}
@@ -168,9 +168,9 @@ public class StringDataObjectFieldDefinition<E extends DataObject<E>>
 		mainfield = new StringStoredField(this.getName(), null, maxlength);
 		this.addFieldSchema(mainfield);
 		if (easysearch) {
-			easysearchfield = new StringStoredField(this.getName() + EASY_SEARCH_FIELD_SUFFIX, null, maxlength);
+			easysearchfield = new StringStoredField(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX, null, maxlength);
 			this.addFieldSchema(easysearchfield);
-			StoredTableIndex easysearchindex = new StoredTableIndex(this.getName() + EASY_SEARCH_FIELD_SUFFIX);
+			StoredTableIndex easysearchindex = new StoredTableIndex(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX);
 			easysearchindex.addStoredFieldSchame(easysearchfield);
 			this.addIndex(easysearchindex);
 		}

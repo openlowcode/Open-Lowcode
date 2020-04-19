@@ -71,7 +71,7 @@ public abstract class BaseJDBCStorage
 		return connection;
 	}
 
-	private HashMap<String, HashMap<String, DatabaseColumnType>> existingfields;
+	protected HashMap<String, HashMap<String, DatabaseColumnType>> existingfields;
 	protected Connection connection;
 	private DatabaseMetaData metadata;
 	protected Function<StringBuffer, Visitor> fieldvisitorgenerator;
@@ -788,7 +788,7 @@ public abstract class BaseJDBCStorage
 			if (this.existingfields.get(object.getName()) == null) {
 				ResultSet fulltable = this.metadata.getColumns(null, null, object.getName(), null);
 				HashMap<String, DatabaseColumnType> fieldlistfortable = new HashMap<String, DatabaseColumnType>();
-				this.existingfields.put(object.getName(), fieldlistfortable);
+				this.existingfields.put(object.getName().toUpperCase(), fieldlistfortable);
 				while (fulltable.next()) {
 					String columnname = fulltable.getString("COLUMN_NAME");
 					String columntype = fulltable.getString("TYPE_NAME");

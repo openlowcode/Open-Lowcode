@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.util.logging.Logger;
 
 import org.openlowcode.server.data.storage.StoredTableSchema;
+import org.openlowcode.server.data.storage.FieldSchema;
 import org.openlowcode.server.data.storage.StoredFieldSchema;
 import org.openlowcode.server.data.storage.StoredFieldSchema.Visitor;
 import org.openlowcode.server.data.storage.standardjdbc.BaseJDBCStorage;
@@ -37,16 +38,40 @@ public class DerbyJDBCStorage
 		if (fieldindex >= object.getStoredFieldNumber())
 			throw new RuntimeException(String.format("field index %d is outside of table %s range (%d)", fieldindex,
 					object.getName(), object.getStoredFieldNumber()));
-		StringBuffer query = new StringBuffer();
+		// setup field nae
+		StoredFieldSchema<?> field = object.getStoredField(fieldindex);
+		String columnname = field.getName().toUpperCase();
+		// Step 0A - CHECK IF THE NEW COLUMN EXISTS
+		
+		DatabaseColumnType existingfield = existingfields.get(object.getName()).get(object.getStoredField(fieldindex).getName().toUpperCase()+FieldSchema.TEMP_SUFFIX);
+		if (existingfield!=null) {
+			StringBuffer queryzero = new StringBuffer();
+			queryzero.append(" ALTER TABLE ");
+			queryzero.append(object.getName());
+			queryzero.append(" DROP COLUMN ");
+			queryzero.append(columnname);
+			queryzero.append(FieldSchema.TEMP_SUFFIX);
+			
+			String queryzerostring = queryzero.toString();
+			try {
+				PreparedStatement ps = connection.prepareStatement(queryzerostring);
+				ps.execute();
+				ps.close();
+				LOGGER.warning("[PERSISTENCE] Recovery query: " + queryzerostring);
+			} catch (Throwable e) {
+				throw treatThrowable(e, queryzerostring);
+			}
+		}
 		// -------- Step 1 : CREATE COLUMN WITH NEW DEFINITION -------------------
+		StringBuffer query = new StringBuffer();
 		query.append(" ALTER TABLE ");
 		query.append(object.getName());
 		query.append(" ADD COLUMN ");
 
-		StoredFieldSchema<?> field = object.getStoredField(fieldindex);
-		String columnname = field.getName().toUpperCase();
+		
+		
 		query.append(columnname);
-		query.append("_NEW ");
+		query.append(FieldSchema.TEMP_SUFFIX);
 		Visitor fielddefvisitor = fieldvisitorgenerator.apply(query);
 		field.accept(fielddefvisitor);
 		String stringquery = query.toString();
@@ -64,7 +89,8 @@ public class DerbyJDBCStorage
 		secondquery.append(object.getName());
 		secondquery.append(" SET ");
 		secondquery.append(columnname);
-		secondquery.append("_NEW = ");
+		secondquery.append(FieldSchema.TEMP_SUFFIX);
+		secondquery.append(" = ");
 		secondquery.append(columnname);
 		String secondquerystring = secondquery.toString();
 		try {
@@ -95,7 +121,8 @@ public class DerbyJDBCStorage
 		fourthquery.append(object.getName());
 		fourthquery.append(".");
 		fourthquery.append(columnname);
-		fourthquery.append("_NEW TO ");
+		fourthquery.append(FieldSchema.TEMP_SUFFIX);
+		fourthquery.append(" TO ");
 		fourthquery.append(columnname);
 		String fourthquerystring = fourthquery.toString();
 		try {

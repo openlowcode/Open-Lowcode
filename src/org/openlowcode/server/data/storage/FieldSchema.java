@@ -20,11 +20,19 @@ import org.openlowcode.tools.misc.Named;
  *
  * @param <E> class of the payload object
  */
-public abstract class FieldSchema<E extends Object> extends Named {
+public abstract class FieldSchema<E extends Object>
+		extends
+		Named {
+
+	public final static String TEMP_SUFFIX = "_TMP";
+	public final static String EASY_SEARCH_FIELD_SUFFIX = "_ESR";
 
 	public FieldSchema(String name) {
 		super(name);
-
+		if (name != null)
+			if (name.trim().toUpperCase().endsWith(TEMP_SUFFIX))
+				throw new RuntimeException("Field Schema name '" + name.trim().toUpperCase() + "' cannot end with '"
+						+ TEMP_SUFFIX + "' as this is a reserved suffix for internal proceedings.");
 	}
 
 	/**
