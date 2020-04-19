@@ -29,9 +29,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Window;
 
 /**
@@ -105,6 +110,10 @@ public class CPopupButton
 			TabPane[] parenttabpanes) {
 		Button button = new Button(label);
 		button.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
+		Label hamburgerlabel = new Label("\u2630");
+		hamburgerlabel.setFont(Font.font(hamburgerlabel.getFont().getFamily(), FontWeight.THIN,
+				hamburgerlabel.getFont().getSize() * 0.5f));
+		button.setGraphic(hamburgerlabel);
 		button.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
 		button.textOverrunProperty().set(OverrunStyle.CLIP);
 		if (rollovertip != null)
