@@ -826,10 +826,12 @@ public class DataObjectDefinition
 	 * 
 	 * @param properties properties
 	 */
-	public void addProperties(Property<?>...properties) {
-		if (properties!=null) for (int i=0;i<properties.length;i++) this.addProperty(properties[i]);
+	public void addProperties(Property<?>... properties) {
+		if (properties != null)
+			for (int i = 0; i < properties.length; i++)
+				this.addProperty(properties[i]);
 	}
-	
+
 	/**
 	 * adds a new property to the data object
 	 * 
@@ -1139,11 +1141,10 @@ public class DataObjectDefinition
 		String deleteactionname = "DELETE" + this.getName() + "ANDSHOWLEFT";
 		LinkObject<?, ?> linkobject = (LinkObject<?, ?>) this.getPropertyByName("LINKOBJECT");
 		DynamicActionDefinition deleteaction = new DynamicActionDefinition(deleteactionname, true);
-		deleteaction.addInputArgumentAsAccessCriteria(
-				new ObjectIdArgument("LEFT" + linkobject.getLeftobjectforlink().getName() + "ID",
-						linkobject.getLeftobjectforlink()));
+		deleteaction.addInputArgumentAsAccessCriteria(new ObjectIdArgument(
+				"LEFT" + linkobject.getLeftobjectforlink().getName() + "ID", linkobject.getLeftobjectforlink()));
 		deleteaction.addInputArgument(new ObjectIdArgument(this.getName() + "ID", this));
-		
+
 		deleteaction.addOutputArgument(new ObjectIdArgument(
 				"PARENT" + linkobject.getLeftobjectforlink().getName() + "ID", linkobject.getLeftobjectforlink()));
 		linkobject.getLeftobjectforlink().addActionToModifyGroup(deleteaction);
@@ -1914,7 +1915,7 @@ public class DataObjectDefinition
 			if (((linkobject == null) && (autolinkobject == null)) || (this.isShowActionAutomaticallyGenerated())) {
 				module.addAction(this.generatePrepareStandardCreateAction());
 				module.addAction(this.generateStandardCreateAction());
-				
+
 				this.addActionOnObjectPage(this.generateSaveAsAction());
 				module.AddPage(this.generateStandardCreatePage());
 			}
@@ -2101,7 +2102,8 @@ public class DataObjectDefinition
 		saveasaction.addInputArgument(new ObjectIdArgument("ORIGINID", this));
 		saveasaction.addOutputArgument(new ObjectArgument("COPYOBJECT", this));
 		saveasaction.setButtonlabel("Duplicate");
-		if (this.isSaveAsInCreateNewGroup()) this.addActionToCreateNewGroup(saveasaction);
+		if (this.isSaveAsInCreateNewGroup())
+			this.addActionToCreateNewGroup(saveasaction);
 
 		return saveasaction;
 	}
@@ -2322,10 +2324,11 @@ public class DataObjectDefinition
 
 	public boolean isSaveAsInCreateNewGroup() {
 		StoredObject storedobject = (StoredObject) this.getPropertyByName("STOREDOBJECT");
-		if (storedobject!=null) return storedobject.isSaveAsInCreateNewGroup();
+		if (storedobject != null)
+			return storedobject.isSaveAsInCreateNewGroup();
 		return false;
 	}
-	
+
 	/**
 	 * @return true if the data object has the property Iterated
 	 */
@@ -2755,7 +2758,8 @@ public class DataObjectDefinition
 			sg.wl("import " + this.categoryforextractor.getParentModule().getPath() + ".data.choice."
 					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition;");
 		} else {
-			if (this.aliasfilteronparent!=null) sg.wl("import java.util.ArrayList;");
+			if (this.aliasfilteronparent != null)
+				sg.wl("import java.util.ArrayList;");
 		}
 		for (int i = 0; i < this.constraintsforobject.getSize(); i++) {
 			MultiFieldConstraint thisconstraint = this.constraintsforobject.get(i);
@@ -2806,10 +2810,10 @@ public class DataObjectDefinition
 		} else {
 			if (this.aliasfilteronparent != null)
 				interfacestring += "\n		implements SpecificAliasListWithParentWithoutParameter<"
-	
-						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";			
+
+						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";
 		}
-		
+
 		sg.wl("public class " + classname + "Definition extends DataObjectDefinition<" + classname + "> "
 				+ interfacestring + " {");
 		sg.wl("");
@@ -3371,7 +3375,7 @@ public class DataObjectDefinition
 			sg.wl("		return specificaliaslist.toArray(new String[0]);");
 			sg.wl("	}			");
 
-			if (this.aliasfilteronparent != null)  {
+			if (this.aliasfilteronparent != null) {
 
 				String parentclass = StringFormatter.formatForJavaClass(aliasfilteronparent.getName());
 
@@ -3389,11 +3393,9 @@ public class DataObjectDefinition
 				sg.wl("	}	");
 
 			}
-			
-			
 
 		} else {
-			if (this.aliasfilteronparent != null)  {
+			if (this.aliasfilteronparent != null) {
 				String parentclass = StringFormatter.formatForJavaClass(aliasfilteronparent.getName());
 
 				sg.wl("	@Override");
@@ -3404,10 +3406,9 @@ public class DataObjectDefinition
 				sg.wl("			if (parentaliasfilter.isvalid(this,this.getAliasat(i),parent)) aliasfilteredforparent.add(this.getAliasat(i));");
 				sg.wl("		}");
 				sg.wl("		return aliasfilteredforparent.toArray(new String[0]);");
-				sg.wl("	}	");				
+				sg.wl("	}	");
 			}
 		}
-
 
 		sg.wl("}");
 		sg.close();
@@ -3559,6 +3560,19 @@ public class DataObjectDefinition
 			sg.wl("		this." + StringFormatter.formatForAttribute(thisfield.getName()) + "field.setValue(field);");
 			sg.wl("	}");
 			sg.bl();
+			if (thisfield.hasFieldValuesQuery()) {
+
+				sg.wl("	public static " + thisfield.getJavaType() + "[] getValuesForField"
+						+ StringFormatter.formatForJavaClass(thisfield.getName())
+						+ "(QueryFilter additionalcondition) {");
+				sg.wl("		return StoredobjectQueryHelper.get().getallvaluesforfield(definition.get"
+						+ StringFormatter.formatForJavaClass(thisfield.getName()) + "FieldSchema(),");
+				sg.wl("				additionalcondition,");
+				sg.wl("				definition,");
+				sg.wl("				definition.getStoredobjectDefinition());");
+				sg.wl("	}");
+				sg.wl("");
+			}
 		}
 		for (int i = 0; i < this.propertylistincludinglegacy.getSize(); i++) {
 			Property<?> property = this.propertylistincludinglegacy.get(i);

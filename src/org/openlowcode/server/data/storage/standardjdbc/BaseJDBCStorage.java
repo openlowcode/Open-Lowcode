@@ -264,6 +264,7 @@ public abstract class BaseJDBCStorage
 
 		StringBuffer query = new StringBuffer();
 		query.append(" SELECT ");
+		if (sq.isDistinctValues()) query.append(" DISTINCT ");
 		// build selectclause
 		for (int i = 0; i < sq.getTableNumber(); i++) {
 			TableAlias thisalias = sq.getTable(i);

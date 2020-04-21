@@ -172,7 +172,7 @@ public class JDBCRow implements Row {
 					break;
 				}
 			}
-			throw new RuntimeException("SQL Exception %s " + e.getMessage() + " at " + exceptionline
+			throw new RuntimeException("SQL Exception " + e.getMessage() + " at " + exceptionline
 					+ ", drop table field list " + this.columnlist + "\\			---> Query = " + this.stringquery);
 		}
 		throw new RuntimeException(" type of attribute not supported yet " + fd.getClass().getCanonicalName());

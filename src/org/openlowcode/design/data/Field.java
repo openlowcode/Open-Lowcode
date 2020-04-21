@@ -26,7 +26,27 @@ public abstract class Field
 	private boolean showintitle;
 	private boolean showinbottomnotes;
 	private boolean nouseredition = false;
+	private boolean hasfieldvaluesquery = false;
 
+	/**
+	 * In case the field has a values query, a specific method will be created on
+	 * the object to query all existing values
+	 * 
+	 * @since 1.6
+	 */
+	protected void setHasFieldValuesQuery() {
+		this.hasfieldvaluesquery=true;
+	}
+
+	/**
+	 * @return if the field has a values query (a specific method will be created on 
+	 * the object to query all existing values for the field
+	 * @since 1.6
+	 */
+	public boolean hasFieldValuesQuery() {
+		return this.hasfieldvaluesquery;
+	}
+	
 	/**
 	 * If this is set, the only way to update this field is through actions and
 	 * triggers.

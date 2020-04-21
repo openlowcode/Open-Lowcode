@@ -14,6 +14,7 @@ import org.openlowcode.tools.misc.NamedList;
 
 /**
  * A selection query to get several rows
+ * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  *
@@ -22,18 +23,32 @@ public class SelectQuery {
 
 	private NamedList<TableAlias> tables;
 	private QueryCondition qd;
+	private boolean distinctvalues;
 
 	/**
-	 * @param tables
+	 * @param tables tables to put in query
 	 * @param qd     query condition on objects in the table or join
 	 */
 	public SelectQuery(NamedList<TableAlias> tables, QueryCondition qd) {
+		this(tables, qd, false);
+	}
+
+	/**
+	 * @param tables         tables to put in query
+	 * @param qd             query condition on objects in the table or join
+	 * @param distinctvalues if true, only unique values are sent back (equivalent
+	 *                       to SQL DISTINCT statement)
+	 * @since 1.6
+	 */
+	public SelectQuery(NamedList<TableAlias> tables, QueryCondition qd, boolean distinctvalues) {
 		this.tables = tables;
 		this.qd = qd;
+		this.distinctvalues = distinctvalues;
 	}
 
 	/**
 	 * returns the number of table aliases in the query
+	 * 
 	 * @return an integer with the number of tble aliases
 	 */
 	public int getTableNumber() {
@@ -49,10 +64,19 @@ public class SelectQuery {
 	}
 
 	/**
-	 * query condition 
+	 * query condition
+	 * 
 	 * @return the query condition of the select query
 	 */
 	public QueryCondition getQueryCondition() {
 		return qd;
+	}
+
+	/**
+	 * @return true if the query should only send back distinct values
+	 * @since 1.6
+	 */
+	public boolean isDistinctValues() {
+		return this.distinctvalues;
 	}
 }

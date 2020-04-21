@@ -22,6 +22,7 @@ import org.openlowcode.server.data.storage.QueryCondition;
 import org.openlowcode.server.data.storage.QueryFilter;
 import org.openlowcode.server.data.storage.Row;
 import org.openlowcode.server.data.storage.SelectQuery;
+import org.openlowcode.server.data.storage.StoredFieldSchema;
 import org.openlowcode.server.data.storage.TableAlias;
 
 /**
@@ -47,13 +48,64 @@ public class StoredobjectQueryHelper {
 	}
 
 	/**
+	 * gets all the possible values for a field of a data object
+	 * 
+	 * @param condition  extra condition for the query
+	 * @param definition definition of the object
+	 * @param property   stored object property of the object
+	 * @return the list of unique values of the field
+	 */
+	public <E extends DataObject<E>,F extends Object> String[] getallvaluesforfield(StoredFieldSchema<String> fieldtoextract,
+			QueryFilter condition,
+			DataObjectDefinition<E> definition,
+			StoredobjectDefinition<E> propertydefinition) {
+		NamedList<TableAlias> tablelist = new NamedList<TableAlias>();
+		if (definition == null)
+			throw new RuntimeException("definition is expected to be not null");
+		TableAlias mainobjectalias = definition.getAlias(maintablealiasforgetallactive);
+		mainobjectalias.addFieldSelection(fieldtoextract);
+		tablelist.add(mainobjectalias);
+		if (condition != null)
+			if (condition.getAliases() != null)
+				for (int i = 0; i < condition.getAliases().length; i++) {
+					TableAlias presentalias = condition.getAliases()[i];
+					if (tablelist.lookupOnName(presentalias.getName()) != null) {
+						TableAlias otheraliaswithsamename = tablelist.lookupOnName(presentalias.getName());
+						if (!otheraliaswithsamename.getTable().getName().equals(presentalias.getTable().getName()))
+							throw new RuntimeException("For alias " + presentalias.getName()
+									+ ", two inconsistent tables are used " + presentalias.getTable().getName() + " - "
+									+ otheraliaswithsamename.getTable().getName());
+					} else {
+						tablelist.add(condition.getAliases()[i]);
+					}
+				}
+		QueryCondition finalcondition = (condition != null ? condition.getCondition() : null);
+		QueryCondition objectuniversalcondition = definition.getUniversalQueryCondition(propertydefinition,
+				maintablealiasforgetallactive);
+		if (objectuniversalcondition != null) {
+			finalcondition = new AndQueryCondition(finalcondition, objectuniversalcondition);
+		}
+
+		QueryCondition enhancedcondition = definition.extendquery(tablelist, mainobjectalias, finalcondition);
+
+		Row row = QueryHelper.getHelper().query(new SelectQuery(tablelist, enhancedcondition,true));
+		ArrayList<String> returnstrings = new ArrayList<String>();
+		while (row.next()) {
+			returnstrings.add(row.getValue(fieldtoextract, mainobjectalias));
+		}
+		return returnstrings.toArray(new String[0]);
+	}
+
+	/**
 	 * @param condition          condition to filter further all active records
 	 * @param definition         definition of the object
 	 * @param propertydefinition definition of the stored object property for the
 	 *                           object
 	 * @return the list of objects brought back by the query
 	 */
-	public <E extends DataObject<E>> E[] getallactive(QueryFilter condition, DataObjectDefinition<E> definition,
+	public <E extends DataObject<E>> E[] getallactive(
+			QueryFilter condition,
+			DataObjectDefinition<E> definition,
 			StoredobjectDefinition<E> propertydefinition) {
 		NamedList<TableAlias> tablelist = new NamedList<TableAlias>();
 		if (definition == null)

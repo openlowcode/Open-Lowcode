@@ -84,6 +84,19 @@ public class TableAlias extends Named {
 	}
 
 	/**
+	 * specifies the field to display in the query for the alias. Byt default, all
+	 * fields are specified. However, if using this method, only fields explicitely
+	 * specified will be extracted from the database. This creates the field with the default alias
+	 * 
+	 * @param selectedfield the field to put in the section
+	 * @since 1.6
+	 */
+	public <E extends Object> void addFieldSelection(StoredFieldSchema<E> selectedfield) {
+		this.queryallfields = false;
+		fieldselection.add(new FieldSelectionAlias<E>(selectedfield,this.getName().toUpperCase()+"_"+selectedfield.getName().toUpperCase()));
+	}
+	
+	/**
 	 * tells if this table alias will query all fields
 	 * 
 	 * @return true if all fields are queried, false if only some fields are queried

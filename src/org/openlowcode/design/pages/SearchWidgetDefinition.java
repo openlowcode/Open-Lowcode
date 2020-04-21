@@ -40,10 +40,27 @@ public class SearchWidgetDefinition {
 	 */
 	public static int POSTTREATMENT_EASYTEXTSEARCH = 1;
 
+	/**
+	 * search widget is text search
+	 */
 	public static int TYPE_TEXT = 100;
+	/**
+	 * search widget is date range
+	 */
 	public static int TYPE_DATE = 101;
+	/**
+	 * search widget is close choice list
+	 */
 	public static int TYPE_CHOICE = 102;
+	/**
+	 * search widget is time period
+	 */
 	public static int TYPE_TIMEPERIOD = 103;
+	/**
+	 * search widget is text choice
+	 * @since 1.6
+	 */
+	public static int TYPE_TEXTCHOICE = 104;
 
 	private ChoiceCategory multiplechoicecategory = null;
 
@@ -61,7 +78,7 @@ public class SearchWidgetDefinition {
 	public int getType() {
 		return this.type;
 	}
-	
+
 	/**
 	 * @return true if the search is using a choice
 	 */
@@ -119,7 +136,10 @@ public class SearchWidgetDefinition {
 	 *                               object)
 	 * @param displayname            the display name if the name of the element
 	 *                               should be overridden, null else
-	 * @param multiplechoicecategory choice category
+	 * @param multiplechoicecategory choice category. In the case where choice
+	 *                               should be determined by existing value in text
+	 *                               field, just leave blank (new to version 1.6)
+	 *                       
 	 */
 	public SearchWidgetDefinition(
 			boolean primary,
@@ -192,7 +212,9 @@ public class SearchWidgetDefinition {
 	 *                               object)
 	 * @param displayname            the display name if the name of the element
 	 *                               should be overridden, null else
-	 * @param multiplechoicecategory choice category
+	 * @param multiplechoicecategory choice category. In the case where choice
+	 *                               should be determined by existing value in text
+	 *                               field, just leave blank (new to version 1.6)
 	 * @param searchasstring         if the search is using a choice
 	 */
 	public SearchWidgetDefinition(
@@ -208,7 +230,9 @@ public class SearchWidgetDefinition {
 		this.posttreatment = POSTTREATMENT_NONE;
 		this.multiplechoicecategory = multiplechoicecategory;
 		this.choicesearchinstring = searchasstring;
-		this.type = TYPE_CHOICE;
+		if (this.multiplechoicecategory!=null) this.type = TYPE_CHOICE;
+		if (this.multiplechoicecategory==null) this.type = TYPE_TEXTCHOICE;
+		
 	}
 
 	/**

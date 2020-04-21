@@ -50,6 +50,33 @@ public class StringField
 	 * no index, but the field is also added to the search page as a search criteria
 	 */
 	public static int INDEXTYPE_SEARCHWITHNOINDEX = 3;
+
+	/**
+	 * field is free but expected to be part of a list. In search, a list of values
+	 * is provided, and the field is a search criteria (not yet implemented)
+	 * 
+	 * @since 1.6
+	 */
+	public static int INDEXTYPE_LISTOFVALUESWITHSEARCH = 4;
+
+	/**
+	 * field is free but expected to be part of a list. The field does not appear in
+	 * search screens by default, but is is possible to get the list of existing
+	 * values efficiently on big tables thanks to index
+	 * 
+	 * @since 1.6
+	 */
+	public static int INDEXTYPE_LISTOFVALUESWITHINDEX = 5;
+
+	/**
+	 * field is free but expected to be part of a list. The field does not appear in
+	 * search screens by default, but is is possible to get the list of existing
+	 * values (though with bad performance on big tables) as there is no index
+	 * 
+	 * @since 1.6
+	 */
+	public static int INDEXTYPE_LISTOFVALUESWITHNOINDEX = 6;
+
 	private StoredElement plainfield;
 	private StoredElement cleantext;
 
@@ -89,13 +116,22 @@ public class StringField
 		this.indextype = indextype;
 		this.richtextdisplay = false;
 		plainfield = new StringStoredElement("", length);
-		if (this.indextype == INDEXTYPE_RAWINDEX) {
-			this.AddElementWithSearch(plainfield, new SearchWidgetDefinition(true, name, displayname));
+		if ((this.indextype == StringField.INDEXTYPE_LISTOFVALUESWITHINDEX)
+				|| (this.indextype == StringField.INDEXTYPE_LISTOFVALUESWITHNOINDEX)
+				|| (this.indextype == StringField.INDEXTYPE_LISTOFVALUESWITHSEARCH))
+			this.setHasFieldValuesQuery();
+			if (this.indextype == INDEXTYPE_RAWINDEX) {
+				this.AddElementWithSearch(plainfield, new SearchWidgetDefinition(true, name, displayname));
 
-		}
+			}
 		if (this.indextype == INDEXTYPE_SEARCHWITHNOINDEX) {
 			this.AddElementWithSearch(plainfield, new SearchWidgetDefinition(false, name, displayname));
 
+		}
+
+		if (this.indextype == StringField.INDEXTYPE_LISTOFVALUESWITHSEARCH) {
+			this.AddElementWithSearch(plainfield, new SearchWidgetDefinition(true, name, displayname,
+					SearchWidgetDefinition.TYPE_TEXTCHOICE, SearchWidgetDefinition.POSTTREATMENT_NONE));
 		}
 
 		if (this.indextype == StringField.INDEXTYPE_EASYSEARCH) {
@@ -107,7 +143,9 @@ public class StringField
 			this.addIndex(new Index("EASYSEARCH", cleantext, false));
 		}
 
-		if (this.indextype == StringField.INDEXTYPE_RAWINDEX) {
+		if ((this.indextype == StringField.INDEXTYPE_RAWINDEX)
+				|| (this.indextype == StringField.INDEXTYPE_LISTOFVALUESWITHSEARCH)
+				|| (this.indextype == StringField.INDEXTYPE_LISTOFVALUESWITHINDEX)) {
 			this.addIndex(new Index("RAWSEARCH", plainfield, false));
 
 		}
