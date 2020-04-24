@@ -22,6 +22,7 @@ import org.openlowcode.server.graphic.SPageNode;
 import org.openlowcode.server.graphic.SPageSignifPath;
 import org.openlowcode.server.security.SecurityBuffer;
 import org.openlowcode.tools.messages.MessageWriter;
+import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
 
@@ -51,6 +52,7 @@ public class STextField
 	private String defaultvalue;
 	private boolean businessparameter;
 	private TextDataElt linkeddata;
+	private ArrayDataElt<TextDataElt> suggestions;
 	private boolean hidedisplay;
 	private int encryptionmode;
 	private boolean readonly;
@@ -279,6 +281,16 @@ public class STextField
 	}
 
 	/**
+	 * adds suggestions for the text. This only works with short text (length
+	 * smaller than 100) with no Rich-Text formatting
+	 * 
+	 * @param suggestions a list of text suggestions
+	 */
+	public void setSuggestions(ArrayDataElt<TextDataElt> suggestions) {
+		this.suggestions = suggestions;
+	}
+
+	/**
 	 * gets the text input to be provided into an action as argument
 	 * 
 	 * @return reference to the text input content
@@ -325,6 +337,8 @@ public class STextField
 		writer.addBooleanField("CPS", this.compactshow);
 		writer.addBooleanField("TWL", this.twolines);
 		writer.addBooleanField("NSF", this.nosmallfield);
+		writer.addBooleanField("HSG",(this.suggestions!=null));
+		if (this.suggestions!=null) this.suggestions.writeReferenceToCML(writer);
 	}
 
 	@Override

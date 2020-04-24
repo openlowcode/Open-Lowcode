@@ -26,6 +26,8 @@ import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
 import org.openlowcode.client.graphic.widget.table.LargeTextTableCell;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
 import org.openlowcode.client.runtime.PageActionManager;
+import org.openlowcode.tools.structure.ArrayDataElt;
+import org.openlowcode.tools.structure.ArrayDataEltType;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
 import org.openlowcode.tools.structure.EncryptedTextDataElt;
@@ -35,7 +37,7 @@ import org.openlowcode.tools.structure.SimpleDataElt;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
 import org.openlowcode.tools.trace.ExceptionLogger;
-
+import org.openlowcode.tools.widgets.MultiSelectionComboBox;
 import org.openlowcode.tools.messages.MessageBooleanField;
 import org.openlowcode.tools.messages.MessageElement;
 import org.openlowcode.tools.messages.MessageIntegerField;
@@ -120,6 +122,9 @@ public class CTextField
 	private boolean compactshow;
 	private boolean twolines;
 	private boolean nosmallfield;
+	private boolean hassuggestions;
+	private CPageDataRef suggestions;
+	private MultiSelectionComboBox<String> multiselectioncombobox;
 
 	public boolean isRichText() {
 		return richtextedit;
@@ -218,6 +223,14 @@ public class CTextField
 		this.compactshow = reader.returnNextBooleanField("CPS");
 		this.twolines = reader.returnNextBooleanField("TWL");
 		this.nosmallfield = reader.returnNextBooleanField("NSF");
+		this.hassuggestions = reader.returnNextBooleanField("HSG");
+		if (hassuggestions) {
+			this.suggestions = CPageDataRef.parseCPageDataRef(reader);
+			if (!this.suggestions.getType().equals(new ArrayDataEltType<TextDataEltType>(new TextDataEltType())))
+				throw new RuntimeException(String.format(
+						"Invalid suggestion reference named %s, expected ArrayDataEltType<TextDataEltType>, got %s in CPage ",
+						suggestions.getName(), suggestions));
+		}
 		reader.returnNextEndStructure("TXF");
 	}
 
@@ -257,6 +270,27 @@ public class CTextField
 		return thistextelement.getPayload();
 	}
 
+	/**
+	 * get the text field suggestions from the page data
+	 * @param inputdata all input data
+	 * @param dataref reference to the suggestions (must be an array of fields)
+	 * @return an array of string with the content
+	 */
+	public String[] getSuggestions(CPageData inputdata,CPageDataRef dataref) {
+		DataElt thiselement = inputdata.lookupDataElementByName(dataref.getName());
+		if (thiselement == null)
+			throw new RuntimeException("could not find any page data with name = " + dataref.getName());
+		if (!thiselement.getType().equals(dataref.getType()))
+			throw new RuntimeException(
+					String.format("page data with name = %s does not have expected %s type, actually found %s",
+							dataref.getName(), dataref.getType(), thiselement.getType()));
+		@SuppressWarnings("unchecked")
+		ArrayDataElt<TextDataElt> thistextarray = (ArrayDataElt<TextDataElt>) thiselement;
+		String[] suggestions = new String[thistextarray.getObjectNumber()];
+		for (int i=0;i<thistextarray.getObjectNumber();i++) suggestions[i] = thistextarray.getObjectAtIndex(i).getPayload();
+		return suggestions;
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Node getNode(
@@ -304,8 +338,16 @@ public class CTextField
 					if (this.richtextedit)
 						throw new RuntimeException(
 								"rich text edit only supported for fields with more than 100 characters");
-					textfield = new TextField();
-
+					if (this.hassuggestions) {
+						String[] suggestions = this.getSuggestions(inputdata,this.suggestions);
+						multiselectioncombobox = new MultiSelectionComboBox(false, suggestions);
+						thispane.getChildren().add(multiselectioncombobox.getNode());
+						
+					} else {
+						textfield = new TextField();
+	
+					}
+					
 					if (this.nosmallfield)
 						textfield.setMinWidth(400);
 				} else {
@@ -336,6 +378,9 @@ public class CTextField
 				}
 				return c;
 			};
+			
+			
+			
 			if (textfield != null) { // normal text edition
 				textfield.setTextFormatter(new TextFormatter(rejectChange));
 				if (helper.length() > 0)
@@ -349,7 +394,8 @@ public class CTextField
 						textfield.setText(defaultvalue);
 				}
 				thispane.getChildren().add(this.textfield);
-			} else {
+			} 
+			if (richtextarea!=null) {
 				richtextarea.setMaxTextLength(this.maxlength);
 				thispane.getChildren().add(this.richtextarea.getNode());
 				String input = "";
@@ -434,8 +480,9 @@ public class CTextField
 		if (!this.hidedisplay) {
 			if (this.textfield != null)
 				return new TextDataElt(eltname, this.textfield.getText());
-
+			if (this.richtextarea!=null)
 			return new TextDataElt(eltname, this.richtextarea.generateText());
+			if (this.multiselectioncombobox!=null) return new TextDataElt(eltname, this.multiselectioncombobox.getTypedValue());
 		}
 		LOGGER.finer("Creating an encrypted text field : " + this.datafieldname + ";" + this.textfield.getText());
 		return new EncryptedTextDataElt(eltname, this.textfield.getText());
@@ -476,6 +523,14 @@ public class CTextField
 				answer.setPropertyname(this.property);
 			return answer;
 		}
+		
+		if (this.multiselectioncombobox!=null) {
+			TextDataElt answer = new TextDataElt(this.datafieldname,this.multiselectioncombobox.getTypedValue());
+			if (this.property != null)
+				answer.setPropertyname(this.property);
+			return answer;
+		}
+		
 		if (this.richtextarea != null) {
 			String text = this.richtextarea.generateText();
 			logger.fine("----------- extreme text debugging -------------");

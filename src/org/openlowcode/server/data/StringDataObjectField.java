@@ -60,7 +60,6 @@ public class StringDataObjectField<E extends DataObject<E>>
 
 		this.content.setPayload(value);
 		if (easysearch) {
-			// TODO may need to add cleaning algorithm.
 			this.cleancontent.setPayload(value);
 		}
 	}
