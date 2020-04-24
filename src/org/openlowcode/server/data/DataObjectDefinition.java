@@ -61,7 +61,9 @@ import org.openlowcode.tools.structure.SimpleDataElt;
  *         SAS</a>
  *
  */
-public abstract class DataObjectDefinition<E extends DataObject<E>> extends Named {
+public abstract class DataObjectDefinition<E extends DataObject<E>>
+		extends
+		Named {
 	private static Logger logger = Logger.getLogger(DataObjectDefinition.class.getCanonicalName());
 	private NamedList<DataObjectFieldDefinition<E>> fielddeflist;
 	private NamedList<DataObjectPropertyDefinition<E>> propertydeflist;
@@ -156,8 +158,10 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param locale
 	 * @return
 	 */
-	public CustomloaderHelper<E> getCustomLoaderHelper(TransientPropertiesForLoader<E> transientproperties,
-			String[] columndefinitionelements, ChoiceValue<ApplocaleChoiceDefinition> locale) {
+	public CustomloaderHelper<E> getCustomLoaderHelper(
+			TransientPropertiesForLoader<E> transientproperties,
+			String[] columndefinitionelements,
+			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		if (columndefinitionelements == null)
 			throw new RuntimeException("Column definition element is null");
 		if (columndefinitionelements.length == 0)
@@ -179,8 +183,10 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param locale
 	 * @return
 	 */
-	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(TransientPropertiesForLoader<E> transientproperties,
-			String[] columndefinitionelements, ChoiceValue<ApplocaleChoiceDefinition> locale) {
+	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
+			TransientPropertiesForLoader<E> transientproperties,
+			String[] columndefinitionelements,
+			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		if (columndefinitionelements == null)
 			throw new RuntimeException("Column definition element is null");
 		if (columndefinitionelements.length == 0)
@@ -300,8 +306,12 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return a join query condition
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <Z extends Object> JoinQueryConditionDefinition<Z> generateJoinQueryDefinition(StoredTableSchema maintable,
-			StoredFieldSchema<Z> maintablefield, String propertyname, String propertyfield, String sidetablesuffix,
+	public <Z extends Object> JoinQueryConditionDefinition<Z> generateJoinQueryDefinition(
+			StoredTableSchema maintable,
+			StoredFieldSchema<Z> maintablefield,
+			String propertyname,
+			String propertyfield,
+			String sidetablesuffix,
 			QueryOperator<Z> operator) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
@@ -356,9 +366,15 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 *                                     other object
 	 * @return
 	 */
-	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String propertyname, String propertyfield, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			int priority, int displaycolumn) {
+	public ExternalFieldSchema<?> generateExternalField(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String propertyname,
+			String propertyfield,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			int priority,
+			int displaycolumn) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
 			throw new RuntimeException("did not find property with name = '" + propertyname + "', available list = "
@@ -395,9 +411,15 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String fieldname, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn) {
+	public ExternalFieldSchema<?> generateExternalField(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String fieldname,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			DisplayProfile<?> hideifprofileset,
+			int priority,
+			int displaycolumn) {
 		DataObjectFieldDefinition<E> fielddef = this.fielddeflist.lookupOnName(fieldname);
 		if (fielddef == null)
 			throw new RuntimeException("did not find field with name = " + fieldname + ", available list = "
@@ -428,8 +450,12 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return the external field
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ExternalFieldSchema<?> generateExternalFieldFromTitle(String externalfieldname, String displayname,
-			String tooltip, JoinQueryConditionDefinition<?> joinqueryconditiondefinition, int priority,
+	public ExternalFieldSchema<?> generateExternalFieldFromTitle(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			int priority,
 			int displaycolumn) {
 		ExternalFieldSchema<?> extfieldschema = new ExternalFieldSchema(externalfieldname, displayname, tooltip,
 				this.tableschema, joinqueryconditiondefinition, priority, displaycolumn);
@@ -491,10 +517,17 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return the external field
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String propertyname, String propertyfield, FieldChoiceDefinition<?> fieldchoice,
-			JoinQueryConditionDefinition<?> joinqueryconditiondefinition, DisplayProfile<?> hideifprofileset,
-			int priority, int displaycolumn) {
+	public ExternalFieldSchema<?> generateExternalField(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String propertyname,
+			String propertyfield,
+			FieldChoiceDefinition<?> fieldchoice,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			DisplayProfile<?> hideifprofileset,
+			int priority,
+			int displaycolumn) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
 			throw new RuntimeException("did not find property with name = '" + propertyname + "', available list = "
@@ -535,9 +568,16 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String propertyname, String propertyfield, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn) {
+	public ExternalFieldSchema<?> generateExternalField(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String propertyname,
+			String propertyfield,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			DisplayProfile<?> hideifprofileset,
+			int priority,
+			int displaycolumn) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
 			throw new RuntimeException("did not find property with name = '" + propertyname + "', available list = "
@@ -575,9 +615,15 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return the external field
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ExternalFieldSchema<?> generateExternalFieldFromField(String externalfieldname, String displayname,
-			String tooltip, String fieldname, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn) {
+	public ExternalFieldSchema<?> generateExternalFieldFromField(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String fieldname,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			DisplayProfile<?> hideifprofileset,
+			int priority,
+			int displaycolumn) {
 		DataObjectFieldDefinition<E> fielddefinition = this.fielddeflist.lookupOnName(fieldname);
 		if (fielddefinition == null)
 			throw new RuntimeException("did not find field with name = '" + fieldname + "', available list = "
@@ -587,7 +633,8 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 			throw new RuntimeException("Did not find main field for field with name = '" + fieldname + "', class  = "
 					+ fielddefinition.getClass().toString());
 		if (fielddefinition instanceof ChoiceDataObjectFieldDefinition) {
-			ChoiceDataObjectFieldDefinition<?, E> choicefielddefinition = (ChoiceDataObjectFieldDefinition<?, E>) fielddefinition;
+			ChoiceDataObjectFieldDefinition<
+					?, E> choicefielddefinition = (ChoiceDataObjectFieldDefinition<?, E>) fielddefinition;
 			ExternalFieldSchema<?> thisfieldschema = new ExternalFieldSchema(externalfieldname, displayname, tooltip,
 					tableschema, field, choicefielddefinition.getFieldchoicedefinition(), joinqueryconditiondefinition,
 					hideifprofileset, priority, displaycolumn);
@@ -626,10 +673,16 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param displaycolumn                size of the column display in a table
 	 * @return
 	 */
-	public ExternalFieldSchema<?> generateExternalFieldInBottomNotes(String externalfieldname, String displayname,
-			String tooltip, String propertyname, String propertyfield,
-			JoinQueryConditionDefinition<?> joinqueryconditiondefinition, DisplayProfile<?> hideifprofileset,
-			int priority, int displaycolumn) {
+	public ExternalFieldSchema<?> generateExternalFieldInBottomNotes(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String propertyname,
+			String propertyfield,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			DisplayProfile<?> hideifprofileset,
+			int priority,
+			int displaycolumn) {
 		ExternalFieldSchema<?> thisfieldschema = generateExternalField(externalfieldname, displayname, tooltip,
 				propertyname, propertyfield, joinqueryconditiondefinition, hideifprofileset, priority, displaycolumn);
 		thisfieldschema.setDisplayInBottomNotes();
@@ -663,9 +716,17 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return the external field
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String propertyname, String propertyfield, JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
-			DisplayProfile<?> hideifprofileset, int priority, int displaycolumn, boolean orderedasnumber,
+	public ExternalFieldSchema<?> generateExternalField(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String propertyname,
+			String propertyfield,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			DisplayProfile<?> hideifprofileset,
+			int priority,
+			int displaycolumn,
+			boolean orderedasnumber,
 			int numberoffset) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
@@ -705,9 +766,16 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @return the external field
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ExternalFieldSchema<?> generateExternalField(String externalfieldname, String displayname, String tooltip,
-			String propertyname, String propertyfield, FieldChoiceDefinition<?> fieldchoice,
-			JoinQueryConditionDefinition<?> joinqueryconditiondefinition, int priority, int displaycolumn) {
+	public ExternalFieldSchema<?> generateExternalField(
+			String externalfieldname,
+			String displayname,
+			String tooltip,
+			String propertyname,
+			String propertyfield,
+			FieldChoiceDefinition<?> fieldchoice,
+			JoinQueryConditionDefinition<?> joinqueryconditiondefinition,
+			int priority,
+			int displaycolumn) {
 		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
 		if (propertydefinition == null)
 			throw new RuntimeException("did not find property with name = '" + propertyname + "', available list = "
@@ -911,8 +979,8 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 								+ label + ", previous field = " + previousfield.toString());
 
 			previousfield.append(thisfielddef.getName());
-			DataObjectField<?, E> fieldinstance = (DataObjectField<?, E>) thisfielddef
-					.initiateFieldInstance(thispayload);
+			DataObjectField<
+					?, E> fieldinstance = (DataObjectField<?, E>) thisfielddef.initiateFieldInstance(thispayload);
 			if (fieldinstance == null)
 				throw new RuntimeException("could not initiate field instance for field index " + i + " of class "
 						+ thisfielddef.getClass().toString() + " for object " + label + ", previous field = "
@@ -970,14 +1038,15 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 					}
 					if (fieldstatus == BaseJDBCStorage.FIELD_INCOMPATIBLE) {
 						PersistenceGateway.checkinStorage(storage);
-						throw new RuntimeException("Field "+tableschema.getStoredField(i).toString()+" already exists in database, but with a wrong type. You should change the field name");
+						throw new RuntimeException("Field " + tableschema.getStoredField(i).toString()
+								+ " already exists in database, but with a wrong type. You should change the field name");
 					}
 					if (fieldstatus == BaseJDBCStorage.FIELD_UPDATABLE) {
 						logger.warning("PERSISTENCE: modifying field " + tableschema.getStoredField(i).getName()
 								+ " in table " + tableschema.getName());
-						storage.extendField(tableschema,i);
+						storage.extendField(tableschema, i);
 					}
-					
+
 				}
 				for (int i = 0; i < tableschema.getIndexSize(); i++) {
 					StoredTableIndex thisindex = tableschema.getIndex(i);
@@ -1019,7 +1088,10 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 */
 	@SuppressWarnings("unchecked")
 	public ArrayList<Triple<String, String, StringDecoder>> getorderedFieldDefinition(E sampleobject) {
-		ArrayList<Triple<String, String, StringDecoder>> keyandlabel = new ArrayList<Triple<String, String, StringDecoder>>();
+		ArrayList<
+				Triple<
+						String, String,
+						StringDecoder>> keyandlabel = new ArrayList<Triple<String, String, StringDecoder>>();
 		OrderedList<DataObjectFieldDefinition<E>> orderedfieldlist = getOrderedFieldDefinition();
 		if (sampleobject != null) {
 			List<FieldSchemaForDisplay<E>> flexiblefieldsdefinition = sampleobject.getFlexibleFieldsDefinition();
@@ -1121,8 +1193,13 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param buffer           security buffer
 	 * @throws IOException if any exception happens during the transmission
 	 */
-	public void writeFieldDefinition(MessageWriter writer, ArrayList<DataObjectFieldMarker<E>> fieldstohide,
-			NamedList<DisplayProfile<E>> displayprofiles, boolean writeconstraints, int minpriority, SPageData pagedata,
+	public void writeFieldDefinition(
+			MessageWriter writer,
+			ArrayList<DataObjectFieldMarker<E>> fieldstohide,
+			NamedList<DisplayProfile<E>> displayprofiles,
+			boolean writeconstraints,
+			int minpriority,
+			SPageData pagedata,
 			SecurityBuffer buffer) throws IOException {
 		writer.startStructure("ATTRS");
 		writeFieldDefinition(writer, fieldstohide, displayprofiles, minpriority, pagedata, buffer);
@@ -1147,9 +1224,15 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param buffer           security buffer
 	 * @throws IOException if any exception happens during the transmission
 	 */
-	public void writeFieldDefinition(MessageWriter writer, ArrayList<DataObjectFieldMarker<E>> fieldstohide,
-			NamedList<DisplayProfile<E>> displayprofiles, boolean writeconstraints, int minpriority, int morepriority,
-			SPageData pagedata, SecurityBuffer buffer) throws IOException {
+	public void writeFieldDefinition(
+			MessageWriter writer,
+			ArrayList<DataObjectFieldMarker<E>> fieldstohide,
+			NamedList<DisplayProfile<E>> displayprofiles,
+			boolean writeconstraints,
+			int minpriority,
+			int morepriority,
+			SPageData pagedata,
+			SecurityBuffer buffer) throws IOException {
 		writer.startStructure("ATTRS");
 		writeFieldDefinition(writer, fieldstohide, displayprofiles, morepriority, pagedata, buffer);
 		writer.endStructure("ATTRS");
@@ -1192,8 +1275,13 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param buffer          security buffer
 	 * @throws IOException if any exception happens during the transmission
 	 */
-	public void writeFieldDefinition(MessageWriter writer, ArrayList<DataObjectFieldMarker<E>> fieldstohide,
-			NamedList<DisplayProfile<E>> displayprofiles, int minpriority, int morepriority, SPageData pagedata,
+	public void writeFieldDefinition(
+			MessageWriter writer,
+			ArrayList<DataObjectFieldMarker<E>> fieldstohide,
+			NamedList<DisplayProfile<E>> displayprofiles,
+			int minpriority,
+			int morepriority,
+			SPageData pagedata,
 			SecurityBuffer buffer) throws IOException {
 		HashMap<String, DataObjectFieldMarker<E>> hiddenfieldsmap = new HashMap<String, DataObjectFieldMarker<E>>();
 		if (fieldstohide != null)
@@ -1285,10 +1373,26 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param buffer          security buffer
 	 * @throws IOException if any exception happens during the transmission
 	 */
-	public void writeFieldDefinition(MessageWriter writer, ArrayList<DataObjectFieldMarker<E>> fieldstohide,
-			NamedList<DisplayProfile<E>> displayprofiles, int minpriority, SPageData pagedata, SecurityBuffer buffer)
-			throws IOException {
+	public void writeFieldDefinition(
+			MessageWriter writer,
+			ArrayList<DataObjectFieldMarker<E>> fieldstohide,
+			NamedList<DisplayProfile<E>> displayprofiles,
+			int minpriority,
+			SPageData pagedata,
+			SecurityBuffer buffer) throws IOException {
 		writeFieldDefinition(writer, fieldstohide, displayprofiles, minpriority, pagedata, buffer, null);
+	}
+
+	/**
+	 * gets the class of the field definition for the Field Marker
+	 * 
+	 * @param markerforthisobject field marker
+	 * @return the class of the field definition for the Field marker
+	 * @since 1.6
+	 */
+	public Class<?> getFieldMarkerClass(DataObjectFieldMarker<E> markerforthisobject) {
+		DataObjectFieldDefinition<E> field = this.fielddeflist.lookupOnName(markerforthisobject.getName());
+		return field.getClass();
 	}
 
 	/**
@@ -1305,8 +1409,13 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 *                                 object
 	 * @throws IOException if any exception happens during the transmission
 	 */
-	public void writeFieldDefinition(MessageWriter writer, ArrayList<DataObjectFieldMarker<E>> fieldstohide,
-			NamedList<DisplayProfile<E>> displayprofiles, int minpriority, SPageData pagedata, SecurityBuffer buffer,
+	public void writeFieldDefinition(
+			MessageWriter writer,
+			ArrayList<DataObjectFieldMarker<E>> fieldstohide,
+			NamedList<DisplayProfile<E>> displayprofiles,
+			int minpriority,
+			SPageData pagedata,
+			SecurityBuffer buffer,
 			List<FieldSchemaForDisplay<E>> flexiblefieldsdefinition) throws IOException {
 		HashMap<String, DataObjectFieldMarker<E>> hiddenfieldsmap = new HashMap<String, DataObjectFieldMarker<E>>();
 		if (fieldstohide != null)
@@ -1393,7 +1502,9 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param condition       currentcondition
 	 * @return the extended query definition
 	 */
-	public QueryCondition extendquery(NamedList<TableAlias> tablelist, TableAlias mainobjectalias,
+	public QueryCondition extendquery(
+			NamedList<TableAlias> tablelist,
+			TableAlias mainobjectalias,
 			QueryCondition condition) {
 		logger.finest("starting extension of query for ");
 		boolean isanyextension = false;
@@ -1535,7 +1646,9 @@ public abstract class DataObjectDefinition<E extends DataObject<E>> extends Name
 	 * @param restrictions some unauthorized values
 	 * @return
 	 */
-	public static <Z extends FieldChoiceDefinition<Z>> boolean isAliasValid(String alias, ChoiceValue<Z> filter,
+	public static <Z extends FieldChoiceDefinition<Z>> boolean isAliasValid(
+			String alias,
+			ChoiceValue<Z> filter,
 			HashMap<String, ChoiceValue<Z>[]> restrictions) {
 		if (!restrictions.containsKey(alias)) {
 			return true;
