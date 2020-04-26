@@ -1212,6 +1212,37 @@ public abstract class ActionDefinition
 
 					treated = true;
 				}
+				
+				if (thisarrayarg.getPayload() instanceof StringArgument) {
+					StringArgument stringargument = (StringArgument) thisarrayarg.getPayload();
+					String argumentname = stringargument.getName().toLowerCase();
+
+					sg.wl("		if (attribute" + i + ".getArrayPayloadEltType() instanceof TextDataEltType) {");
+					sg.wl("				ArrayList<String> listfor" + argumentname + " = new ArrayList<String>();");
+					sg.wl("				for (int i=0;i<attribute" + i + ".getObjectNumber();i++) {");
+					sg.wl("					TextDataElt thistextelt = (TextDataElt) attribute" + i
+							+ ".getObjectAtIndex(i);");
+					sg.wl("					if (thistextelt.getName().compareTo(\"" + argumentname.toUpperCase()
+							+ "\")==0) {");
+					sg.wl("					listfor" + argumentname + ".add(thistextelt.getPayload());");
+					sg.wl("					} else {");
+					sg.wl("						throw new RuntimeException(String.format(\"was expecting a TextData element inside array called "
+							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
+							+ ", got %s \",thistextelt.getName()));");
+					sg.wl("					}");
+					sg.wl("				}");
+					sg.wl("				" + argumentname + " = listfor" + argumentname
+							+ ".toArray(new String[0]);");
+					sg.wl("			} else {");
+					sg.wl("				throw new RuntimeException(String.format(\"was expecting a Text Attribute inside array called "
+							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
+							+ ", got %s \",attribute" + i + ".getArrayPayloadEltType() ));");
+					sg.wl("				");
+					sg.wl("			}				");
+					
+					treated = true;
+				}
+				
 			}
 
 			if (!treated)
