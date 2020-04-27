@@ -25,6 +25,7 @@ import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
+
 /**
  * Generation of the creation page for a Data Object
  * 
@@ -108,6 +109,23 @@ GeneratedPages {
 
 				}
 		}
+		
+		// ------------------------ Attributes for field suggestions ---------------------
+		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+			if (dataobject.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					if (pageattributedeclaration.length() > 0)
+						pageattributedeclaration.append(" , ");
+					pageattributedeclaration
+							.append(" String[] suggestionsforfield" + stringfield.getName().toLowerCase()+ " ");
+					if (pageattributeentry.length() > 0)
+						pageattributeentry.append(" , ");
+					pageattributeentry.append(" suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
+				}
+			}
+		}
+		
 		String objectimport = "import " + dataobject.getOwnermodule().getPath() + ".data." + objectclass + ";";
 		importdeclaration.put(objectimport, objectimport);
 
@@ -344,6 +362,14 @@ GeneratedPages {
 		sg.wl("			SObjectDisplay<" + objectclass + "> " + objectvariable + "display = new SObjectDisplay<"
 				+ objectclass + ">(\"OBJECTDISPLAY\", this.getObject()," + objectclass
 				+ ".getDefinition(),this, false);");
+		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+			if (dataobject.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					sg.wl("			" + objectvariable + "display.addTextFieldSuggestion("+objectclass+".get"+StringFormatter.formatForJavaClass(stringfield.getName())+"FieldMarker(),this.getSuggestionsforfieldbudgetowner());");		
+				}
+			}
+		}
 		sg.wl("			" + objectvariable + "display.setHideReadOnly();");
 		sg.wl("			mainband.addElement(" + objectvariable + "display);");
 

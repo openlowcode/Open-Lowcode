@@ -80,6 +80,18 @@ public class StringField
 	private StoredElement plainfield;
 	private StoredElement cleantext;
 
+	/**
+	 * @return true if the field has a list of values helper
+	 * @since 1.6
+	 */
+	public boolean hasListOfValuesHelper() {
+		if (indextype == INDEXTYPE_LISTOFVALUESWITHSEARCH) return true;
+		if (indextype == INDEXTYPE_LISTOFVALUESWITHINDEX) return true;
+		if (indextype == INDEXTYPE_LISTOFVALUESWITHNOINDEX) return true;
+		return false;
+	}
+	
+	
 	public void setRichTextDisplay() {
 		this.richtextdisplay = true;
 	}
@@ -236,5 +248,11 @@ public class StringField
 				(newdisplaylabel != null ? newdisplaylabel : this.getDisplayname()), this.getTooltip(), length,
 				indextype, this.getDisplayPriority(), richtextdisplay);
 	}
-
+	/**
+	 * @return the length of the field
+	 * @since 1.6
+	 */
+	public int getLength() {
+		return this.length;
+	}
 }

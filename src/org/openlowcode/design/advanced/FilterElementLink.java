@@ -236,4 +236,14 @@ public class FilterElementLink<E extends Object>
 		return "new " + StringFormatter.formatForJavaClass(linkobject.getRightobjectforlink().getName()) + "[0]";
 	}
 
+	@Override
+	public boolean hasSuggestionValues() {
+		return false;
+	}
+
+	@Override
+	public ArgumentContent getSuggestionArgumentContent(String suffix) {
+		return null;
+	}
+
 }

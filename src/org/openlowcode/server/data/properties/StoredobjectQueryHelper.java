@@ -82,17 +82,19 @@ public class StoredobjectQueryHelper {
 		QueryCondition finalcondition = (condition != null ? condition.getCondition() : null);
 		QueryCondition objectuniversalcondition = definition.getUniversalQueryCondition(propertydefinition,
 				maintablealiasforgetallactive);
+		
 		if (objectuniversalcondition != null) {
 			finalcondition = new AndQueryCondition(finalcondition, objectuniversalcondition);
 		}
 
-		QueryCondition enhancedcondition = definition.extendquery(tablelist, mainobjectalias, finalcondition);
+		// QueryCondition enhancedcondition = definition.extendquery(tablelist, mainobjectalias, finalcondition);
 
-		Row row = QueryHelper.getHelper().query(new SelectQuery(tablelist, enhancedcondition,true));
+		Row row = QueryHelper.getHelper().query(new SelectQuery(tablelist, finalcondition,true));
 		ArrayList<String> returnstrings = new ArrayList<String>();
 		while (row.next()) {
-			returnstrings.add(row.getValue(fieldtoextract, mainobjectalias));
-		}
+			String value = row.getValue(fieldtoextract, mainobjectalias);
+			if (value!=null) if (value.length()>0) returnstrings.add(value);
+			}
 		return returnstrings.toArray(new String[0]);
 	}
 

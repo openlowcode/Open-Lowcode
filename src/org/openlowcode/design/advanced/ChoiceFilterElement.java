@@ -135,7 +135,7 @@ public class ChoiceFilterElement<E extends Object>
 		String objectattribute = StringFormatter.formatForAttribute(field.getParentObject().getName());
 		String objectfielduc = StringFormatter.formatForJavaClass(field.getName());
 		String reportnameclass = StringFormatter.formatForJavaClass(reportname);
-		String queryconditionname = objectattribute + "_step" + prefixforlinkandchild + "_filter";
+		String queryconditionname = objectattribute + "_step" + prefixforlinkandchild + "_query";
 		String fieldname = StringFormatter
 				.formatForAttribute(field.getParentObject().getName() + "_" + field.getName());
 		String choiceclass = StringFormatter.formatForJavaClass(field.getChoice().getName());
@@ -179,6 +179,7 @@ public class ChoiceFilterElement<E extends Object>
 					+ "helper);");
 
 		}
+
 	}
 
 	@Override
@@ -200,5 +201,15 @@ public class ChoiceFilterElement<E extends Object>
 	@Override
 	protected String getBlankValue() {
 		return "null";
+	}
+
+	@Override
+	public boolean hasSuggestionValues() {
+		return false;
+	}
+
+	@Override
+	public ArgumentContent getSuggestionArgumentContent(String suffix) {
+		return null;
 	}
 }

@@ -83,6 +83,23 @@ public class DataObjectDefinitionUpdatePage
 			pageattributeentry.append(" , ");
 			pageattributeentry.append(" controlstatus ");
 		}
+		
+		// ------------------------ Attributes for field suggestions ---------------------
+		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+			if (dataobject.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					if (pageattributedeclaration.length() > 0)
+						pageattributedeclaration.append(" , ");
+					pageattributedeclaration
+							.append(" String[] suggestionsforfield" + stringfield.getName().toLowerCase()+ " ");
+					if (pageattributeentry.length() > 0)
+						pageattributeentry.append(" , ");
+					pageattributeentry.append(" suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
+				}
+			}
+		}
+		
 		sg.wl("package " + module.getPath() + ".page.generated;");
 		sg.wl("");
 		sg.wl("import " + module.getPath() + ".action.generated.AtgShow" + objectvariable + "Action;");
@@ -143,6 +160,16 @@ public class DataObjectDefinitionUpdatePage
 		sg.wl("		update" + objectvariable + "actionref.set" + objectclass
 				+ "(objectupdatedefinition.getObjectInput()); ");
 
+		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+			if (dataobject.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					sg.wl("			objectupdatedefinition.addTextFieldSuggestion("+objectclass+".get"+StringFormatter.formatForJavaClass(stringfield.getName())+"FieldMarker(),this.getSuggestionsforfieldbudgetowner());");		
+				}
+			}
+		}
+		
+		
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			if (thisproperty.isDataInputUsedForUpdate())

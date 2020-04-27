@@ -111,7 +111,7 @@ public class CTextField
 	@SuppressWarnings("unused")
 	private int encryptiontype;
 	private int prefereddisplaysizeintable;
-
+	private String[] suggestionsarray;
 	private boolean orderasinteger;
 	private int integeroffset;
 
@@ -339,8 +339,9 @@ public class CTextField
 						throw new RuntimeException(
 								"rich text edit only supported for fields with more than 100 characters");
 					if (this.hassuggestions) {
-						String[] suggestions = this.getSuggestions(inputdata,this.suggestions);
-						multiselectioncombobox = new MultiSelectionComboBox(false, suggestions);
+						suggestionsarray = this.getSuggestions(inputdata,this.suggestions);
+						
+						multiselectioncombobox = new MultiSelectionComboBox(false, suggestionsarray,inputvalue);
 						thispane.getChildren().add(multiselectioncombobox.getNode());
 						
 					} else {
@@ -348,8 +349,10 @@ public class CTextField
 	
 					}
 					
-					if (this.nosmallfield)
+					if (this.nosmallfield) if (!this.hassuggestions)
 						textfield.setMinWidth(400);
+					if (this.nosmallfield) if (this.hassuggestions)
+						multiselectioncombobox.setMinimumWidgetWidth(400);
 				} else {
 					if (!this.richtextedit) {
 						richtextarea = new RichTextArea(actionmanager, false, true, 400);
@@ -470,6 +473,24 @@ public class CTextField
 
 	@Override
 	public DataElt getDataElt(DataEltType type, String eltname, String objectfieldname) {
+		
+		if (type instanceof ArrayDataEltType) {
+			ArrayDataEltType<?> arraytype = (ArrayDataEltType<?>)type;
+			if (arraytype.getPayloadType() instanceof TextDataEltType) {
+				if (this.hassuggestions) {
+					if (objectfieldname.equals("FULL")) {
+						
+						ArrayDataElt<TextDataElt> fullsuggestions = new ArrayDataElt<TextDataElt>(eltname, new TextDataEltType());
+						if (suggestionsarray!=null) for (int i=0;i<suggestionsarray.length;i++) {
+							fullsuggestions.addElement(new TextDataElt(eltname, suggestionsarray[i]));
+						}
+						return fullsuggestions;
+						
+					}
+				}
+			}
+		}
+		
 		if (!(type instanceof TextDataEltType))
 			throw new RuntimeException(
 					String.format("Only TextDataEltType can be extracted from CTextField, but request was %s ", type));
@@ -1051,5 +1072,21 @@ public class CTextField
 	public void overridesLabel(String newlabel) {
 		this.label = newlabel;
 
+	}
+
+	/**
+	 * 
+	 * @param suggestions suggestions to add
+	 * @since 1.6
+	 */
+	public void addSuggestions(CPageDataRef suggestions) {
+		this.hassuggestions=true;
+		this.suggestions = suggestions;
+		if (!this.suggestions.getType().equals(new ArrayDataEltType<TextDataEltType>(new TextDataEltType())))
+			throw new RuntimeException(String.format(
+					"Invalid suggestion reference named %s, expected ArrayDataEltType<TextDataEltType>, got %s in CPage ",
+					suggestions.getName(), suggestions));
+		
+		
 	}
 }

@@ -90,7 +90,7 @@ public class DataObjectDefinition
 	private String preferedspreadsheettabname = null;
 
 	private Logger logger = Logger.getLogger("");
-	private NamedList<Field> fieldlist;
+	NamedList<Field> fieldlist;
 	NamedList<Property<?>> propertylist;
 	private NamedList<Property<?>> propertylistincludinglegacy;
 	private NamedList<DisplayProfile> displayprofiles;
@@ -909,6 +909,18 @@ public class DataObjectDefinition
 				updatepage.addInputParameter(new StringArgument("CONTROLSTATUS", 20000));
 			}
 		}
+		// ---------- managing contextual suggestions. Maybe need to evolve later to a
+		// more generic framework
+		for (int i = 0; i < this.fieldlist.getSize(); i++) {
+			if (this.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield = (StringField) this.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					ArgumentContent suggestionsforfield = new ArrayArgument(new StringArgument(
+							"SUGGESTIONSFORFIELD" + stringfield.getName().toUpperCase(), stringfield.getLength()));
+					updatepage.addInputParameter(suggestionsforfield);
+				}
+			}
+		}
 		return updatepage;
 	}
 
@@ -1067,6 +1079,18 @@ public class DataObjectDefinition
 			Property<?> property = this.propertylist.get(i);
 			if (property instanceof DataControl) {
 				prepareupdateaction.addOutputArgument(new StringArgument("CONTROLSTATUS", 20000));
+			}
+		}
+		// ---------- managing contextual suggestions. Maybe need to evolve later to a
+		// more generic framework
+		for (int i = 0; i < this.fieldlist.getSize(); i++) {
+			if (this.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield = (StringField) this.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					ArgumentContent suggestionsforfield = new ArrayArgument(new StringArgument(
+							"SUGGESTIONSFORFIELD" + stringfield.getName().toUpperCase(), stringfield.getLength()));
+					prepareupdateaction.addOutputArgument(suggestionsforfield);
+				}
 			}
 		}
 		this.addActionToModifyGroup(prepareupdateaction);
@@ -2053,7 +2077,18 @@ public class DataObjectDefinition
 					standardcreatepage.addInputParameter(property.getDataInputForCreation(j));
 				}
 		}
-
+		// ---------- managing contextual suggestions. Maybe need to evolve later to a
+		// more generic framework
+		for (int i = 0; i < this.fieldlist.getSize(); i++) {
+			if (this.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield = (StringField) this.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					ArgumentContent suggestionsforfield = new ArrayArgument(new StringArgument(
+							"SUGGESTIONSFORFIELD" + stringfield.getName().toUpperCase(), stringfield.getLength()));
+					standardcreatepage.addInputParameter(suggestionsforfield);
+				}
+			}
+		}
 		standardcreatepage.addInputParameter(new ObjectArgument("object", this));
 		return standardcreatepage;
 	}
@@ -2146,7 +2181,18 @@ public class DataObjectDefinition
 					preparestandardcreationaction.addOutputArgument(property.getDataInputForCreation(j));
 				}
 		}
-
+		// ---------- managing contextual suggestions. Maybe need to evolve later to a
+		// more generic framework
+		for (int i = 0; i < this.fieldlist.getSize(); i++) {
+			if (this.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield = (StringField) this.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					ArgumentContent suggestionsforfield = new ArrayArgument(new StringArgument(
+							"SUGGESTIONSFORFIELD" + stringfield.getName().toUpperCase(), stringfield.getLength()));
+					preparestandardcreationaction.addOutputArgument(suggestionsforfield);
+				}
+			}
+		}
 		preparestandardcreationaction.addOutputArgument(new ObjectArgument("object", this));
 		this.addActionToCreateNewGroup(preparestandardcreationaction);
 		return preparestandardcreationaction;

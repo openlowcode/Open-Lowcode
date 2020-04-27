@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.openlowcode.design.data.ArgumentContent;
 import org.openlowcode.design.data.DataObjectDefinition;
+import org.openlowcode.design.data.Field;
 import org.openlowcode.design.generation.SourceGenerator;
 
 /**
@@ -74,6 +75,35 @@ public abstract class FilterElement<E extends Object> {
 	 */
 	public abstract ArgumentContent getArgumentContent(String suffix);
 
+	/**
+	 * tells if the filter element should get suggestion values
+	 * 
+	 * @return true if the filter element has suggestion values to being brought to
+	 *         the page
+	 * @since 1.6
+	 */
+	public abstract boolean hasSuggestionValues();
+
+	/**
+	 * provides the argument for the suggestion, typically a list of strings for a
+	 * string field
+	 * 
+	 * @param suffix suffix of the current node in the report
+	 * @return the suggestion argument content
+	 * @since 1.6
+	 */
+	public abstract ArgumentContent getSuggestionArgumentContent(String suffix);
+
+	/**
+	 * provides the field to use for suggestion
+	 * 
+	 * @return the field to use for suggestion query
+	 * @since 1.6
+	 */
+	public Field getFieldForSuggestion() {
+		return null;
+	}
+	
 	/**
 	 * The filter criteria for the page of the smart report
 	 * 

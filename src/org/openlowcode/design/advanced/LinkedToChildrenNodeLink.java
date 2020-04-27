@@ -93,7 +93,8 @@ public class LinkedToChildrenNodeLink
 		String childattribute = StringFormatter.formatForAttribute(linkedtoparent.getParent().getName());
 		String parentattribute = StringFormatter.formatForAttribute(linkedtoparent.getParentObjectForLink().getName());
 		String parentclass = StringFormatter.formatForJavaClass(linkedtoparent.getParentObjectForLink().getName());
-		String filterattribute = "null";
+
+		String queryattribute="null";
 		// no need to be recursive here
 		List<FilterElement<?>> filterelements = this.getChildNode().getFilterelement();
 		List<LineGroupingCriteria> groupingelements = this.getChildNode().getLineGroupingCriteria();
@@ -108,9 +109,10 @@ public class LinkedToChildrenNodeLink
 			}
 		sg.wl("			// ----- data gathering step " + prefixforlinkandchild);
 		if (hasfilterbefore) {
-			filterattribute = childattribute + "_step" + prefixforlinkandchild + "_filter";
+			queryattribute = childattribute + "_step" + prefixforlinkandchild + "_query";
 
-			sg.wl("		AndQueryCondition " + filterattribute + " = new AndQueryCondition();");
+			sg.wl("		AndQueryCondition " + queryattribute + " = new AndQueryCondition();");
+			
 			if (filterelements != null)
 				for (int i = 0; i < filterelements.size(); i++) {
 					FilterElement<?> thiselement = filterelements.get(i);
@@ -119,15 +121,16 @@ public class LinkedToChildrenNodeLink
 					}
 
 				}
+			
 		}
 		if (first) {
 			sg.wl("		" + childclass + "[] " + childattribute + "_step" + prefixforlinkandchild + " = " + childclass
-					+ ".getallchildrenfor" + linkedtoparentinstancename + "(parentid," + filterattribute + ");");
+					+ ".getallchildrenfor" + linkedtoparentinstancename + "(parentid,QueryFilter.get(" + queryattribute + "));");
 		} else {
 
 			sg.wl("		" + childclass + "[] " + childattribute + "_step" + prefixforlinkandchild + " = " + parentclass
 					+ ".getallchildrenfor" + linkedtoparentinstancename + "for" + childattribute + "(" + parentattribute
-					+ "_step" + prefixparent + ",QueryFilter.get(" + filterattribute + "));");
+					+ "_step" + prefixparent + ",QueryFilter.get(" + queryattribute + "));");
 
 		}
 		if (filterelements != null)

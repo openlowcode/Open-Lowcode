@@ -142,7 +142,7 @@ public class TimePeriodFilterElement
 		String objectattribute = StringFormatter.formatForAttribute(timeperiodfield.getParentObject().getName());
 		String objectfielduc = StringFormatter.formatForJavaClass(timeperiodfield.getName());
 		String reportnameclass = StringFormatter.formatForJavaClass(reportname);
-		String queryconditionname = objectattribute + "_step" + prefixforlinkandchild + "_filter";
+		String queryconditionname = objectattribute + "_step" + prefixforlinkandchild + "_query";
 		String fieldname = StringFormatter
 				.formatForAttribute(timeperiodfield.getParentObject().getName() + "_" + timeperiodfield.getName());
 
@@ -188,6 +188,16 @@ public class TimePeriodFilterElement
 	@Override
 	protected String getBlankValue() {
 		return "null";
+	}
+
+	@Override
+	public boolean hasSuggestionValues() {
+		return false;
+	}
+
+	@Override
+	public ArgumentContent getSuggestionArgumentContent(String suffix) {
+		return null;
 	}
 
 }

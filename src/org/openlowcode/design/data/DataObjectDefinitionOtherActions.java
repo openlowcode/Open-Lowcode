@@ -28,6 +28,7 @@ import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
+
 /**
  * This class gathers automatically generated actions for a data object.
  * 
@@ -1229,7 +1230,7 @@ public class DataObjectDefinitionOtherActions {
 		StringBuffer extraattributesdeclaration = new StringBuffer();
 		StringBuffer extraattributesfilling = new StringBuffer();
 		StringBuffer extraattributestopage = new StringBuffer();
-
+		// ------------------------ Attributes for properties ---------------------
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			for (int j = 0; j < thisproperty.getContextDataForCreationSize(); j++) {
@@ -1273,6 +1274,22 @@ public class DataObjectDefinitionOtherActions {
 					}
 				}
 		}
+		// ------------------------ Attributes for field suggestions ---------------------
+		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+			if (dataobject.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+	
+					if (extraattributesfilling.length() > 0)
+						extraattributesfilling.append(" , ");
+					extraattributesfilling.append(" suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
+					if (extraattributestopage.length() > 0)
+						extraattributestopage.append(" , ");
+					extraattributestopage.append("logicoutput.getSuggestionsforfield" + stringfield.getName().toLowerCase()+ "()");
+				}
+			}
+		}
+		
 		String objectimport = "import " + dataobject.getOwnermodule().getPath() + ".data." + objectclass + ";";
 		importdeclaration.put(objectimport, objectimport);
 
@@ -1311,6 +1328,14 @@ public class DataObjectDefinitionOtherActions {
 				+ (extraattributesdeclaration.length() > 0 ? "," : "")
 				+ "Function<TableAlias,QueryFilter> datafilter)");
 		sg.wl("			 {");
+		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+			if (dataobject.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					sg.wl("		String[] suggestionsforfield"+stringfield.getName().toLowerCase()+" = "+objectclass+".getValuesForField"+StringFormatter.formatForJavaClass(stringfield.getName().toLowerCase())+"(null);");
+				}
+			}
+		}
 		sg.wl("		return new ActionOutputData(" + extraattributesfilling.toString() + "new " + objectclass + "());");
 
 		sg.wl("	}");

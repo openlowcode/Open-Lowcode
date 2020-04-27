@@ -22,6 +22,7 @@ import org.openlowcode.server.action.SActionRef;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.DataObjectFieldMarker;
+import org.openlowcode.server.data.StringDataObjectFieldDefinition;
 import org.openlowcode.server.data.message.TObjectDataElt;
 import org.openlowcode.server.data.message.TObjectDataEltType;
 import org.openlowcode.server.graphic.SDefaultPath;
@@ -31,6 +32,7 @@ import org.openlowcode.server.graphic.SPageNode;
 import org.openlowcode.server.graphic.SPageSignifPath;
 import org.openlowcode.server.security.SecurityBuffer;
 import org.openlowcode.tools.messages.MessageWriter;
+import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.ArrayDataEltType;
 import org.openlowcode.tools.structure.SimpleDataEltType;
 import org.openlowcode.tools.structure.TextDataElt;
@@ -64,6 +66,7 @@ public class SObjectDisplay<E extends DataObject<E>>
 	private int minfieldpriority = -1000;
 	private ArrayList<DataObjectFieldMarker<E>> hiddenfields;
 	private HashMap<DataObjectFieldMarker<E>, TextDataElt> overridenlabels;
+	private HashMap<DataObjectFieldMarker<E>, ArrayDataElt<TextDataElt>> suggestionsfortextfields;
 
 	/**
 	 * creates an object display
@@ -92,6 +95,7 @@ public class SObjectDisplay<E extends DataObject<E>>
 		this.showcontent = true;
 		this.showtitle = true;
 		this.hiddenfields = new ArrayList<DataObjectFieldMarker<E>>();
+		this.suggestionsfortextfields = new HashMap<DataObjectFieldMarker<E>, ArrayDataElt<TextDataElt>>();
 		this.overridenlabels = new HashMap<DataObjectFieldMarker<E>, TextDataElt>();
 	}
 
@@ -129,6 +133,7 @@ public class SObjectDisplay<E extends DataObject<E>>
 		this.showcontent = true;
 		this.showtitle = true;
 		this.hiddenfields = new ArrayList<DataObjectFieldMarker<E>>();
+		this.suggestionsfortextfields = new HashMap<DataObjectFieldMarker<E>, ArrayDataElt<TextDataElt>>();
 		this.overridenlabels = new HashMap<DataObjectFieldMarker<E>, TextDataElt>();
 	}
 
@@ -140,6 +145,23 @@ public class SObjectDisplay<E extends DataObject<E>>
 	 */
 	public void addFieldLabelOverrides(DataObjectFieldMarker<E> fieldmarker, TextDataElt newlabel) {
 		this.overridenlabels.put(fieldmarker, newlabel);
+	}
+
+	/**
+	 * Adds a suggestion for a text field of the object
+	 * 
+	 * @param textfieldmarker
+	 * @param suggestions
+	 * @since 1.6
+	 */
+	public void addTextFieldSuggestion(
+			DataObjectFieldMarker<E> textfieldmarker,
+			ArrayDataElt<TextDataElt> suggestions) {
+		if (objectmodel.getFieldMarkerClass(textfieldmarker) != StringDataObjectFieldDefinition.class)
+			throw new RuntimeException("For object " + objectmodel.getName() + ", cannot provide suggestions for field "
+					+ textfieldmarker.getName() + " as class is not text but "
+					+ objectmodel.getFieldMarkerClass(textfieldmarker));
+		this.suggestionsfortextfields.put(textfieldmarker, suggestions);
 	}
 
 	/**
@@ -297,6 +319,19 @@ public class SObjectDisplay<E extends DataObject<E>>
 			writer.endStructure("OVWLBL");
 		}
 		writer.endStructure("OVWLBLS");
+		writer.startStructure("TXTSUGS");
+		Iterator<Entry<DataObjectFieldMarker<E>,
+						ArrayDataElt<TextDataElt>>> suggestionsiterator 
+		= this.suggestionsfortextfields.entrySet()
+								.iterator();
+		while (suggestionsiterator.hasNext()) {
+			Entry<DataObjectFieldMarker<E>, ArrayDataElt<TextDataElt>> thisentry = suggestionsiterator.next();
+			writer.startStructure("TXTSUG");
+			writer.addStringField("FLD", thisentry.getKey().toString());
+			thisentry.getValue().writeReferenceToCML(writer);
+			writer.endStructure("TXTSUG");
+		}
+		writer.endStructure("TXTSUGS");
 	}
 
 	@Override

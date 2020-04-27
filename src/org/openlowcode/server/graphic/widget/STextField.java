@@ -23,6 +23,7 @@ import org.openlowcode.server.graphic.SPageSignifPath;
 import org.openlowcode.server.security.SecurityBuffer;
 import org.openlowcode.tools.messages.MessageWriter;
 import org.openlowcode.tools.structure.ArrayDataElt;
+import org.openlowcode.tools.structure.ArrayDataEltType;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
 
@@ -299,6 +300,15 @@ public class STextField
 		return (a) -> (new SActionDataLoc<TextDataEltType>(this, a));
 	}
 
+	/**
+	 * @param all if true, all suggestions are brought back, if false, selected suggestions are brought back
+	 * @return reference to the array of text for suggestions
+	 * @since 1.6
+	 */
+	public Function<SActionInputDataRef<ArrayDataEltType<TextDataEltType>>,SActionDataLoc<ArrayDataEltType<TextDataEltType>>> getSuggestions(boolean all) {
+		return (a) -> (new SActionDataLoc<ArrayDataEltType<TextDataEltType>>(this,a,(all?"FULL":"SELECTED")));
+	}
+	
 	@Override
 	public String getPathName() {
 		return this.datafieldname;

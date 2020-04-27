@@ -477,6 +477,14 @@ public class DataObjectDefinitionDeleteAndUpdate {
 				+ "> id,Function<TableAlias,QueryFilter> datafilter)");
 		sg.wl("			 {");
 		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(id);");
+		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+			if (dataobject.fieldlist.get(i) instanceof StringField) {
+				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				if (stringfield.hasListOfValuesHelper()) {
+					sg.wl("		String[] suggestionsforfield"+stringfield.getName().toLowerCase()+" = "+objectclass+".getValuesForField"+StringFormatter.formatForJavaClass(stringfield.getName().toLowerCase())+"(null);");
+				}
+			}
+		}
 		if (isdatacontrol)
 			sg.wl("		String controlstatus = " + objectvariable + ".getvalidationdetail();");
 		if (!isextra) {
@@ -494,8 +502,24 @@ public class DataObjectDefinitionDeleteAndUpdate {
 			}
 			if (isdatacontrol)
 				sg.wl("		,controlstatus");
+			// ------------------------ Attributes for field suggestions ---------------------
+			for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+				if (dataobject.fieldlist.get(i) instanceof StringField) {
+					StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+					if (stringfield.hasListOfValuesHelper()) {
+
+						sg.wl("		, suggestionsforfield" + stringfield.getName().toLowerCase()+ " ");
+					}
+				}
+			}
 			sg.wl(");");
 		}
+		
+		
+		
+		
+		
+		
 		sg.wl("	}");
 		sg.wl("");
 
@@ -521,6 +545,16 @@ public class DataObjectDefinitionDeleteAndUpdate {
 			}
 			if (isdatacontrol)
 				sg.wl("		,logicoutput.getControlstatus()");
+			// ------------------------ Attributes for field suggestions ---------------------
+			for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+				if (dataobject.fieldlist.get(i) instanceof StringField) {
+					StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+					if (stringfield.hasListOfValuesHelper()) {
+
+						sg.wl("		, logicoutput.getSuggestionsforfield" + stringfield.getName().toLowerCase()+ "() ");
+					}
+				}
+			}
 			sg.wl(");");
 			sg.wl("	}");
 		}

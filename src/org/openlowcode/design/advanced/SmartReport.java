@@ -139,6 +139,18 @@ public class SmartReport
 				launchexcelreport.addInputArgument(inputargumentforaction);
 
 				launchreport.addOutputArgument(outputargumentforaction);
+				if (thisfilterelement.hasSuggestionValues()) {
+					ArgumentContent outputsuggestionargumentforblank = thisfilterelement
+							.getSuggestionArgumentContent(null);
+					ArgumentContent inputsuggestionargumentforaction = thisfilterelement
+							.getSuggestionArgumentContent(null);
+					ArgumentContent outputsuggestionargumentforaction = thisfilterelement
+							.getSuggestionArgumentContent("THRU");
+					blankreport.addOutputArgument(outputsuggestionargumentforblank);
+					launchreport.addInputArgument(inputsuggestionargumentforaction);
+					launchreport.addOutputArgument(outputsuggestionargumentforaction);
+					launchexcelreport.addInputArgument(inputsuggestionargumentforaction);
+				}
 
 			} else {
 				logger.warning(
@@ -288,6 +300,10 @@ public class SmartReport
 			if (!thisfilterelement.isHardCoded()) {
 				ArgumentContent thisargument = thisfilterelement.getArgumentContent(null);
 				sg.wl("			" + thisargument.getType() + " " + thisargument.getName().toLowerCase() + "_thru,");
+				if (thisfilterelement.hasSuggestionValues())
+					sg.wl("			" + thisargument.getType() + "[] " + thisargument.getName().toLowerCase()
+							+ "_suggestions_thru,");
+
 			}
 		}
 		sg.wl("			NodeTree<Reportfor" + reportvariablename + "> reportcontent)  {");
@@ -297,6 +313,9 @@ public class SmartReport
 			if (!thisfilterelement.isHardCoded()) {
 				ArgumentContent thisargument = thisfilterelement.getArgumentContent(null);
 				sg.wl("				" + thisargument.getName().toLowerCase() + "_thru,");
+				if (thisfilterelement.hasSuggestionValues())
+					sg.wl("			" + thisargument.getName().toLowerCase() + "_suggestions_thru,");
+
 			}
 		}
 		sg.wl("				reportcontent);");
@@ -313,6 +332,10 @@ public class SmartReport
 			if (!thisfilterelement.isHardCoded()) {
 				ArgumentContent thisargument = thisfilterelement.getArgumentContent(null);
 				sg.wl("			" + thisargument.getType() + " " + thisargument.getName().toLowerCase() + "_thru,");
+				if (thisfilterelement.hasSuggestionValues())
+					sg.wl("			" + thisargument.getType() + "[] " + thisargument.getName().toLowerCase()
+							+ "_suggestions_thru,");
+
 			}
 		}
 		sg.wl("			NodeTree<Reportfor" + reportvariablename + "> reportcontent)  {");
@@ -442,7 +465,7 @@ public class SmartReport
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.tools.messages.SFile;");
 		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
-		
+
 		sg.wl("import " + modulepath + ".data.Reportfor" + reportvariablename + ";");
 		sg.wl("");
 		if (hasparentobject) {
@@ -484,6 +507,9 @@ public class SmartReport
 			if (!thisfilterelement.isHardCoded()) {
 				ArgumentContent thisargument = thisfilterelement.getArgumentContent(null);
 				sg.wl("			" + thisargument.getType() + " " + thisargument.getName().toLowerCase() + ",");
+				if (thisfilterelement.hasSuggestionValues()) {
+					sg.wl("			String[] " + thisargument.getName().toLowerCase() + "_suggestions,");
+				}
 			}
 		}
 
@@ -501,9 +527,11 @@ public class SmartReport
 
 				attributes.append(thisargument.getName().toLowerCase());
 				attributes.append(",");
+				if (thisfilterelement.hasSuggestionValues()) {
+					attributes.append(thisargument.getName().toLowerCase() + "_suggestions,");
+				}
 			}
 		}
-
 		sg.wl("		NodeTree<Reportfor" + reportvariablename + "> treeresult = AtgLaunchreportfor" + reportvariablename
 				+ "Action.get()");
 		sg.wl("				.executeActionLogic(" + attributes + " datafilter).getReportcontent();");
@@ -569,7 +597,7 @@ public class SmartReport
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.action.utility.SmartReportUtility;");
-		
+
 		sg.wl("import org.openlowcode.server.data.helpers.ReportTree;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
@@ -604,6 +632,10 @@ public class SmartReport
 			if (!thisfilterelement.isHardCoded()) {
 				ArgumentContent thisargument = thisfilterelement.getArgumentContent(null);
 				sg.wl("			" + thisargument.getType() + " " + thisargument.getName().toLowerCase() + ",");
+				if (thisfilterelement.hasSuggestionValues()) {
+					sg.wl("			String[] " + thisargument.getName().toLowerCase() + "_suggestions,");
+
+				}
 			}
 		}
 
@@ -671,6 +703,10 @@ public class SmartReport
 
 				attributes.append(thisargument.getName().toLowerCase());
 				attributes.append(",");
+				if (thisfilterelement.hasSuggestionValues()) {
+					attributes.append(thisargument.getName().toLowerCase() + "_suggestions");
+					attributes.append(",");
+				}
 			}
 		}
 
@@ -694,6 +730,10 @@ public class SmartReport
 				ArgumentContent outputargumentforblank = thisfilterelement.getArgumentContent("THRU");
 				sg.wl("				logicoutput.get"
 						+ StringFormatter.formatForJavaClass(outputargumentforblank.getName()) + "(),");
+				if (thisfilterelement.hasSuggestionValues()) {
+					sg.wl("				logicoutput.get" + StringFormatter.formatForJavaClass(
+							thisfilterelement.getSuggestionArgumentContent("THRU").getName()) + "(),");
+				}
 			}
 		}
 		sg.wl("				logicoutput.getReportcontent());");
@@ -783,6 +823,19 @@ public class SmartReport
 				sg.wl("		label+=" + parentobjectvariable + ".getstateforchange().getDisplayValue();");
 			}
 		}
+		for (int i = 0; i < filterelements.size(); i++) {
+			FilterElement<?> thisfilterelement = filterelements.get(i);
+			if (!thisfilterelement.isHardCoded())
+				if (thisfilterelement.hasSuggestionValues()) {
+					sg.wl("		String[] " + thisfilterelement.getArgumentContent(null).getName().toLowerCase()
+							+ "_suggestions = "
+							+ StringFormatter.formatForJavaClass(thisfilterelement.getParent().getName())
+							+ ".getValuesForField"
+							+ StringFormatter.formatForJavaClass(thisfilterelement.getFieldForSuggestion().getName())
+							+ "(null);");
+				}
+		}
+
 		sg.wl("		return new ActionOutputData(");
 		if (hasparentobject) {
 			sg.wl("				parentid,");
@@ -793,6 +846,9 @@ public class SmartReport
 			if (!thisfilterelement.isHardCoded()) {
 				sg.wl("				" + thisfilterelement.getBlankValue() + ", // "
 						+ thisfilterelement.getArgumentContent(null).getName());
+				if (thisfilterelement.hasSuggestionValues())
+					sg.wl("			" + thisfilterelement.getArgumentContent(null).getName().toLowerCase()
+							+ "_suggestions,");
 
 			}
 		}
@@ -815,6 +871,11 @@ public class SmartReport
 				ArgumentContent outputargumentforblank = thisfilterelement.getArgumentContent(null);
 				sg.wl("				logicoutput.get"
 						+ StringFormatter.formatForJavaClass(outputargumentforblank.getName()) + "(),");
+				if (thisfilterelement.hasSuggestionValues())
+					sg.wl("			logicoutput.get"
+							+ StringFormatter.formatForJavaClass(
+									thisfilterelement.getArgumentContent(null).getName().toLowerCase())
+							+ "_suggestions(),");
 			}
 		}
 

@@ -57,6 +57,8 @@ public class MultiSelectionComboBox<E extends Object> {
 	private RunWithSelection<E> runwithselection;
 	private ArrayList<E> multiselectedobjects;
 	private ObservableList<ObjectWithLabel<E>> fullchoices;
+	private float minimumwidgetwidth = 0;
+	private String initialeditorvalue;
 
 	public E getSingleSelection() {
 		if (allowsmultiselection)
@@ -67,6 +69,21 @@ public class MultiSelectionComboBox<E extends Object> {
 		return selecteditem.getPayload();
 	}
 
+
+	/**
+	 * @param allowsmultiselection allows selection of multiple value
+	 * @param presetobjects        a list of preset objects amongst which the values
+	 *                             will be selected
+	 * @param initializeditorvalue initialize the editor with the given value
+	 */
+	public MultiSelectionComboBox(boolean allowsmultiselection, E[] presetobjects,String initialeditorvalue) {
+		this.allowsmultiselection = allowsmultiselection;
+		this.presetobjects = presetobjects;
+		this.systematicquery = true;
+		this.localstored = true;
+		this.initialeditorvalue=initialeditorvalue;
+	}
+	
 	/**
 	 * @param allowsmultiselection allows selection of multiple value
 	 * @param presetobjects        a list of preset objects amongst which the values
@@ -202,6 +219,8 @@ public class MultiSelectionComboBox<E extends Object> {
 			fullcontent = new HBox();
 
 			comboBox = new ComboBox<ObjectWithLabel<E>>();
+			if (this.minimumwidgetwidth > 0)
+				comboBox.getEditor().setMinWidth(this.minimumwidgetwidth);
 			fullcontent.getChildren().add(comboBox);
 			if (allowsmultiselection) {
 				multiselection = new HBox(6);
@@ -221,7 +240,8 @@ public class MultiSelectionComboBox<E extends Object> {
 				comboBox.setItems(fullchoices);
 				comboBox.setEditable(true);
 			}
-
+			if (this.initialeditorvalue!=null) comboBox.getEditor().setText(initialeditorvalue);
+			
 			ComboBoxListViewSkin<
 					ObjectWithLabel<E>> comboBoxListViewSkin = new ComboBoxListViewSkin<ObjectWithLabel<E>>(comboBox);
 			comboBoxListViewSkin.getPopupContent().addEventFilter(KeyEvent.ANY, (event) -> {
@@ -230,7 +250,7 @@ public class MultiSelectionComboBox<E extends Object> {
 				}
 			});
 			comboBox.setSkin(comboBoxListViewSkin);
-
+			
 			comboBox.setOnAction(new EventHandler<ActionEvent>() {
 
 				@Override
@@ -306,12 +326,14 @@ public class MultiSelectionComboBox<E extends Object> {
 						Platform.runLater(new Runnable() {
 							@Override
 							public void run() {
-								logger.severe("---------------- Starting selection -------------------------");
 								String selectionstring = comboBox.getEditor().getText();
+								int caretposition = comboBox.getEditor().getCaretPosition();
+								logger.severe("---------------- Starting selection " + selectionstring
+										+ " -------------------------");
 								List<E> selection = null;
 								if (localstored) {
 									selection = filterObjects(selectionstring);
-									logger.severe("   > Selection "+selection.size());
+									logger.severe("   > Selection " + selection.size());
 								} else {
 									selection = Arrays.asList(interactiveobjectselection.apply(selectionstring));
 								}
@@ -322,33 +344,28 @@ public class MultiSelectionComboBox<E extends Object> {
 								ObservableList<ObjectWithLabel<E>> choices = FXCollections
 										.observableArrayList(selectionresult);
 								comboBox.setItems(choices);
+								// somehow, when setting items, in some situations, editor content is removed
+								comboBox.getEditor().setText(selectionstring);
+								comboBox.getEditor().positionCaret(caretposition);
+
 								logger.severe("    > Reset values");
 								boolean shownfirst = false;
 								if (!comboBox.isShowing()) {
-
+									logger.severe("    > combobox first show");
 									comboBox.show();
 									shownfirst = true;
 								}
 								if (choices.size() != lastsize)
 									if (!shownfirst) {
-
+										logger.severe("    > combobox hide and show");
 										comboBox.hide();
-										Platform.runLater(new Runnable() {
-											@Override
-											public void run() {
-
-												comboBox.show();
-											}
-										});
-
+										comboBox.show();
 										lastsize = choices.size();
 									}
-								// if only one choice and signe selection, select the item
+
 								if (!allowsmultiselection) {
-									if (choices.size() == 1) {
-										comboBox.getSelectionModel().select(choices.get(0));
-										comboBox.getEditor().positionCaret(comboBox.getEditor().getText().length());
-									} else {
+									if (choices.size() != 1) {
+										logger.severe("   >>> Clear multi-selection.");
 										// if not one choice available, unselect any item selected
 										comboBox.getSelectionModel().clearSelection();
 									}
@@ -406,6 +423,8 @@ public class MultiSelectionComboBox<E extends Object> {
 
 		@Override
 		public String toString() {
+			if (object == null)
+				return null;
 			if (labelgenerator == null)
 				return object.toString();
 			return labelgenerator.apply(object);
@@ -435,5 +454,10 @@ public class MultiSelectionComboBox<E extends Object> {
 		 * @param selectedobject
 		 */
 		public abstract void run(E selectedobject);
+	}
+
+	public void setMinimumWidgetWidth(float width) {
+		this.minimumwidgetwidth = width;
+
 	}
 }

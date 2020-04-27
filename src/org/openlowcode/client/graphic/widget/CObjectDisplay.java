@@ -91,6 +91,7 @@ public class CObjectDisplay
 	private boolean showtitle;
 	private boolean showcontent;
 	private HashMap<String, CPageDataRef> overridenlabels;
+	private HashMap<String, CPageDataRef> suggestionsforstringfield;
 	private TitledPane morepane;
 
 	/**
@@ -143,7 +144,7 @@ public class CObjectDisplay
 		payloadlistbyname = new HashMap<String, CBusinessField<?>>();
 		morepayloadlist = new ArrayList<CBusinessField<?>>();
 		morepayloadlistbyname = new HashMap<String, CBusinessField<?>>();
-
+		suggestionsforstringfield = new HashMap<String, CPageDataRef>();
 		reader.startStructureArray("ATTR");
 		while (reader.structureArrayHasNextElement("ATTR")) {
 			CBusinessField thisfield = CBusinessField.parseBusinessField(reader, parentpath);
@@ -185,6 +186,14 @@ public class CObjectDisplay
 			overridenlabels.put(fieldtooverride, dataref);
 			reader.returnNextEndStructure("OVWLBL");
 		}
+		reader.startStructureArray("TXTSUG");
+		while (reader.structureArrayHasNextElement("TXTSUG")) {
+			String fieldwithsuggestions = reader.returnNextStringField("FLD");
+			CPageDataRef suggestionsdataref = CPageDataRef.parseCPageDataRef(reader);
+			suggestionsforstringfield.put(fieldwithsuggestions, suggestionsdataref);
+			reader.returnNextEndStructure("TXTSUG");
+		}
+
 		reader.returnNextEndStructure("OBJDIS");
 	}
 
@@ -211,16 +220,17 @@ public class CObjectDisplay
 	 * generate the javafx node holding an object data element
 	 * 
 	 * @param objectdataelement object data
-	 * @param path path
-	 * @param payloadlist list of fields
-	 * @param hidereadonly if true, hide read-only fields
-	 * @param readonly if true, object is read-only, if false, node is read-write
-	 * @param actionmanager action manager
-	 * @param action action to trigger
-	 * @param label plain label
-	 * @param inputdata page data
-	 * @param parentwindow parent window
-	 * @param parenttabpanes parent panes if relevant
+	 * @param path              path
+	 * @param payloadlist       list of fields
+	 * @param hidereadonly      if true, hide read-only fields
+	 * @param readonly          if true, object is read-only, if false, node is
+	 *                          read-write
+	 * @param actionmanager     action manager
+	 * @param action            action to trigger
+	 * @param label             plain label
+	 * @param inputdata         page data
+	 * @param parentwindow      parent window
+	 * @param parenttabpanes    parent panes if relevant
 	 * @return the javafx node
 	 */
 	public static Node generateObjectDisplay(
@@ -360,7 +370,7 @@ public class CObjectDisplay
 
 	}
 
-	private void modifycolumnmodel(CPageData inputdata) {
+	private void modifycolumnmodelandaddsuggestion(CPageData inputdata) {
 		for (int i = 0; i < payloadlist.size(); i++) {
 			CBusinessField<?> thisfield = payloadlist.get(i);
 			CPageDataRef overrides = overridenlabels.get(thisfield.getFieldname());
@@ -369,6 +379,14 @@ public class CObjectDisplay
 				if (thiselement == null)
 					throw new RuntimeException("could not find a page data called " + thisfield.getFieldname());
 				thisfield.overridesLabel(thiselement.getPayload());
+			}
+			CPageDataRef suggestiondata = this.suggestionsforstringfield.get(thisfield.getFieldname());
+			if (suggestiondata != null) {
+				if (thisfield instanceof CTextField) {
+					CTextField thistextfield = (CTextField) thisfield;
+					thistextfield.addSuggestions(suggestiondata);
+				} else throw new RuntimeException("Suggestion only valid for TextField, and "+thisfield.getFieldname()+" ");
+				
 			}
 
 		}
@@ -381,7 +399,7 @@ public class CObjectDisplay
 			Window parentwindow,
 			TabPane[] parenttabpanes) {
 
-		modifycolumnmodel(inputdata);
+		modifycolumnmodelandaddsuggestion(inputdata);
 		// *************** get reference data ********
 
 		ObjectDataElt objectdata = getExternalContent(inputdata, datareference);
@@ -393,6 +411,22 @@ public class CObjectDisplay
 		CComponentBand hiddenfieldtable = new CComponentBand(CComponentBand.DIRECTION_DOWN, this.nodepath);
 		hiddenfieldtable.setMinWidth(700);
 
+		// **************** add suggestions **********
+		if (this.showcontent)
+		for (int i=0;i<payloadlist.size();i++) {
+			CBusinessField<?> currentfield = payloadlist.get(i);
+			CPageDataRef suggestiondata = this.suggestionsforstringfield.get(currentfield.getFieldname());
+			if (suggestiondata!=null) {
+				if (currentfield instanceof CTextField) {
+					CTextField textfield = (CTextField) currentfield;
+					textfield.addSuggestions(suggestiondata);
+					logger.severe("Adding suggestions for field "+currentfield.getFieldname()+" sugestiondata = "+suggestiondata);
+				} else  {
+					logger.severe("Received request for suggestion for field "+currentfield.getFieldname()+" although it is not CTextField but "+currentfield.getClass());
+				}
+			}
+		}
+		
 		// *************** put content ***************
 		if (this.showcontent)
 			for (int i = 0; i < payloadlist.size(); i++) {
