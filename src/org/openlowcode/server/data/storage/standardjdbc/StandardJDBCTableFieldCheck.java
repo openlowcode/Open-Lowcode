@@ -193,7 +193,7 @@ public abstract class StandardJDBCTableFieldCheck
 					return PersistentStorage.FIELD_OK;
 		logger.warning(
 				"Incompatible default value for field " + integerStoredField.getName() + ", default value in db = "
-						+ defaultvalue.intValue() + ", in model = " + columntype.getDefaultvalue());
+						+ (defaultvalue!=null?defaultvalue.intValue():null) + ", in model = " + columntype.getDefaultvalue());
 		return PersistentStorage.FIELD_UPDATABLE;
 	}
 
