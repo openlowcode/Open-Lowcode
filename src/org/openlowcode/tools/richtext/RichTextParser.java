@@ -76,6 +76,7 @@ public class RichTextParser {
 			logger.finest("--- starting parsing of rich-text " + richtext);
 			int character = reader.read();
 			while (character != -1) {
+				boolean treated=false;
 				if (character == TAG_OPENER) {
 					character = reader.read();
 					// double tag opener. This is escape character
@@ -83,6 +84,7 @@ public class RichTextParser {
 						currentsectiontext.append(TAG_OPENER);
 						if (currentsection == null)
 							currentsection = new RichTextSection();
+						treated=true;
 					}
 					// processing real formatting
 					else {
@@ -119,11 +121,11 @@ public class RichTextParser {
 							character = reader.read();
 
 						}
-						character = reader.read();
+						treated=true;
 					}
 				}
 
-				if (character != -1)
+				if (!treated) if (character != -1)
 					if (character != TAG_OPENER) {
 						currentsectiontext.append((char) (character));
 						if (currentsection == null)
