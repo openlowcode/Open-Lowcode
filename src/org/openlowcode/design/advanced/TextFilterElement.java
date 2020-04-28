@@ -172,7 +172,7 @@ public class TextFilterElement
 		String fieldclass = StringFormatter.formatForJavaClass(stringfield.getName());
 		String objectclass = StringFormatter.formatForJavaClass(stringfield.getParentObject().getName());
 		if (!this.isHardCoded()) {
-			sg.wl("		if (" + fieldname + "!=null) {");
+			sg.wl("		if (" + fieldname + "!=null) if ("+fieldname+".trim().length()>0) {");
 			sg.wl("			QueryCondition filtercondition =");
 			sg.wl("					new SimpleQueryCondition<String>");
 			sg.wl("						(" + objectclass

@@ -89,13 +89,11 @@ public class DataObjectDefinitionUpdatePage
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
 				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
-					if (pageattributedeclaration.length() > 0)
-						pageattributedeclaration.append(" , ");
+	
 					pageattributedeclaration
-							.append(" String[] suggestionsforfield" + stringfield.getName().toLowerCase()+ " ");
-					if (pageattributeentry.length() > 0)
-						pageattributeentry.append(" , ");
-					pageattributeentry.append(" suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
+							.append(", String[] suggestionsforfield" + stringfield.getName().toLowerCase()+ " ");
+				
+					pageattributeentry.append(", suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
 				}
 			}
 		}
@@ -164,7 +162,7 @@ public class DataObjectDefinitionUpdatePage
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
 				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
-					sg.wl("			objectupdatedefinition.addTextFieldSuggestion("+objectclass+".get"+StringFormatter.formatForJavaClass(stringfield.getName())+"FieldMarker(),this.getSuggestionsforfieldbudgetowner());");		
+					sg.wl("			objectupdatedefinition.addTextFieldSuggestion("+objectclass+".get"+StringFormatter.formatForJavaClass(stringfield.getName())+"FieldMarker(),this.getSuggestionsforfield"+stringfield.getName().toLowerCase()+"());");		
 				}
 			}
 		}

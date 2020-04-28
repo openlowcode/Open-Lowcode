@@ -25,16 +25,17 @@ import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
-
 /**
  * Generation of the creation page for a Data Object
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  */
-public class DataObjectDefinitionCreatePageToFile implements
-GeneratedPages {
+public class DataObjectDefinitionCreatePageToFile
+		implements
+		GeneratedPages {
 	private DataObjectDefinition dataobject;
+
 	/**
 	 * creates the utility class to generate the creation page
 	 * 
@@ -43,6 +44,7 @@ GeneratedPages {
 	public DataObjectDefinitionCreatePageToFile(DataObjectDefinition dataobject) {
 		this.dataobject = dataobject;
 	}
+
 	@Override
 	public void generateToFile(SourceGenerator sg, Module module) throws IOException {
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
@@ -50,7 +52,7 @@ GeneratedPages {
 
 		sg.wl("package " + module.getPath() + ".page.generated;");
 		sg.wl("");
-		boolean isextra = false;
+
 		HashMap<String, String> importdeclaration = new HashMap<String, String>();
 
 		StringBuffer pageattributedeclaration = new StringBuffer();
@@ -69,7 +71,7 @@ GeneratedPages {
 					pageattributeentry.append(" , ");
 				pageattributeentry.append(" " + thisargument.getName().toLowerCase() + " ");
 
-				isextra = true;
+	
 
 				ArrayList<String> imports = thisargument.getImports();
 				for (int k = 0; k < imports.size(); k++) {
@@ -81,7 +83,7 @@ GeneratedPages {
 				for (int j = 0; j < thisproperty.getDataInputSize(); j++) {
 					ArgumentContent thisargument = thisproperty.getDataInputForCreation(j);
 					if (!thisproperty.isDataInputHiddenForCreation()) {
-						isextra = true;
+			
 
 						if (thisargument instanceof StringArgument) {
 							String importtextfield = "import org.openlowcode.server.graphic.widget.STextField;";
@@ -109,23 +111,24 @@ GeneratedPages {
 
 				}
 		}
-		
-		// ------------------------ Attributes for field suggestions ---------------------
-		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+
+		// ------------------------ Attributes for field suggestions
+		// ---------------------
+		for (int i = 0; i < dataobject.fieldlist.getSize(); i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
-				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				StringField stringfield = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
 					if (pageattributedeclaration.length() > 0)
 						pageattributedeclaration.append(" , ");
 					pageattributedeclaration
-							.append(" String[] suggestionsforfield" + stringfield.getName().toLowerCase()+ " ");
+							.append(" String[] suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
 					if (pageattributeentry.length() > 0)
 						pageattributeentry.append(" , ");
 					pageattributeentry.append(" suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
 				}
 			}
 		}
-		
+
 		String objectimport = "import " + dataobject.getOwnermodule().getPath() + ".data." + objectclass + ";";
 		importdeclaration.put(objectimport, objectimport);
 
@@ -187,8 +190,10 @@ GeneratedPages {
 					}
 			}
 		sg.wl("");
-		if (isextra)
+		if (pageattributedeclaration.length() > 0)
 			pageattributedeclaration.append(',');
+		if (pageattributeentry.length() > 0)
+			pageattributeentry.append(',');
 
 		sg.wl("	@Override");
 		sg.wl("	public String generateTitle(" + pageattributedeclaration.toString());
@@ -198,8 +203,7 @@ GeneratedPages {
 
 		sg.wl("	public AtgStandardcreate" + objectvariable + "Page(" + pageattributedeclaration.toString());
 		sg.wl("			" + objectclass + " object)  {");
-		if (isextra)
-			pageattributeentry.append(',');
+
 		sg.wl("		super(" + pageattributeentry.toString());
 		sg.wl("			  object);");
 		sg.wl("		");
@@ -362,11 +366,14 @@ GeneratedPages {
 		sg.wl("			SObjectDisplay<" + objectclass + "> " + objectvariable + "display = new SObjectDisplay<"
 				+ objectclass + ">(\"OBJECTDISPLAY\", this.getObject()," + objectclass
 				+ ".getDefinition(),this, false);");
-		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+		for (int i = 0; i < dataobject.fieldlist.getSize(); i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
-				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				StringField stringfield = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
-					sg.wl("			" + objectvariable + "display.addTextFieldSuggestion("+objectclass+".get"+StringFormatter.formatForJavaClass(stringfield.getName())+"FieldMarker(),this.getSuggestionsforfieldbudgetowner());");		
+					sg.wl("			" + objectvariable + "display.addTextFieldSuggestion(" + objectclass + ".get"
+							+ StringFormatter.formatForJavaClass(stringfield.getName())
+							+ "FieldMarker(),this.getSuggestionsforfield" + stringfield.getName().toLowerCase()
+							+ "());");
 				}
 			}
 		}
@@ -422,7 +429,6 @@ GeneratedPages {
 
 		sg.close();
 
-		
 	}
 
 }

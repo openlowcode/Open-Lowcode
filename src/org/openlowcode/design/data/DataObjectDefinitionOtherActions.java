@@ -1224,7 +1224,6 @@ public class DataObjectDefinitionOtherActions {
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 
 		sg.wl("package " + module.getPath() + ".action.generated;");
-		boolean isextra = false;
 		HashMap<String, String> importdeclaration = new HashMap<String, String>();
 
 		StringBuffer extraattributesdeclaration = new StringBuffer();
@@ -1248,7 +1247,6 @@ public class DataObjectDefinitionOtherActions {
 				if (extraattributestopage.length() > 0)
 					extraattributestopage.append(" , ");
 				extraattributestopage.append("logicoutput.getCopy" + thisargument.getName().toLowerCase() + "()");
-				isextra = true;
 
 				ArrayList<String> imports = thisargument.getImports();
 				for (int k = 0; k < imports.size(); k++) {
@@ -1258,7 +1256,6 @@ public class DataObjectDefinitionOtherActions {
 			if (!thisproperty.isDataInputHiddenForCreation())
 				for (int j = 0; j < thisproperty.getDataInputSize(); j++) {
 					ArgumentContent thisargument = thisproperty.getDataInputForCreation(j);
-					isextra = true;
 
 					if (extraattributesfilling.length() > 0)
 						extraattributesfilling.append(" , ");
@@ -1318,11 +1315,9 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("	@Override");
 
 		String output = "ActionOutputData";
-		if (isextra) {
-
-			extraattributesfilling.append(',');
-			extraattributestopage.append(',');
-		}
+		if (extraattributesfilling.length()>0) extraattributesfilling.append(',');
+		if (extraattributestopage.length()>0) extraattributestopage.append(',');
+	
 
 		sg.wl("	public " + output + " executeActionLogic(" + extraattributesdeclaration.toString()
 				+ (extraattributesdeclaration.length() > 0 ? "," : "")
