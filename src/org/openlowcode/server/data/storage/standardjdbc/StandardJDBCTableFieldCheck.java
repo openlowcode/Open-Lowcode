@@ -106,14 +106,25 @@ public abstract class StandardJDBCTableFieldCheck
 		if (columntype.getDefaultvalue() == null)
 			if (stringfield.defaultValue() == null)
 				return PersistentStorage.FIELD_OK;
+
 		if (columntype.getDefaultvalue() == null)
 			if (stringfield.defaultValue().length() == 0)
 				return PersistentStorage.FIELD_OK;
+
 		if (stringfield.defaultValue() == null)
-			if (columntype.getDefaultvalue().length() == 0)
+			if (columntype.getDefaultvalue() == null)
 				return PersistentStorage.FIELD_OK;
+
+		if (columntype.getDefaultvalue().equals("NULL"))
+			if (stringfield.defaultValue() == null)
+				return PersistentStorage.FIELD_OK;
+		if (columntype.getDefaultvalue().equals("NULL"))
+			if (stringfield.defaultValue().length() == 0)
+				return PersistentStorage.FIELD_OK;
+
 		String defaultvalueinmodel = stringfield.defaultValueAtColumnCreation();
-		if (this.MetaDataEscapesDefaultString())  defaultvalueinmodel = "'" + defaultvalueinmodel.replace("'", "''") + "'";
+		if (this.MetaDataEscapesDefaultString())
+			defaultvalueinmodel = "'" + defaultvalueinmodel.replace("'", "''") + "'";
 		if (columntype.getDefaultvalue() != null)
 			if (stringfield.defaultValue() != null)
 				if (columntype.getDefaultvalue().equals(defaultvalueinmodel)) {
@@ -145,8 +156,7 @@ public abstract class StandardJDBCTableFieldCheck
 		int scale = decimalStoredField.getScale();
 		if (precision < columntype.getLength()) {
 			logger.warning("Incompatible format for field " + decimalStoredField.getName()
-					+ ", for precision default value in db = " + columntype.getLength() + ", in model = "
-					+ precision);
+					+ ", for precision default value in db = " + columntype.getLength() + ", in model = " + precision);
 			return PersistentStorage.FIELD_UPDATABLE;
 		}
 
@@ -191,9 +201,9 @@ public abstract class StandardJDBCTableFieldCheck
 			if (columntype.getDefaultvalue() != null)
 				if (("" + defaultvalue.intValue()).equals(columntype.getDefaultvalue()))
 					return PersistentStorage.FIELD_OK;
-		logger.warning(
-				"Incompatible default value for field " + integerStoredField.getName() + ", default value in db = "
-						+ (defaultvalue!=null?defaultvalue.intValue():null) + ", in model = " + columntype.getDefaultvalue());
+		logger.warning("Incompatible default value for field " + integerStoredField.getName()
+				+ ", default value in db = " + (defaultvalue != null ? defaultvalue.intValue() : null) + ", in model = "
+				+ columntype.getDefaultvalue());
 		return PersistentStorage.FIELD_UPDATABLE;
 	}
 
