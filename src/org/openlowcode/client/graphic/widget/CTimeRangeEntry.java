@@ -142,10 +142,10 @@ public class CTimeRangeEntry
 				thispane.getChildren().add(minusbutton);
 				if (defaultchoicebox.getValue() != null) {
 					TimeRangeSlot selectedvalue = defaultchoicebox.getValue();
-					startdatepicker.setDateTimeValue(LocalDateTime
-							.from(selectedvalue.startdategenerator.get().toInstant().atZone(ZoneId.systemDefault())));
-					enddatepicker.setDateTimeValue(LocalDateTime
-							.from(selectedvalue.enddategenerator.get().toInstant().atZone(ZoneId.systemDefault())));
+					startdatepicker.setDateTimeValue((selectedvalue.startdategenerator.get()!=null?LocalDateTime
+							.from(selectedvalue.startdategenerator.get().toInstant().atZone(ZoneId.systemDefault())):null));
+					enddatepicker.setDateTimeValue((selectedvalue.enddategenerator.get()!=null?LocalDateTime
+							.from(selectedvalue.enddategenerator.get().toInstant().atZone(ZoneId.systemDefault())):null));
 				}
 			}
 
@@ -229,7 +229,7 @@ public class CTimeRangeEntry
 	public final static TimeRangeSlot LASTYEAR = new TimeRangeSlot("Last year", () -> (DateUtils.getStartOfLastYear()),
 			() -> (DateUtils.getStartOfThisYear()));
 
-	public static final TimeRangeSlot[] alltimeranges = new TimeRangeSlot[] { LAST15MINUTES, TODAY, YESTERDAY, THISWEEK,
+	public static final TimeRangeSlot[] alltimeranges = new TimeRangeSlot[] {null, LAST15MINUTES, TODAY, YESTERDAY, THISWEEK,
 			LASTWEEK, THISMONTH, LASTMONTH, THISYEAR, LASTYEAR };
 
 	static class TimeRangeSlot {

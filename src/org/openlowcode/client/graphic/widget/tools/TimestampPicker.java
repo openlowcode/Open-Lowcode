@@ -152,6 +152,11 @@ public class TimestampPicker
 				datetimevalue.set(null);
 				return null;
 			}
+			
+			if (value.trim().length()==0) {
+				datetimevalue.set(null);
+				return null;
+			}
 
 			datetimevalue.set(LocalDateTime.parse(value, formatter));
 			return datetimevalue.get().toLocalDate();
