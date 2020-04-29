@@ -1,5 +1,5 @@
 # Open-Lowcode
-**Lowcode framework for enterprises **
+**Lowcode framework for enterprises**
 
 Open Lowcode allows organizations develop quickly specific applications, and scale them with a minomum budget. 
 
