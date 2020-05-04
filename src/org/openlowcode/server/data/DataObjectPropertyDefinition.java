@@ -401,7 +401,9 @@ public abstract class DataObjectPropertyDefinition<E extends DataObject<E>>
 		private boolean richtext = false;
 		private FieldChoiceDefinition choiceforstring;
 		private DataObjectDefinition<E> objectdefinition;
-
+		
+		
+		
 		/**
 		 * defines this text as richtext
 		 */

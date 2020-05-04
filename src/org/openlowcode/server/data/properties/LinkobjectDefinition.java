@@ -43,8 +43,12 @@ import org.openlowcode.server.data.storage.StringStoredField;
  * @param <F> object at left of link
  * @param <G> object at right of link
  */
-public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<E, F, G>, F extends DataObject<F> & UniqueidentifiedInterface<F>, G extends DataObject<G> & UniqueidentifiedInterface<G>>
-		extends DataObjectPropertyDefinition<E> {
+public class LinkobjectDefinition<
+		E extends DataObject<E> & LinkobjectInterface<E, F, G>,
+		F extends DataObject<F> & UniqueidentifiedInterface<F>,
+		G extends DataObject<G> & UniqueidentifiedInterface<G>>
+		extends
+		DataObjectPropertyDefinition<E> {
 	private DataObjectDefinition<F> leftobjectdefinition;
 	private DataObjectDefinition<G> rightobjectdefinition;
 	private StringStoredField leftid;
@@ -65,6 +69,7 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 	private boolean showfieldsforrightobject;
 	private int minpriorityforleftobjectfields;
 	private int minpriorityforrightobjectfields;
+	private boolean makesidmodifiable = false;
 	private static Logger logger = Logger.getLogger(LinkobjectDefinition.class.getName());
 
 	/**
@@ -165,11 +170,18 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 	 *                                    shown on the link
 	 * @param showrightfieldswithpriority if set, right fields above the priority
 	 *                                    are shown on the link
+	 * @param makesidmodifiable     if true, the ids of links can be sent to a
+	 *                              client before having been persisted. This may be
+	 *                              a security risk that the data is tampered on the
+	 *                              client side
 	 */
-	public LinkobjectDefinition(DataObjectDefinition<E> parentobject, DataObjectDefinition<F> leftobjectdefinition,
-			DataObjectDefinition<G> rightobjectdefinition, int showleftfieldswithpriority,
-			int showrightfieldswithpriority) {
-		this(parentobject, leftobjectdefinition, rightobjectdefinition);
+	public LinkobjectDefinition(
+			DataObjectDefinition<E> parentobject,
+			DataObjectDefinition<F> leftobjectdefinition,
+			DataObjectDefinition<G> rightobjectdefinition,
+			int showleftfieldswithpriority,
+			int showrightfieldswithpriority,boolean makesidmodifiable) {
+		this(parentobject, leftobjectdefinition, rightobjectdefinition,makesidmodifiable);
 		if (showleftfieldswithpriority < 1000) {
 			this.showfieldsforleftobject = true;
 			this.minpriorityforleftobjectfields = showleftfieldswithpriority;
@@ -189,9 +201,16 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 	 * @param parentobject          parent object definition
 	 * @param leftobjectdefinition  definition of the left object for link
 	 * @param rightobjectdefinition definition of the right object for link
+	 * @param makesidmodifiable     if true, the ids of links can be sent to a
+	 *                              client before having been persisted. This may be
+	 *                              a security risk that the data is tampered on the
+	 *                              client side
 	 */
-	public LinkobjectDefinition(DataObjectDefinition<E> parentobject, DataObjectDefinition<F> leftobjectdefinition,
-			DataObjectDefinition<G> rightobjectdefinition) {
+	public LinkobjectDefinition(
+			DataObjectDefinition<E> parentobject,
+			DataObjectDefinition<F> leftobjectdefinition,
+			DataObjectDefinition<G> rightobjectdefinition,
+			boolean makesidmodifiable) {
 		super(parentobject, "LINKOBJECT");
 		this.leftobjectdefinition = leftobjectdefinition;
 		this.rightobjectdefinition = rightobjectdefinition;
@@ -217,6 +236,7 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 		this.replaceifmorethanonefromleft = false;
 		this.showfieldsforleftobject = false;
 		this.showfieldsforrightobject = false;
+		this.makesidmodifiable=makesidmodifiable;
 	}
 
 	/**
@@ -287,7 +307,9 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 
 	/**
 	 * sets the dependent property unique identified for the link object
-	 * @param uniqueidentifieddefinition unique identified property for the left object
+	 * 
+	 * @param uniqueidentifieddefinition unique identified property for the left
+	 *                                   object
 	 */
 	public void setDependentDefinitionUniqueidentified(UniqueidentifiedDefinition<E> uniqueidentifieddefinition) {
 		this.uniqueidentifieddefinition = uniqueidentifieddefinition;
@@ -327,8 +349,8 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 		}
 		// get named property for left object
 		if (leftobjectdefinition.hasProperty("NUMBERED")) {
-			NumberedDefinition<F> numbereddefinition = (NumberedDefinition<F>) leftobjectdefinition
-					.getProperty("NUMBERED");
+			NumberedDefinition<
+					F> numbereddefinition = (NumberedDefinition<F>) leftobjectdefinition.getProperty("NUMBERED");
 			boolean orderedasnumber = false;
 			int numberoffset = 0;
 			if (numbereddefinition.getAutonumberingRule() != null)
@@ -355,8 +377,8 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 		// get state property for left object
 
 		if (leftobjectdefinition.hasProperty("LIFECYCLE")) {
-			LifecycleDefinition<?, ?> lifecycle = (LifecycleDefinition<?, ?>) (leftobjectdefinition
-					.getProperty("LIFECYCLE"));
+			LifecycleDefinition<
+					?, ?> lifecycle = (LifecycleDefinition<?, ?>) (leftobjectdefinition.getProperty("LIFECYCLE"));
 			ExternalFieldSchema<?> leftexternalfield = leftobjectdefinition.generateExternalField(
 					this.getName() + "LEFTSTATE", "Left state", "this is a stupid comment", "LIFECYCLE", "STATE",
 					lifecycle.getLifecycleHelper(), leftjoincondition, this.displayprofilehideleftobjectfields, 500,
@@ -408,8 +430,8 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 			// adds an external field is the target object is named -- currently, there is
 			// an error
 			@SuppressWarnings("unchecked")
-			NumberedDefinition<F> numbereddefinition = (NumberedDefinition<F>) rightobjectdefinition
-					.getProperty("NUMBERED");
+			NumberedDefinition<
+					F> numbereddefinition = (NumberedDefinition<F>) rightobjectdefinition.getProperty("NUMBERED");
 			boolean orderedasnumber = false;
 			int numberoffset = 0;
 			if (numbereddefinition.getAutonumberingRule() != null)
@@ -436,8 +458,8 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 			externalfieldlist.add(rightexternalfield);
 		}
 		if (rightobjectdefinition.hasProperty("LIFECYCLE")) {
-			LifecycleDefinition<?, ?> lifecycle = (LifecycleDefinition<?, ?>) (rightobjectdefinition
-					.getProperty("LIFECYCLE"));
+			LifecycleDefinition<
+					?, ?> lifecycle = (LifecycleDefinition<?, ?>) (rightobjectdefinition.getProperty("LIFECYCLE"));
 			ExternalFieldSchema<?> rightexternalfield = rightobjectdefinition.generateExternalField(
 					this.getName() + "RIGHTSTATE", "Right object state", "this is a stupid comment", "LIFECYCLE",
 					"STATE", lifecycle.getLifecycleHelper(), rightjoincondition,
@@ -473,11 +495,11 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 		@SuppressWarnings("unchecked")
 		FieldSchemaForDisplay<E>[] returnvalue = new FieldSchemaForDisplay[2];
 		returnvalue[0] = new FieldSchemaForDisplay<E>("Left id",
-				"the technical id generated by the system for the left object of the part", leftid, false, true, -200,
-				16, this.parentobject);
+				"the technical id generated by the system for the left object of the part", leftid, false, true,
+				!makesidmodifiable, -200, 16, this.parentobject);
 		returnvalue[1] = new FieldSchemaForDisplay<E>("Right id",
-				"the technical id generated by the system for the right object of the part", rightid, false, true, -200,
-				16, this.parentobject);
+				"the technical id generated by the system for the right object of the part", rightid, false, true,
+				!makesidmodifiable, -200, 16, this.parentobject);
 
 		return returnvalue;
 	}
@@ -495,8 +517,10 @@ public class LinkobjectDefinition<E extends DataObject<E> & LinkobjectInterface<
 	}
 
 	@Override
-	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
-			String[] columnattributes, PropertyExtractor<E> propertyextractor,
+	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
+			DataObjectDefinition<E> objectdefinition,
+			String[] columnattributes,
+			PropertyExtractor<E> propertyextractor,
 			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		throw new RuntimeException("Not yet implemented");
 	}

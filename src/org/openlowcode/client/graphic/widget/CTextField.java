@@ -1057,6 +1057,7 @@ public class CTextField
 
 	}
 
+	
 	@Override
 	public TableColumn<CObjectGridLine<String>, ?> getTableColumnForGrid(
 			PageActionManager pageactionmanager,

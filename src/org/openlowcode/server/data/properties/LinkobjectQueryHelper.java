@@ -88,7 +88,7 @@ public class LinkobjectQueryHelper {
 			TableAlias alias, DataObjectId<F> idvalue, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> leftobjectdefinition, DataObjectDefinition<G> rightobjectdefinition) {
 		LinkobjectDefinition<E, F, G> definition = new LinkobjectDefinition<E, F, G>(parentobjectdefinition,
-				leftobjectdefinition, rightobjectdefinition);
+				leftobjectdefinition, rightobjectdefinition, false);
 		@SuppressWarnings("unchecked")
 		StoredFieldSchema<String> id = (StoredFieldSchema<String>) definition.getDefinition().lookupOnName("LFID");
 		if (alias == null)
@@ -112,7 +112,7 @@ public class LinkobjectQueryHelper {
 			TableAlias alias, DataObjectId<G> idvalue, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> leftobjectdefinition, DataObjectDefinition<G> rightobjectdefinition) {
 		LinkobjectDefinition<E, F, G> definition = new LinkobjectDefinition<E, F, G>(parentobjectdefinition,
-				leftobjectdefinition, rightobjectdefinition);
+				leftobjectdefinition, rightobjectdefinition, false);
 		@SuppressWarnings("unchecked")
 		StoredFieldSchema<String> id = (StoredFieldSchema<String>) definition.getDefinition().lookupOnName("RGID");
 		if (alias == null)
@@ -627,7 +627,7 @@ public class LinkobjectQueryHelper {
 					aliaslist.add(additionalcondition.getAliases()[i]);
 
 		LinkobjectDefinition<F, E, G> definition = new LinkobjectDefinition<F, E, G>(linkobjectdefinition,
-				leftobjectdefinition, rightobjectdefinition);
+				leftobjectdefinition, rightobjectdefinition, false);
 		QueryCondition rightidcondition = linkobjectdefinition.extendquery(aliaslist, linkalias,
 				getRightidQueryCondition(linkalias, rightid, linkobjectdefinition, leftobjectdefinition,
 						rightobjectdefinition));

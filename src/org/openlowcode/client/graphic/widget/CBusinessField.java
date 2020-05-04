@@ -163,7 +163,9 @@ public abstract class CBusinessField<E extends SimpleDataElt>
 			int preferedrowheight,
 			String actionkeyforupdate);
 
+
 	/**
+	 * @param pageactionmanager    action manager
 	 * @param preferedrowheight    prefered height for row (note: not used for big
 	 *                             decimal, not implemented for other fields
 	 * @param actionkeyforupdate   update action key
@@ -177,7 +179,7 @@ public abstract class CBusinessField<E extends SimpleDataElt>
 	 *                             only one field display). if wrong, title is the
 	 *                             current column title (good for several fields
 	 *                             displays
-	 * @return
+	 * @return a table column to be used in grid classical layout
 	 */
 	public abstract TableColumn<CObjectGridLine<String>, ?> getTableColumnForGrid(
 			PageActionManager pageactionmanager,

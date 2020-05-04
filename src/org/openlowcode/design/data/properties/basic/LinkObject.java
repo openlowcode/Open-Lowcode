@@ -60,6 +60,7 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 	private boolean hasfieldshown = false;
 	private int priorityforleft;
 	private int priorityforright;
+	private boolean setidsmodifiable = false;
 
 	/**
 	 * @param priorityforleft
@@ -82,6 +83,15 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 	private String labelfromright;
 	private WidgetDisplayPriority displaypriorityfromleft;
 	private WidgetDisplayPriority displaypriorityfromright;
+
+	/**
+	 * makes the ids of left and right object modifiable from client client. This
+	 * can be a security risk, with the possibility for data to be tampered if
+	 * someone uses a non-standard client
+	 */
+	public void setIdsmodifiable() {
+		this.setidsmodifiable = true;
+	}
 
 	/**
 	 * @return
@@ -152,7 +162,38 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 			String labelfromright,
 			WidgetDisplayPriority displaypriorityfromleft,
 			WidgetDisplayPriority displaypriorityfromright) {
+		this(leftobjectforlink, rightobjectforlink, labelfromleft, labelfromright, displaypriorityfromleft,
+				displaypriorityfromright, false);
+	}
+
+	/**
+	 * creates a link object with specified label from left object, and label from
+	 * right object for the link (e.g. for a wedding link between a man and a woman,
+	 * you could display 'husband' and 'wife' as specific label). Priority for the
+	 * widgets on left and right objects is also specified
+	 * 
+	 * @param leftobjectforlink        the left object of the link
+	 * @param rightobjectforlink       the right object of the link
+	 * @param labelfromleft            label of the link table seen from left object
+	 * @param labelfromright           label of the link table seen from right
+	 *                                 object
+	 * @param displaypriorityfromleft  priority display from the left object
+	 * @param displaypriorityfromright priority display from the right object
+	 * @param setidsmodifiable         put true if ids should be modifiable from
+	 *                                 client. This can be a security risk, with the
+	 *                                 possibility for data to be tampered if
+	 *                                 someone uses a non-standard client
+	 */
+	public LinkObject(
+			E leftobjectforlink,
+			F rightobjectforlink,
+			String labelfromleft,
+			String labelfromright,
+			WidgetDisplayPriority displaypriorityfromleft,
+			WidgetDisplayPriority displaypriorityfromright,
+			boolean setidsmodifiable) {
 		this(leftobjectforlink, rightobjectforlink, labelfromleft, labelfromright);
+		this.setidsmodifiable = setidsmodifiable;
 		this.displaypriorityfromleft = displaypriorityfromleft;
 		this.displaypriorityfromright = displaypriorityfromright;
 		if (this.displaypriorityfromleft != null)
@@ -333,8 +374,11 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 
 		// -- process arguments
 		if (this.hasfieldshown) {
-			this.setExtraAttributes("," + this.priorityforleft + "," + this.priorityforright);
+			this.setExtraAttributes("," + this.priorityforleft + "," + this.priorityforright+","+this.setidsmodifiable);
+		} else {
+			this.setExtraAttributes(","+this.setidsmodifiable);
 		}
+		
 
 	}
 
