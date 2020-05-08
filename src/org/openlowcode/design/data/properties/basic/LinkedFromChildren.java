@@ -31,6 +31,7 @@ import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.tools.misc.NamedList;
 
+
 /**
  * This property is added to objects that are parents for a parent to child
  * relation
@@ -67,6 +68,8 @@ public class LinkedFromChildren
 	private WidgetDisplayPriority linkedfromchildrenwidgetdisplaypriority;
 	private String secondarycolumndisplayforgrid;
 	private String specifictitleforchildrentable = null;
+	private String[] infofieldforreverseshow;
+	private boolean reversetree;
 
 	/**
 	 * @return the related linked to parent property on the child object
@@ -124,6 +127,7 @@ public class LinkedFromChildren
 			importstatements.add("import org.openlowcode.server.graphic.widget.SChoiceTextField;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SPopupButton;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SCollapsibleBand;");
+			importstatements.add("import org.openlowcode.server.data.DataObjectFieldMarker;");
 			if (linkedfromchildren.getChildObject().getCategoryForExtractor() != null) {
 				ChoiceCategory categoryforextractor = linkedfromchildren.getChildObject().getCategoryForExtractor();
 				importstatements.add("import " + categoryforextractor.getParentModule().getPath() + ".data.choice."
@@ -490,7 +494,7 @@ public class LinkedFromChildren
 				sg.wl("");
 				sg.wl("		// ------------------------------------------------------------------------------------------");
 				sg.wl("		// Display all children objects of type " + childclassname + " in " + objectclass
-						+ " as GRID--------");
+						+ " as GRID-, reverse = "+LinkedFromChildren.this.reversetree);
 				sg.wl("		// ------------------------------------------------------------------------------------------");
 				sg.wl("");
 
@@ -540,6 +544,24 @@ public class LinkedFromChildren
 					sg.wl("				" + linknameattribute + "values,");
 				}
 				sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition());");
+				
+				// ------------------- Reverse tree display
+				
+				if (LinkedFromChildren.this.reversetree) {
+					StringBuffer readonlyfields = new StringBuffer();
+					for (int i=0;i<LinkedFromChildren.this.infofieldforreverseshow.length;i++) {
+						String field = LinkedFromChildren.this.infofieldforreverseshow[i];
+						if (i>0) readonlyfields.append(',');
+						readonlyfields.append(childclassname+".get"+StringFormatter.formatForJavaClass(field)+"FieldMarker()");
+						
+					}
+					sg.wl("		" + linknameattribute + "grid.setReverseTree((DataObjectFieldMarker<" + childclassname + ">[])");
+					sg.wl("				(new DataObjectFieldMarker<?>[] {"+readonlyfields+"}));");
+					
+					
+					
+				}
+				
 				sg.w("		" + linknameattribute + "grid.setWarningForUnsavedEdition();");
 				sg.wl("");
 				sg.wl("		massupdate" + linknameattribute + ".set" + childclassname + "(" + linknameattribute
@@ -698,6 +720,21 @@ public class LinkedFromChildren
 		this.columndisplayforgrid = columndisplayforgrid;
 		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
 		this.cellfieldsforgrid = cellfieldsforgrid;
+		this.reversetree=false;
+	}
+
+	public LinkedFromChildren(
+			String name,
+			DataObjectDefinition childobjectforlink,
+			LinkedToParent<?> originobjectproperty,
+			String linedisplayforgrid,
+			String columndisplayforgrid,
+			String secondarycolumndisplayforgrid,
+			String[] cellfieldsforgrid,
+			String[] infofieldforreverseshow) {
+		this(name,childobjectforlink,originobjectproperty,linedisplayforgrid,columndisplayforgrid,secondarycolumndisplayforgrid,cellfieldsforgrid);
+		this.infofieldforreverseshow = infofieldforreverseshow;
+		this.reversetree=true;
 	}
 
 	@Override

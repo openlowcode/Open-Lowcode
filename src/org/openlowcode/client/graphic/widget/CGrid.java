@@ -28,6 +28,9 @@ import org.openlowcode.client.graphic.Callback;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine.ObjectInGrid;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLineColumn;
+import org.openlowcode.client.graphic.widget.table.EditableTreeTable;
+import org.openlowcode.client.graphic.widget.table.ObjectDataElementKeyExtractor;
+import org.openlowcode.client.graphic.widget.table.ObjectDataElementValueUpdater;
 import org.openlowcode.client.graphic.widget.tools.CChoiceFieldValue;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.client.runtime.PageActionModifier;
@@ -49,6 +52,7 @@ import org.openlowcode.tools.structure.SimpleDataElt;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
 import org.openlowcode.tools.structure.TimePeriodDataElt;
+
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -102,6 +106,7 @@ public class CGrid
 	private boolean isinlineupdate;
 	private boolean updatemodeactive;
 	private ArrayList<String> updateactionfields;
+	private ArrayList<String> infoactionfields;
 	private CPageInlineAction updateinlineaction;
 	private CPageAction cellaction;
 	private ArrayList<CMultiFieldConstraint> allobjectconstraints;
@@ -122,6 +127,8 @@ public class CGrid
 	private boolean hassecondarycolumn;
 	private String secondarycolumnfield;
 	private Tooltip tooltip;
+	private boolean reversetree;
+	private EditableTreeTable<ObjectDataElt> treetable;
 
 	/**
 	 * create a grid component
@@ -198,6 +205,16 @@ public class CGrid
 			this.updatewarningcontinue = reader.returnNextStringField("UNSWARCON");
 			this.updatewarningstop = reader.returnNextStringField("UNSWARSTP");
 		}
+		this.reversetree = reader.returnNextBooleanField("RVT");
+		infoactionfields = new ArrayList<String>();
+		if (this.reversetree) {
+			reader.startStructureArray("INFFLD");
+			while (reader.structureArrayHasNextElement("INFFLD")) {
+				String infofield = reader.returnNextStringField("NAM");
+				infoactionfields.add(infofield);
+				reader.returnNextEndStructure("INFFLD");
+			}
+		}
 		reader.returnNextEndStructure("GRD");
 	}
 
@@ -241,19 +258,19 @@ public class CGrid
 							thisobjectgrid.commitupdate.setDisable(false);
 							return;
 						}
-									}
-				if (thisobjectgrid.isinlineupdate) if (thisobjectgrid.updatemodeactive)
-					if (event.getClickCount() == 1 ) {
-						if (thisobjectgrid.tableview.getEditingCell() == null) {
-							@SuppressWarnings("unchecked")
-							TablePosition<
-									CObjectGridLine<String>,
-									?> focusedCellPosition = thisobjectgrid.tableview.getFocusModel().getFocusedCell();
-							thisobjectgrid.tableview.edit(focusedCellPosition.getRow(),
-									focusedCellPosition.getTableColumn());
+				}
+				if (thisobjectgrid.isinlineupdate)
+					if (thisobjectgrid.updatemodeactive)
+						if (event.getClickCount() == 1) {
+							if (thisobjectgrid.tableview.getEditingCell() == null) {
+								@SuppressWarnings("unchecked")
+								TablePosition<CObjectGridLine<String>, ?> focusedCellPosition = thisobjectgrid.tableview
+										.getFocusModel().getFocusedCell();
+								thisobjectgrid.tableview.edit(focusedCellPosition.getRow(),
+										focusedCellPosition.getTableColumn());
 
+							}
 						}
-					}
 				if (thisobjectgrid.iscellaction)
 					if (event.getClickCount() > 1) {
 						// trigger the action on double click only if updatemode is not active
@@ -347,33 +364,50 @@ public class CGrid
 				update = false;
 		}
 		if (update) {
-			tableview.setEditable(false);
-			tableview.getSelectionModel().setCellSelectionEnabled(true);
-			startupdate.setDisable(false);
-			commitupdate.setDisable(true);
+			if (!this.reversetree) {
+				tableview.setEditable(false);
+				tableview.getSelectionModel().setCellSelectionEnabled(true);
+				startupdate.setDisable(false);
+				commitupdate.setDisable(true);
 
-			tableview.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+				tableview.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-			ObservableList<CObjectGridLine<String>> tabledata = tableview.getItems();
-			boolean isupdated = false;
-			for (int i = 0; i < tabledata.size(); i++) {
-				CObjectGridLine<String> thisrow = tabledata.get(i);
+				ObservableList<CObjectGridLine<String>> tabledata = tableview.getItems();
+				boolean isupdated = false;
+				for (int i = 0; i < tabledata.size(); i++) {
+					CObjectGridLine<String> thisrow = tabledata.get(i);
 
-				if (thisrow.isRowUpdate())
-					isupdated = true;
+					if (thisrow.isRowUpdate())
+						isupdated = true;
 
-			}
-			if (isupdated) {
-				if (event != null)
-					actionmanager.handle(event);
-				if (mouseevent != null)
-					actionmanager.getMouseHandler().handle(mouseevent);
+				}
+				if (isupdated) {
+					if (event != null)
+						actionmanager.handle(event);
+					if (mouseevent != null)
+						actionmanager.getMouseHandler().handle(mouseevent);
+				} else {
+					actionmanager.getClientSession().getActiveClientDisplay()
+							.updateStatusBar("No modification performed on grid table in edit mode");
+				}
+				updatemodeactive = false;
 			} else {
-				actionmanager.getClientSession().getActiveClientDisplay()
-						.updateStatusBar("No modification performed on grid table in edit mode");
-			}
-			updatemodeactive = false;
+				// -------------------------
+				treetable.setEditable(false);
+				startupdate.setDisable(false);
+				commitupdate.setDisable(true);
 
+				int updatedrows = treetable.getUpdatedItems().size();
+				if (updatedrows > 0) {
+					if (event != null)
+						actionmanager.handle(event);
+					if (mouseevent != null)
+						actionmanager.getMouseHandler().handle(mouseevent);
+				} else {
+					actionmanager.getClientSession().getActiveClientDisplay()
+							.updateStatusBar("No modification performed on grid table in edit mode");
+				}
+			}
 		}
 
 	}
@@ -395,149 +429,198 @@ public class CGrid
 			TabPane[] parenttabpanes) {
 
 		this.actionmanager = actionmanager;
-		this.tooltip = new Tooltip("Double click on cell to see details\nRight click for update and copy");
-		dataingrid = new NamedList<CObjectGridLine<String>>();
-		arraycolumns = new ArrayList<ColumnAndStringIndex<String>>();
-		// find the label of the line label
-		String linefieldlabel = null;
-		for (int i = 0; i < payloadlist.size(); i++) {
-			CBusinessField<?> thisfield = payloadlist.get(i);
-			if (thisfield.getFieldname().equals(linefield))
-				linefieldlabel = thisfield.getLabel();
-		}
-		if (linefieldlabel == null)
-			throw new RuntimeException("line field label not found");
-		// create a column for the line label
-		CObjectGridLineColumn<String> linelabelcolumn = new CObjectGridLineColumn(linefieldlabel);
-		linelabelcolumn.setEditable(false);
-		// adding null as index string so that it appears first
-		arraycolumns.add(new ColumnAndStringIndex(linelabelcolumn, null));
-
-		HashMap<
-				String,
-				TableColumn<
-						CObjectGridLine<String>,
-						?>> datacolumnsbyname = new HashMap<String, TableColumn<CObjectGridLine<String>, ?>>();
-
 		ArrayDataElt<ObjectDataElt> data = getExternalContent(inputdata, datareference);
+		if (!this.reversetree) {
 
-		logger.finest("----------------- CGridLine " + data.getObjectNumber() + " lines ---------------");
-		for (int i = 0; i < data.getObjectNumber(); i++) {
-			ObjectDataElt thisline = data.getObjectAtIndex(i);
-			SimpleDataElt faultyfieldtemp = thisline.lookupEltByName("YEARALLOCATED");
-			if (faultyfieldtemp != null)
-				logger.finest("index " + i + " YEARALLOCATED = " + faultyfieldtemp.toString());
-			SimpleDataElt faultyfieldtempid = thisline.lookupEltByName("ID");
-			if (faultyfieldtempid != null)
-				logger.finest("index " + i + "ID = " + faultyfieldtempid.toString());
-			String rowvalue = null;
-			Comparable<?> rowordercode = null;
-			String columnvalue = null;
-			Comparable<?> columnordercode = null;
-			String secondarycolumnvalue = null;
-			String displayvalue[] = new String[valuefield.length];
-			String fieldlabel[] = new String[valuefield.length];
-			CBusinessField<?> displayfields[] = new CBusinessField[valuefield.length];
-			for (int j = 0; j < payloadlist.size(); j++) {
-				CBusinessField<?> thisfield = payloadlist.get(j);
-				SimpleDataElt field = thisline.lookupEltByName(thisfield.getFieldname());
-				String fieldvalue = field.defaultTextRepresentation();
-				Comparable<?> candidaterowcode = null;
-				logger.fine("---- analyzing field value for rank " + i + " for field " + thisfield.getFieldname());
-				logger.fine(" * Default string representation is ");
-				if (thisfield instanceof CChoiceField) {
-					CChoiceField thischoicefield = (CChoiceField) thisfield;
-					CChoiceFieldValue valueobject = thischoicefield.getChoiceFieldValue(fieldvalue);
-					if (valueobject != null) {
+			this.tooltip = new Tooltip("Double click on cell to see details\nRight click for update and copy");
+			dataingrid = new NamedList<CObjectGridLine<String>>();
+			arraycolumns = new ArrayList<ColumnAndStringIndex<String>>();
+			// find the label of the line label
 
-						fieldvalue = valueobject.getDisplayvalue();
-						candidaterowcode = String.format("%010d", valueobject.getSequence());
-						logger.fine(" * field is choice field, fieldvalue = " + fieldvalue + ", stored value = "
-								+ candidaterowcode);
-					} else {
-						fieldvalue = "";
+			String linefieldlabel = getLabelForField(this.linefield);
+
+			// create a column for the line label
+			CObjectGridLineColumn<String> linelabelcolumn = new CObjectGridLineColumn(linefieldlabel);
+			linelabelcolumn.setEditable(false);
+			// adding null as index string so that it appears first
+			arraycolumns.add(new ColumnAndStringIndex(linelabelcolumn, null));
+
+			HashMap<
+					String,
+					TableColumn<
+							CObjectGridLine<String>,
+							?>> datacolumnsbyname = new HashMap<String, TableColumn<CObjectGridLine<String>, ?>>();
+
+			logger.finest("----------------- CGridLine " + data.getObjectNumber() + " lines ---------------");
+			for (int i = 0; i < data.getObjectNumber(); i++) {
+				ObjectDataElt thisline = data.getObjectAtIndex(i);
+				SimpleDataElt faultyfieldtemp = thisline.lookupEltByName("YEARALLOCATED");
+				if (faultyfieldtemp != null)
+					logger.finest("index " + i + " YEARALLOCATED = " + faultyfieldtemp.toString());
+				SimpleDataElt faultyfieldtempid = thisline.lookupEltByName("ID");
+				if (faultyfieldtempid != null)
+					logger.finest("index " + i + "ID = " + faultyfieldtempid.toString());
+				String rowvalue = null;
+				Comparable<?> rowordercode = null;
+				String columnvalue = null;
+				Comparable<?> columnordercode = null;
+				String secondarycolumnvalue = null;
+				String displayvalue[] = new String[valuefield.length];
+				String fieldlabel[] = new String[valuefield.length];
+				CBusinessField<?> displayfields[] = new CBusinessField[valuefield.length];
+				for (int j = 0; j < payloadlist.size(); j++) {
+					CBusinessField<?> thisfield = payloadlist.get(j);
+					SimpleDataElt field = thisline.lookupEltByName(thisfield.getFieldname());
+					String fieldvalue = field.defaultTextRepresentation();
+					Comparable<?> candidaterowcode = null;
+					logger.fine("---- analyzing field value for rank " + i + " for field " + thisfield.getFieldname());
+					logger.fine(" * Default string representation is ");
+					if (thisfield instanceof CChoiceField) {
+						CChoiceField thischoicefield = (CChoiceField) thisfield;
+						CChoiceFieldValue valueobject = thischoicefield.getChoiceFieldValue(fieldvalue);
+						if (valueobject != null) {
+
+							fieldvalue = valueobject.getDisplayvalue();
+							candidaterowcode = String.format("%010d", valueobject.getSequence());
+							logger.fine(" * field is choice field, fieldvalue = " + fieldvalue + ", stored value = "
+									+ candidaterowcode);
+						} else {
+							fieldvalue = "";
+						}
+
+					}
+
+					if (field instanceof TimePeriodDataElt) {
+						candidaterowcode = ((TimePeriodDataElt) (field)).getPayload();
+					}
+
+					if (thisfield.getFieldname().equals(linefield)) {
+						rowvalue = fieldvalue;
+						rowordercode = candidaterowcode;
+
+					}
+					if (thisfield.getFieldname().equals(columnfield)) {
+						columnvalue = fieldvalue;
+						columnordercode = candidaterowcode;
+					}
+
+					if (this.hassecondarycolumn)
+						if (thisfield.getFieldname().equals(this.secondarycolumnfield)) {
+							secondarycolumnvalue = fieldvalue;
+						}
+
+					for (int k = 0; k < valuefield.length; k++) {
+						if (thisfield.getFieldname().equals(valuefield[k])) {
+							displayvalue[k] = fieldvalue;
+							fieldlabel[k] = thisfield.getLabel();
+							displayfields[k] = thisfield;
+						}
+
 					}
 
 				}
+				logger.fine("  ++ found data for line " + rowvalue + " for column " + columnvalue);
 
-				if (field instanceof TimePeriodDataElt) {
-					candidaterowcode = ((TimePeriodDataElt) (field)).getPayload();
-				}
-
-				if (thisfield.getFieldname().equals(linefield)) {
-					rowvalue = fieldvalue;
-					rowordercode = candidaterowcode;
-
-				}
-				if (thisfield.getFieldname().equals(columnfield)) {
-					columnvalue = fieldvalue;
-					columnordercode = candidaterowcode;
-				}
-
+				if (rowvalue == null)
+					throw new RuntimeException("Row value not found on object " + thisline.getUID());
+				if (columnvalue == null)
+					throw new RuntimeException("Column value not found on object " + thisline.getUID());
 				if (this.hassecondarycolumn)
-					if (thisfield.getFieldname().equals(this.secondarycolumnfield)) {
-						secondarycolumnvalue = fieldvalue;
-					}
-
+					if (secondarycolumnvalue == null)
+						throw new RuntimeException("Secondary Column Value not found on object " + thisline.getUID());
 				for (int k = 0; k < valuefield.length; k++) {
-					if (thisfield.getFieldname().equals(valuefield[k])) {
-						displayvalue[k] = fieldvalue;
-						fieldlabel[k] = thisfield.getLabel();
-						displayfields[k] = thisfield;
-					}
+					if (fieldlabel[k] == null)
+						throw new RuntimeException("Display value not found on object " + thisline.getUID());
+					if (displayvalue[k] == null)
+						throw new RuntimeException("Display value not found on object " + thisline.getUID());
+				}
+				CObjectGridLine<String> gridline = dataingrid.lookupOnName(Named.cleanName(rowvalue));
+				if (gridline == null) {
+					gridline = new CObjectGridLine(this, rowvalue, rowordercode);
+					dataingrid.add(gridline);
 
 				}
+				if (this.hassecondarycolumn) {
 
-			}
-			logger.fine("  ++ found data for line " + rowvalue + " for column " + columnvalue);
+					gridline.addObject(columnvalue, secondarycolumnvalue, displayvalue, fieldlabel, thisline);
+					logger.finest("Adding to Grid Line " + gridline.getLineLabel() + " (" + gridline.hashCode()
+							+ ") with secondary " + thisline.hashCode() + " - " + thisline.lookupEltByName("ID") + " - "
+							+ thisline.lookupEltByName("YEARALLOCATED"));
+				} else {
+					gridline.addObject(columnvalue, displayvalue, fieldlabel, thisline);
+					logger.finest("Adding to Grid Line " + gridline.getLineLabel() + " (" + gridline.hashCode() + ")"
+							+ thisline.hashCode() + " - " + thisline.lookupEltByName("ID") + " - "
+							+ thisline.lookupEltByName("YEARALLOCATED"));
 
-			if (rowvalue == null)
-				throw new RuntimeException("Row value not found on object " + thisline.getUID());
-			if (columnvalue == null)
-				throw new RuntimeException("Column value not found on object " + thisline.getUID());
-			if (this.hassecondarycolumn)
-				if (secondarycolumnvalue == null)
-					throw new RuntimeException("Secondary Column Value not found on object " + thisline.getUID());
-			for (int k = 0; k < valuefield.length; k++) {
-				if (fieldlabel[k] == null)
-					throw new RuntimeException("Display value not found on object " + thisline.getUID());
-				if (displayvalue[k] == null)
-					throw new RuntimeException("Display value not found on object " + thisline.getUID());
-			}
-			CObjectGridLine<String> gridline = dataingrid.lookupOnName(Named.cleanName(rowvalue));
-			if (gridline == null) {
-				gridline = new CObjectGridLine(this, rowvalue, rowordercode);
-				dataingrid.add(gridline);
+				}
+				if (datacolumnsbyname.get(columnvalue) == null) { // actually usefull, as done in the loop of first
+																	// object
+																	// only
+					if (valuefield.length == 1) {
 
-			}
-			if (this.hassecondarycolumn) {
+						// show one field only per column
+						if (this.hassecondarycolumn) {
+							// just create the missing column for over-column.
+							TableColumn<
+									CObjectGridLine<String>,
+									String> overcolumn = new TableColumn<CObjectGridLine<String>, String>(columnvalue);
+							overcolumn.setId(columnvalue);
+							datacolumnsbyname.put(columnvalue, overcolumn);
+							arraycolumns.add(new ColumnAndStringIndex(overcolumn,
+									(columnordercode != null ? columnordercode : columnvalue)));
+						} else {
+							String updatekey = (this.updateinlineaction != null ? this.updateinlineaction.key() : null);
+							boolean updatefield = false;
+							if (this.updateactionfields != null)
+								for (int z = 0; z < this.updateactionfields.size(); z++)
+									if (displayfields[0].getFieldname().equals(updateactionfields.get(z)))
+										updatefield = true;
+							if (!updatefield)
+								updatekey = null;
+							TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[0]
+									.getTableColumnForGrid(actionmanager, 12, updatekey, columnvalue, null, true);
 
-				gridline.addObject(columnvalue, secondarycolumnvalue, displayvalue, fieldlabel, thisline);
-				logger.finest("Adding to Grid Line " + gridline.getLineLabel() + " (" + gridline.hashCode()
-						+ ") with secondary " + thisline.hashCode() + " - " + thisline.lookupEltByName("ID") + " - "
-						+ thisline.lookupEltByName("YEARALLOCATED"));
-			} else {
-				gridline.addObject(columnvalue, displayvalue, fieldlabel, thisline);
-				logger.finest("Adding to Grid Line " + gridline.getLineLabel() + " (" + gridline.hashCode() + ")"
-						+ thisline.hashCode() + " - " + thisline.lookupEltByName("ID") + " - "
-						+ thisline.lookupEltByName("YEARALLOCATED"));
-
-			}
-			if (datacolumnsbyname.get(columnvalue) == null) { // actually usefull, as done in the loop of first object
-																// only
-				if (valuefield.length == 1) {
-
-					// show one field only per column
-					if (this.hassecondarycolumn) {
-						// just create the missing column for over-column.
+							datacolumnsbyname.put(columnvalue, datacolumn);
+							arraycolumns.add(new ColumnAndStringIndex(datacolumn,
+									(columnordercode != null ? columnordercode : columnvalue)));
+						}
+					} else {
+						logger.fine(" --**-- adding column " + columnvalue);
 						TableColumn<
 								CObjectGridLine<String>,
 								String> overcolumn = new TableColumn<CObjectGridLine<String>, String>(columnvalue);
 						overcolumn.setId(columnvalue);
-						datacolumnsbyname.put(columnvalue, overcolumn);
+						for (int k = 0; k < valuefield.length; k++) {
+
+							String updatekey = (this.updateinlineaction != null ? this.updateinlineaction.key() : null);
+							boolean updatefield = false;
+							if (this.updateactionfields != null)
+								for (int z = 0; z < this.updateactionfields.size(); z++)
+									if (displayfields[k].getFieldname().equals(updateactionfields.get(z)))
+										updatefield = true;
+							if (!updatefield)
+								updatekey = null;
+							TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[k]
+									.getTableColumnForGrid(actionmanager, 12, updatekey, columnvalue, null, false);
+							overcolumn.getColumns().add(datacolumn);
+
+							datacolumn.setId(columnvalue + "/" + fieldlabel[k]);
+							logger.fine("   *-* adding subcolumn " + fieldlabel[k]);
+
+							if (k == 0)
+								datacolumnsbyname.put(columnvalue, datacolumn);
+						}
+
 						arraycolumns.add(new ColumnAndStringIndex(overcolumn,
 								(columnordercode != null ? columnordercode : columnvalue)));
-					} else {
+
+					}
+				} // actually usefull, as done in the loop of first object only
+				if (this.hassecondarycolumn) {
+					// missing the secondary column
+					if (datacolumnsbyname.get(
+							CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue)) == null) {
+						TableColumn<CObjectGridLine<String>, ?> overcolumn = datacolumnsbyname.get(columnvalue);
 						String updatekey = (this.updateinlineaction != null ? this.updateinlineaction.key() : null);
 						boolean updatefield = false;
 						if (this.updateactionfields != null)
@@ -546,199 +629,315 @@ public class CGrid
 									updatefield = true;
 						if (!updatefield)
 							updatekey = null;
-						TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[0]
-								.getTableColumnForGrid(actionmanager, 12, updatekey, columnvalue, null, true);
+						TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[0].getTableColumnForGrid(
+								actionmanager, 12, updatekey, columnvalue, secondarycolumnvalue, true);
 
-						datacolumnsbyname.put(columnvalue, datacolumn);
-						arraycolumns.add(new ColumnAndStringIndex(datacolumn,
-								(columnordercode != null ? columnordercode : columnvalue)));
-					}
-				} else {
-					logger.fine(" --**-- adding column " + columnvalue);
-					TableColumn<
-							CObjectGridLine<String>,
-							String> overcolumn = new TableColumn<CObjectGridLine<String>, String>(columnvalue);
-					overcolumn.setId(columnvalue);
-					for (int k = 0; k < valuefield.length; k++) {
-
-						String updatekey = (this.updateinlineaction != null ? this.updateinlineaction.key() : null);
-						boolean updatefield = false;
-						if (this.updateactionfields != null)
-							for (int z = 0; z < this.updateactionfields.size(); z++)
-								if (displayfields[k].getFieldname().equals(updateactionfields.get(z)))
-									updatefield = true;
-						if (!updatefield)
-							updatekey = null;
-						TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[k]
-								.getTableColumnForGrid(actionmanager, 12, updatekey, columnvalue, null, false);
+						datacolumnsbyname.put(
+								CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue),
+								datacolumn);
 						overcolumn.getColumns().add(datacolumn);
+						datacolumn.setId(CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue));
 
-						datacolumn.setId(columnvalue + "/" + fieldlabel[k]);
-						logger.fine("   *-* adding subcolumn " + fieldlabel[k]);
+					}
+				}
+			}
+			// ------------------------------------------------------ End of determination
+			// of data-model -----------------------------
+			tableview = this.generateTableViewModel();
+			ObservableList<CObjectGridLine<String>> thistabledata = FXCollections.observableArrayList();
+			List<CObjectGridLine<String>> linestoorder = dataingrid.getFullList();
+			Collections.sort(linestoorder);
 
-						if (k == 0)
-							datacolumnsbyname.put(columnvalue, datacolumn);
+			for (int i = 0; i < linestoorder.size(); i++) {
+				logger.fine("Display ordered grid key = " + linestoorder.get(i).getCodeToOrder());
+				CObjectGridLine<String> thisgridline = linestoorder.get(i);
+				logger.finest("---------- Audit of objects in grid, line = " + i + " " + thisgridline.getLineLabel()
+						+ " (" + thisgridline.hashCode() + ")---------------- ");
+				for (int j = 0; j < thisgridline.getObjectinlineNumber(); j++) {
+					ObjectInGrid thisobject = thisgridline.getObjectinline(j);
+					logger.finest("   --> object  " + j + " - " + thisobject.getObject().hashCode() + " - "
+							+ thisobject.getObject().lookupEltByName("ID") + " - "
+							+ thisobject.getObject().lookupEltByName("YEARALLOCATED"));
+				}
+				thistabledata.add(thisgridline);
+			}
+			if (cellaction != null) {
+				logger.fine(" **--** for grid " + tableview + " put action " + cellaction.getModule() + "."
+						+ cellaction.getName());
+				actionmanager.registerEvent(tableview, cellaction);
+
+			}
+			tableview.setItems(thistabledata);
+
+			// -------------------------------------------
+			// ---- C O N T E X T . M E N U --------------
+			// -------------------------------------------
+
+			contextmenu = new ContextMenu();
+
+			startupdate = new MenuItem("Start Update");
+			commitupdate = new MenuItem("Store Update");
+
+			copydata = new MenuItem("Copy Data");
+			contextmenu.getItems().add(startupdate);
+			contextmenu.getItems().add(commitupdate);
+			contextmenu.getItems().add(copydata);
+			if ((this.isinlineupdate)) {
+				startupdate.setDisable(false);
+				commitupdate.setDisable(true);
+			} else {
+				startupdate.setDisable(true);
+				commitupdate.setDisable(true);
+			}
+
+			copydata.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent arg0) {
+					copyTableToClipboard();
+				}
+
+			});
+			startupdate.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent arg0) {
+					tableview.setEditable(true);
+					tableview.getSelectionModel().setCellSelectionEnabled(true);
+
+					updatemodeactive = true;
+					startupdate.setDisable(true);
+					commitupdate.setDisable(false);
+
+					actionmanager.getClientSession().getActiveClientDisplay().updateStatusBar(
+							"You have started editing a grid table, please do not forget to save before leaving the page (richt click on another cell + store update)",
+							true);
+				}
+			});
+
+			if (this.updateinlineaction != null)
+				actionmanager.registerInlineAction(commitupdate, updateinlineaction);
+
+			if (this.inlineupdateactionoutputdataref != null) {
+				inputdata.addInlineActionDataRef(this.inlineupdateactionoutputdataref);
+			}
+
+			commitupdate.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+					launchupdate(event, null);
+
+				}
+
+			});
+
+			tableview.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+				@Override
+				public void handle(ContextMenuEvent event) {
+					if (contextmenu.isShowing()) {
+						contextmenu.hide();
+					} else {
+						tableview.getSelectionModel().clearSelection();
+						contextmenu.show(tableview, event.getScreenX(), event.getScreenY());
+
+					}
+				}
+			});
+
+			contextmenu.focusedProperty().addListener(new ChangeListener<Boolean>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldvalue, Boolean newvalue) {
+					if (!newvalue)
+						contextmenu.hide();
+
+				}
+
+			});
+			this.tableview.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+				if (contextmenu.isShowing())
+					contextmenu.hide();
+			});
+			// -------------------------------------------
+			// ---- E N D . C O N T E X T . M E N U ------
+			// -------------------------------------------
+			if (this.updateinlineaction != null)
+				actionmanager.registerInlineActionWithModifier(tableview, this.updateinlineaction,
+						PageActionModifier.getShiftPressed());
+
+			if ((this.isinlineupdate) || (this.iscellaction)) {
+				EventHandler<? super MouseEvent> mouseeventlistener = tableview.getOnMouseClicked();
+				this.updatemousehandler = new UpdateMouseHandler(actionmanager, this, mouseeventlistener);
+				tableview.setOnMouseClicked(updatemousehandler);
+			}
+			return tableview;
+		} else {
+			// ------------------------- reverse tree grid display
+
+			ArrayList<ObjectDataElt> datainlist = new ArrayList<ObjectDataElt>();
+			for (int i = 0; i < data.getObjectNumber(); i++)
+				datainlist.add(data.getObjectAtIndex(i));
+			treetable = new EditableTreeTable<ObjectDataElt>(datainlist);
+			treetable.setDefaultIsReadOnly(true);
+			// -- dealing with lines (that will actually be displayed as columns)
+
+			if (this.valuefield.length != 1) {
+				StringBuffer dropactionfields = new StringBuffer();
+				for (int i = 0; i < this.valuefield.length; i++)
+					dropactionfields.append(this.valuefield[i] + "/");
+				throw new RuntimeException("Only one update field managed, currently " + this.updateactionfields.size()
+						+ " fields defined " + dropactionfields);
+			}
+			CBusinessField<?> linefield = getFieldForFieldName(this.linefield);
+			CBusinessField<?> payloadfield = getFieldForFieldName(this.valuefield[0]);
+
+			if (!(linefield instanceof ObjectDataElementKeyExtractor))
+				throw new RuntimeException(
+						"Field " + this.linefield + " cannot be used as column criteria for column group");
+			if (!(payloadfield instanceof ObjectDataElementValueUpdater))
+				throw new RuntimeException("Field " + this.updateactionfields.get(0)
+						+ " cannot be used as payload criteria for a column group");
+
+			ObjectDataElementKeyExtractor<ObjectDataElt, ?> columnextractor = (ObjectDataElementKeyExtractor) linefield;
+			ObjectDataElementValueUpdater<ObjectDataElt, ?> valueupdater = (ObjectDataElementValueUpdater) payloadfield;
+
+			for (int i=0;i<this.infoactionfields.size();i++) {
+				CBusinessField<?> infofield = getFieldForFieldName(this.infoactionfields.get(i));
+				if (!(infofield instanceof ObjectDataElementKeyExtractor)) 
+					throw new RuntimeException("Field"+infofield+" cannot be used as info column");
+				ObjectDataElementKeyExtractor<ObjectDataElt,?> infofieldextractor = (ObjectDataElementKeyExtractor) infofield;
+				treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor, EditableTreeTable.GROUPING_SAME);
+			}
+			
+			treetable.setColumnGrouping(columnextractor, valueupdater, "Total", EditableTreeTable.GROUPING_SUM);
+
+			CBusinessField<?> maincolumnbusinessfield = getFieldForFieldName(this.columnfield);
+
+			if (!(maincolumnbusinessfield instanceof ObjectDataElementKeyExtractor))
+				throw new RuntimeException(
+						"Field " + this.columnfield + " cannot be used as line criteria for editable table tree");
+			ObjectDataElementKeyExtractor<
+					ObjectDataElt, ?> mainlineextractor = (ObjectDataElementKeyExtractor) maincolumnbusinessfield;
+
+			treetable.setLineGrouping(mainlineextractor);
+
+			if (this.hassecondarycolumn) {
+
+				CBusinessField<?> secondarycolumnbusinessfield = getFieldForFieldName(this.secondarycolumnfield);
+
+				if (!(secondarycolumnbusinessfield instanceof ObjectDataElementKeyExtractor))
+					throw new RuntimeException(
+							"Field " + this.columnfield + " cannot be used as line criteria for editable table tree");
+
+				ObjectDataElementKeyExtractor<
+						ObjectDataElt,
+						?> secondarylineextractor = (ObjectDataElementKeyExtractor) secondarycolumnbusinessfield;
+
+				treetable.setLineGrouping(secondarylineextractor);
+			}
+
+			// -------------------------------------------
+			// ---- C O N T E X T . M E N U --------------
+			// -------------------------------------------
+
+			contextmenu = new ContextMenu();
+
+			startupdate = new MenuItem("Start Update");
+			commitupdate = new MenuItem("Store Update");
+			contextmenu.getItems().add(startupdate);
+			contextmenu.getItems().add(commitupdate);
+
+			if ((this.isinlineupdate)) {
+				startupdate.setDisable(false);
+				commitupdate.setDisable(true);
+			} else {
+				startupdate.setDisable(true);
+				commitupdate.setDisable(true);
+			}
+
+			startupdate.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent arg0) {
+					treetable.setEditable(true);
+
+					updatemodeactive = true;
+					startupdate.setDisable(true);
+					commitupdate.setDisable(false);
+
+					actionmanager.getClientSession().getActiveClientDisplay().updateStatusBar(
+							"You have started editing a grid table, please do not forget to save before leaving the page (richt click on another cell + store update)",
+							true);
+				}
+			});
+
+			if (this.updateinlineaction != null)
+				actionmanager.registerInlineAction(commitupdate, updateinlineaction);
+
+			if (this.inlineupdateactionoutputdataref != null) {
+				inputdata.addInlineActionDataRef(this.inlineupdateactionoutputdataref);
+			}
+
+			commitupdate.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+					launchupdate(event, null);
+
+				}
+
+			});
+			if (this.cellaction != null)
+				treetable.setDoubleClickReadOnlyEventHandler(actionmanager.getMouseHandler(),true);
+			Node treetablenode = treetable.getNode();
+			if (this.cellaction != null)
+				actionmanager.registerEvent(treetablenode, this.cellaction);
+
+			treetablenode.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+				@Override
+				public void handle(ContextMenuEvent event) {
+					logger.severe("Context menu requested on editabletreetable");
+					if (contextmenu.isShowing()) {
+						logger.severe("After showing, hide");
+						contextmenu.hide();
+					} else {
+						logger.severe("After hiding, show");
+						contextmenu.show(treetablenode, event.getScreenX(), event.getScreenY());
+
+					}
+				}
+			});
+
+			contextmenu.focusedProperty().addListener(new ChangeListener<Boolean>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldvalue, Boolean newvalue) {
+					logger.severe(" changed value on context menu");
+					if (!newvalue) {
+						logger.severe(" context menu hide");
+						contextmenu.hide();
+
 					}
 
-					arraycolumns.add(new ColumnAndStringIndex(overcolumn,
-							(columnordercode != null ? columnordercode : columnvalue)));
-
 				}
-			} // actually usefull, as done in the loop of first object only
-			if (this.hassecondarycolumn) {
-				// missing the secondary column
-				if (datacolumnsbyname
-						.get(CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue)) == null) {
-					TableColumn<CObjectGridLine<String>, ?> overcolumn = datacolumnsbyname.get(columnvalue);
-					String updatekey = (this.updateinlineaction != null ? this.updateinlineaction.key() : null);
-					boolean updatefield = false;
-					if (this.updateactionfields != null)
-						for (int z = 0; z < this.updateactionfields.size(); z++)
-							if (displayfields[0].getFieldname().equals(updateactionfields.get(z)))
-								updatefield = true;
-					if (!updatefield)
-						updatekey = null;
-					TableColumn<CObjectGridLine<String>, ?> datacolumn = displayfields[0].getTableColumnForGrid(
-							actionmanager, 12, updatekey, columnvalue, secondarycolumnvalue, true);
 
-					datacolumnsbyname.put(CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue),
-							datacolumn);
-					overcolumn.getColumns().add(datacolumn);
-					datacolumn.setId(CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue));
+			});
 
-				}
-			}
+			return treetablenode;
 		}
-		// ------------------------------------------------------ End of determination
-		// of data-model -----------------------------
-		tableview = this.generateTableViewModel();
-		ObservableList<CObjectGridLine<String>> thistabledata = FXCollections.observableArrayList();
-		List<CObjectGridLine<String>> linestoorder = dataingrid.getFullList();
-		Collections.sort(linestoorder);
+	}
 
-		for (int i = 0; i < linestoorder.size(); i++) {
-			logger.fine("Display ordered grid key = " + linestoorder.get(i).getCodeToOrder());
-			CObjectGridLine<String> thisgridline = linestoorder.get(i);
-			logger.finest("---------- Audit of objects in grid, line = " + i + " " + thisgridline.getLineLabel() + " ("
-					+ thisgridline.hashCode() + ")---------------- ");
-			for (int j = 0; j < thisgridline.getObjectinlineNumber(); j++) {
-				ObjectInGrid thisobject = thisgridline.getObjectinline(j);
-				logger.finest("   --> object  " + j + " - " + thisobject.getObject().hashCode() + " - "
-						+ thisobject.getObject().lookupEltByName("ID") + " - "
-						+ thisobject.getObject().lookupEltByName("YEARALLOCATED"));
-			}
-			thistabledata.add(thisgridline);
+	private CBusinessField<?> getFieldForFieldName(String fieldname) {
+		for (int i = 0; i < payloadlist.size(); i++) {
+			CBusinessField<?> thisfield = payloadlist.get(i);
+			if (thisfield.getFieldname().equals(fieldname))
+				return thisfield;
 		}
-		if (cellaction != null) {
-			logger.fine(" **--** for grid " + tableview + " put action " + cellaction.getModule() + "."
-					+ cellaction.getName());
-			actionmanager.registerEvent(tableview, cellaction);
+		throw new RuntimeException("line field label " + fieldname + " not found");
+	}
 
-		}
-		tableview.setItems(thistabledata);
-
-		// -------------------------------------------
-		// ---- C O N T E X T . M E N U --------------
-		// -------------------------------------------
-
-		contextmenu = new ContextMenu();
-
-		startupdate = new MenuItem("Start Update");
-		commitupdate = new MenuItem("Store Update");
-
-		copydata = new MenuItem("Copy Data");
-		contextmenu.getItems().add(startupdate);
-		contextmenu.getItems().add(commitupdate);
-		contextmenu.getItems().add(copydata);
-		if ((this.isinlineupdate)) {
-			startupdate.setDisable(false);
-			commitupdate.setDisable(true);
-		} else {
-			startupdate.setDisable(true);
-			commitupdate.setDisable(true);
-		}
-
-		copydata.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent arg0) {
-				copyTableToClipboard();
-			}
-
-		});
-		startupdate.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent arg0) {
-				tableview.setEditable(true);
-				tableview.getSelectionModel().setCellSelectionEnabled(true);
-
-				updatemodeactive = true;
-				startupdate.setDisable(true);
-				commitupdate.setDisable(false);
-
-				actionmanager.getClientSession().getActiveClientDisplay().updateStatusBar(
-						"You have started editing a grid table, please do not forget to save before leaving the page (richt click on another cell + store update)",
-						true);
-			}
-		});
-
-		if (this.updateinlineaction != null)
-			actionmanager.registerInlineAction(commitupdate, updateinlineaction);
-
-		if (this.inlineupdateactionoutputdataref != null) {
-			inputdata.addInlineActionDataRef(this.inlineupdateactionoutputdataref);
-		}
-
-		commitupdate.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				launchupdate(event, null);
-
-			}
-
-		});
-
-		tableview.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
-
-			@Override
-			public void handle(ContextMenuEvent event) {
-				if (contextmenu.isShowing()) {
-					contextmenu.hide();
-				} else {
-					tableview.getSelectionModel().clearSelection();
-					contextmenu.show(tableview, event.getScreenX(), event.getScreenY());
-
-				}
-			}
-		});
-
-		contextmenu.focusedProperty().addListener(new ChangeListener<Boolean>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldvalue, Boolean newvalue) {
-				if (!newvalue)
-					contextmenu.hide();
-
-			}
-
-		});
-		this.tableview.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-			if (contextmenu.isShowing())
-				contextmenu.hide();
-		});
-		// -------------------------------------------
-		// ---- E N D . C O N T E X T . M E N U ------
-		// -------------------------------------------
-		if (this.updateinlineaction != null)
-			actionmanager.registerInlineActionWithModifier(tableview, this.updateinlineaction,
-					PageActionModifier.getShiftPressed());
-
-		if ((this.isinlineupdate) || (this.iscellaction)) {
-			EventHandler<? super MouseEvent> mouseeventlistener = tableview.getOnMouseClicked();
-			this.updatemousehandler = new UpdateMouseHandler(actionmanager, this, mouseeventlistener);
-			tableview.setOnMouseClicked(updatemousehandler);
-		}
-		return tableview;
+	private String getLabelForField(String fieldname) {
+		return getFieldForFieldName(fieldname).getLabel();
 	}
 
 	private TableView<CObjectGridLine<String>> generateTableViewModel() {
@@ -799,23 +998,31 @@ public class CGrid
 			DataEltType payloadtypeinarray = arraytype.getPayloadType();
 			if (payloadtypeinarray instanceof ObjectDataEltType) {
 				ObjectDataEltType objecttype = (ObjectDataEltType) payloadtypeinarray;
-				ObservableList<CObjectGridLine<String>> tabledata = tableview.getItems();
+
 				ArrayDataElt<ObjectDataElt> output = new ArrayDataElt<ObjectDataElt>(eltname, objecttype);
-				int countrowsupdated = 0;
-				for (int i = 0; i < tabledata.size(); i++) {
-					CObjectGridLine<String> thisrow = tabledata.get(i);
+				if (!this.reversetree) {
+					ObservableList<CObjectGridLine<String>> tabledata = tableview.getItems();
+					int countrowsupdated = 0;
+					for (int i = 0; i < tabledata.size(); i++) {
+						CObjectGridLine<String> thisrow = tabledata.get(i);
 
-					if (thisrow.isRowUpdate()) {
-						thisrow.fillRowUpdated(output, eltname);
+						if (thisrow.isRowUpdate()) {
+							thisrow.fillRowUpdated(output, eltname);
 
-						countrowsupdated++;
+							countrowsupdated++;
+						}
+					}
+					logger.fine("Selected rows updated and sent back, number = " + countrowsupdated
+							+ " for element name = " + eltname);
+
+					this.resetAllUpdateFlags();
+				} else {
+					List<ObjectDataElt> updateditems = this.treetable.getUpdatedItems();
+					for (int i = 0; i < updateditems.size(); i++) {
+						updateditems.get(i).changeName(eltname);
+						output.addElement(updateditems.get(i));
 					}
 				}
-				logger.fine("Selected rows updated and sent back, number = " + countrowsupdated + " for element name = "
-						+ eltname);
-
-				this.resetAllUpdateFlags();
-
 				return output;
 			}
 		}
@@ -829,6 +1036,7 @@ public class CGrid
 		if (type instanceof ObjectIdDataEltType) {
 			if (objectdataloc == null)
 				throw new RuntimeException("objectid field should have an objectfieldname");
+			if (!this.reversetree) {
 			CObjectGridLine<String> gridline = this.tableview.getSelectionModel().getSelectedItem();
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			ObservableList<
@@ -867,6 +1075,25 @@ public class CGrid
 			TextDataElt textfield = (TextDataElt) field;
 			ObjectIdDataElt objectid = new ObjectIdDataElt(eltname, textfield.getPayload());
 			return objectid;
+			} else {
+				// get object id of selected cell
+				List<ObjectDataElt> selected = this.treetable.getSelectedElements();
+				if (selected!=null) if (selected.size()==1) {
+					ObjectDataElt selecteditem = selected.get(0);
+					
+					SimpleDataElt field = selecteditem.lookupEltByName(objectdataloc);
+					if (field == null)
+						throw new RuntimeException(
+								"field not found " + objectdataloc + ", available fields = " + selecteditem.dropFieldNames());
+					if (!(field instanceof TextDataElt))
+						throw new RuntimeException("field for name = " + objectdataloc + " is not text");
+					TextDataElt textfield = (TextDataElt) field;
+					ObjectIdDataElt objectid = new ObjectIdDataElt(eltname, textfield.getPayload());
+					return objectid;
+					
+				}
+				
+			}
 		}
 
 		throw new RuntimeException(String.format("Unsupported extraction type %s ", type));

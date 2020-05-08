@@ -13,7 +13,7 @@ package org.openlowcode.client.graphic.widget;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.openlowcode.tools.messages.MessageBooleanField;
@@ -31,6 +31,7 @@ import org.openlowcode.client.graphic.CPageDataRef;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
+import org.openlowcode.client.graphic.widget.table.ObjectDataElementKeyExtractor;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
 import org.openlowcode.client.graphic.widget.tools.CChoiceFieldValue;
 import org.openlowcode.client.graphic.widget.tools.ChoiceField;
@@ -80,7 +81,7 @@ import javafx.scene.control.TableCell;
  */
 public class CChoiceField
 		extends
-		CBusinessField<SimpleDataElt> {
+		CBusinessField<SimpleDataElt> implements ObjectDataElementKeyExtractor<ObjectDataElt,CChoiceFieldValue> {
 	private static Logger logger = Logger.getLogger(CChoiceField.class.getName());
 	private String label;
 	private String datafieldname;
@@ -992,4 +993,38 @@ public class CChoiceField
 
 	}
 
+	
+	
+	// ---------------------------------------------------------------------------
+	// key extractors
+	// ---------------------------------------------------------------------------
+	
+	@Override
+	public Function<ObjectDataElt, CChoiceFieldValue> fieldExtractor() {
+		
+		return (t) -> {
+				SimpleDataElt field = t.lookupEltByName(CChoiceField.this.datafieldname);
+				String code = field.defaultTextRepresentation();
+				CChoiceFieldValue displayvalue = CChoiceField.this.valuesbycode.get(code); // try to get display value
+				
+				if (displayvalue == null)
+					displayvalue = CChoiceField.this.getBlankChoiceField();
+				return displayvalue;
+			};
+			
+		
+	}
+
+	@Override
+	public Function<CChoiceFieldValue, String> keyExtractor() {
+		return (t) -> (t.getStorageCode());	
+	}
+
+	@Override
+	public Function<CChoiceFieldValue, String> labelExtractor() {
+		return (t) -> (t.getDisplayvalue());	
+	}
+
+	
+	
 }

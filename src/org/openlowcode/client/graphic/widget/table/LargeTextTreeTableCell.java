@@ -15,23 +15,20 @@ import java.util.logging.Logger;
 import org.openlowcode.client.graphic.widget.ValueFormatter;
 import org.openlowcode.client.graphic.widget.fields.FormatValidator;
 
+import javafx.scene.input.ContextMenuEvent;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Cell;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTablePosition;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.*;
 import javafx.util.StringConverter;
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
+import javafx.event.Event;
 
 /**
  * A tree table cell displaying correctly a large text over several lines and
@@ -49,28 +46,22 @@ public class LargeTextTreeTableCell<S, T>
 	private static Logger logger = Logger.getLogger(LargeTextTreeTableCell.class.getName());
 
 	private TextInputControl textField;
-	private FormatValidator entryrestrictions;
+	private FormatValidator<?> entryrestrictions;
 	private ValueFormatter<T> readonlyformatter;
 	private boolean alignonright;
 	private boolean largedisplay;
+	private double lineheightfortable;
 
 	/**
-	 * Create a Large Text Tree Table Cell with content as text aligned on left
+	 * creates a large text table cell with no restriction for data entry and
+	 * aligned on left
 	 * 
+	 * @param converter    converter to generate the object from string entered
 	 * @param largedisplay true if several lines (large display)
+	 * @param lineheight   line height in pixel
 	 */
-	public LargeTextTreeTableCell(boolean largedisplay) {
-		this(null, largedisplay);
-
-	}
-
-	/**
-	 * Create a Large Text Tree Table Cell aligned on left
-	 * 
-	 * @param converter    converter to String
-	 * @param largedisplay true if several lines (large display)
-	 */
-	public LargeTextTreeTableCell(StringConverter<T> converter, boolean largedisplay) {
+	public LargeTextTreeTableCell(StringConverter<T> converter, boolean largedisplay, double lineheight) {
+		this.lineheightfortable = lineheight;
 		setConverter(converter);
 		this.alignonright = false;
 		this.largedisplay = largedisplay;
@@ -82,19 +73,21 @@ public class LargeTextTreeTableCell<S, T>
 	}
 
 	/**
-	 * Create a Large Text Tree Table Cell aligned on left
+	 * create a large text table cell aligned on left
 	 * 
-	 * @param converter         converter to String
-	 * @param entryrestrictions entry restrictions
-	 * @param readonlyformatter foramtter for object as read-only
+	 * @param converter         converter to generate the object from strin entered
+	 * @param entryrestrictions restrictions on text entry
+	 * @param readonlyformatter formatter for read-only
 	 * @param largedisplay      true if several lines (large display)
+	 * @param lineheight        line height in pixel
 	 */
 	public LargeTextTreeTableCell(
 			StringConverter<T> converter,
-			FormatValidator entryrestrictions,
+			FormatValidator<?> entryrestrictions,
 			ValueFormatter<T> readonlyformatter,
-			boolean largedisplay) {
-
+			boolean largedisplay,
+			double lineheight) {
+		this.lineheightfortable = lineheight;
 		setConverter(converter);
 		this.entryrestrictions = entryrestrictions;
 		this.readonlyformatter = readonlyformatter;
@@ -108,21 +101,23 @@ public class LargeTextTreeTableCell<S, T>
 	}
 
 	/**
-	 * Create a Large Text Tree Table Cell
+	 * create a large text table cell
 	 * 
-	 * @param converter         converter to String
-	 * @param entryrestrictions entry restrictions
-	 * @param readonlyformatter foramtter for object as read-only
+	 * @param converter         converter to generate the object from strin entered
+	 * @param entryrestrictions restrictions on text entry
+	 * @param readonlyformatter foratter for read-only
 	 * @param largedisplay      true if several lines (large display)
-	 * @param alignonright      align on right
+	 * @param alignonright      true to align on right
+	 * @param lineheight        line height in pixel
 	 */
 	public LargeTextTreeTableCell(
 			StringConverter<T> converter,
-			FormatValidator entryrestrictions,
+			FormatValidator<?> entryrestrictions,
 			ValueFormatter<T> readonlyformatter,
 			boolean largedisplay,
-			boolean alignonright) {
-
+			boolean alignonright,
+			double lineheight) {
+		this.lineheightfortable = lineheight;
 		setConverter(converter);
 		this.entryrestrictions = entryrestrictions;
 		this.readonlyformatter = readonlyformatter;
@@ -141,23 +136,14 @@ public class LargeTextTreeTableCell<S, T>
 			StringConverter<T>> converter = new SimpleObjectProperty<StringConverter<T>>(this, "converter");
 	private String oldtext;
 
-	/**
-	 * @return get the converter property
-	 */
 	public final ObjectProperty<StringConverter<T>> converterProperty() {
 		return converter;
 	}
 
-	/**
-	 * @param value sets the converter property
-	 */
 	public final void setConverter(StringConverter<T> value) {
 		converterProperty().set(value);
 	}
 
-	/**
-	 * @return get the converter
-	 */
 	public final StringConverter<T> getConverter() {
 		return converterProperty().get();
 	}
@@ -172,7 +158,7 @@ public class LargeTextTreeTableCell<S, T>
 		if (isEditing()) {
 			if (textField == null) {
 				textField = createTextField(this, getConverter(), entryrestrictions, this.largedisplay,
-						this.alignonright);
+						this.alignonright, lineheightfortable);
 			}
 			oldtext = getItemText(this, getConverter());
 			startEdit(this, getConverter(), null, null, textField);
@@ -197,41 +183,20 @@ public class LargeTextTreeTableCell<S, T>
 		updateItem(this, getConverter(), null, null, textField, readonlyformatter, item);
 	}
 
-	/**
-	 * cancel the edit
-	 * 
-	 * @param cell      cell
-	 * @param converter string converter
-	 * @param graphic   node content
-	 */
+	/***************************************************************************************
+	 * H E L P E R . M E T H O D S (from Cell Utils)
+	 ***************************************************************************************/
+
 	static <T> void cancelEdit(Cell<T> cell, final StringConverter<T> converter, Node graphic) {
 		cell.setText(getItemText(cell, converter));
 		cell.setGraphic(graphic);
 	}
 
-	/**
-	 * get the item text
-	 * 
-	 * @param cell      cell
-	 * @param converter string converter
-	 * @return item text
-	 */
 	private static <T> String getItemText(Cell<T> cell, StringConverter<T> converter) {
 		return converter == null ? cell.getItem() == null ? "" : cell.getItem().toString()
 				: converter.toString(cell.getItem());
 	}
 
-	/**
-	 * update the item
-	 * 
-	 * @param cell              cell
-	 * @param converter         converter between payload and string
-	 * @param hbox              hbox inside the cell
-	 * @param graphic           graphic node of the cell
-	 * @param textField         text field
-	 * @param readonlyformatter formatter for read-only
-	 * @param item              payload item
-	 */
 	static <T> void updateItem(
 			final Cell<T> cell,
 			final StringConverter<T> converter,
@@ -267,15 +232,6 @@ public class LargeTextTreeTableCell<S, T>
 		}
 	}
 
-	/**
-	 * start edition to a cell
-	 * 
-	 * @param cell      cell
-	 * @param converter converter between payload and string
-	 * @param hbox      hbox inside the cell
-	 * @param graphic   graphic node of the cell
-	 * @param textField text field
-	 */
 	static <T> void startEdit(
 			final Cell<T> cell,
 			final StringConverter<T> converter,
@@ -292,40 +248,68 @@ public class LargeTextTreeTableCell<S, T>
 			cell.setGraphic(hbox);
 		} else {
 			cell.setGraphic(textField);
+
 		}
+
 		textField.selectAll();
+
 		textField.requestFocus();
 	}
 
 	/**
-	 * creates the text field
+	 * creates a text input control
 	 * 
 	 * @param cell              cell
-	 * @param converter         converter between payload and string
-	 * @param entryrestrictions restrictions in entry
-	 * @param largedisplay      if true, large display
-	 * @param alignright        true to align on right
-	 * @return
+	 * @param converter         text converter
+	 * @param entryrestrictions restrictions on text entry
+	 * @param largedisplay      true if large display (several lines)
+	 * @param alignright        true if align on right, false if align on left
+	 * @param lineheight        line height in pixel
+	 * @return a text input control to be used a read-write component in the table
 	 */
 	static <S, T> TextInputControl createTextField(
 			final LargeTextTreeTableCell<S, T> cell,
 			final StringConverter<T> converter,
-			FormatValidator entryrestrictions,
+			FormatValidator<?> entryrestrictions,
 			boolean largedisplay,
-			boolean alignright) {
+			boolean alignright,
+			double lineheight) {
 		TextInputControl primaryinputcontrol = null;
 		if (largedisplay) {
 			TextArea textarea = new TextArea(getItemText(cell, converter));
 			textarea.setWrapText(true);
+			textarea.setMaxHeight(lineheight);
+			logger.finest(" text are max height = " + lineheight);
 			if (alignright)
 				textarea.getStyleClass().add("rightTextArea");
+			textarea.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, new EventHandler<Event>() {
 
+				@Override
+				public void handle(Event event) {
+					event.consume();
+					textarea.getParent().fireEvent(event);
+					logger.finest("test");
+
+				}
+
+			});
 			primaryinputcontrol = textarea;
 
 		} else {
 			TextField textField = new TextField(getItemText(cell, converter));
 			if (alignright)
 				textField.setAlignment(Pos.CENTER_RIGHT);
+				
+			textField.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, new EventHandler<Event>() {
+				
+				@Override
+				public void handle(Event event) {
+					event.consume();
+					textField.getParent().fireEvent(event);
+
+				}
+
+			});
 			primaryinputcontrol = textField;
 		}
 
@@ -347,6 +331,7 @@ public class LargeTextTreeTableCell<S, T>
 						textic.positionCaret(caretposition);
 
 					} else {
+
 						int caretposition = textic.getCaretPosition();
 						textic.setText(finalresult);
 						caretposition = finalresult.length() - newvalue.length() + caretposition;
@@ -354,7 +339,6 @@ public class LargeTextTreeTableCell<S, T>
 							caretposition = newvalue.length();
 
 						textic.positionCaret(caretposition);
-						// });
 					}
 
 				}
@@ -375,14 +359,19 @@ public class LargeTextTreeTableCell<S, T>
 			@Override
 			public void handle(KeyEvent t) {
 				if ((t.getCode() == KeyCode.ENTER) && (!t.isShiftDown())) {
-					if (converter == null)
-						throw new RuntimeException("StringConverter is null.");
+					logger.severe("Severe without shift");
+					if (converter == null) {
+						throw new IllegalStateException("Attempting to convert text input into Object, but provided "
+								+ "StringConverter is null. Be sure to set a StringConverter "
+								+ "in your cell factory.");
+					}
 					cell.commitEdit(converter.fromString(textic.getText()));
 					t.consume();
-
-					TreeTablePosition<S, ?> position = cell.getTreeTableView().getFocusModel().getFocusedCell();
+					@SuppressWarnings("unchecked")
+					TreeTablePosition<S, T> position =  (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
+					cell.getTreeTableView().requestFocus();
 
 				}
 
@@ -391,63 +380,72 @@ public class LargeTextTreeTableCell<S, T>
 					String textbefore = textic.getText().substring(0, caretposition);
 					String textafter = textic.getText().substring(caretposition);
 					t.consume();
-
 					textic.setText(textbefore + "\n" + textafter);
 					textic.selectPositionCaret(caretposition + 1);
 					textic.deselect();
-
 				}
 				if ((t.getCode() == KeyCode.RIGHT) && (t.isShiftDown())) {
 					logger.fine("in the code for shift right");
-					if (converter == null)
-						throw new RuntimeException("StringConverter is null.");
+					if (converter == null) {
+						throw new IllegalStateException("Attempting to convert text input into Object, but provided "
+								+ "StringConverter is null. Be sure to set a StringConverter "
+								+ "in your cell factory.");
+					}
 					cell.commitEdit(converter.fromString(textic.getText()));
 					t.consume();
 					cell.getTreeTableView().getFocusModel().focusRightCell();
-					TreeTablePosition<S, ?> position = cell.getTreeTableView().getFocusModel().getFocusedCell();
+					@SuppressWarnings("unchecked")
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().edit(position.getRow(), position.getTableColumn());
 				}
 				if ((t.getCode() == KeyCode.LEFT) && (t.isShiftDown())) {
-					if (converter == null)
-						throw new RuntimeException("StringConverter is null.");
+					if (converter == null) {
+						throw new IllegalStateException("Attempting to convert text input into Object, but provided "
+								+ "StringConverter is null. Be sure to set a StringConverter "
+								+ "in your cell factory.");
+					}
 					cell.commitEdit(converter.fromString(textic.getText()));
 					t.consume();
 					cell.getTreeTableView().getFocusModel().focusLeftCell();
-					TreeTablePosition<S, ?> position = cell.getTreeTableView().getFocusModel().getFocusedCell();
+					@SuppressWarnings("unchecked")
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().edit(position.getRow(), position.getTableColumn());
-
+					// });
 				}
 
 				if ((t.getCode() == KeyCode.UP) && (t.isShiftDown())) {
-					if (converter == null)
-						throw new RuntimeException("StringConverter is null.");
-
+					if (converter == null) {
+						throw new IllegalStateException("Attempting to convert text input into Object, but provided "
+								+ "StringConverter is null. Be sure to set a StringConverter "
+								+ "in your cell factory.");
+					}
 					cell.commitEdit(converter.fromString(textic.getText()));
 					t.consume();
-
 					cell.getTreeTableView().getFocusModel().focusAboveCell();
-					TreeTablePosition<S, ?> position = cell.getTreeTableView().getFocusModel().getFocusedCell();
+					@SuppressWarnings("unchecked")
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().edit(position.getRow(), position.getTableColumn());
-
 				}
 				if ((t.getCode() == KeyCode.DOWN) && (t.isShiftDown())) {
-					if (converter == null)
-						throw new RuntimeException("StringConverter is null.");
-
+					if (converter == null) {
+						throw new IllegalStateException("Attempting to convert text input into Object, but provided "
+								+ "StringConverter is null. Be sure to set a StringConverter "
+								+ "in your cell factory.");
+					}
 					cell.commitEdit(converter.fromString(textic.getText()));
 					t.consume();
-					TreeTablePosition<S, ?> position = cell.getTreeTableView().getFocusModel().getFocusedCell();
+					@SuppressWarnings("unchecked")
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
 					cell.getTreeTableView().getFocusModel().focusBelowCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().edit(position.getRow(), position.getTableColumn());
-
 				}
 
 			}

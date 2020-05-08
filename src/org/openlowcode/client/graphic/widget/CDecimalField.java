@@ -15,6 +15,8 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import org.openlowcode.tools.messages.MessageBooleanField;
 import org.openlowcode.tools.messages.MessageElement;
@@ -29,12 +31,16 @@ import org.openlowcode.client.graphic.CPageDataRef;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.graphic.widget.fields.BigDecimalFormatValidator;
+import org.openlowcode.client.graphic.widget.fields.FormatValidator;
 import org.openlowcode.client.graphic.widget.format.NiceLockableBigDecimalStringConverter;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
 import org.openlowcode.client.graphic.widget.table.LargeTextTableCell;
 import org.openlowcode.client.graphic.widget.table.LargeTextTreeTableCell;
+import org.openlowcode.client.graphic.widget.table.ObjectDataElementValueUpdater;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine.ObjectInGrid;
+import org.openlowcode.client.graphic.widget.table.EditableTreeTable;
+import org.openlowcode.client.graphic.widget.table.EditableTreeTable.Operator;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
@@ -76,7 +82,7 @@ import javafx.util.Callback;
  */
 public class CDecimalField
 		extends
-		CBusinessField<DecimalDataElt> {
+		CBusinessField<DecimalDataElt> implements ObjectDataElementValueUpdater<ObjectDataElt,BigDecimal>{
 	private String helper;
 	private String label;
 	private String datafieldname;
@@ -288,6 +294,7 @@ public class CDecimalField
 			this.decimalformatter = new CDecimalFormatter(reader);
 		}
 		reader.returnNextEndStructure("DCF");
+		this.formatvalidator = new BigDecimalFormatValidator(precision, scale);
 	}
 
 	private CDecimalFormatter decimalformatter;
@@ -384,7 +391,7 @@ public class CDecimalField
 		thiscolumn.setCellFactory(column -> {
 			return new LargeTextTreeTableCell<ObjectDataElt, LockableBigDecimal>(
 					new NiceLockableBigDecimalStringConverter(precision, scale), validator, this.decimalformatter,
-					false, true) {
+					false, true,1) {
 				@Override
 				public void updateItem(LockableBigDecimal decimal, boolean empty) {
 					logger.fine("Updating field for decimal = " + decimal + " empty = " + empty);
@@ -921,5 +928,47 @@ public class CDecimalField
 	public void overridesLabel(String newlabel) {
 		this.label = newlabel;
 
+	}
+
+	// -------------------------------------------------------------------------
+	// Extractor and integrator for management in tables
+	// --------------------------------------------------------------------------
+	
+	private DecimalDataElt extractDataElement(ObjectDataElt object) {
+		SimpleDataElt simpledataelt = object.lookupEltByName(this.datafieldname);
+		if (simpledataelt == null) throw new RuntimeException("Could not find "+this.datafieldname+" for object "+object);
+		if (!(simpledataelt instanceof DecimalDataElt)) throw new RuntimeException("field "+this.datafieldname+" is not DecimalDataElt, but "+simpledataelt.getClass().getName());
+		return (DecimalDataElt) simpledataelt;
+	}
+	
+	
+	@Override
+	public Function<ObjectDataElt, BigDecimal> fieldExtractor() {
+		return (t) -> (extractDataElement(t).getPayload());
+	}
+
+	@Override
+	public Function<BigDecimal, String> keyExtractor() {
+		return (t) -> (t.toString());
+	}
+
+	@Override
+	public Function<BigDecimal, String> labelExtractor() {
+		return (t) -> (formatvalidator.print(t));
+	}
+
+	@Override
+	public BiConsumer<ObjectDataElt, BigDecimal> payloadIntegration() {
+		return (t,u) -> {extractDataElement(t).updatePayload(u);};
+	}
+
+	@Override
+	public Operator<BigDecimal> operator() {
+		return EditableTreeTable.BIGDECIMAL_OPERATOR;
+	}
+
+	@Override
+	public FormatValidator<BigDecimal> formatValidator() {
+		return formatvalidator;
 	}
 }

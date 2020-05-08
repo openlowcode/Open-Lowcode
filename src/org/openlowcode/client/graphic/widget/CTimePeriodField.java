@@ -12,6 +12,7 @@ package org.openlowcode.client.graphic.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import org.openlowcode.client.action.CPageAction;
 import org.openlowcode.client.action.CPageInlineAction;
@@ -23,6 +24,7 @@ import javafx.util.Callback;
 
 import org.openlowcode.client.graphic.widget.fields.TimePeriodField;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
+import org.openlowcode.client.graphic.widget.table.ObjectDataElementKeyExtractor;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.data.TimePeriod;
@@ -77,7 +79,7 @@ import javafx.stage.Window;
  */
 public class CTimePeriodField
 		extends
-		CBusinessField<TimePeriodDataElt> {
+		CBusinessField<TimePeriodDataElt> implements ObjectDataElementKeyExtractor<ObjectDataElt,TimePeriod> {
 
 	private String datafieldname;
 	private String label;
@@ -613,6 +615,43 @@ public class CTimePeriodField
 			}
 		}
 
+	}
+
+	// ---------------------------------------------------------------------------
+	// key extractors
+	// ---------------------------------------------------------------------------
+	
+	
+	@Override
+	public Function<ObjectDataElt, TimePeriod> fieldExtractor() {
+		return (t) -> {				String fieldname = CTimePeriodField.this.getFieldname();
+				
+				SimpleDataElt lineelement = t.lookupEltByName(fieldname);
+				if (lineelement==null) throw new RuntimeException("Element for "+fieldname+" does not exist on object "+t);
+				if (lineelement != null)
+					if (lineelement instanceof TimePeriodDataElt) {
+						TimePeriodDataElt tpelement = (TimePeriodDataElt) lineelement;
+						return tpelement.getPayload();
+					}
+				if (lineelement != null)
+					if (lineelement instanceof TextDataElt) {
+						TextDataElt text = (TextDataElt) lineelement;
+						return TimePeriod.generateFromString(text.getPayload());
+					}
+				return null;
+			};
+		
+	}
+
+	@Override
+	public Function<TimePeriod, String> keyExtractor() {
+		return (t) -> (t.encode());
+
+	}
+
+	@Override
+	public Function<TimePeriod, String> labelExtractor() {
+		return (t) -> (t.toString());
 	}
 
 }

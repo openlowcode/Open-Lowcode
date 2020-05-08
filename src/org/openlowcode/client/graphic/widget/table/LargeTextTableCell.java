@@ -46,7 +46,7 @@ public class LargeTextTableCell<S, T>
 	private static Logger logger = Logger.getLogger(LargeTextTableCell.class.getName());
 
 	private TextInputControl textField;
-	private FormatValidator entryrestrictions;
+	private FormatValidator<?> entryrestrictions;
 	private ValueFormatter<T> readonlyformatter;
 	private boolean alignonright;
 	private boolean largedisplay;
@@ -83,7 +83,7 @@ public class LargeTextTableCell<S, T>
 	 */
 	public LargeTextTableCell(
 			StringConverter<T> converter,
-			FormatValidator entryrestrictions,
+			FormatValidator<?> entryrestrictions,
 			ValueFormatter<T> readonlyformatter,
 			boolean largedisplay,
 			double lineheight) {
@@ -112,7 +112,7 @@ public class LargeTextTableCell<S, T>
 	 */
 	public LargeTextTableCell(
 			StringConverter<T> converter,
-			FormatValidator entryrestrictions,
+			FormatValidator<?> entryrestrictions,
 			ValueFormatter<T> readonlyformatter,
 			boolean largedisplay,
 			boolean alignonright,
@@ -270,7 +270,7 @@ public class LargeTextTableCell<S, T>
 	static <S, T> TextInputControl createTextField(
 			final LargeTextTableCell<S, T> cell,
 			final StringConverter<T> converter,
-			FormatValidator entryrestrictions,
+			FormatValidator<?> entryrestrictions,
 			boolean largedisplay,
 			boolean alignright,
 			double lineheight) {
@@ -369,7 +369,7 @@ public class LargeTextTableCell<S, T>
 					TablePosition<S, T> position = cell.getTableView().getFocusModel().getFocusedCell();
 					cell.getTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
-
+					cell.getTableView().requestFocus();
 				}
 
 				if ((t.getCode() == KeyCode.ENTER) && (t.isShiftDown())) {

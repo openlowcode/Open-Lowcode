@@ -74,8 +74,10 @@ public class LinkedToParent<E extends DataObjectDefinition>
 	private UniqueIdentified uniqueidentified;
 	private WidgetDisplayPriority priorityforlinkedfromparent;
 	private String secondarycolumndisplayforgrid;
+	private String[] infofieldforreverseshow;
 	private String specifictitleforchildrentable = null;
 	private HashMap<String, ArrayList<Field>> compositeindexlist;
+	private boolean reversetreegrid;
 
 	/**
 	 * gets the unique identified property on the child object the linked to parent
@@ -171,6 +173,7 @@ public class LinkedToParent<E extends DataObjectDefinition>
 		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
 		this.cellvaluestoshow = cellvaluestoshow;
 		compositeindexlist = new HashMap<String, ArrayList<Field>>();
+		reversetreegrid=false;
 	}
 
 	/**
@@ -210,6 +213,53 @@ public class LinkedToParent<E extends DataObjectDefinition>
 		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
 		this.cellvaluestoshow = cellvaluestoshow;
 		compositeindexlist = new HashMap<String, ArrayList<Field>>();
+		reversetreegrid=false;
+	}
+
+	/**
+	 * creates a linked to parent property with the children objects shown from the
+	 * parent as a grid with a specific widget display priority. The grid is
+	 * reversed, and shown as a tree
+	 * 
+	 * @param name                          unique name amongst the linked to parent
+	 *                                      properties of this object. Should be a
+	 *                                      valid java field name
+	 * @param parentobjectforlink           the parent object the main object is
+	 *                                      linked to
+	 * @param priorityforlinkedfromparent   the priority for the grid display on the
+	 *                                      parent object
+	 * @param linedisplayforgrid            the column used for line display
+	 * @param columndisplayforgrid          the column used for column display
+	 * @param secondarycolumndisplayforgrid the column used for secondary column
+	 *                                      display (leave it null if not used)
+	 * @param cellvaluestoshow              the name of the fields to show as
+	 *                                      content in the grid
+	 * @param infofieldforreverseshow       info fields added in the reverse tree.
+	 *                                      Will be shown if all values are the same
+	 *                                      for all elements in the same line
+	 */
+	public LinkedToParent(
+			String name,
+			E parentobjectforlink,
+			WidgetDisplayPriority priorityforlinkedfromparent,
+			String linedisplayforgrid,
+			String columndisplayforgrid,
+			String secondarycolumndisplayforgrid,
+			String cellvaluestoshow,
+			String[] infofieldforreverseshow) {
+		super(name, "LINKEDTOPARENT");
+		this.parentobjectforlink = parentobjectforlink;
+		this.priorityforlinkedfromparent = priorityforlinkedfromparent;
+		if (this.priorityforlinkedfromparent != null)
+			this.priorityforlinkedfromparent.checkIfValidForObject(parentobjectforlink);
+		displaychildrenasgrid = true;
+		this.linedisplayforgrid = linedisplayforgrid;
+		this.columndisplayforgrid = columndisplayforgrid;
+		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
+		this.cellvaluestoshow = new String[] { cellvaluestoshow };
+		this.infofieldforreverseshow = infofieldforreverseshow;
+		compositeindexlist = new HashMap<String, ArrayList<Field>>();
+		reversetreegrid=true;
 	}
 
 	private LinkedFromChildren linkedfromchildren;
@@ -267,10 +317,17 @@ public class LinkedToParent<E extends DataObjectDefinition>
 				if (this.specifictitleforchildrentable != null)
 					linkedfromchildren.setSpecificTitleForChildrenTable(specifictitleforchildrentable);
 			} else {
+				if (!this.reversetreegrid) {
 				linkedfromchildren = new LinkedFromChildren(
 						this.getInstancename() + "for" + parent.getName().toLowerCase(), this.parent, this,
 						this.linedisplayforgrid, this.columndisplayforgrid, this.secondarycolumndisplayforgrid,
 						this.cellvaluestoshow);
+				} else {
+					linkedfromchildren = new LinkedFromChildren(
+							this.getInstancename() + "for" + parent.getName().toLowerCase(), this.parent, this,
+							this.linedisplayforgrid, this.columndisplayforgrid, this.secondarycolumndisplayforgrid,
+							this.cellvaluestoshow,this.infofieldforreverseshow);
+				}
 				if (this.specifictitleforchildrentable != null)
 					linkedfromchildren.setSpecificTitleForChildrenTable(specifictitleforchildrentable);
 			}

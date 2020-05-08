@@ -23,6 +23,7 @@ package org.openlowcode.client.graphic.widget.fields;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 
 /**
  * A format validator to enter numbers. It manages all tricky cases during entry
@@ -32,11 +33,13 @@ import java.text.DecimalFormatSymbols;
  *         SAS</a>
  *
  */
-public class BigDecimalFormatValidator implements FormatValidator {
+public class BigDecimalFormatValidator implements FormatValidator<BigDecimal> {
 	private int precision;
 	private int scale;
 	private DecimalFormat formatfordecimal;
 
+	
+	
 	/**
 	 * creates a validator for Big Decimal. Edition is done in the Open Lowcode
 	 * standard decimal format, with thousands separated by space and decimal
@@ -190,6 +193,25 @@ public class BigDecimalFormatValidator implements FormatValidator {
 			}
 		}
 		return valueasstring;
+	}
+
+
+
+	@Override
+	public BigDecimal parse(String stringvalue) {
+		if (stringvalue==null) return null;
+		if (stringvalue.trim().length()==0) return null;
+		try {
+			return (BigDecimal) formatfordecimal.parse(stringvalue);
+		} catch (ParseException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+		
+	}
+
+	@Override
+	public String print(BigDecimal value) {
+		return formatfordecimal.format(value);
 	}
 
 }

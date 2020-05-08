@@ -11,8 +11,11 @@
 package org.openlowcode.client.graphic.widget.format;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 import org.openlowcode.client.graphic.widget.fields.FormatValidator;
 
@@ -25,7 +28,7 @@ import org.openlowcode.client.graphic.widget.fields.FormatValidator;
  */
 public class DateFormatValidator
 		implements
-		FormatValidator {
+		FormatValidator<Date> {
 	/**
 	 * format used for this date format validator
 	 */
@@ -42,6 +45,19 @@ public class DateFormatValidator
 			return null;
 		}
 
+	}
+
+	@Override
+	public Date parse(String stringvalue) {
+		if (stringvalue==null) return null;
+		if (stringvalue.trim().length()==0) return null;
+		return Date.from(LocalDateTime.parse(stringvalue, formatter).atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	@Override
+	public String print(Date value) {
+		if (value==null) return "";
+		return formatter.format(value.toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime());
 	}
 
 }

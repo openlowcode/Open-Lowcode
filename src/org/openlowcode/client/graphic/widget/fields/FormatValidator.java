@@ -18,8 +18,8 @@ package org.openlowcode.client.graphic.widget.fields;
  *         SAS</a>
  *
  */
-@FunctionalInterface
-public interface FormatValidator {
+
+public interface FormatValidator<E extends Object> {
 	/**
 	 * will parse the string value and decide if the format is correct or not
 	 * 
@@ -29,4 +29,16 @@ public interface FormatValidator {
 	 *         null value will be rendered as an empty string;
 	 */
 	public String valid(String valueasstring);
+	
+	/**
+	 * @param stringvalue
+	 * @return
+	 */
+	public E parse(String stringvalue);
+	
+	/**
+	 * @param value
+	 * @return
+	 */
+	public String print(E value);
 }
