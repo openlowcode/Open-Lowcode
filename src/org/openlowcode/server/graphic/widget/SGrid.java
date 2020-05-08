@@ -59,6 +59,7 @@ public class SGrid<E extends DataObject<E>>
 	private DataObjectFieldMarker<E> columnfield;
 	private DataObjectFieldMarker<E> secondarycolumnfield;
 	private ArrayList<DataObjectFieldMarker<E>> valuefield;
+	private ArrayList<DataObjectFieldMarker<E>> infofieldsforreversetree;
 	private ArrayDataElt<TObjectDataElt<E>> objectarray;
 	private DataObjectDefinition<E> objectmodel;
 	private SInlineActionRef inlineupdateaction;
@@ -70,6 +71,7 @@ public class SGrid<E extends DataObject<E>>
 	private String unsavedwarningcontinuemessage;
 	private String unsavedwarningstopmessage;
 	private boolean updatenote;
+	private boolean reversetree = false;
 
 	/**
 	 * gives a reference to the updated objects in the grid
@@ -170,6 +172,19 @@ public class SGrid<E extends DataObject<E>>
 		this.unsaveddatawarning = false;
 		this.updatenote = false;
 		this.secondarycolumnfield = null;
+	}
+
+	/**
+	 * display as a reverse tree. The several columns criteria will actually be
+	 * shown as lines for grouping in a tree
+	 */
+	public void setReverseTree(DataObjectFieldMarker<E>[] fieldmarkersforinfo) {
+		this.reversetree = true;
+		infofieldsforreversetree = new ArrayList<DataObjectFieldMarker<E>>();
+		if (fieldmarkersforinfo != null)
+			for (int i = 0; i < fieldmarkersforinfo.length; i++)
+				infofieldsforreversetree.add(fieldmarkersforinfo[i]);
+		
 	}
 
 	/**
@@ -311,6 +326,16 @@ public class SGrid<E extends DataObject<E>>
 			writer.addStringField("UNSWARCON", this.unsavedwarningcontinuemessage);
 			writer.addStringField("UNSWARSTP", this.unsavedwarningstopmessage);
 
+		}
+		writer.addBooleanField("RVT", this.reversetree);
+		if (this.reversetree) {
+			writer.startStructure("INFFLDS");
+			for (int i=0;i<this.infofieldsforreversetree.size();i++) {
+				writer.startStructure("INFFLD");
+				writer.addStringField("NAM", infofieldsforreversetree.get(i).toString());
+				writer.endStructure("INFFLD");
+			}
+			writer.endStructure("INFFLDS");
 		}
 	}
 
