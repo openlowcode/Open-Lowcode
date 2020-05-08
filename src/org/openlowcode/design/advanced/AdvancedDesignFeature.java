@@ -30,6 +30,23 @@ public abstract class AdvancedDesignFeature
 		implements
 		ActionGroup {
 
+	private String menuname = null;
+
+	/**
+	 * @param menuname for advanced design features that are launched from an object
+	 *                page, the action is put in a menu of the following name
+	 */
+	public void setTabForObject(String menuname) {
+		this.menuname = menuname;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getMenuForObject() {
+		return this.menuname;
+	}
+
 	private Module parentmodule;
 
 	/**

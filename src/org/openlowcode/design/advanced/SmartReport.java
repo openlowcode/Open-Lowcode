@@ -99,7 +99,13 @@ public class SmartReport
 			blankreport = dynamicblankreport;
 			UniqueIdentified rootobjectuniqueidentified = (UniqueIdentified) rootnode.getRelevantObject()
 					.getPropertyByName("UNIQUEIDENTIFIED");
-			rootobjectuniqueidentified.addActionOnObjectId(dynamicblankreport);
+			String menuname = this.getMenuForObject();
+			if (menuname!=null) {
+				rootobjectuniqueidentified.addActionOnObjectId(dynamicblankreport,menuname);
+					
+			} else {
+				rootobjectuniqueidentified.addActionOnObjectId(dynamicblankreport);
+			}
 			this.getParentModule().addAction(dynamicblankreport);
 			dynamicblankreport.addOutputArgument(new ObjectIdArgument("PARENTID_THRU", rootnode.getRelevantObject()));
 			dynamicblankreport.addOutputArgument(new StringArgument("PARENTOBJECTLABEL_THRU", 256));

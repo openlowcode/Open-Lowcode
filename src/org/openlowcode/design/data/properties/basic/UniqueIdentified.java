@@ -12,6 +12,7 @@ package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.openlowcode.design.action.DynamicActionDefinition;
 import org.openlowcode.design.data.ArgumentContent;
@@ -48,8 +49,18 @@ public class UniqueIdentified
 		Property<UniqueIdentified> {
 	private NamedList<DynamicActionDefinition> actionsonobjectid;
 	private NamedList<DynamicActionDefinition> actionsonobjectidonmanagetab;
+	private HashMap<String,ArrayList<DynamicActionDefinition>> actionsonspecifictab;
+	private ArrayList<String> specifictabs;
 	private StoredObject storedobject;
 
+	public ArrayList<String> getSpecificTabList() {
+		return this.specifictabs;
+	}
+	
+	public ArrayList<DynamicActionDefinition> getActionsOnSpecifictab(String specifictabname) {
+		return this.actionsonspecifictab.get(specifictabname);
+	}
+	
 	/**
 	 * @return the list of actions on object id to be added to button band of the
 	 *         object page
@@ -80,7 +91,8 @@ public class UniqueIdentified
 		super("UNIQUEIDENTIFIED");
 		this.actionsonobjectid = new NamedList<DynamicActionDefinition>();
 		this.actionsonobjectidonmanagetab = new NamedList<DynamicActionDefinition>();
-
+		this.actionsonspecifictab = new HashMap<String,ArrayList<DynamicActionDefinition>>();
+		specifictabs = new ArrayList<String>();
 	}
 
 	@Override
@@ -157,17 +169,18 @@ public class UniqueIdentified
 		addActionOnObjectId(action, false);
 	}
 
-	/**
-	 * adds an action on the object, either in the main button band, or in the
-	 * manage tab
-	 * 
-	 * @param action            adds an action on the object id. The action should
-	 *                          have a single input attribute being the data object
-	 *                          id
-	 * @param actioninmanagetab if true, action is put in manage tabs, if false,
-	 *                          action is directly in the action button
-	 */
-	public void addActionOnObjectId(DynamicActionDefinition action, boolean actioninmanagetab) {
+	public void addActionOnObjectId(DynamicActionDefinition action,String specialmenuname) {
+		validateActionOnObjectId(action);
+		ArrayList<DynamicActionDefinition> actionsforspecialmenu = this.actionsonspecifictab.get(specialmenuname);
+		if (actionsforspecialmenu==null) {
+			actionsforspecialmenu = new ArrayList<DynamicActionDefinition>();
+			this.actionsonspecifictab.put(specialmenuname,actionsforspecialmenu);
+			this.specifictabs.add(specialmenuname);
+		}
+		actionsforspecialmenu.add(action);
+	}
+	
+	private void validateActionOnObjectId(DynamicActionDefinition action) {
 		if (action.getInputArguments().getSize() != 1)
 			throw new RuntimeException("you can add an action on object id only if it has 1 argument, action "
 					+ action.getName() + " has " + action.getInputArguments().getSize() + ".");
@@ -182,6 +195,20 @@ public class UniqueIdentified
 					+ objectforid.getOwnermodule().getName() + "/" + objectforid.getName() + ", object parentid type = "
 					+ parent.getOwnermodule().getName() + "/" + parent.getName());
 		}
+	}
+	
+	/**
+	 * adds an action on the object, either in the main button band, or in the
+	 * manage tab
+	 * 
+	 * @param action            adds an action on the object id. The action should
+	 *                          have a single input attribute being the data object
+	 *                          id
+	 * @param actioninmanagetab if true, action is put in manage tabs, if false,
+	 *                          action is directly in the action button
+	 */
+	public void addActionOnObjectId(DynamicActionDefinition action, boolean actioninmanagetab) {
+		validateActionOnObjectId(action);
 
 		if (actioninmanagetab) {
 			this.actionsonobjectidonmanagetab.add(action);
