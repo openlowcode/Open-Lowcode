@@ -93,6 +93,8 @@ public class CObjectDisplay
 	private HashMap<String, CPageDataRef> overridenlabels;
 	private HashMap<String, CPageDataRef> suggestionsforstringfield;
 	private TitledPane morepane;
+	private boolean hasbuttonbar;
+	private CPageNode buttonbar;
 
 	/**
 	 * creates an object display from a message from the server
@@ -177,6 +179,13 @@ public class CObjectDisplay
 			nodeelementrightoftitle = CPageNode.parseNode(reader, parentpath);
 			reader.returnNextEndStructure("NRT");
 
+		}
+		this.hasbuttonbar = reader.returnNextBooleanField("HBTBAR");
+		if (this.hasbuttonbar) {
+			reader.returnNextStartStructure("BBB");
+			this.buttonbar = CPageNode.parseNode(reader, parentpath);
+			reader.returnNextEndStructure("BBB");
+			
 		}
 		overridenlabels = new HashMap<String, CPageDataRef>();
 		reader.startStructureArray("OVWLBL");
@@ -567,7 +576,10 @@ public class CObjectDisplay
 
 				contentpane.getChildren().add(titleextendedpane);
 			}
-
+		if (this.hasbuttonbar) {
+			contentpane.getChildren().add(this.buttonbar.getNode(actionmanager, inputdata,
+					parentwindow, parenttabpanes));
+		}
 		if (this.showcontent) {
 			contentpane.getChildren().add(fieldtable.getNode(actionmanager, inputdata, parentwindow, parenttabpanes));
 			if (hasmorefields) {

@@ -60,6 +60,9 @@ public class SObjectDisplay<E extends DataObject<E>>
 	private SPageNode noderightoftitle = null;
 	private boolean hasnoderightoftitle = false;
 
+	private SPageNode buttonbar = null;
+	private boolean hasbuttonbar=false;
+	
 	private boolean showcontent;
 	private boolean showtitle;
 	private int morefieldpriority = 0;
@@ -272,6 +275,16 @@ public class SObjectDisplay<E extends DataObject<E>>
 		this.noderightoftitle = node;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param node node to add as button bar under the title
+	 */
+	public void addButtonBarUnderTitle(SPageNode node) {
+		this.hasbuttonbar = true;
+		this.buttonbar = node;
+	}
+	
 	@Override
 	public String getPathName() {
 		return this.name;
@@ -308,6 +321,14 @@ public class SObjectDisplay<E extends DataObject<E>>
 			writer.endStructure("NRT");
 
 		}
+		
+		writer.addBooleanField("HBTBAR", this.hasbuttonbar);
+		if (this.hasbuttonbar) {
+			writer.startStructure("BBB");
+			this.buttonbar.WriteToCDL(writer, input, buffer);
+			writer.endStructure("BBB");
+		}
+		
 		// ------------------------------ writing overwrite label
 		writer.startStructure("OVWLBLS");
 		Iterator<Entry<DataObjectFieldMarker<E>, TextDataElt>> labelsiterator = overridenlabels.entrySet().iterator();
@@ -359,5 +380,7 @@ public class SObjectDisplay<E extends DataObject<E>>
 		this.setSignifPath(new SPageSignifPath(this.getPathName(), this.getPage(), parentpath, widgetpathtoroot));
 		if (noderightoftitle != null)
 			noderightoftitle.populateDown(parentpath, widgetpathtoroot);
+		if (buttonbar!=null) 
+			buttonbar.populateDown(parentpath, widgetpathtoroot);
 	}
 }

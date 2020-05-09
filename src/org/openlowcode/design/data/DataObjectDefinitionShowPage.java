@@ -755,35 +755,6 @@ public class DataObjectDefinitionShowPage
 
 		sg.wl("		// Display Object");
 
-		// -------------------------------- Process Image Content
-
-		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
-			Property<?> thisproperty = dataobject.propertylist.get(i);
-			if (thisproperty instanceof ImageContent) {
-				ImageContent imagecontent = (ImageContent) thisproperty;
-				String imagename = StringFormatter.formatForAttribute(imagecontent.getInstancename());
-				String imageclass = StringFormatter.formatForJavaClass(imagecontent.getInstancename());
-
-				sg.wl("		// Display image " + imageclass + "");
-				sg.wl("		AtgGetfullimagefor" + imagename + "for" + objectvariable + "Action.InlineActionRef "
-						+ imagename + "fulldisplayaction = AtgGetfullimagefor" + imagename + "for" + objectvariable
-						+ "Action.get().getInlineActionRef();");
-				sg.wl("		SObjectIdStorage<Binaryfile> " + imagename
-						+ "fullidstorage = new SObjectIdStorage<Binaryfile>(\""
-						+ imagecontent.getInstancename().toUpperCase() + "FULLID\",this,this.get" + imageclass
-						+ "fullimgid());");
-				sg.wl("		" + mainobjectlocation + ".addElement(" + imagename + "fullidstorage);");
-				sg.wl("		" + imagename + "fulldisplayaction.set" + objectclass
-						+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
-				sg.wl("		SImageDisplay " + imagename + "thumbnaildisplay = new SImageDisplay(\""
-						+ imagecontent.getInstancename().toUpperCase() + "THUMBNAIL\", this,this.get" + imageclass
-						+ "tbn(), " + imagename + "fulldisplayaction,GetfileAction.get().getFileRef(),\""
-						+ StringFormatter.formatForJavaClass(imagecontent.getInstancename()) + "\");");
-				sg.wl("		" + mainobjectlocation + ".addElement(" + imagename + "thumbnaildisplay);");
-				sg.wl("");
-			}
-		}
-
 		// -------------------------------- Button band under object ------------
 
 		if (objectbuttonband) {
@@ -1035,7 +1006,7 @@ public class DataObjectDefinitionShowPage
 			sg.wl(" deletebutton.setConfirmationMessage(\"Are you sure you want to delete this " + dataobject.getLabel()
 					+ " ?\");");
 			sg.wl("	managepopup.addElement(deletebutton);");
-		}
+		
 
 		if ((dataobject.IsIterated()) || (dataobject.isVersioned())) {
 
@@ -1149,6 +1120,96 @@ public class DataObjectDefinitionShowPage
 			sg.wl("	objectbuttonband.addElement(showplanningbutton);");
 
 		}
+		
+		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+			Property<?> thisproperty = dataobject.propertylist.get(i);
+			if (thisproperty instanceof ImageContent) {
+				ImageContent imagecontent = (ImageContent) thisproperty;
+				String imagename = StringFormatter.formatForAttribute(imagecontent.getInstancename());
+
+				sg.wl("// set image for " + imagename + "");
+				sg.wl("	AtgSetimagecontentfor" + imagename + "for" + objectvariable
+						+ "Action.ActionRef setimagecontentfor" + imagename + "action = AtgSetimagecontentfor"
+						+ imagename + "for" + objectvariable + "Action.get().getActionRef();");
+				sg.wl("	SImageChooser imagechooserfor" + imagename + " = new SImageChooser(\""
+						+ imagecontent.getInstancename().toUpperCase() + "\", this,160, setimagecontentfor" + imagename
+						+ "action,\"Set as " + imagename + "\");");
+				sg.wl("setimagecontentfor" + imagename + "action.set" + objectclass
+						+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+				sg.wl("	setimagecontentfor" + imagename + "action.setFullimage(imagechooserfor" + imagename
+						+ ".getFullImageDataInput());");
+				sg.wl("	setimagecontentfor" + imagename + "action.setThumbnail(imagechooserfor" + imagename
+						+ ".getThumbnailImageDataInput());");
+				sg.wl("	SPopupButton setimagecontentfor" + imagename + "button = new SPopupButton(this, imagechooserfor"
+						+ imagename + ", \"set image for " + imagename + "\",\"allows to add an image as " + imagename
+						+ " from either clipboard or file\",false,setimagecontentfor" + imagename + "action);");
+				sg.wl("	objectbuttonband.addElement(setimagecontentfor" + imagename + "button);");
+
+			}
+		}
+
+		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+			Property<?> thisproperty = dataobject.propertylist.get(i);
+			if (thisproperty instanceof PrintOut) {
+				PrintOut printout = (PrintOut) thisproperty;
+				String printoutnamevariable = StringFormatter.formatForAttribute(printout.getInstancename());
+
+				sg.wl("	// Preview " + printoutnamevariable + "");
+				sg.wl("	AtgPreviewprintoutfor" + objectvariable + "for" + printoutnamevariable
+						+ "Action.InlineActionRef preview" + printoutnamevariable + " = AtgPreviewprintoutfor"
+						+ objectvariable + "for" + printoutnamevariable + "Action.get().getInlineActionRef();");
+				sg.wl("	preview" + printoutnamevariable + ".set" + objectclass
+						+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass
+						+ ".getDefinition().getIdMarker()));");
+				sg.wl("	SActionButton " + printoutnamevariable
+						+ "preview = new SActionButton(\"Preview Printout\",preview" + printoutnamevariable
+						+ ",this);");
+				sg.wl("	objectbuttonband.addElement(" + printoutnamevariable + "preview);");
+				sg.wl("	SFileDownloader preview" + printoutnamevariable
+						+ "downloader = new SFileDownloader(\"PREVIEWDOWNLOAD\", this, preview" + printoutnamevariable
+						+ ",AtgPreviewprintoutfor" + objectvariable + "for" + printoutnamevariable
+						+ "Action.get().getPreviewRef());");
+				sg.wl("	objectbuttonband.addElement(preview" + printoutnamevariable + "downloader);");
+
+			}
+		}
+
+	
+			sg.wl("		objectdisplaydefinition.addButtonBarUnderTitle(objectbuttonband);");
+		
+		
+		}
+		
+		
+		// -------------------------------- Process Image Content
+
+		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+			Property<?> thisproperty = dataobject.propertylist.get(i);
+			if (thisproperty instanceof ImageContent) {
+				ImageContent imagecontent = (ImageContent) thisproperty;
+				String imagename = StringFormatter.formatForAttribute(imagecontent.getInstancename());
+				String imageclass = StringFormatter.formatForJavaClass(imagecontent.getInstancename());
+
+				sg.wl("		// Display image " + imageclass + "");
+				sg.wl("		AtgGetfullimagefor" + imagename + "for" + objectvariable + "Action.InlineActionRef "
+						+ imagename + "fulldisplayaction = AtgGetfullimagefor" + imagename + "for" + objectvariable
+						+ "Action.get().getInlineActionRef();");
+				sg.wl("		SObjectIdStorage<Binaryfile> " + imagename
+						+ "fullidstorage = new SObjectIdStorage<Binaryfile>(\""
+						+ imagecontent.getInstancename().toUpperCase() + "FULLID\",this,this.get" + imageclass
+						+ "fullimgid());");
+				sg.wl("		" + mainobjectlocation + ".addElement(" + imagename + "fullidstorage);");
+				sg.wl("		" + imagename + "fulldisplayaction.set" + objectclass
+						+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+				sg.wl("		SImageDisplay " + imagename + "thumbnaildisplay = new SImageDisplay(\""
+						+ imagecontent.getInstancename().toUpperCase() + "THUMBNAIL\", this,this.get" + imageclass
+						+ "tbn(), " + imagename + "fulldisplayaction,GetfileAction.get().getFileRef(),\""
+						+ StringFormatter.formatForJavaClass(imagecontent.getInstancename()) + "\");");
+				sg.wl("		" + mainobjectlocation + ".addElement(" + imagename + "thumbnaildisplay);");
+				sg.wl("");
+			}
+		}
+
 
 		// display all left links as field
 
@@ -1319,62 +1380,7 @@ public class DataObjectDefinitionShowPage
 			}
 
 		}
-		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
-			Property<?> thisproperty = dataobject.propertylist.get(i);
-			if (thisproperty instanceof ImageContent) {
-				ImageContent imagecontent = (ImageContent) thisproperty;
-				String imagename = StringFormatter.formatForAttribute(imagecontent.getInstancename());
-
-				sg.wl("// set image for " + imagename + "");
-				sg.wl("	AtgSetimagecontentfor" + imagename + "for" + objectvariable
-						+ "Action.ActionRef setimagecontentfor" + imagename + "action = AtgSetimagecontentfor"
-						+ imagename + "for" + objectvariable + "Action.get().getActionRef();");
-				sg.wl("	SImageChooser imagechooserfor" + imagename + " = new SImageChooser(\""
-						+ imagecontent.getInstancename().toUpperCase() + "\", this,160, setimagecontentfor" + imagename
-						+ "action,\"Set as " + imagename + "\");");
-				sg.wl("setimagecontentfor" + imagename + "action.set" + objectclass
-						+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
-				sg.wl("	setimagecontentfor" + imagename + "action.setFullimage(imagechooserfor" + imagename
-						+ ".getFullImageDataInput());");
-				sg.wl("	setimagecontentfor" + imagename + "action.setThumbnail(imagechooserfor" + imagename
-						+ ".getThumbnailImageDataInput());");
-				sg.wl("	SPopupButton setimagecontentfor" + imagename + "button = new SPopupButton(this, imagechooserfor"
-						+ imagename + ", \"set image for " + imagename + "\",\"allows to add an image as " + imagename
-						+ " from either clipboard or file\",false,setimagecontentfor" + imagename + "action);");
-				sg.wl("	objectbuttonband.addElement(setimagecontentfor" + imagename + "button);");
-
-			}
-		}
-
-		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
-			Property<?> thisproperty = dataobject.propertylist.get(i);
-			if (thisproperty instanceof PrintOut) {
-				PrintOut printout = (PrintOut) thisproperty;
-				String printoutnamevariable = StringFormatter.formatForAttribute(printout.getInstancename());
-
-				sg.wl("	// Preview " + printoutnamevariable + "");
-				sg.wl("	AtgPreviewprintoutfor" + objectvariable + "for" + printoutnamevariable
-						+ "Action.InlineActionRef preview" + printoutnamevariable + " = AtgPreviewprintoutfor"
-						+ objectvariable + "for" + printoutnamevariable + "Action.get().getInlineActionRef();");
-				sg.wl("	preview" + printoutnamevariable + ".set" + objectclass
-						+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass
-						+ ".getDefinition().getIdMarker()));");
-				sg.wl("	SActionButton " + printoutnamevariable
-						+ "preview = new SActionButton(\"Preview Printout\",preview" + printoutnamevariable
-						+ ",this);");
-				sg.wl("	objectbuttonband.addElement(" + printoutnamevariable + "preview);");
-				sg.wl("	SFileDownloader preview" + printoutnamevariable
-						+ "downloader = new SFileDownloader(\"PREVIEWDOWNLOAD\", this, preview" + printoutnamevariable
-						+ ",AtgPreviewprintoutfor" + objectvariable + "for" + printoutnamevariable
-						+ "Action.get().getPreviewRef());");
-				sg.wl("	objectbuttonband.addElement(preview" + printoutnamevariable + "downloader);");
-
-			}
-		}
-
-		if (objectbuttonband) {
-			sg.wl("		" + mainobjectlocation + ".addElement(objectbuttonband);");
-		}
+	
 
 		// ----------------------------------------------------------------------------------------
 		// -- DISPLAY WIDGETS --
