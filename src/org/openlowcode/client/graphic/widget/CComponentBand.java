@@ -29,6 +29,11 @@ import javafx.scene.Node;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -127,16 +132,22 @@ public class CComponentBand
 	 * @return a pane with the given direction
 	 */
 	public static Pane returnBandPane(int direction) {
-		Pane thispane;
+		Pane thispane=null;
+		boolean valid=false;
 		if (direction == DIRECTION_DOWN) {
 			thispane = new VBox(8);
-
-		} else {
-
+			thispane.setPadding(new Insets(5, 5, 5, 0));
+			valid=true;
+		} 
+		if (direction == DIRECTION_RIGHT) {
 			thispane = new HBox(8);
+			thispane.setPadding(new Insets(0, 0, 0, 0));
+			valid=true;
 		}
+		if (!valid) throw new RuntimeException("Direction "+direction+" not supported");
+		
 		thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-		thispane.setPadding(new Insets(5, 5, 5, 0));
+		
 		return thispane;
 	}
 
