@@ -924,14 +924,14 @@ public class DataObjectDefinitionOtherActions {
 	}
 
 	/**
-	 * generates the code for the save-as (somehow deep copy) action
+	 * generates the code for the duplicate (somehow deep copy) action
 	 * 
 	 * @param dataobject data object definition
 	 * @param sg         source generator
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens during the generation
 	 */
-	public static void generateSaveAsActionToFile(DataObjectDefinition dataobject, SourceGenerator sg, Module module)
+	public static void generateDuplicateActionToFile(DataObjectDefinition dataobject, SourceGenerator sg, Module module)
 			throws IOException {
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
@@ -962,10 +962,10 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 
 		sg.wl("");
-		sg.wl("public class AtgSaveas" + objectvariable + "Action extends");
-		sg.wl("		AbsSaveas" + objectvariable + "Action {");
+		sg.wl("public class AtgDuplicate" + objectvariable + "Action extends");
+		sg.wl("		AbsDuplicate" + objectvariable + "Action {");
 		sg.wl("");
-		sg.wl("	public AtgSaveas" + objectvariable + "Action(SModule parent) {");
+		sg.wl("	public AtgDuplicate" + objectvariable + "Action(SModule parent) {");
 		sg.wl("		super(parent);");
 		sg.wl("");
 		sg.wl("	}");

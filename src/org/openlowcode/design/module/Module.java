@@ -1833,12 +1833,12 @@ public class Module
 									this.getVersionid()),
 							this);
 
-					String fullfilepathsaveasaction = srcautoactionfolder + "Atg"
-							+ StringFormatter.formatForJavaClass("SAVEAS" + currentobject.getName()) + "Action.java";
+					String fullfilepathduplicateaction = srcautoactionfolder + "Atg"
+							+ StringFormatter.formatForJavaClass("DUPLICATE" + currentobject.getName()) + "Action.java";
 					;
-					logger.info("generating file " + fullfilepathsaveasaction);
-					DataObjectDefinitionOtherActions.generateSaveAsActionToFile(currentobject, new SourceGenerator(
-							new File(fullfilepathsaveasaction), this.getAuthor(), this.getVersionid()), this);
+					logger.info("generating file " + fullfilepathduplicateaction);
+					DataObjectDefinitionOtherActions.generateDuplicateActionToFile(currentobject, new SourceGenerator(
+							new File(fullfilepathduplicateaction), this.getAuthor(), this.getVersionid()), this);
 
 				}
 

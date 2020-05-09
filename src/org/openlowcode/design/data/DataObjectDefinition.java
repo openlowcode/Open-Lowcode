@@ -735,6 +735,28 @@ public class DataObjectDefinition
 		UniqueIdentified uniqueidentified = (UniqueIdentified) property;
 		uniqueidentified.addActionOnObjectId(actiontoadd);
 	}
+	
+	/**
+	 * Shortcut method performing the following
+	 * <ul>
+	 * <li>Adding action to the module</li>
+	 * <li>adding action on the unique identified property of the data object,
+	 * making it appear in the object page</li>
+	 * </ul>	 
+	 * @param actiontoadd a dynamic action with as single entry argument the object
+	 *                    id of the Data Object
+	 * @param comment	Optional comment to put in the manage arrow. Should be short as manage  menu is narrow
+	 */
+	public void addActionOnObjectPageOnManageMenu(DynamicActionDefinition actiontoadd,String comment) {
+		this.getOwnermodule().addAction(actiontoadd);
+		Property<?> property = this.getPropertyByName("UNIQUEIDENTIFIED");
+		if (property == null)
+			throw new RuntimeException("UniqueIdentified property not found on object " + this.getName());
+		if (!(property instanceof UniqueIdentified))
+			throw new RuntimeException("Property with name 'UniqueIdentified' is of incorrect class");
+		UniqueIdentified uniqueidentified = (UniqueIdentified) property;
+		uniqueidentified.addActionOnObjectIdOnManageMenu(actiontoadd, comment);;
+	}
 
 	/**
 	 * adds a static action on the search page of the object
@@ -1940,7 +1962,7 @@ public class DataObjectDefinition
 				module.addAction(this.generatePrepareStandardCreateAction());
 				module.addAction(this.generateStandardCreateAction());
 
-				this.addActionOnObjectPage(this.generateSaveAsAction());
+				this.addActionOnObjectPageOnManageMenu(this.generateDuplicateAction(), "Create new "+this.getLabel()+" with similar data");
 				module.AddPage(this.generateStandardCreatePage());
 			}
 
@@ -2131,16 +2153,16 @@ public class DataObjectDefinition
 		action.addInputArgumentAsAccessCriteria(mainobject);
 	}
 
-	private DynamicActionDefinition generateSaveAsAction() {
-		DynamicActionDefinition saveasaction = new DynamicActionDefinition("SAVEAS" + this.getName().toUpperCase(),
+	private DynamicActionDefinition generateDuplicateAction() {
+		DynamicActionDefinition duplicateaction = new DynamicActionDefinition("DUPLICATE" + this.getName().toUpperCase(),
 				true);
-		saveasaction.addInputArgument(new ObjectIdArgument("ORIGINID", this));
-		saveasaction.addOutputArgument(new ObjectArgument("COPYOBJECT", this));
-		saveasaction.setButtonlabel("Duplicate");
+		duplicateaction.addInputArgument(new ObjectIdArgument("ORIGINID", this));
+		duplicateaction.addOutputArgument(new ObjectArgument("COPYOBJECT", this));
+		duplicateaction.setButtonlabel("Duplicate");
 		if (this.isSaveAsInCreateNewGroup())
-			this.addActionToCreateNewGroup(saveasaction);
+			this.addActionToCreateNewGroup(duplicateaction);
 
-		return saveasaction;
+		return duplicateaction;
 	}
 
 	private ActionDefinition generateStandardCreateAction() {
