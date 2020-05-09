@@ -362,7 +362,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 				sg.wl("				this);");
 				sg.wl("		left" + linkobjectvariable + "s.addDisplayProfile(" + linkobjectclass + "Definition.get"
 						+ linkobjectclass + "Definition().getDisplayProfileHideleftobjectfields());");
-				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "s);");
+				
 				sg.wl("		left" + linkobjectvariable + "s.setWarningForUnsavedEdition();");
 				sg.wl("		AtgMassupdate" + linkobjectvariable + "andshowleftAction.ActionRef updateleft"
 						+ linkobjectvariable + "s = AtgMassupdate" + linkobjectvariable
@@ -477,7 +477,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 				sg.wl("		left" + linkobjectvariable + "buttonbar.addElement(deleteoneofleft" + linkobjectvariable
 						+ "button);");
 				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "buttonbar);");
-
+				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "s);");
 			} else {
 				// -------------------------------------------------------------------------------------------------
 				// show link as field array

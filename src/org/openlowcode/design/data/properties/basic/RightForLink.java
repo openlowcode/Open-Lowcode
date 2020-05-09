@@ -327,7 +327,7 @@ public class RightForLink<E extends DataObjectDefinition, F extends DataObjectDe
 			sg.wl("		right" + linkobjectvariable + "s.addDisplayProfile(" + linkobjectclass + "Definition.get"
 					+ linkobjectclass + "Definition().getDisplayProfileHiderightobjectfields());");
 
-			sg.wl("		" + locationname + ".addElement(right" + linkobjectvariable + "s);");
+
 			sg.wl("		");
 			sg.wl("		AtgShow" + leftobjectvariable + "Action.ActionRef showleft" + leftobjectvariable + "for"
 					+ linkobjectvariable + "action = AtgShow" + leftobjectvariable + "Action.get().getActionRef();");
@@ -423,7 +423,7 @@ public class RightForLink<E extends DataObjectDefinition, F extends DataObjectDe
 			sg.wl("		right" + linkobjectvariable + "buttonbar.addElement(deleteoneofright" + linkobjectvariable
 					+ "button);");
 			sg.wl("		" + locationname + ".addElement(right" + linkobjectvariable + "buttonbar);");
-
+			sg.wl("		" + locationname + ".addElement(right" + linkobjectvariable + "s);");
 		}
 
 		@Override

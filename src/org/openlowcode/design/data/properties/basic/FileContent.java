@@ -90,7 +90,7 @@ public class FileContent
 					+ ".addElement(new SPageText(\"Attachment Files\",SPageText.TYPE_TITLE,this));");
 			sg.wl("		SObjectArray attachmentsarray = new SObjectArray(\"ATTACHMENTS\", this.getAttachments(),Objattachment.getDefinition(),this);");
 			sg.wl("		attachmentsarray.forceRowHeight(1);");
-			sg.wl("		" + locationname + ".addElement(attachmentsarray);		");
+
 
 			sg.wl("		SComponentBand addattachmentpopup = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
 			sg.wl("		SFileChooser addattachmentfilechooser = new SFileChooser(this,\"ADDATTACHMENT\",\"Select file to attach\");");
@@ -135,6 +135,7 @@ public class FileContent
 			sg.wl("		SActionButton deleteattachmentbutton = new SActionButton(\"Delete\", deleteattachmentref, this);");
 			sg.wl("		attachmentbuttonband.addElement(deleteattachmentbutton);");
 			sg.wl("		" + locationname + ".addElement(attachmentbuttonband);");
+			sg.wl("		" + locationname + ".addElement(attachmentsarray);		");			
 			sg.wl("		// --------------- end display attachment -------------");
 
 		}

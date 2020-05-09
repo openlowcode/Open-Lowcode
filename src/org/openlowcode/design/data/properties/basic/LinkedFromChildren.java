@@ -193,7 +193,7 @@ public class LinkedFromChildren
 					sg.wl("				this.get" + linknameclass + "(),");
 					sg.wl("				" + childclassname + ".getDefinition(),");
 					sg.wl("				this);");
-					sg.wl("		" + locationname + ".addElement(arrayfor" + linknameattribute + ");");
+
 					sg.w("		arrayfor" + linknameattribute + ".setWarningForUnsavedEdition();");
 					sg.wl("");
 
@@ -433,6 +433,7 @@ public class LinkedFromChildren
 							+ childclassattribute + "andshow" + linkedtoparentnickname + "actionbutton);");
 
 					sg.wl("		" + locationname + ".addElement(childrenactionbandfor" + childclassattribute + ");");
+					sg.wl("		" + locationname + ".addElement(arrayfor" + linknameattribute + ");");
 				} else {
 					// show children objects as an object Band, not object array
 
