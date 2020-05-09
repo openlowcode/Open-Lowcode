@@ -178,7 +178,7 @@ public class CPageText
 			thislabel.setEffect(ds);
 
 			thislabel.setTextFill(Color.web("#17184B"));
-			thislabel.setPadding(new Insets(5, 5, 10, 50));
+			thislabel.setPadding(new Insets(12, 5, 3, 50));
 
 		}
 
