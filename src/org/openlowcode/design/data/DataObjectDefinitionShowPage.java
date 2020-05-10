@@ -714,7 +714,7 @@ public class DataObjectDefinitionShowPage
 			sg.wl("		mainband.addElement(titleobjectdisplaydefinition);");
 
 			if ((hasworkflow) || (hasunreleasedwarnings)) {
-				sg.wl("		SComponentBand extratitle = new SComponentBand(SComponentBand.DIRECTION_RIGHT,this);");
+				sg.wl("		SComponentBand extratitle = new SComponentBand(SComponentBand.DIRECTION_RIGHT_NOLINE,this);");
 			}
 			if (hasunreleasedwarnings)
 				sg.wl("		extratitle.addElement(new SPageText(this.getUnreleasedwarning(), SPageText.TYPE_WARNING,this));");

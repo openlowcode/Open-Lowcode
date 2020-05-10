@@ -25,6 +25,7 @@ import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Background;
@@ -66,6 +67,11 @@ public class CComponentBand
 	 * horizontal band, adding widgets from right to left
 	 */
 	public static final int DIRECTION_LEFT = 4;
+	/**
+	 * a component band with a direction right and no upper line in display
+	 */
+	public static final int DIRECTION_RIGHT_NOLINE = 5;
+	
 	private int minwidth = 0;
 
 	/**
@@ -143,12 +149,23 @@ public class CComponentBand
 			
 			thispane = new HBox(8);
 			thispane.setPadding(new Insets(2, 0, 0, 0));
+			((HBox)thispane).setAlignment(Pos.CENTER_LEFT);
 			thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 			thispane.setBorder(new Border(new BorderStroke(Color.LIGHTGREY, Color.LIGHTGREY, Color.LIGHTGREY, Color.LIGHTGREY,
 			            BorderStrokeStyle.SOLID, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE,
 			            CornerRadii.EMPTY, new BorderWidths(1), Insets.EMPTY)));
 			return thispane;
 		}
+		
+		if (direction == DIRECTION_RIGHT_NOLINE) {
+			
+			thispane = new HBox(8);
+			((HBox)thispane).setAlignment(Pos.CENTER_LEFT);
+			thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+			
+			return thispane;
+		}
+		
 		throw new RuntimeException("Direction "+direction+" not supported");
 		
 	}

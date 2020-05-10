@@ -49,6 +49,11 @@ public class SComponentBand
 	 * an horizontal band right to left (rare)
 	 */
 	public static final int DIRECTION_LEFT = 4;
+	/**
+	 * a component band with a direction right and no upper line in display
+	 */
+	public static final int DIRECTION_RIGHT_NOLINE = 5;
+	
 	private String nameforpath;
 	private String callstackatcreation;
 
