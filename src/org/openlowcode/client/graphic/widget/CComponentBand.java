@@ -133,22 +133,24 @@ public class CComponentBand
 	 */
 	public static Pane returnBandPane(int direction) {
 		Pane thispane=null;
-		boolean valid=false;
 		if (direction == DIRECTION_DOWN) {
 			thispane = new VBox(8);
 			thispane.setPadding(new Insets(5, 5, 5, 0));
-			valid=true;
+			thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+			return thispane;
 		} 
 		if (direction == DIRECTION_RIGHT) {
+			
 			thispane = new HBox(8);
-			thispane.setPadding(new Insets(0, 0, 0, 0));
-			valid=true;
+			thispane.setPadding(new Insets(2, 0, 0, 0));
+			thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+			thispane.setBorder(new Border(new BorderStroke(Color.LIGHTGREY, Color.LIGHTGREY, Color.LIGHTGREY, Color.LIGHTGREY,
+			            BorderStrokeStyle.SOLID, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE,
+			            CornerRadii.EMPTY, new BorderWidths(1), Insets.EMPTY)));
+			return thispane;
 		}
-		if (!valid) throw new RuntimeException("Direction "+direction+" not supported");
+		throw new RuntimeException("Direction "+direction+" not supported");
 		
-		thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-		
-		return thispane;
 	}
 
 	private Pane bandpane;
@@ -170,6 +172,7 @@ public class CComponentBand
 				thispane.getChildren().add(currentnode);
 
 		}
+		
 		return thispane;
 	}
 

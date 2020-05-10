@@ -29,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TabPane;
@@ -112,6 +113,7 @@ public class CPopupButton
 		hamburgerlabel.setFont(Font.font(hamburgerlabel.getFont().getFamily(), FontWeight.THIN,
 				hamburgerlabel.getFont().getSize() * 0.5f));
 		button.setGraphic(hamburgerlabel);
+		button.setContentDisplay(ContentDisplay.RIGHT);
 		button.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
 		button.textOverrunProperty().set(OverrunStyle.CLIP);
 		if (rollovertip != null)

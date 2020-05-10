@@ -47,7 +47,7 @@ public class DefaultmenuPage
 	@Override
 	protected SPageNode getContent() {
 		SComponentBand pagemainframe = new SComponentBand(SComponentBand.DIRECTION_DOWN, this);
-		SComponentBand upperband = new SComponentBand(SComponentBand.DIRECTION_RIGHT, this);
+		
 
 		SMenuBar menubar = new SMenuBar(this);
 
@@ -56,8 +56,8 @@ public class DefaultmenuPage
 			menubar.addSMenu(modulemenu);
 		}
 
-		upperband.addElement(menubar);
-		pagemainframe.addElement(upperband);
+	
+		pagemainframe.addElement(menubar);
 		Systemattribute serverlabel = ServerSecurityBuffer.getUniqueInstance().getSystemattribute("S0.SERVERLABEL");
 		if (serverlabel != null)
 			if (serverlabel.getValue() != null)
