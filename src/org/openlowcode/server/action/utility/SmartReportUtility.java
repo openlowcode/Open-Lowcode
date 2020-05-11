@@ -14,9 +14,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+import org.apache.commons.compress.utils.Lists;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.TwoDataObjects;
@@ -112,8 +115,10 @@ public class SmartReportUtility {
 
 	/**
 	 * provides a mapper that provides second object number from a first object id
+	 * 
 	 * @param mapdata a combination of object pairs
-	 * @return a function that provides the number of the second object, given the id of the first object for a link
+	 * @return a function that provides the number of the second object, given the
+	 *         id of the first object for a link
 	 */
 	public static <
 			E extends DataObject<E>,
@@ -127,6 +132,51 @@ public class SmartReportUtility {
 				filtermap.put(thislink.getObjectOne().getLfid(), thislink.getObjectTwo().getNr());
 			}
 		return (id) -> (filtermap.get(id));
+	}
+
+	/**
+	 * provides a mapper that provides second object number from a first object id
+	 * 
+	 * @param mapdata a combination of object pairs
+	 * @return a function that provides a string containing all the values of number
+	 *         in the right object, with each value being ordered by alphabetic
+	 *         number
+	 */
+	public static <
+			E extends DataObject<E>,
+			F extends DataObject<F> & LinkobjectInterface<F, E, G>,
+			G extends DataObject<G> & NumberedInterface<G>> Function<DataObjectId<E>, String> getMultipleLinkNr(
+					TwoDataObjects<F, G>[] mapdata) {
+		
+		HashMap<DataObjectId<E>, ArrayList<String>> filtermap = new HashMap<DataObjectId<E>, ArrayList<String>>();
+		
+		if (mapdata != null)
+			for (int i = 0; i < mapdata.length; i++) {
+				TwoDataObjects<F, G> thislink = mapdata[i];
+				ArrayList<String> previous = filtermap.get(thislink.getObjectOne().getLfid());
+				if (previous == null) {
+					previous = new ArrayList<String>();
+					filtermap.put(thislink.getObjectOne().getLfid(),previous);
+				}
+				previous.add(thislink.getObjectTwo().getNr());
+			}
+		
+		HashMap<DataObjectId<E>,String> consolidatedfiltermap = new HashMap<DataObjectId<E>,String>();
+		
+		Iterator<DataObjectId<E>> keyiterator = filtermap.keySet().iterator();
+		while (keyiterator.hasNext()) {
+			DataObjectId<E> key = keyiterator.next();
+			ArrayList<String> allnumbers = filtermap.get(key);
+			allnumbers.sort(null);
+			StringBuffer classif = new StringBuffer();
+			for (int i=0;i<allnumbers.size();i++) {
+				if (i>0) classif.append(", ");
+				classif.append(allnumbers.get(i));
+			}
+			consolidatedfiltermap.put(key, classif.toString());
+		}
+		
+		return (id) -> (consolidatedfiltermap.get(id));
 	}
 
 	/**
