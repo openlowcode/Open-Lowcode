@@ -95,6 +95,7 @@ public class LineGroupingCriteriaUniqueLink
 				+ StringFormatter.formatForJavaClass(linkobject.getParent().getName()) + ";");
 		importstatements.add("import " + linkobject.getRightobjectforlink().getOwnermodule().getPath() + ".data."
 				+ StringFormatter.formatForJavaClass(linkobject.getRightobjectforlink().getName()) + ";");
+		importstatements.add("import org.openlowcode.server.data.TwoDataObjects;");
 		return importstatements.toArray(new String[0]);
 	}
 
@@ -127,5 +128,10 @@ public class LineGroupingCriteriaUniqueLink
 	@Override
 	protected void writeFields(SourceGenerator sg, String prefix) {
 		// donothing
+	}
+
+	@Override
+	public boolean needArrayOfObjectId() {
+		return true;
 	}
 }

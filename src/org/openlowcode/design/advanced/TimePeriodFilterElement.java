@@ -200,4 +200,9 @@ public class TimePeriodFilterElement
 		return null;
 	}
 
+	@Override
+	public boolean needArrayOfObjectId() {
+		return false;
+	}
+
 }

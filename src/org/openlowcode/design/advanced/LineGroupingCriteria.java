@@ -101,4 +101,10 @@ public abstract class LineGroupingCriteria {
 	 * @throws IOException if anything bad
 	 */
 	protected abstract void writeFields(SourceGenerator sg, String prefix) throws IOException;
+
+	/**
+	 * @return true if the grouping element needs to have an array of object ids
+	 *         queried before
+	 */
+	public abstract boolean needArrayOfObjectId();
 }

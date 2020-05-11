@@ -106,4 +106,9 @@ public class LineGroupingCriteriaChoice
 	protected void writeFields(SourceGenerator sg, String prefix) {
 
 	}
+
+	@Override
+	public boolean needArrayOfObjectId() {
+		return false;
+	}
 }

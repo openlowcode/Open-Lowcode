@@ -85,6 +85,14 @@ public abstract class FilterElement<E extends Object> {
 	public abstract boolean hasSuggestionValues();
 
 	/**
+	 * tells if the filter data gathering need an array of object ids
+	 * 
+	 * @return true if the filter needs an array of object ids
+	 * @since 1.7
+	 */
+	public abstract boolean needArrayOfObjectId();
+	
+	/**
 	 * provides the argument for the suggestion, typically a list of strings for a
 	 * string field
 	 * 

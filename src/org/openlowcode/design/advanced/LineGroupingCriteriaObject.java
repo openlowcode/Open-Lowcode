@@ -239,4 +239,9 @@ public class LineGroupingCriteriaObject
 		}
 
 	}
+
+	@Override
+	public boolean needArrayOfObjectId() {
+		return false;
+	}
 }

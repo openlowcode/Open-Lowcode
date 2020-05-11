@@ -133,6 +133,18 @@ public class LinkedToChildrenNodeLink
 					+ "_step" + prefixparent + ",QueryFilter.get(" + queryattribute + "));");
 
 		}
+		boolean hasidtable = false;
+		if (filterelements!=null) for (int i=0;i<filterelements.size();i++) if (filterelements.get(i).needArrayOfObjectId()) hasidtable=true;
+		if (groupingelements!=null) for (int i=0;i<groupingelements.size();i++) if (groupingelements.get(i).needArrayOfObjectId()) hasidtable=true;
+		
+		if (hasidtable) {
+			sg.wl("		DataObjectId<" + childclass + ">[] " + childattribute + "_step" + prefixforlinkandchild
+					+ "_id = new DataObjectId[" + childattribute + "_step" + prefixforlinkandchild + ".length];");
+			sg.wl("		for (int i=0;i<" + childattribute + "_step" + prefixforlinkandchild + ".length;i++) "
+					+ childattribute + "_step" + prefixforlinkandchild + "_id[i] = " + childattribute + "_step"
+					+ prefixforlinkandchild + "[i].getId();");
+		}
+		
 		if (filterelements != null)
 			for (int i = 0; i < filterelements.size(); i++) {
 				FilterElement<?> thiselement = filterelements.get(i);

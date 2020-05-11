@@ -217,4 +217,9 @@ public class TextFilterElement
 		return this.stringfield;
 	}
 
+	@Override
+	public boolean needArrayOfObjectId() {
+		return false;
+	}
+
 }

@@ -212,4 +212,9 @@ public class ChoiceFilterElement<E extends Object>
 	public ArgumentContent getSuggestionArgumentContent(String suffix) {
 		return null;
 	}
+
+	@Override
+	public boolean needArrayOfObjectId() {
+		return false;
+	}
 }

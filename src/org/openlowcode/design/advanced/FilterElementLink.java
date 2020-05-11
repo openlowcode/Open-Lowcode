@@ -205,12 +205,7 @@ public class FilterElementLink<E extends Object>
 		String rightobjectattribute = StringFormatter.formatForAttribute(linkobject.getRightobjectforlink().getName());
 		String leftobjectclass = StringFormatter.formatForJavaClass(linkobject.getLeftobjectforlink().getName());
 		String leftobjectattribute = StringFormatter.formatForAttribute(linkobject.getLeftobjectforlink().getName());
-		logger.severe("Writing filter in data gathering for node " + prefixforobject + " for FilterElementLink");
-		sg.wl("		DataObjectId<" + leftobjectclass + ">[] " + leftobjectattribute + "_step" + prefixforobject
-				+ "_id = new DataObjectId[" + leftobjectattribute + "_step" + prefixforobject + ".length];");
-		sg.wl("		for (int i=0;i<" + leftobjectattribute + "_step" + prefixforobject + ".length;i++) "
-				+ leftobjectattribute + "_step" + prefixforobject + "_id[i] = " + leftobjectattribute + "_step"
-				+ prefixforobject + "[i].getId();");
+
 		sg.wl("		TwoDataObjects<" + linkobjectclass + "," + rightobjectclass + ">[] " + leftobjectattribute + "_step"
 				+ prefixforobject + "_filteron" + rightobjectattribute + " = " + linkobjectclass
 				+ ".getlinksandrightobject(" + leftobjectattribute + "_step" + prefixforobject + "_id, null);");
@@ -244,6 +239,11 @@ public class FilterElementLink<E extends Object>
 	@Override
 	public ArgumentContent getSuggestionArgumentContent(String suffix) {
 		return null;
+	}
+
+	@Override
+	public boolean needArrayOfObjectId() {
+		return true;
 	}
 
 }
