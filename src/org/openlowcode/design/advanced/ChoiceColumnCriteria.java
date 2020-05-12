@@ -71,7 +71,7 @@ public class ChoiceColumnCriteria
 	@Override
 	public String generateExtractor() {
 		String fieldclassname = StringFormatter.formatForJavaClass(this.getFieldForColumnCriteria().getName());
-		return "(a)->(a.get" + fieldclassname + "().getDisplayValue())";
+		return "(a)->((a.get" + fieldclassname + "()!=null?a.get" + fieldclassname + "().getDisplayValue():\"Unspecified\"))";
 	}
 
 	@Override
@@ -80,9 +80,11 @@ public class ChoiceColumnCriteria
 		String suffixdef = "";
 		if (this.getSuffix() != null)
 			suffixdef = "+\"" + this.getSuffix() + "\"";
-		sg.wl("			String columnvalue = this"
+		sg.wl("			String columnvalue = (this"
 				+ StringFormatter.formatForAttribute(objectReportNode.getRelevantObject().getName()) + "step" + prefix
-				+ ".get" + StringFormatter.formatForJavaClass(fieldforcolumncriteria.getName()) + "().getDisplayValue()"
+				+ ".get" + StringFormatter.formatForJavaClass(fieldforcolumncriteria.getName()) + "()!=null?this"
+				+ StringFormatter.formatForAttribute(objectReportNode.getRelevantObject().getName()) + "step" + prefix
+				+ ".get" + StringFormatter.formatForJavaClass(fieldforcolumncriteria.getName()) + "().getDisplayValue():\"Unspecified\")"
 				+ suffixdef + ";");
 
 	}
