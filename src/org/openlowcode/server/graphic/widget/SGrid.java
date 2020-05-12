@@ -72,6 +72,7 @@ public class SGrid<E extends DataObject<E>>
 	private String unsavedwarningstopmessage;
 	private boolean updatenote;
 	private boolean reversetree = false;
+	private ArrayList<String> exceptionskeysforeversetree;
 
 	/**
 	 * gives a reference to the updated objects in the grid
@@ -177,13 +178,22 @@ public class SGrid<E extends DataObject<E>>
 	/**
 	 * display as a reverse tree. The several columns criteria will actually be
 	 * shown as lines for grouping in a tree
+	 * 
+	 * @param fieldmarkersforinfo             list of fields to show as column
+	 * @param exceptionsforfieldconsolidation keys to excluded for the consolidation
 	 */
-	public void setReverseTree(DataObjectFieldMarker<E>[] fieldmarkersforinfo) {
+	public void setReverseTree(
+			DataObjectFieldMarker<E>[] fieldmarkersforinfo,
+			String[] exceptionsforfieldconsolidation) {
 		this.reversetree = true;
 		infofieldsforreversetree = new ArrayList<DataObjectFieldMarker<E>>();
 		if (fieldmarkersforinfo != null)
 			for (int i = 0; i < fieldmarkersforinfo.length; i++)
 				infofieldsforreversetree.add(fieldmarkersforinfo[i]);
+		exceptionskeysforeversetree = new ArrayList<String>();
+		if (exceptionsforfieldconsolidation!=null) 
+			for (int i=0;i<exceptionsforfieldconsolidation.length;i++)
+				exceptionskeysforeversetree.add(exceptionsforfieldconsolidation[i]);
 		
 	}
 
@@ -330,9 +340,14 @@ public class SGrid<E extends DataObject<E>>
 		writer.addBooleanField("RVT", this.reversetree);
 		if (this.reversetree) {
 			writer.startStructure("INFFLDS");
-			for (int i=0;i<this.infofieldsforreversetree.size();i++) {
+			for (int i = 0; i < this.infofieldsforreversetree.size(); i++) {
 				writer.startStructure("INFFLD");
 				writer.addStringField("NAM", infofieldsforreversetree.get(i).toString());
+				if (exceptionskeysforeversetree.size()>i) {
+					writer.addStringField("EXC", exceptionskeysforeversetree.get(i)); 
+				} else {
+					writer.addStringField("EXC", null);
+				}
 				writer.endStructure("INFFLD");
 			}
 			writer.endStructure("INFFLDS");

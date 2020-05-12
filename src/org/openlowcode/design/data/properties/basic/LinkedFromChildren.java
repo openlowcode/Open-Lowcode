@@ -70,6 +70,7 @@ public class LinkedFromChildren
 	private String specifictitleforchildrentable = null;
 	private String[] infofieldforreverseshow;
 	private boolean reversetree;
+	private String[] exceptionsforinfofieldconsolidation;
 
 	/**
 	 * @return the related linked to parent property on the child object
@@ -556,8 +557,21 @@ public class LinkedFromChildren
 						readonlyfields.append(childclassname+".get"+StringFormatter.formatForJavaClass(field)+"FieldMarker()");
 						
 					}
+					StringBuffer readonlyfieldsexceptions = new StringBuffer();
+					if (LinkedFromChildren.this.exceptionsforinfofieldconsolidation!=null)
+						for (int i=0;i<LinkedFromChildren.this.exceptionsforinfofieldconsolidation.length;i++) {
+							String exception = LinkedFromChildren.this.exceptionsforinfofieldconsolidation[i];
+							if (i>0) readonlyfieldsexceptions.append(',');
+							if (exception==null) {
+								readonlyfieldsexceptions.append("null");
+							} else {
+								readonlyfieldsexceptions.append("\"");
+								readonlyfieldsexceptions.append(StringFormatter.escapeforjavastring(exception));
+								readonlyfieldsexceptions.append("\"");
+							}
+						}
 					sg.wl("		" + linknameattribute + "grid.setReverseTree((DataObjectFieldMarker<" + childclassname + ">[])");
-					sg.wl("				(new DataObjectFieldMarker<?>[] {"+readonlyfields+"}));");
+					sg.wl("				(new DataObjectFieldMarker<?>[] {"+readonlyfields+"}),new String[]{"+readonlyfieldsexceptions.toString()+"});");
 					
 					
 					
@@ -732,9 +746,11 @@ public class LinkedFromChildren
 			String columndisplayforgrid,
 			String secondarycolumndisplayforgrid,
 			String[] cellfieldsforgrid,
-			String[] infofieldforreverseshow) {
+			String[] infofieldforreverseshow,
+			String[] exceptionsforinfofieldconsolidation) {
 		this(name,childobjectforlink,originobjectproperty,linedisplayforgrid,columndisplayforgrid,secondarycolumndisplayforgrid,cellfieldsforgrid);
 		this.infofieldforreverseshow = infofieldforreverseshow;
+		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
 		this.reversetree=true;
 	}
 

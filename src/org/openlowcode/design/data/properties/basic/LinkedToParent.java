@@ -78,6 +78,7 @@ public class LinkedToParent<E extends DataObjectDefinition>
 	private String specifictitleforchildrentable = null;
 	private HashMap<String, ArrayList<Field>> compositeindexlist;
 	private boolean reversetreegrid;
+	private String[] exceptionsforinfofieldconsolidation;
 
 	/**
 	 * gets the unique identified property on the child object the linked to parent
@@ -246,7 +247,7 @@ public class LinkedToParent<E extends DataObjectDefinition>
 			String columndisplayforgrid,
 			String secondarycolumndisplayforgrid,
 			String cellvaluestoshow,
-			String[] infofieldforreverseshow) {
+			String[] infofieldforreverseshow,String [] exceptionsforinfofieldconsolidation) {
 		super(name, "LINKEDTOPARENT");
 		this.parentobjectforlink = parentobjectforlink;
 		this.priorityforlinkedfromparent = priorityforlinkedfromparent;
@@ -257,7 +258,9 @@ public class LinkedToParent<E extends DataObjectDefinition>
 		this.columndisplayforgrid = columndisplayforgrid;
 		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
 		this.cellvaluestoshow = new String[] { cellvaluestoshow };
+		
 		this.infofieldforreverseshow = infofieldforreverseshow;
+		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
 		compositeindexlist = new HashMap<String, ArrayList<Field>>();
 		reversetreegrid=true;
 	}
@@ -326,7 +329,7 @@ public class LinkedToParent<E extends DataObjectDefinition>
 					linkedfromchildren = new LinkedFromChildren(
 							this.getInstancename() + "for" + parent.getName().toLowerCase(), this.parent, this,
 							this.linedisplayforgrid, this.columndisplayforgrid, this.secondarycolumndisplayforgrid,
-							this.cellvaluestoshow,this.infofieldforreverseshow);
+							this.cellvaluestoshow,this.infofieldforreverseshow,this.exceptionsforinfofieldconsolidation);
 				}
 				if (this.specifictitleforchildrentable != null)
 					linkedfromchildren.setSpecificTitleForChildrenTable(specifictitleforchildrentable);

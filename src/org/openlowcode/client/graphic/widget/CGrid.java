@@ -107,6 +107,7 @@ public class CGrid
 	private boolean updatemodeactive;
 	private ArrayList<String> updateactionfields;
 	private ArrayList<String> infoactionfields;
+	private ArrayList<String> infoactionfieldsvalueexception;
 	private CPageInlineAction updateinlineaction;
 	private CPageAction cellaction;
 	private ArrayList<CMultiFieldConstraint> allobjectconstraints;
@@ -207,11 +208,14 @@ public class CGrid
 		}
 		this.reversetree = reader.returnNextBooleanField("RVT");
 		infoactionfields = new ArrayList<String>();
+		infoactionfieldsvalueexception = new ArrayList<String>();
 		if (this.reversetree) {
 			reader.startStructureArray("INFFLD");
 			while (reader.structureArrayHasNextElement("INFFLD")) {
 				String infofield = reader.returnNextStringField("NAM");
 				infoactionfields.add(infofield);
+				String valueexception = reader.returnNextStringField("EXC");
+				infoactionfieldsvalueexception.add(valueexception);
 				reader.returnNextEndStructure("INFFLD");
 			}
 		}
@@ -806,7 +810,9 @@ public class CGrid
 				if (!(infofield instanceof ObjectDataElementKeyExtractor)) 
 					throw new RuntimeException("Field"+infofield+" cannot be used as info column");
 				ObjectDataElementKeyExtractor<ObjectDataElt,?> infofieldextractor = (ObjectDataElementKeyExtractor) infofield;
-				treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor, EditableTreeTable.GROUPING_SAME);
+				String exceptions = this.infoactionfieldsvalueexception.get(i);
+				if (exceptions==null) treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor, EditableTreeTable.GROUPING_SAME);
+				if (exceptions!=null )treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor, EditableTreeTable.GROUPING_SAME,exceptions);
 			}
 			
 			treetable.setColumnGrouping(columnextractor, valueupdater, "Total", EditableTreeTable.GROUPING_SUM);

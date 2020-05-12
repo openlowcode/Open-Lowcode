@@ -268,7 +268,24 @@ public class EditableTreeTable<E extends Object> {
 			String title,
 			ObjectDataElementKeyExtractor<E, G> keyextractor,
 			int grouping) {
-		setColumnReadOnlyField(title,keyextractor.fieldExtractor(),keyextractor.labelExtractor(),grouping);
+		setColumnReadOnlyField(title, keyextractor.fieldExtractor(), keyextractor.labelExtractor(),keyextractor.keyExtractor(), grouping);
+	}
+
+	/**
+	 * A read-only column field
+	 * 
+	 * @param title        title of the column
+	 * @param keyextractor extractor of the field
+	 * @param grouping     grouping criteria as a static int in the class
+	 * @param keyexception values to discard in the consolidation
+	 */
+	public <G> void setColumnReadOnlyField(
+			String title,
+			ObjectDataElementKeyExtractor<E, G> keyextractor,
+			int grouping,
+			String keyexception) {
+		setColumnReadOnlyField(title, keyextractor.fieldExtractor(), keyextractor.labelExtractor(),
+				keyextractor.keyExtractor(), grouping, keyexception);
 	}
 
 	/**
@@ -277,14 +294,39 @@ public class EditableTreeTable<E extends Object> {
 	 * @param title            title of the column
 	 * @param payloadextractor extractor of the field from the payload
 	 * @param displaygenerator generates the display value from the field
+	 * @param keygenerator     generates the key value from the field
 	 * @param grouping         grouping criteria as a static int in the class
 	 */
 	public <G> void setColumnReadOnlyField(
 			String title,
 			Function<E, G> payloadextractor,
 			Function<G, String> displaygenerator,
+			Function<G, String> keygenerator,
 			int grouping) {
-		ReadOnlyColumn<G> column = new ReadOnlyColumn<G>(title, payloadextractor, displaygenerator, grouping);
+		ReadOnlyColumn<
+				G> column = new ReadOnlyColumn<G>(title, payloadextractor, displaygenerator, keygenerator, grouping);
+		this.columngroups.add(column);
+	}
+
+	/**
+	 * A read-only column field
+	 * 
+	 * @param title            title of the column
+	 * @param payloadextractor extractor of the field from the payload
+	 * @param displaygenerator generates the display value from the field
+	 * @param keygenerator     generates the key value from the field
+	 * @param grouping         grouping criteria as a static int in the class
+	 * @param keyexception     values to discard in the consolidation
+	 */
+	public <G> void setColumnReadOnlyField(
+			String title,
+			Function<E, G> payloadextractor,
+			Function<G, String> displaygenerator,
+			Function<G, String> keygenerator,
+			int grouping,
+			String keyexception) {
+		ReadOnlyColumn<G> column = new ReadOnlyColumn<G>(title, payloadextractor, displaygenerator, keygenerator,grouping,
+				keyexception);
 		this.columngroups.add(column);
 	}
 
@@ -367,10 +409,10 @@ public class EditableTreeTable<E extends Object> {
 			@Override
 			public void handle(MouseEvent event) {
 				if (treetableview.isEditable()) {
-					logger.severe("Sink event as editable mode");
+					logger.fine("Sink event as editable mode");
 				} else {
 					if (event.getClickCount() > 1 && (event.getButton().equals(MouseButton.PRIMARY))) {
-						logger.severe(" >>> Proper Event");
+						logger.fine(" >>> Proper Event");
 						if (readonlyactioneventhandler != null) {
 
 							ObservableList<
@@ -976,17 +1018,37 @@ public class EditableTreeTable<E extends Object> {
 		private String title;
 		private Function<E, G> payloadextractor;
 		private Function<G, String> displaygenerator;
+		private Function<G, String> keyextractor;
 		private int grouping;
+		private String keyexception;
 
 		public ReadOnlyColumn(
 				String title,
 				Function<E, G> payloadextractor,
 				Function<G, String> displaygenerator,
+				Function<G, String> keyextractor,
 				int grouping) {
 			this.title = title;
 			this.payloadextractor = payloadextractor;
 			this.displaygenerator = displaygenerator;
+			this.keyextractor = keyextractor;
 			this.grouping = grouping;
+			this.keyexception = null;
+		}
+
+		public ReadOnlyColumn(
+				String title,
+				Function<E, G> payloadextractor,
+				Function<G, String> displaygenerator,
+				Function<G, String> keyextractor,
+				int grouping,
+				String keyexception) {
+			this.title = title;
+			this.payloadextractor = payloadextractor;
+			this.displaygenerator = displaygenerator;
+			this.keyextractor = keyextractor;
+			this.grouping = grouping;
+			this.keyexception = keyexception;
 		}
 
 		@Override
@@ -1012,23 +1074,35 @@ public class EditableTreeTable<E extends Object> {
 					}
 					if (grouping == GROUPING_SAME) {
 						boolean burnt = false;
+						logger.fine("Starting analysis for a cell -----------------------------");
 						for (int i = 0; i < listofobjects.getItemsNumber(); i++) {
 							E object = listofobjects.getItemAt(i).getPayload();
 							G payload = payloadextractor.apply(object);
+
 							String value = null;
-							if (payload != null)
+							String key=null;
+							if (payload != null) {
 								value = displaygenerator.apply(payload);
+								key = keyextractor.apply(payload);
+								logger.fine("     analyzing element value '"+value+"', key '"+key+"', valueexception = '"+keyexception+"'");
+							}
 							if (result == null)
-								if (!burnt) {
+								if (!burnt) if (key!=null) if (!key.equals(keyexception)) {
 									result = value;
+									logger.fine("         put in value "+result+" as '"+key+"' <> '"+keyexception+"'");
 									logger.finest("     > found value " + value + " for " + object.toString());
 								}
 							if (result != null)
-								if (!result.equals(value)) {
-									burnt = true;
-									result = null;
-								}
+								if (!result.equals(value)) 
+									if (key!=null) if (!key.equals(keyexception)) {
+										logger.fine("         value "+value+" burning "+result);
+										burnt = true;
+										result = null;
+										
+									}
+								
 						}
+						logger.fine("          --> "+result+", burnt = "+burnt);
 					}
 					if (grouping == GROUPING_FIRST) {
 						if (listofobjects.getItemsNumber() >= 1) {
