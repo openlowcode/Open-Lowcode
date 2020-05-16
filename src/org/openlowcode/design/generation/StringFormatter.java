@@ -60,12 +60,8 @@ public class StringFormatter {
 	
 	public static void checkNoJavaReservedName(String name) {
 		String namecleaned = name.trim().toUpperCase();
-		logger.severe(" Check No Java Reserved Name "+name);
 		if (namecleaned.equals("OBJECT")) throw new RuntimeException("OBJECT not authorized as a data object name");
 
-		
-		
-		
 	}
 
 }
