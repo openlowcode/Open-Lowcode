@@ -7,7 +7,7 @@ published by [Open Lowcode SAS](https://openlowcode.com). For a quick intro, hea
 
 **Reference Documentation** [Operation Guide](https://github.com/openlowcode/Open-Lowcode/wiki/Open-Lowcode-Operation-Guide), [javadoc](https://openlowcode.org/javadoc/) and [Developer Guide](https://github.com/openlowcode/Open-Lowcode/wiki/Open--Lowcode-Developper-Guide) provide all informations to use the framework, and will also provide dependencies for recompiling the project.
 
-**New** Open Lowcode [v1.7.0](https://github.com/openlowcode/Open-Lowcode/releases/tag/v1.7.0) is Released (11th of May 2020)
+**New** Open Lowcode [v1.7.3](https://github.com/openlowcode/Open-Lowcode/releases/tag/v1.7.3) is Released (13th of May 2020)
 
 You are welcome to get involved and contribute to the project. We especially value your field experience in the real life of IT departments. 
 
