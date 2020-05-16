@@ -570,6 +570,7 @@ public class DataObjectDefinition
 	 */
 	public DataObjectDefinition(String name, String label, Module ownermodule) {
 		super(name);
+		StringFormatter.checkNoJavaReservedName(name);
 		this.label = label;
 		fieldlist = new NamedList<Field>();
 		propertylist = new NamedList<Property<?>>();

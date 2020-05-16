@@ -10,6 +10,8 @@
 
 package org.openlowcode.design.generation;
 
+import java.util.logging.Logger;
+
 /**
  * Utilities used for formatting for generating java code
  * 
@@ -18,6 +20,9 @@ package org.openlowcode.design.generation;
  *
  */
 public class StringFormatter {
+	
+	private static Logger logger = Logger.getLogger(StringFormatter.class.getName());
+	
 	/**
 	 * format a text for a java class
 	 * 
@@ -51,6 +56,16 @@ public class StringFormatter {
 	public static String escapeforjavastring(String payload) {
 		return payload.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\"").replaceAll("\n", "\\\\n");
 
+	}
+	
+	public static void checkNoJavaReservedName(String name) {
+		String namecleaned = name.trim().toUpperCase();
+		logger.severe(" Check No Java Reserved Name "+name);
+		if (namecleaned.equals("OBJECT")) throw new RuntimeException("OBJECT not authorized as a data object name");
+
+		
+		
+		
 	}
 
 }
