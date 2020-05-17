@@ -196,6 +196,7 @@ public class TransitionChoiceCategory
 	 */
 	public void addValue(ChoiceValue value) {
 		values.add(value);
+		value.setParent(this);
 	}
 
 	/**
