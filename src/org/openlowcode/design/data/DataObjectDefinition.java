@@ -678,7 +678,7 @@ public class DataObjectDefinition
 		if (this.forcehideobject)
 			return false;
 		// do not show search in menu if object is not stored
-		if (!this.isStoredobject())
+		if (!this.isUniqueIdentified())
 			return false;
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> thisproperty = this.getPropertyAt(i);
@@ -1958,7 +1958,7 @@ public class DataObjectDefinition
 			}
 
 		}
-		if (this.isStoredobject())
+		if (this.isUniqueIdentified())
 			if (((linkobject == null) && (autolinkobject == null)) || (this.isShowActionAutomaticallyGenerated())) {
 				module.addAction(this.generatePrepareStandardCreateAction());
 				module.addAction(this.generateStandardCreateAction());

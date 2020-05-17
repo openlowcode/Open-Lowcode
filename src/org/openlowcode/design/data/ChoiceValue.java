@@ -22,9 +22,27 @@ import org.openlowcode.tools.misc.Named;
 public class ChoiceValue
 		extends
 		Named {
+	private ChoiceCategory parent;
 	private String displayname;
 	private String tooltip;
 	private Integer pseudonumber;
+
+	/**
+	 * This method is called when adding the value for a choice category
+	 * 
+	 * @param parent parent choice category.
+	 */
+	protected void setParent(ChoiceCategory parent) {
+		this.parent = parent;
+	}
+
+	/**
+	 * 
+	 * @return the parent choice category
+	 */
+	public ChoiceCategory getParent() {
+		return this.parent;
+	}
 
 	/**
 	 * create a choice value without classification as pseudo-number

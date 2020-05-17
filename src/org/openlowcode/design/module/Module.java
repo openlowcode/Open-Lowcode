@@ -1811,7 +1811,7 @@ public class Module
 				}
 			}
 
-			if (currentobject.isStoredobject())
+			if (currentobject.isUniqueIdentified())
 				if (((linkproperty == null) && (autolinkproperty == null))
 						|| (currentobject.isShowActionAutomaticallyGenerated())) {
 					String fullfilepathpreparestandardcreateaction = srcautoactionfolder + "Atg"

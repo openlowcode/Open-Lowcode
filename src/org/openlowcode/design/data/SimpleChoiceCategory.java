@@ -87,6 +87,7 @@ public class SimpleChoiceCategory
 			}
 		}
 		values.add(value);
+		value.setParent(this);
 	}
 
 	@Override
