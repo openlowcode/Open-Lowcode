@@ -13,6 +13,8 @@ package org.openlowcode.client.graphic.widget.table;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -953,6 +955,23 @@ public class EditableTreeTable<E extends Object> {
 							keymap.put(key, titlepayload);
 						}
 				}
+			// if comparable, orders the columns
+			boolean comparable=false;
+			if (alltitles.size()>0) {
+				comparable=true;
+				for (int i=0;i<alltitles.size();i++) if (! (alltitles.get(i) instanceof Comparable<?>)) comparable=false;
+			}
+			if (comparable) {
+				Collections.sort(alltitles,new Comparator<F>() {
+
+					@Override
+					public int compare(F o1, F o2) {
+						@SuppressWarnings("unchecked")
+						Comparable<F> o1comp = (Comparable<F>) o1;
+						return o1comp.compareTo(o2);
+						
+					}});
+			}
 		}
 
 	}

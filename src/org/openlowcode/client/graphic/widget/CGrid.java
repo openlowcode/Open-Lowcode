@@ -902,12 +902,12 @@ public class CGrid
 
 				@Override
 				public void handle(ContextMenuEvent event) {
-					logger.severe("Context menu requested on editabletreetable");
+					logger.fine("Context menu requested on editabletreetable");
 					if (contextmenu.isShowing()) {
-						logger.severe("After showing, hide");
+						logger.fine("After showing, hide");
 						contextmenu.hide();
 					} else {
-						logger.severe("After hiding, show");
+						logger.fine("After hiding, show");
 						contextmenu.show(treetablenode, event.getScreenX(), event.getScreenY());
 
 					}
@@ -918,9 +918,9 @@ public class CGrid
 
 				@Override
 				public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldvalue, Boolean newvalue) {
-					logger.severe(" changed value on context menu");
+					logger.fine(" changed value on context menu");
 					if (!newvalue) {
-						logger.severe(" context menu hide");
+						logger.fine(" context menu hide");
 						contextmenu.hide();
 
 					}
