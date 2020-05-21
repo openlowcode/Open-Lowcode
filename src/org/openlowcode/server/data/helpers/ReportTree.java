@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -102,6 +103,27 @@ public class ReportTree<E extends DataObject<E>> {
 		 * @param child  child node
 		 */
 		public void consolidate(E parent, E child);
+	}
+
+	/**
+	 * A complex consolidator will be called after all data has been entered, and
+	 * allows to perform consolidation with all data known. Compared to
+	 * consolidator, this should be used for algorithms that need all data present
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 *
+	 * @param <E> report data object
+	 */
+	@FunctionalInterface
+	public interface ComplexConsolidator<E extends DataObject<E>> {
+		/**
+		 * consolidates the parent on all children
+		 * 
+		 * @param parent      parent node
+		 * @param allchildren all children of the parent node
+		 */
+		public void consolidateWithFullData(E parent, List<E> allchildren);
 	}
 
 	/**
@@ -284,7 +306,10 @@ public class ReportTree<E extends DataObject<E>> {
 	 * @param extractor extractor of the value on the object
 	 * @param setter    setter of the value on the object
 	 */
-	public static <E extends DataObject<E>> void sumInparent(E parent, E child, ValueExtractor<E, BigDecimal> extractor,
+	public static <E extends DataObject<E>> void sumInparent(
+			E parent,
+			E child,
+			ValueExtractor<E, BigDecimal> extractor,
 			ValueSetter<E, BigDecimal> setter) {
 		BigDecimal parentvalue = extractor.extract(parent);
 		BigDecimal childvalue = extractor.extract(child);
@@ -301,8 +326,11 @@ public class ReportTree<E extends DataObject<E>> {
 	 * @param extractor  extractor of the value on the object
 	 * @param setter     setter of the value on the object
 	 */
-	public static <E extends DataObject<E>> void sumInparent(E parent, BigDecimal childvalue,
-			ValueExtractor<E, BigDecimal> extractor, ValueSetter<E, BigDecimal> setter) {
+	public static <E extends DataObject<E>> void sumInparent(
+			E parent,
+			BigDecimal childvalue,
+			ValueExtractor<E, BigDecimal> extractor,
+			ValueSetter<E, BigDecimal> setter) {
 		BigDecimal parentvalue = extractor.extract(parent);
 		setter.set(parent, sumIfNotNull(parentvalue, childvalue));
 		logger.finer(
@@ -319,6 +347,7 @@ public class ReportTree<E extends DataObject<E>> {
 
 	private Namesetter<E> namesetter;
 	private Consolidator<E>[] consolidators;
+	private ComplexConsolidator<E> complexconsolidator;
 	private ValueExtractor<E, String> nameextractor;
 	private Initiator<E> initiator;
 
@@ -332,8 +361,12 @@ public class ReportTree<E extends DataObject<E>> {
 	 * @param initiator        initiator to set the root node
 	 * @param rootname         root node name
 	 */
-	public ReportTree(DataObjectDefinition<E> objectdefinition, Namesetter<E> namesetter,
-			ValueExtractor<E, String> nameextractor, Consolidator<E>[] consolidators, Initiator<E> initiator,
+	public ReportTree(
+			DataObjectDefinition<E> objectdefinition,
+			Namesetter<E> namesetter,
+			ValueExtractor<E, String> nameextractor,
+			Consolidator<E>[] consolidators,
+			Initiator<E> initiator,
 			String rootname) {
 		this(objectdefinition, namesetter, nameextractor, consolidators, rootname);
 		this.initiator = initiator;
@@ -349,8 +382,12 @@ public class ReportTree<E extends DataObject<E>> {
 	 * @param consolidator     data consolidators
 	 * @param rootname         root node name
 	 */
-	public ReportTree(DataObjectDefinition<E> objectdefinition, Namesetter<E> namesetter,
-			ValueExtractor<E, String> nameextractor, Consolidator<E>[] consolidators, String rootname) {
+	public ReportTree(
+			DataObjectDefinition<E> objectdefinition,
+			Namesetter<E> namesetter,
+			ValueExtractor<E, String> nameextractor,
+			Consolidator<E>[] consolidators,
+			String rootname) {
 		this.objectdefinition = objectdefinition;
 		this.namesetter = namesetter;
 		this.consolidators = consolidators;
@@ -372,8 +409,12 @@ public class ReportTree<E extends DataObject<E>> {
 	 * @param initiator          initiator to set the root node
 	 * @param rootname           root node name
 	 */
-	public ReportTree(DataObjectDefinition<E> objectdefinition, Namesetter<E> namesetter,
-			ValueExtractor<E, String> nameextractor, Consolidator<E> uniqueconsolidator, Initiator<E> initiator,
+	public ReportTree(
+			DataObjectDefinition<E> objectdefinition,
+			Namesetter<E> namesetter,
+			ValueExtractor<E, String> nameextractor,
+			Consolidator<E> uniqueconsolidator,
+			Initiator<E> initiator,
 			String rootname) {
 		this(objectdefinition, namesetter, nameextractor, uniqueconsolidator, rootname);
 		this.initiator = initiator;
@@ -390,8 +431,12 @@ public class ReportTree<E extends DataObject<E>> {
 	 * @param rootname         root node name
 	 */
 	@SuppressWarnings("unchecked")
-	public ReportTree(DataObjectDefinition<E> objectdefinition, Namesetter<E> namesetter,
-			ValueExtractor<E, String> nameextractor, Consolidator<E> uniqueconsolidator, String rootname) {
+	public ReportTree(
+			DataObjectDefinition<E> objectdefinition,
+			Namesetter<E> namesetter,
+			ValueExtractor<E, String> nameextractor,
+			Consolidator<E> uniqueconsolidator,
+			String rootname) {
 		this.objectdefinition = objectdefinition;
 		this.namesetter = namesetter;
 		this.consolidators = new Consolidator[] { uniqueconsolidator };
@@ -401,6 +446,16 @@ public class ReportTree<E extends DataObject<E>> {
 		namesetter.name(rootelement, rootname);
 		rootnode = new Node(rootelement);
 		this.initiator = null;
+	}
+
+	/**
+	 * adds a complex consolidator
+	 * 
+	 * @param complexconsolidator complex consolidator to be applied after all data
+	 *                            entered
+	 */
+	public void addComplexConsolidator(ComplexConsolidator<E> complexconsolidator) {
+		this.complexconsolidator = complexconsolidator;
 	}
 
 	/**
@@ -523,6 +578,12 @@ public class ReportTree<E extends DataObject<E>> {
 			rollupamount(childnode, circuitbreaker + 1);
 			for (int j = 0; j < this.consolidators.length; j++)
 				consolidators[j].consolidate(parentnode.element, childnode.element);
+		
+		}
+		if (complexconsolidator!=null) {
+			ArrayList<E> allchildren = new ArrayList<E>();
+			for (int i=0;i<orderedchildrenkeys.size();i++) allchildren.add(parentnode.getChild(orderedchildrenkeys.get(i)).getElement());
+			complexconsolidator.consolidateWithFullData(parentnode.element,allchildren);
 		}
 
 	}
