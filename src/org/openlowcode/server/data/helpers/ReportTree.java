@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -42,6 +43,7 @@ public class ReportTree<E extends DataObject<E>> {
 
 		private HashMap<String, Node> children;
 		private E element;
+		private boolean significant = true;
 
 		public Node(E element) {
 			this.element = element;
@@ -62,6 +64,10 @@ public class ReportTree<E extends DataObject<E>> {
 
 		public Node getChild(String pathelement) {
 			return children.get(pathelement);
+		}
+
+		public void setSignificant(boolean significant) {
+			this.significant = significant;
 		}
 	}
 
@@ -338,8 +344,36 @@ public class ReportTree<E extends DataObject<E>> {
 
 	}
 
+	/**
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 *
+	 * @param <E> data object in the report tree
+	 */
 	public interface Enricher<E extends DataObject<E>> {
+		/**
+		 * @param originobject
+		 */
 		public void enrich(E originobject);
+	}
+
+	/**
+	 * This interface checks if the object has any significant information to reduce
+	 * the report tree to only significant data
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 *
+	 * @param <E> data object in the report tree
+	 */
+
+	@FunctionalInterface
+	public interface SignificantChecker<E extends DataObject<E>> {
+		/**
+		 * @param object
+		 * @return true if the object is significant
+		 */
+		public boolean isSignificant(E object);
 	}
 
 	private DataObjectDefinition<E> objectdefinition;
@@ -348,6 +382,7 @@ public class ReportTree<E extends DataObject<E>> {
 	private Namesetter<E> namesetter;
 	private Consolidator<E>[] consolidators;
 	private ComplexConsolidator<E> complexconsolidator;
+	private SignificantChecker<E> significantchecker;
 	private ValueExtractor<E, String> nameextractor;
 	private Initiator<E> initiator;
 
@@ -458,6 +493,10 @@ public class ReportTree<E extends DataObject<E>> {
 		this.complexconsolidator = complexconsolidator;
 	}
 
+	public void addsignificantchecker(SignificantChecker<E> significantchecker) {
+		this.significantchecker = significantchecker;
+	}
+
 	/**
 	 * This method will add the given object as a node if it has a label. If it does
 	 * not have a label, the value will be rolled-up into the parent of the last
@@ -500,7 +539,7 @@ public class ReportTree<E extends DataObject<E>> {
 		droperror.append("]");
 		for (int i = 0; i < parentlabelstouse.length; i++)
 			if (parentlabelstouse[i] == null) {
-				logger.severe(" ---- Error null label for object " + node.dropToString());
+				logger.fine(" ---- Error null label for object " + node.dropToString());
 				throw new RuntimeException("Null element " + i + " in parent labels " + droperror.toString());
 			}
 		Node currentnode = rootnode;
@@ -555,17 +594,39 @@ public class ReportTree<E extends DataObject<E>> {
 		rollupamount(rootnode, 0);
 
 		NodeTree<E> nodetree = new NodeTree<E>(rootnode.getElement());
-
+		
+		if (this.significantchecker!=null) checksignificant(rootnode,0);
 		addChildren(nodetree, rootnode, 0);
 		return nodetree;
 	}
 
 	/**
+	 * @param node           node to check for significance
+	 * @param circuitbreaker recursive circuit breaker
+	 */
+	private boolean checksignificant(ReportTree<E>.Node node, int circuitbreaker) {
+		if (circuitbreaker > 50)
+			throw new RuntimeException(
+					"Recursive path error for element " + nameextractor.extract(node.getElement()));
+		boolean childrensignificant = false;
+		Iterator<String> keyiterator = node.getKeySet().iterator();
+		while (keyiterator.hasNext()) {
+			boolean childsignificant = this.checksignificant(node.getChild(keyiterator.next()), circuitbreaker+1);
+			if (childsignificant) childrensignificant=true;
+		}
+		boolean owndatasignificant = this.significantchecker.isSignificant(node.getElement());
+		boolean significanttotal = childrensignificant | owndatasignificant;
+		node.setSignificant(significanttotal);
+		logger.fine("Set significant for node "+nameextractor.extract(node.getElement())+" total="+significanttotal+", own="+owndatasignificant+", children = "+childrensignificant);
+		return significanttotal;
+	}
+
+	/**
 	 * Just before the node generation, the roll-up is performed. This avoids having
-	 * issue with
+	 * issue with revursivity, a circuit breaker is used
 	 * 
-	 * @param parentnode
-	 * @param circuitbreaker
+	 * @param parentnode node to process
+	 * @param circuitbreaker recursive level
 	 */
 	private void rollupamount(Node parentnode, int circuitbreaker) {
 		if (circuitbreaker > 50)
@@ -578,12 +639,13 @@ public class ReportTree<E extends DataObject<E>> {
 			rollupamount(childnode, circuitbreaker + 1);
 			for (int j = 0; j < this.consolidators.length; j++)
 				consolidators[j].consolidate(parentnode.element, childnode.element);
-		
+
 		}
-		if (complexconsolidator!=null) {
+		if (complexconsolidator != null) {
 			ArrayList<E> allchildren = new ArrayList<E>();
-			for (int i=0;i<orderedchildrenkeys.size();i++) allchildren.add(parentnode.getChild(orderedchildrenkeys.get(i)).getElement());
-			complexconsolidator.consolidateWithFullData(parentnode.element,allchildren);
+			for (int i = 0; i < orderedchildrenkeys.size(); i++)
+				allchildren.add(parentnode.getChild(orderedchildrenkeys.get(i)).getElement());
+			complexconsolidator.consolidateWithFullData(parentnode.element, allchildren);
 		}
 
 	}
@@ -597,8 +659,12 @@ public class ReportTree<E extends DataObject<E>> {
 		Collections.sort(orderedchildrenkeys);
 		for (int i = 0; i < orderedchildrenkeys.size(); i++) {
 			Node childnode = parentnode.getChild(orderedchildrenkeys.get(i));
-			nodetree.addChild(parentnode.getElement(), childnode.getElement());
-			addChildren(nodetree, childnode, circuitbreaker + 1);
+			if (childnode.significant) {
+				nodetree.addChild(parentnode.getElement(), childnode.getElement());
+				addChildren(nodetree, childnode, circuitbreaker + 1);
+			} else {
+				logger.fine("Node dropped "+childnode.getElement());
+			}
 		}
 	}
 
