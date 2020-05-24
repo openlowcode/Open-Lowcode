@@ -90,7 +90,9 @@ public class ClientDisplay {
 	}
 
 	/**
-	 * scrolls the display to make sure the node specified is shown in the scroll pane
+	 * scrolls the display to make sure the node specified is shown in the scroll
+	 * pane
+	 * 
 	 * @param node a node displayed
 	 */
 	public void ensureNodeVisible(Node node) {
@@ -118,20 +120,28 @@ public class ClientDisplay {
 			} else if (nodeMaxY > scrollpaneMaxY) {
 				logger.finest(" --- **** out DOWN");
 				vValueDelta = (nodeMaxY - scrollpaneMaxY) / (contentHeight - viewport.getHeight());
-		
+
 			}
 			contentholder.setVvalue(vValueCurrent + vValueDelta);
 		}
 	}
 
 	/**
-	 * Creates a new client display. Note that this will just create the class and 
-	 * @param parent parent client session
-	 * @param actionsourcetransformer specific transformer to transform a node sending an action (for example a table cell) into the parent node holding thedata (e.g. a table view) 
-	 * @param urltoconnectto if specified, the URL to connect to first
-	 * @param questionmarkicon the path to the icon to display for the question mark 
+	 * Creates a new client display. Note that this will just create the class and
+	 * 
+	 * @param parent                  parent client session
+	 * @param actionsourcetransformer specific transformer to transform a node
+	 *                                sending an action (for example a table cell)
+	 *                                into the parent node holding thedata (e.g. a
+	 *                                table view)
+	 * @param urltoconnectto          if specified, the URL to connect to first
+	 * @param questionmarkicon        the path to the icon to display for the
+	 *                                question mark
 	 */
-	public ClientDisplay(ClientSession parent, ActionSourceTransformer actionsourcetransformer, String urltoconnectto,
+	public ClientDisplay(
+			ClientSession parent,
+			ActionSourceTransformer actionsourcetransformer,
+			String urltoconnectto,
 			String questionmarkicon) {
 		this.parent = parent;
 		this.pageactionmanager = new PageActionManager(this, actionsourcetransformer);
@@ -144,7 +154,8 @@ public class ClientDisplay {
 	private final static Logger logger = Logger.getLogger(ClientDisplay.class.getName());
 
 	/**
-	 * @return displays potential warning popups if some unsaved data is present on the page
+	 * @return displays potential warning popups if some unsaved data is present on
+	 *         the page
 	 */
 	public boolean checkContinueWarning() {
 		logger.fine("  -- calling check warning with null arguments");
@@ -164,9 +175,9 @@ public class ClientDisplay {
 	/**
 	 * displays a modal popup and waits for answer
 	 * 
-	 * @param message what to display as main message
+	 * @param message    what to display as main message
 	 * @param yesmessage what to display on button for yes
-	 * @param nomessage what to display on button for no
+	 * @param nomessage  what to display on button for no
 	 * @return true if answer is yes, false if answer of the popup is false
 	 */
 	public boolean displayModalPopup(String message, String yesmessage, String nomessage) {
@@ -181,20 +192,31 @@ public class ClientDisplay {
 	}
 
 	/**
-	 * Displays a page on this client display. Note: can be called outside of the Javafx Application thread
-	 * @param title title to display
-	 * @param fulladdress address to display in theconnection bar
-	 * @param page the page to show
-	 * @param address limited address (without server coordinates)
-	 * @param starttime when the processing of the request started
-	 * @param messagesize size of the message read from server
-	 * @param pagedatachedkb page data that was retrieved from the cache
+	 * Displays a page on this client display. Note: can be called outside of the
+	 * Javafx Application thread
+	 * 
+	 * @param title            title to display
+	 * @param fulladdress      address to display in theconnection bar
+	 * @param page             the page to show
+	 * @param address          limited address (without server coordinates)
+	 * @param starttime        when the processing of the request started
+	 * @param messagesize      size of the message read from server
+	 * @param pagedatachedkb   page data that was retrieved from the cache
 	 * @param totalpagecachekb total size of the page cache
-	 * @param showtechdetails will display all technical details (speed,network used) 
-	 * @param createnewtab if true, create a new tab to display the page
+	 * @param showtechdetails  will display all technical details (speed,network
+	 *                         used)
+	 * @param createnewtab     if true, create a new tab to display the page
 	 */
-	public void setandDisplayPage(String title, String fulladdress, CPage page, String address, long starttime,
-			long messagesize, long pagedatachedkb, long totalpagecachekb, boolean showtechdetails,
+	public void setandDisplayPage(
+			String title,
+			String fulladdress,
+			CPage page,
+			String address,
+			long starttime,
+			long messagesize,
+			long pagedatachedkb,
+			long totalpagecachekb,
+			boolean showtechdetails,
 			boolean createnewtab) {
 
 		Platform.runLater(new Thread() {
@@ -248,7 +270,7 @@ public class ClientDisplay {
 						connectionbar.setPageAddress(fulladdress);
 
 					Node pagenode = page.getNode().getNode(pageactionmanager, page.getAllInputData(),
-							parent.getMainFrame().getPrimaryStage(),new TabPane[0]);
+							parent.getMainFrame().getPrimaryStage(), new TabPane[0]);
 					VBox nodeb = new VBox();
 					nodeb.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 					VBox.setMargin(pagenode, new Insets(8, 5, 5, 18));
@@ -271,16 +293,19 @@ public class ClientDisplay {
 								contentholderhorizontalscrollbar.setValue(contentholderhorizontalscrollbar.getMin());
 							} else {
 								contentholderverticalscrollbar = thisscrollbar;
-								
+
 								backgroundpane.setOnScroll(new EventHandler<ScrollEvent>() {
-							        @Override
-							        public void handle(ScrollEvent event) {
-							            double deltaY = event.getDeltaY()*8; 
-							            double width = contentholder.getContent().getBoundsInLocal().getWidth();
-							            double vvalue = contentholder.getVvalue();
-							            contentholder.setVvalue(vvalue + -deltaY/width); // deltaY/width to make the scrolling equally fast regardless of the actual width of the component
-							        }
-							    });
+									@Override
+									public void handle(ScrollEvent event) {
+										double deltaY = event.getDeltaY() * 8;
+										double width = contentholder.getContent().getBoundsInLocal().getWidth();
+										double vvalue = contentholder.getVvalue();
+										contentholder.setVvalue(vvalue + -deltaY / width); // deltaY/width to make the
+																							// scrolling equally fast
+																							// regardless of the actual
+																							// width of the component
+									}
+								});
 							}
 						}
 					}
@@ -292,7 +317,7 @@ public class ClientDisplay {
 						public void run() {
 							try {
 								double oldvalueinpixel = 0;
-								if (contentholderverticalscrollbar != null)
+								if (contentholderverticalscrollbar != null) {
 									if (contentholderverticalscrollbar.isVisible()) {
 										PageHistory pagehistory = lookupPageForAddress(address);
 										if (pagehistory != null)
@@ -300,17 +325,19 @@ public class ClientDisplay {
 										logger.fine(" --- calculated old value in pixel = " + oldvalueinpixel
 												+ " for address = " + address);
 									}
-								if (oldvalueinpixel != 0) {
-									double verticalscrollvalue = oldvalueinpixel
-											/ contentholderverticalscrollbar.getHeight()
-											* contentholderverticalscrollbar.getMax();
-									contentholderverticalscrollbar.setValue(verticalscrollvalue);
-									logger.fine(" vertical scrollbar set to " + verticalscrollvalue
-											+ " , value after change =  " + contentholderverticalscrollbar.getValue());
-								} else {
-									contentholderverticalscrollbar.setValue(contentholderverticalscrollbar.getMin());
+									if (oldvalueinpixel != 0) {
+										double verticalscrollvalue = oldvalueinpixel
+												/ contentholderverticalscrollbar.getHeight()
+												* contentholderverticalscrollbar.getMax();
+										contentholderverticalscrollbar.setValue(verticalscrollvalue);
+										logger.fine(" vertical scrollbar set to " + verticalscrollvalue
+												+ " , value after change =  "
+												+ contentholderverticalscrollbar.getValue());
+									} else {
+										contentholderverticalscrollbar
+												.setValue(contentholderverticalscrollbar.getMin());
+									}
 								}
-
 							} catch (Exception e) {
 								logger.warning(
 										"Exception while treating specific thread for contentholder scroollbars");
@@ -323,29 +350,32 @@ public class ClientDisplay {
 							}
 						}
 					});
+					if (contentholderverticalscrollbar != null) {
+						if (contentholderverticalscrollbar.isVisible()) {
+							backgroundpane.setPrefWidth(
+									contentholder.getWidth() - 2 - contentholderverticalscrollbar.getWidth());
 
-					if (contentholderverticalscrollbar.isVisible()) {
-						backgroundpane
-								.setPrefWidth(contentholder.getWidth() - 2 - contentholderverticalscrollbar.getWidth());
+						} else {
+							backgroundpane.setPrefWidth(contentholder.getWidth() - 2);
 
-					} else {
-						backgroundpane.setPrefWidth(contentholder.getWidth() - 2);
-
+						}
 					}
+					if (contentholderhorizontalscrollbar != null) {
+						if (contentholderhorizontalscrollbar.isVisible()) {
+							backgroundpane.setPrefHeight(
+									contentholder.getHeight() - 2 - contentholderhorizontalscrollbar.getHeight());
 
-					if (contentholderhorizontalscrollbar.isVisible()) {
-						backgroundpane.setPrefHeight(
-								contentholder.getHeight() - 2 - contentholderhorizontalscrollbar.getHeight());
+						} else {
+							backgroundpane.setPrefHeight(contentholder.getHeight() - 2);
 
-					} else {
-						backgroundpane.setPrefHeight(contentholder.getHeight() - 2);
-
+						}
 					}
-
 					setnewContentHolderWidthChangeListener(new ChangeListener<Number>() {
 
 						@Override
-						public void changed(ObservableValue<? extends Number> observable, Number oldvalue,
+						public void changed(
+								ObservableValue<? extends Number> observable,
+								Number oldvalue,
 								Number newvalue) {
 							if (contentholderverticalscrollbar.isVisible()) {
 								backgroundpane.setPrefWidth(
@@ -361,7 +391,9 @@ public class ClientDisplay {
 
 					setnewContentHolderHeightChangeListener(new ChangeListener<Number>() {
 						@Override
-						public void changed(ObservableValue<? extends Number> observable, Number oldvalue,
+						public void changed(
+								ObservableValue<? extends Number> observable,
+								Number oldvalue,
 								Number newvalue) {
 							if (contentholderhorizontalscrollbar.isVisible()) {
 								backgroundpane.setPrefHeight(
@@ -436,7 +468,9 @@ public class ClientDisplay {
 
 	/**
 	 * a class to record the last scroll height of a page
-	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode SAS</a>
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
 	 *
 	 */
 	private class PageHistory {
@@ -444,7 +478,7 @@ public class ClientDisplay {
 		private double scrollheight;
 
 		/**
-		 * @param address address of the page
+		 * @param address      address of the page
 		 * @param scrollheight scroll height when last visited the page
 		 */
 		public PageHistory(String address, double scrollheight) {
@@ -464,6 +498,7 @@ public class ClientDisplay {
 
 	/**
 	 * checks if the page was already visited
+	 * 
 	 * @param address looks up for the page history address in the local repository
 	 * @return page history if it exists
 	 */
@@ -483,6 +518,7 @@ public class ClientDisplay {
 
 	/**
 	 * adds a page history to the local repository
+	 * 
 	 * @param pagehistory
 	 */
 	public void addPageHistory(PageHistory pagehistory) {
@@ -510,6 +546,7 @@ public class ClientDisplay {
 
 	/**
 	 * refreshes the change listener to the content holder height
+	 * 
 	 * @param newheightlistener new change listener
 	 */
 	public void setnewContentHolderHeightChangeListener(ChangeListener<Number> newheightlistener) {
@@ -521,6 +558,7 @@ public class ClientDisplay {
 
 	/**
 	 * refreshes the change listener to the content holder width
+	 * 
 	 * @param newwidthlistener new change listener
 	 */
 	public void setnewContentHolderWidthChangeListener(ChangeListener<Number> newwidthlistener) {
@@ -559,7 +597,8 @@ public class ClientDisplay {
 	}
 
 	/**
-	 * will launch the sending to the server of the address shown in the connection bar
+	 * will launch the sending to the server of the address shown in the connection
+	 * bar
 	 */
 	public void triggerLaunchAddress() {
 		connectionbar.triggerLaunchAddress();
@@ -594,6 +633,7 @@ public class ClientDisplay {
 
 	/**
 	 * generates the JAVAFX component for the status bar
+	 * 
 	 * @return the Pane
 	 */
 	public Pane generateStatusBar() {
@@ -628,12 +668,12 @@ public class ClientDisplay {
 
 	}
 
-	
-
 	/**
 	 * displays a message in the status bar
-	 * @param message the message to show
-	 * @param showaserror if true, message is shown as error (in yellow), if false, displays it as simple text
+	 * 
+	 * @param message     the message to show
+	 * @param showaserror if true, message is shown as error (in yellow), if false,
+	 *                    displays it as simple text
 	 */
 	public void updateStatusBar(String message, boolean showaserror) {
 		if (showaserror) {
@@ -666,35 +706,35 @@ public class ClientDisplay {
 	 */
 	public void updateStatusBar(String message) {
 		Date date = new Date();
-		String output = ""+sdf.format(date)+" "+message;
+		String output = "" + sdf.format(date) + " " + message;
 		logger.info(output);
 		Platform.runLater(new Thread() {
-		@Override
-		public void run() {
-			
-			
-			
-			try {
-			statuslabel.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-			
-			statuslabel.setText(output);
-			} catch (Exception e ) {
-				logger.warning("Exception in setting status bar "+e.getMessage());
-				for (int i=0;i<e.getStackTrace().length;i++) {
-					String element = e.getStackTrace()[i].toString();
-					if (element.startsWith("org.openlowcode"))
-						logger.warning(e.getStackTrace()[i].toString());
+			@Override
+			public void run() {
+
+				try {
+					statuslabel.setBackground(
+							new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+
+					statuslabel.setText(output);
+				} catch (Exception e) {
+					logger.warning("Exception in setting status bar " + e.getMessage());
+					for (int i = 0; i < e.getStackTrace().length; i++) {
+						String element = e.getStackTrace()[i].toString();
+						if (element.startsWith("org.openlowcode"))
+							logger.warning(e.getStackTrace()[i].toString());
+					}
 				}
 			}
-		}
 		});
-		
-		
+
 	}
 
 	/**
-	 * In this version, only the connection bar is frozen when an event is sent to the server. In further versions,
-	 * it is planned to also freeze pushing other buttons.
+	 * In this version, only the connection bar is frozen when an event is sent to
+	 * the server. In further versions, it is planned to also freeze pushing other
+	 * buttons.
+	 * 
 	 * @param frozen true to freeze the screen, false to unfreeze the screen
 	 */
 	public void setBusinessScreenFrozen(boolean frozen) {

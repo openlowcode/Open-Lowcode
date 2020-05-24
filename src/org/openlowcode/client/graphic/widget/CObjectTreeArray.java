@@ -97,7 +97,7 @@ public class CObjectTreeArray
 	private MenuItem copytechdata;
 	private HashMap<String, CPageDataRef> overridenlabels;
 	private PageActionManager actionmanager;
-
+	private ObjectDataElt selecteditem;
 	/**
 	 * @param reader     message reader from the server
 	 * @param parentpath parent path
@@ -353,6 +353,7 @@ public class CObjectTreeArray
 		this.thistreetable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
 			if (contextmenu.isShowing())
 				contextmenu.hide();
+				if (newSelection!=null) if (newSelection.getValue()!=null) selecteditem = newSelection.getValue();
 		});
 
 		// ----------------- Set tree table size
@@ -391,7 +392,7 @@ public class CObjectTreeArray
 		if (type instanceof ObjectIdDataEltType) {
 			if (objectfieldname == null)
 				throw new RuntimeException("objectid field should have an objectfieldname");
-			ObjectDataElt object = this.thistreetable.getSelectionModel().getSelectedItem().getValue();
+			ObjectDataElt object = selecteditem;
 			SimpleDataElt field = object.lookupEltByName(objectfieldname);
 			if (field == null)
 				throw new RuntimeException(
