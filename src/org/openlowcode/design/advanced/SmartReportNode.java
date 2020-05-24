@@ -195,6 +195,14 @@ public abstract class SmartReportNode
 				if (specificimports != null)
 					for (int k = 0; k < specificimports.length; k++)
 						sg.wl(specificimports[k]);
+				
+			}
+			ColumnCriteria thiscolumncriteria = childnode.getColumnCriteria();
+			if (thiscolumncriteria != null) {
+				String[] specificimportsforcolumn = thiscolumncriteria.getImportStatements();
+				if (specificimportsforcolumn != null)
+					for (int k = 0; k < specificimportsforcolumn.length; k++)
+						sg.wl(specificimportsforcolumn[k]);
 			}
 		}
 	}
@@ -239,43 +247,55 @@ public abstract class SmartReportNode
 	/**
 	 * write the columns in the smart report
 	 * 
-	 * @param sg           source generator
-	 * @param parentobject parent object for the whole report
-	 * @param name         name of the report
+	 * @param sg                   source generator
+	 * @param columnindexescreated already created column indexes
+	 * @param parentobject         parent object for the whole report
+	 * @param name                 name of the report
 	 * @throws IOException if anything has happened while generating the source code
 	 */
-	public void setColumns(SourceGenerator sg, DataObjectDefinition parentobject, String name) throws IOException {
-		setColumns(sg, parentobject, name, null, 0);
+	public void setColumns(
+			SourceGenerator sg,
+			HashMap<Integer, Integer> columnindexescreated,
+			DataObjectDefinition parentobject,
+			String name) throws IOException {
+		setColumns(sg, columnindexescreated, parentobject, name, null, 0);
 	}
 
 	private void setColumns(
 			SourceGenerator sg,
+			HashMap<Integer, Integer> columnindexescreated,
 			DataObjectDefinition rootobject,
 			String reportname,
 			String prefix,
 			int circuitbreaker) throws IOException {
 		if (circuitbreaker > 1000)
 			throw new RuntimeException("Circuitbreaker for node " + this.getClass() + " - " + this.toString());
-		setColumnsForNode(sg, rootobject, reportname, prefix, circuitbreaker);
+		setColumnsForNode(sg, columnindexescreated, rootobject, reportname, prefix, circuitbreaker);
 		for (int i = 0; i < linktochildrennode.size(); i++) {
 			SmartReportNodeLink thislink = linktochildrennode.get(i);
 			String prefixforlink = (prefix != null ? prefix + "_" + (i + 1) : "" + (i + 1));
-			thislink.getChildNode().setColumns(sg, rootobject, reportname, prefixforlink, circuitbreaker + 1);
+			thislink.getChildNode().setColumns(sg, columnindexescreated, rootobject, reportname, prefixforlink,
+					circuitbreaker + 1);
 		}
 	}
 
 	/**
 	 * writes the column generator for this node recursively
 	 * 
-	 * @param sg             source generator
-	 * @param rootobject     parent / root object for the whole report
-	 * @param reportname     name of the report
-	 * @param prefix         prefix for the workflow step
-	 * @param circuitbreaker recursive circuit breaker
+	 * @param sg                   source generator
+	 * @param columnindexescreated already created column indexes. When creating a
+	 *                             new column index, the Integer should be added in
+	 *                             the hashmap to avoid other nodes creating the
+	 *                             corresponding column grouping again
+	 * @param rootobject           parent / root object for the whole report
+	 * @param reportname           name of the report
+	 * @param prefix               prefix for the workflow step
+	 * @param circuitbreaker       recursive circuit breaker
 	 * @throws IOException if anything has happened while generating the source code
 	 */
 	public abstract void setColumnsForNode(
 			SourceGenerator sg,
+			HashMap<Integer, Integer> columnindexescreated,
 			DataObjectDefinition rootobject,
 			String reportname,
 			String prefix,

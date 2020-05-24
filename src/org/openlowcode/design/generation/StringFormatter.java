@@ -21,6 +21,7 @@ import java.util.logging.Logger;
  */
 public class StringFormatter {
 	
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(StringFormatter.class.getName());
 	
 	/**

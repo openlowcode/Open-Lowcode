@@ -12,12 +12,16 @@ package org.openlowcode.design.advanced;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Field;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
+import org.openlowcode.server.action.utility.SmartReportUtility;
+import org.openlowcode.server.action.utility.SmartReportUtility.ColumnGrouping;
+import org.openlowcode.tools.data.TimePeriod;
 
 /**
  * A node on an object
@@ -128,6 +132,7 @@ public class ObjectReportNode
 	@Override
 	public void setColumnsForNode(
 			SourceGenerator sg,
+			HashMap<Integer, Integer> columnindexescreated,
 			DataObjectDefinition rootobject,
 			String reportname,
 			String prefix,
@@ -135,11 +140,18 @@ public class ObjectReportNode
 		ColumnCriteria columncriteria = this.getColumnCriteria();
 		if (columncriteria != null) {
 			String objectvariable = StringFormatter.formatForAttribute(object.getName());
-			sg.wl("		String[] columns_" + objectvariable + "_step" + prefix
-					+ " = SmartReportUtility.getColumnValues(" + objectvariable + "_step" + prefix + ", ("
-					+ columncriteria.generateExtractor() + "),"
+			int index = columncriteria.getColumnIndex();
+			if (columnindexescreated.get(new Integer(index))==null) {
+				columnindexescreated.put(new Integer(index),new Integer(index));
+				String payloadclass = columncriteria.getColumnPayloadClass();
+				sg.wl("		SmartReportUtility.ColumnGrouping<"+payloadclass+"> columngrouping"+index+" = new SmartReportUtility.ColumnGrouping<"+payloadclass+">("+index+", null);");
+				sg.wl("		columnlist.setGroupingForIndex("+index+",columngrouping"+index+");");
+
+			}
+			sg.wl("		SmartReportUtility.fillColumnValues(columngrouping"+index+"," + objectvariable + "_step" + prefix + ", ("
+					+ columncriteria.generatePayloadExtractor()+"),("
+					+ columncriteria.generateLabelExtractor()+ "),"
 					+ (columncriteria.getSuffix() == null ? "null" : "\"" + columncriteria.getSuffix() + "\"") + ");");
-			sg.wl("		columnlist.addColumns(columns_" + objectvariable + "_step" + prefix + ");");
 		}
 
 	}

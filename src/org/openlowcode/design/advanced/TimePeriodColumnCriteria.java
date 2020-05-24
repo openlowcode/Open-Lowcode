@@ -41,7 +41,19 @@ public class TimePeriodColumnCriteria
 		super(node, suffix);
 		this.timeperiodfield = timeperiodfield;
 	}
-
+	/**
+	 * Creates a time period column criteria
+	 * 
+	 * @param node            node holding the same value
+	 * @param timeperiodfield the field used as column criteria
+	 * @param columnindex            index for ordering columns. Columns with same
+	 *                               index are ordered together
+	 */
+	public TimePeriodColumnCriteria(SmartReportNode node, TimePeriodField timeperiodfield, String suffix,int columnindex) {
+		super(node, suffix,columnindex);
+		this.timeperiodfield = timeperiodfield;
+	}
+	
 	/**
 	 * Creates a time period column criteria without suffix specified
 	 * 
@@ -54,11 +66,17 @@ public class TimePeriodColumnCriteria
 	}
 
 	@Override
-	public String generateExtractor() {
+	public String generateLabelExtractor() {
 		String fieldclassname = StringFormatter.formatForJavaClass(this.timeperiodfield.getName());
 		return "(a)->(a.get" + fieldclassname + "().toString())";
 	}
 
+	@Override
+	public String generatePayloadExtractor() {
+		String fieldclassname = StringFormatter.formatForJavaClass(this.timeperiodfield.getName());
+		return "(a)->(a.get" + fieldclassname + "())";
+	}
+	
 	@Override
 	protected void writeColumnValueGenerator(SourceGenerator sg, ObjectReportNode objectReportNode, String prefix)
 			throws IOException {
@@ -70,6 +88,16 @@ public class TimePeriodColumnCriteria
 				+ ".get" + StringFormatter.formatForJavaClass(timeperiodfield.getName()) + "().toString()" + suffixdef
 				+ ";");
 
+	}
+
+	@Override
+	public String getColumnPayloadClass() {
+		
+		return "TimePeriod";
+	}
+	@Override
+	protected String[] getImportStatements() {
+		return new String[] {"import org.openlowcode.tools.data.TimePeriod;"};
 	}
 
 }

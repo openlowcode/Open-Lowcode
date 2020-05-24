@@ -654,14 +654,16 @@ public class SmartReport
 		sg.wl("		// -------------------- Column Generation -----------------------------------------");
 
 		sg.wl("		SmartReportUtility.ColumnList columnlist = new SmartReportUtility.ColumnList();");
-		rootnode.setColumns(sg, parentobject, this.getName());
+		HashMap<Integer,Integer> columnindexescreated = new HashMap<Integer,Integer>();
+		rootnode.setColumns(sg,columnindexescreated, parentobject, this.getName());
 
-		sg.wl("		columnlist.Order();");
+		sg.wl("		columnlist.order();");
 		sg.wl("		FlexibledecimalfieldsDefinitionDynamicHelper<Reportfor" + reportvariablename + "> dynamichelper");
 		sg.wl("			= new FlexibledecimalfieldsDefinitionDynamicHelper<Reportfor" + reportvariablename
 				+ ">(Reportfor" + reportvariablename + ".getDefinition());");
-		sg.wl("		for (int i=0;i<columnlist.getSize();i++)");
-		sg.wl("			dynamichelper.addField(columnlist.getColumn(i),columnlist.getColumn(i),300-i);");
+		sg.wl("		List<String> columnsorderedlabel = columnlist.getAllColumnslabel();");
+		sg.wl("		for (int i=0;i<columnsorderedlabel.size();i++)");
+		sg.wl("			dynamichelper.addField(columnsorderedlabel.get(i),columnsorderedlabel.get(i),300-i);");
 		StringBuffer totalconsolidators = new StringBuffer("");
 		if (this.totalkeys != null)
 			if (this.totalkeys.size() > 0) {

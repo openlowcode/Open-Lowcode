@@ -12,6 +12,7 @@ package org.openlowcode.design.advanced;
 
 import java.io.IOException;
 
+import org.openlowcode.design.data.ChoiceCategory;
 import org.openlowcode.design.data.ChoiceField;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
@@ -62,6 +63,32 @@ public class ChoiceColumnCriteria
 	}
 
 	/**
+	 * create a choice column criteria based on a choice field on the object having
+	 * the the main value field
+	 * 
+	 * @param node                   node used for the main report value
+	 * @param fieldforcolumncriteria choice field used to sort value by columns
+	 * @param suffix                 suffix of the main value
+	 * @param columnindex            index for ordering columns. Columns with same
+	 *                               index are ordered together
+	 */
+	public ChoiceColumnCriteria(
+			SmartReportNode node,
+			ChoiceField fieldforcolumncriteria,
+			String suffix,
+			int columnindex) {
+		super(node, suffix, columnindex);
+		if (fieldforcolumncriteria == null)
+			throw new RuntimeException("ChoiceField cannot be null");
+		if (fieldforcolumncriteria.getParentObject() != node.getRelevantObject())
+			throw new RuntimeException(
+					"object for node " + node.getRelevantObject().getName() + " and choice field parent "
+							+ fieldforcolumncriteria.getParentObject().getName() + " are not consistent");
+		this.fieldforcolumncriteria = fieldforcolumncriteria;
+
+	}
+
+	/**
 	 * @return get the choice field used as column criteria
 	 */
 	public ChoiceField getFieldForColumnCriteria() {
@@ -69,9 +96,16 @@ public class ChoiceColumnCriteria
 	}
 
 	@Override
-	public String generateExtractor() {
+	public String generateLabelExtractor() {
 		String fieldclassname = StringFormatter.formatForJavaClass(this.getFieldForColumnCriteria().getName());
-		return "(a)->((a.get" + fieldclassname + "()!=null?a.get" + fieldclassname + "().getDisplayValue():\"Unspecified\"))";
+		return "(a)->((a.get" + fieldclassname + "()!=null?a.get" + fieldclassname
+				+ "().getDisplayValue():\"Unspecified\"))";
+	}
+
+	@Override
+	public String generatePayloadExtractor() {
+		String fieldclassname = StringFormatter.formatForJavaClass(this.getFieldForColumnCriteria().getName());
+		return "(a)->(a.get" + fieldclassname + "())";
 	}
 
 	@Override
@@ -84,9 +118,22 @@ public class ChoiceColumnCriteria
 				+ StringFormatter.formatForAttribute(objectReportNode.getRelevantObject().getName()) + "step" + prefix
 				+ ".get" + StringFormatter.formatForJavaClass(fieldforcolumncriteria.getName()) + "()!=null?this"
 				+ StringFormatter.formatForAttribute(objectReportNode.getRelevantObject().getName()) + "step" + prefix
-				+ ".get" + StringFormatter.formatForJavaClass(fieldforcolumncriteria.getName()) + "().getDisplayValue():\"Unspecified\")"
-				+ suffixdef + ";");
+				+ ".get" + StringFormatter.formatForJavaClass(fieldforcolumncriteria.getName())
+				+ "().getDisplayValue():\"Unspecified\")" + suffixdef + ";");
 
+	}
+
+	@Override
+	public String getColumnPayloadClass() {
+		return "ChoiceValue<" + StringFormatter.formatForJavaClass(this.fieldforcolumncriteria.getChoice().getName())
+				+ "ChoiceDefinition>";
+	}
+
+	@Override
+	protected String[] getImportStatements() {
+		ChoiceCategory choice = this.fieldforcolumncriteria.getChoice();
+		return new String[] { "import " + choice.getParentModule().getPath() + ".data.choice."
+				+ StringFormatter.formatForJavaClass(choice.getName()) + "ChoiceDefinition;" };
 	}
 
 }

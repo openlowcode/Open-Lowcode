@@ -11,15 +11,14 @@
 package org.openlowcode.server.action.utility;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-import org.apache.commons.compress.utils.Lists;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.TwoDataObjects;
@@ -147,57 +146,63 @@ public class SmartReportUtility {
 			F extends DataObject<F> & LinkobjectInterface<F, E, G>,
 			G extends DataObject<G> & NumberedInterface<G>> Function<DataObjectId<E>, String> getMultipleLinkNr(
 					TwoDataObjects<F, G>[] mapdata) {
-		
+
 		HashMap<DataObjectId<E>, ArrayList<String>> filtermap = new HashMap<DataObjectId<E>, ArrayList<String>>();
-		
+
 		if (mapdata != null)
 			for (int i = 0; i < mapdata.length; i++) {
 				TwoDataObjects<F, G> thislink = mapdata[i];
 				ArrayList<String> previous = filtermap.get(thislink.getObjectOne().getLfid());
 				if (previous == null) {
 					previous = new ArrayList<String>();
-					filtermap.put(thislink.getObjectOne().getLfid(),previous);
+					filtermap.put(thislink.getObjectOne().getLfid(), previous);
 				}
 				previous.add(thislink.getObjectTwo().getNr());
 			}
-		
-		HashMap<DataObjectId<E>,String> consolidatedfiltermap = new HashMap<DataObjectId<E>,String>();
-		
+
+		HashMap<DataObjectId<E>, String> consolidatedfiltermap = new HashMap<DataObjectId<E>, String>();
+
 		Iterator<DataObjectId<E>> keyiterator = filtermap.keySet().iterator();
 		while (keyiterator.hasNext()) {
 			DataObjectId<E> key = keyiterator.next();
 			ArrayList<String> allnumbers = filtermap.get(key);
 			allnumbers.sort(null);
 			StringBuffer classif = new StringBuffer();
-			for (int i=0;i<allnumbers.size();i++) {
-				if (i>0) classif.append(", ");
+			for (int i = 0; i < allnumbers.size(); i++) {
+				if (i > 0)
+					classif.append(", ");
 				classif.append(allnumbers.get(i));
 			}
 			consolidatedfiltermap.put(key, classif.toString());
 		}
-		
+
 		return (id) -> (consolidatedfiltermap.get(id));
 	}
 
 	/**
+	 * generates Column Values without order
 	 * 
-	 * 
-	 * @param objects
-	 * @param extractcolumnlabels
-	 * @param suffix
-	 * @return
+	 * @param objects             objects
+	 * @param extractcolumnlabels how to extract the column label
+	 * @param suffix              suffix for the column
+	 * @return the list of column headers
 	 */
-	public static <E extends DataObject<E>> String[] getColumnValues(
+	public static <E extends DataObject<E>, F extends Object> void fillColumnValues(
+			ColumnGrouping<F> existingcolumngrouping,
 			E[] objects,
+			Function<E, F> extractcolumnpayloads,
 			Function<E, String> extractcolumnlabels,
 			String suffix) {
-		HashMap<String, String> results = new HashMap<String, String>();
+		HashMap<String, ColumnIndex<F>> results = new HashMap<String, ColumnIndex<F>>();
 		if (objects != null)
 			for (int i = 0; i < objects.length; i++) {
 				String value = extractcolumnlabels.apply(objects[i]) + (suffix != null ? suffix : "");
-				results.put(value, value);
+				results.put(value, new ColumnIndex<F>(extractcolumnpayloads.apply(objects[i]), value));
 			}
-		return results.keySet().toArray(new String[0]);
+		Iterator<ColumnIndex<F>> valuesiterator = results.values().iterator();
+		while (valuesiterator.hasNext())
+			existingcolumngrouping.addColumn(valuesiterator.next());
+
 	}
 
 	/**
@@ -206,62 +211,151 @@ public class SmartReportUtility {
 	 *
 	 */
 	public static class ColumnList {
-		private ArrayList<String> totalcolumns;
-		private HashMap<String, Integer> columnindex;
 
-		/**
-		 * 
-		 */
+		private HashMap<Integer, ColumnGrouping<?>> columnsregister;
+
 		public ColumnList() {
-			this.totalcolumns = new ArrayList<String>();
+			this.columnsregister = new HashMap<Integer, ColumnGrouping<?>>();
 		}
 
-		/**
-		 * adds the columns to the column list
-		 * 
-		 * @param columns to add
-		 */
-		public void addColumns(String[] columns) {
-			if (columns != null)
-				this.totalcolumns.addAll(Arrays.asList(columns));
+		public ColumnGrouping<?> getGroupingForIndex(int index) {
+			return columnsregister.get(new Integer(index));
+		}
+
+		public void setGroupingForIndex(int index, ColumnGrouping<?> grouping) {
+			columnsregister.put(new Integer(index), grouping);
 		}
 
 		/**
 		 * orders the columns by name
 		 */
-		public void Order() {
-			Collections.sort(totalcolumns);
-			columnindex = new HashMap<String, Integer>();
-			for (int i = 0; i < totalcolumns.size(); i++)
-				columnindex.put(totalcolumns.get(i), new Integer(i));
+		public void order() {
+			Iterator<Integer> groupsiterator = columnsregister.keySet().iterator();
+			while (groupsiterator.hasNext())
+				columnsregister.get(groupsiterator.next()).order();
+
+		}
+
+		public List<String> getAllColumnslabel() {
+			ArrayList<String> labels = new ArrayList<String>();
+			List<Integer> orderedcolumnsindex = new ArrayList<Integer>(columnsregister.keySet());
+			Collections.sort(orderedcolumnsindex);
+			for (int i = 0; i < orderedcolumnsindex.size(); i++) {
+				ColumnGrouping<?> grouping = columnsregister.get(orderedcolumnsindex.get(i));
+				for (int j = 0; j < grouping.columns.size(); j++)
+					labels.add(grouping.columns.get(j).label);
+			}
+			return labels;
+		}
+
+	}
+
+	/**
+	 * An index for a column to allow for smart ordering
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 *
+	 */
+
+	public static class ColumnIndex<E extends Object> {
+		private E payload;
+		private String label;
+
+		/**
+		 * @param payload payload of the column, to use for ordering if orderable
+		 * @param label   strign label, used else to order a column
+		 */
+		public ColumnIndex(E payload, String label) {
+			super();
+			this.payload = payload;
+			this.label = label;
 		}
 
 		/**
-		 * @param column name of the column
-		 * @return the index of the column, or an exception, if the column name does not
-		 *         exist
+		 * @return payload
 		 */
-		public int getColumnIndex(String column) {
-			Integer index = columnindex.get(column);
-			if (index == null)
-				throw new RuntimeException("Column " + column + " is not in the column list");
-			return index.intValue();
+		public E getPayload() {
+			return payload;
 		}
 
 		/**
-		 * @return the number of columns
+		 * @return label
 		 */
-		public int getSize() {
-			return totalcolumns.size();
+		public String getLabel() {
+			return label;
+		}
+
+	}
+
+	/**
+	 * the repository for columns of a grouping index
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 *
+	 */
+
+	public static class ColumnGrouping<E extends Object> {
+		int groupingindex;
+		private ArrayList<ColumnIndex<E>> columns;
+
+		/**
+		 * creates a new column grouping for the given index
+		 * 
+		 * @param groupingindex an integer (positive)
+		 * @param columnstoadd  the list of columns to add
+		 */
+		public ColumnGrouping(int groupingindex, List<ColumnIndex<E>> columnstoadd) {
+			this.columns = new ArrayList<ColumnIndex<E>>();
+			if (columnstoadd != null)
+				for (int i = 0; i < columnstoadd.size(); i++)
+					this.addColumn(columnstoadd.get(i));
 		}
 
 		/**
-		 * @param index index of the column between 0 (included) and getSize()
-		 *              (excluded)
-		 * @return the name of the column at the given index
+		 * @param column adds one column
 		 */
-		public String getColumn(int index) {
-			return totalcolumns.get(index);
+		public void addColumn(ColumnIndex<E> column) {
+			this.columns.add(column);
 		}
+
+		/**
+		 * order by payload if possible, else by label of the column index
+		 */
+		public void order() {
+			if (columns.size() == 0)
+				return;
+			E firstobject = columns.get(0).payload;
+			if (firstobject instanceof Comparable<?>) {
+				Collections.sort(columns, new Comparator<ColumnIndex<E>>() {
+
+					@Override
+					public int compare(ColumnIndex<E> o1, ColumnIndex<E> o2) {
+						@SuppressWarnings("unchecked")
+						Comparable<E> o1comp = (Comparable<E>) o1.payload;
+						if (o1comp == null)
+							return -1;
+						int payloadcomparator = o1comp.compareTo(o2.payload);
+						if (payloadcomparator != 0)
+							return payloadcomparator;
+						if (o1.label == null)
+							return -1;
+						return o1.label.compareTo(o2.label);
+
+					}
+				});
+			} else {
+				Collections.sort(columns, new Comparator<ColumnIndex<E>>() {
+					@Override
+					public int compare(ColumnIndex<E> o1, ColumnIndex<E> o2) {
+						if (o1.label == null)
+							return -1;
+						return o1.label.compareTo(o2.label);
+					}
+				});
+			}
+		}
+
 	}
 }

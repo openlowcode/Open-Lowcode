@@ -12,6 +12,7 @@ package org.openlowcode.design.advanced;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.openlowcode.design.data.DataObjectDefinition;
@@ -62,6 +63,7 @@ public class UniversalStartNode
 	@Override
 	public void setColumnsForNode(
 			SourceGenerator sg,
+			HashMap<Integer, Integer> columnindexescreated,
 			DataObjectDefinition rootobject,
 			String reportname,
 			String prefix,

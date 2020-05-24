@@ -25,7 +25,12 @@ import org.openlowcode.design.generation.SourceGenerator;
 public abstract class ColumnCriteria {
 	private SmartReportNode node;
 	private String suffix;
+	private int columnindex;
 
+	public int getColumnIndex() {
+		return this.columnindex;
+	}
+	
 	/**
 	 * creates a column criteria for the given smart report node
 	 * 
@@ -36,6 +41,7 @@ public abstract class ColumnCriteria {
 			throw new RuntimeException("Node cannot be null for ColumnCriteria");
 		this.node = node;
 		this.suffix = null;
+		this.columnindex = 0;
 
 	}
 
@@ -49,6 +55,18 @@ public abstract class ColumnCriteria {
 		this(node);
 		this.suffix = suffix;
 
+	}
+
+	/**
+	 * @param node        smart report node the column criteria is
+	 * @param suffix      suffix added to the column title
+	 * @param columnindex for ordering of report columns. Report columns are shown
+	 *                    in order of column index first, then on payload, then on
+	 *                    suffix
+	 */
+	public ColumnCriteria(SmartReportNode node, String suffix, int columnindex) {
+		this(node, suffix);
+		this.columnindex = columnindex;
 	}
 
 	/**
@@ -66,10 +84,21 @@ public abstract class ColumnCriteria {
 	}
 
 	/**
-	 * @return the extractor to be used as source file
+	 * @return the extractor to be used as source file for label
 	 */
-	public abstract String generateExtractor();
+	public abstract String generateLabelExtractor();
 
+	/**
+	 * @return the extractor to be used as source file for payload
+	 */
+	public abstract String generatePayloadExtractor();
+
+	/**
+	 * @return the column payload class
+	 */
+	public abstract String getColumnPayloadClass();
+	
+	
 	/**
 	 * writes the column value generator in the smart report code
 	 * 
@@ -82,5 +111,10 @@ public abstract class ColumnCriteria {
 			SourceGenerator sg,
 			ObjectReportNode objectReportNode,
 			String prefix) throws IOException;
+
+	/**
+	 * @return the import statements for this column criteria
+	 */
+	protected abstract String[] getImportStatements();
 
 }
