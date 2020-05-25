@@ -28,7 +28,7 @@ import org.openlowcode.tools.file.SourceGenerator;
 public class OLcVersionGenerator {
 	public final static String version = "1.7.5";
 	public final static String clientversion = "1.7.5";
-	public final static boolean stable = false;
+	public final static boolean stable = true;
 
 	public static void main(String[] args) {
 		try {
