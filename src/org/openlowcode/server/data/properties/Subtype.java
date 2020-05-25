@@ -10,7 +10,6 @@
 
 package org.openlowcode.server.data.properties;
 
-import org.openlowcode.module.designer.data.Propertydef;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectProperty;
@@ -24,10 +23,13 @@ import org.openlowcode.server.data.SimpleFieldChoiceDefinition;
  * @param <E>
  * @param <F>
  */
-public class Subtype<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends SimpleFieldChoiceDefinition<F>>
+public class Subtype<
+		E extends DataObject<E> & UniqueidentifiedInterface<E> & SubtypeInterface<E, F>,
+		F extends SimpleFieldChoiceDefinition<F>>
 		extends
 		DataObjectProperty<E> {
 
+	@SuppressWarnings("unused")
 	private Uniqueidentified<E> uniqueidentified;
 
 	public Subtype(DataObjectPropertyDefinition<E> definition, DataObjectPayload parentpayload) {
@@ -37,6 +39,20 @@ public class Subtype<E extends DataObject<E> & UniqueidentifiedInterface<E>, F e
 	public void setDependentPropertyUniqueidentified(Uniqueidentified<E> uniqueidentified) {
 		this.uniqueidentified = uniqueidentified;
 
+	}
+
+	public <G extends DataObject<G> & SubtypecompanionInterface<G, E, F>> Class<G> getCompanionClass() {
+		return null;
+	}
+
+	public <G extends DataObject<G> & SubtypecompanionInterface<G, E, F>> G getCompanion(Class<G> classforcompanion) {
+		if (classforcompanion == null)
+			throw new RuntimeException("Companion class is null");
+		if (classforcompanion != getCompanionClass())
+			throw new RuntimeException("Incorrect companion class requested, requested " + classforcompanion
+					+ ", valid " + getCompanionClass());
+		
+		return null;
 	}
 
 }

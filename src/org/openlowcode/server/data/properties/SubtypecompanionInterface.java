@@ -24,6 +24,6 @@ import org.openlowcode.server.data.SimpleFieldChoiceDefinition;
 public interface SubtypecompanionInterface<
 E extends DataObject<E> & StoredobjectInterface<E>,
 G extends DataObject<G> & SubtypeInterface<G, F>,
-F extends SimpleFieldChoiceDefinition<F>> {
+F extends SimpleFieldChoiceDefinition<F>> extends StoredobjectInterface<E> {
 
 }

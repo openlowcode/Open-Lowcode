@@ -40,9 +40,13 @@ public class SubtypecompanionDefinition
 F extends DataObject<F> & SubtypeInterface<F, G>,
 G extends SimpleFieldChoiceDefinition<G>> extends DataObjectPropertyDefinition<E> {
 
+	@SuppressWarnings("unused")
 	private StoredobjectDefinition<E> storedobject;
+	@SuppressWarnings("unused")
 	private UniqueidentifiedDefinition<F> uniqueidentifiedformainboject;
+	@SuppressWarnings("unused")
 	private DataObjectDefinition<F> mainobjetforsubtype;
+	@SuppressWarnings("unused")
 	private SimpleFieldChoiceDefinition<G> subtypeschoicedefinition;
 
 	public SubtypecompanionDefinition(DataObjectDefinition<E> parentobject, String name) {

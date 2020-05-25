@@ -29,6 +29,7 @@ public class Subtypecompanion<
 		G extends DataObject<G> & SubtypeInterface<G, F>,
 		F extends SimpleFieldChoiceDefinition<F>> extends DataObjectProperty<E> {
 
+	@SuppressWarnings("unused")
 	private Storedobject<E> storedobject;
 
 	public Subtypecompanion(DataObjectPropertyDefinition<E> definition, DataObjectPayload parentpayload) {

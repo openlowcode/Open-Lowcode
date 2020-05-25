@@ -12,7 +12,6 @@ package org.openlowcode.server.data.properties;
 
 import java.util.ArrayList;
 
-import org.openlowcode.module.designer.data.Propertydef;
 import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
 import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
@@ -37,7 +36,9 @@ import org.openlowcode.server.data.storage.QueryCondition;
 public class SubtypeDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>,F extends SimpleFieldChoiceDefinition<F>>
 extends
 DataObjectPropertyDefinition<E> {
+	@SuppressWarnings("unused")
 	private SimpleFieldChoiceDefinition<F> subtypes;
+	@SuppressWarnings("unused")
 	private UniqueidentifiedDefinition<E> uniqueidentified;
 	public SubtypeDefinition(DataObjectDefinition<E> parentobject, SimpleFieldChoiceDefinition<F> subtypes) {
 		super(parentobject, "SUBTYPE");
@@ -56,6 +57,7 @@ DataObjectPropertyDefinition<E> {
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public FieldSchemaForDisplay[] setFieldSchemaToDisplay() {
 		// TODO Auto-generated method stub
