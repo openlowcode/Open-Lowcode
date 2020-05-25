@@ -53,6 +53,7 @@ public class UniqueIdentified
 	private HashMap<String, ArrayList<DynamicActionDefinition>> actionsonspecificmenu;
 	private ArrayList<String> specificmenus;
 	private StoredObject storedobject;
+	private HasId hasid;
 
 	public ArrayList<String> getSpecificMenuList() {
 		return this.specificmenus;
@@ -113,10 +114,23 @@ public class UniqueIdentified
 
 	@Override
 	public void controlAfterParentDefinition() {
+		// Manage StoredObject
 		this.storedobject = (StoredObject) parent.getPropertyByName("STOREDOBJECT");
-		if (this.storedobject == null)
-			throw new RuntimeException("UniqueIdentified is dependent on storedobject");
+		if (this.storedobject == null) {
+			this.storedobject = new StoredObject();
+			this.parent.addProperty(storedobject);
+		}
+			
 		this.addDependentProperty(storedobject);
+		// Manage HasId
+		this.hasid = (HasId) parent.getPropertyByName("HASID");
+		if (this.hasid == null) {
+			this.hasid = new HasId();
+			this.parent.addProperty(hasid);
+		}
+			
+		this.addDependentProperty(hasid);
+		
 		MethodAdditionalProcessing insertidgeneration = new MethodAdditionalProcessing(true,
 				storedobject.getDataAccessMethod("INSERT"));
 		this.addMethodAdditionalProcessing(insertidgeneration);
@@ -148,9 +162,7 @@ public class UniqueIdentified
 
 		// Field
 
-		StoredElement id = new ObjectIdStoredElement("ID", parent);
-		this.addElement(id, "Id", "technical identification", Property.FIELDDISPLAY_NORMAL, -50, 25);
-		this.addIndex(new Index("ID", id, true));
+
 	}
 
 	@Override
