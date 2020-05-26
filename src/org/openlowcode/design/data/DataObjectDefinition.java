@@ -820,6 +820,7 @@ public class DataObjectDefinition
 			boolean exception = false;
 			if (methodname.compareTo("setFinalSettings") == 0)
 				exception = true;
+			if (methodname.compareTo("addPropertyOnSameObject")==0) break;
 			@SuppressWarnings("rawtypes")
 			Class classstack;
 			try {
@@ -877,8 +878,13 @@ public class DataObjectDefinition
 			externalobject.addProperty(externalproperty);
 
 		}
+		
 	}
 
+	
+	
+	
+	
 	/**
 	 * adds a new property to the data object, removing it from the GUI, but still
 	 * keeping the data accessible for a migrator

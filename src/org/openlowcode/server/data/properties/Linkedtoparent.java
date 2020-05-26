@@ -156,7 +156,7 @@ public class Linkedtoparent<E extends DataObject<E> & UniqueidentifiedInterface<
 		if ((this.linkedtoparentdefinition.getReferenceObjectDefinition().hasProperty("NUMBERED"))
 				|| (this.linkedtoparentdefinition.getReferenceObjectDefinition().hasProperty("NAMED"))) {
 			if (oldparentid != null) {
-				F oldparent = UniqueidentifiedQueryHelper.get().readone(oldparentid, parentdefinition,
+				F oldparent = HasidQueryHelper.get().readone(oldparentid, parentdefinition,
 						linkedtoparentdefinition.getGenericsParentobjectforlinkProperty());
 				if (oldparent != null) {
 					buffer.append(" from");
@@ -171,7 +171,7 @@ public class Linkedtoparent<E extends DataObject<E> & UniqueidentifiedInterface<
 					}
 				}
 			}
-			F newparent = UniqueidentifiedQueryHelper.get().readone(newparentid, parentdefinition,
+			F newparent = HasidQueryHelper.get().readone(newparentid, parentdefinition,
 					linkedtoparentdefinition.getGenericsParentobjectforlinkProperty());
 			buffer.append(" to");
 			if (this.linkedtoparentdefinition.getReferenceObjectDefinition().hasProperty("NUMBERED")) {
@@ -216,7 +216,7 @@ public class Linkedtoparent<E extends DataObject<E> & UniqueidentifiedInterface<
 			return null;
 		if (this.pridfield.getPayload().length() == 0)
 			return null;
-		return UniqueidentifiedQueryHelper.get().readone(
+		return HasidQueryHelper.get().readone(
 				new DataObjectId<F>(this.pridfield.getPayload(), parentdefinition), parentdefinition,
 				linkedtoparentdefinition.getGenericsParentobjectforlinkProperty());
 	}

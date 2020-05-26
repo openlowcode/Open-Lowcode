@@ -22,12 +22,12 @@ import org.openlowcode.tools.messages.MessageWriter;
 import org.openlowcode.tools.misc.Named;
 import org.openlowcode.tools.misc.NamedInterface;
 import org.openlowcode.tools.misc.NamedList;
-
 import org.openlowcode.server.data.DataObjectPropertyDefinition.FieldSchemaForDisplay;
 import org.openlowcode.server.data.formula.DataUpdateTrigger;
 import org.openlowcode.server.data.properties.Autolinkobject;
 import org.openlowcode.server.data.properties.Computeddecimal;
 import org.openlowcode.server.data.properties.HasFlexibleDefinition;
+import org.openlowcode.server.data.properties.Hasid;
 import org.openlowcode.server.data.properties.Linkedfromchildren;
 import org.openlowcode.server.data.properties.Linkedtoparent;
 import org.openlowcode.server.data.properties.Linkobject;
@@ -296,11 +296,11 @@ public abstract class DataObject<E extends DataObject<E>> extends Named {
 		if (!numbered)
 			for (int i = 0; i < payload.getPropertyNumber(); i++) {
 				DataObjectProperty<E> property = this.payload.getPropertyAtIndex(i);
-				if (property instanceof Uniqueidentified) {
-					Uniqueidentified<E> uiproperty = (Uniqueidentified) property;
+				if (property instanceof Hasid) {
+					Hasid<E> hasidproperty = (Hasid) property;
 					if (id.length() > 0)
 						id.append(" ");
-					id.append(uiproperty.getId().getId());
+					id.append(hasidproperty.getId().getId());
 				}
 			}
 		return id.toString();

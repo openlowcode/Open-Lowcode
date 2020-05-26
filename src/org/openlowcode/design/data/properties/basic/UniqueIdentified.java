@@ -18,12 +18,9 @@ import org.openlowcode.design.action.DynamicActionDefinition;
 import org.openlowcode.design.data.ArgumentContent;
 import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
-import org.openlowcode.design.data.Index;
 import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.MethodArgument;
-import org.openlowcode.design.data.ObjectIdStoredElement;
 import org.openlowcode.design.data.Property;
-import org.openlowcode.design.data.StoredElement;
 import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
@@ -118,7 +115,7 @@ public class UniqueIdentified
 		this.storedobject = (StoredObject) parent.getPropertyByName("STOREDOBJECT");
 		if (this.storedobject == null) {
 			this.storedobject = new StoredObject();
-			this.parent.addProperty(storedobject);
+			this.addPropertyOnSameObject(storedobject);
 		}
 			
 		this.addDependentProperty(storedobject);
@@ -126,7 +123,7 @@ public class UniqueIdentified
 		this.hasid = (HasId) parent.getPropertyByName("HASID");
 		if (this.hasid == null) {
 			this.hasid = new HasId();
-			this.parent.addProperty(hasid);
+			this.addPropertyOnSameObject(hasid);
 		}
 			
 		this.addDependentProperty(hasid);

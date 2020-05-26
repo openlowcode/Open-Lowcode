@@ -41,7 +41,7 @@ import org.openlowcode.server.data.storage.StringStoredField;
  * @param <E> the data object used as autolink
  * @param <F> the data object being referenced by the autolink
  */
-public class AutolinkobjectDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>>
+public class AutolinkobjectDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & HasidInterface<F>>
 		extends DataObjectPropertyDefinition<E> {
 	private static Logger logger = Logger.getLogger(AutolinkobjectDefinition.class.getName());
 	private DataObjectDefinition<F> linkedobjectdefinition;
@@ -53,7 +53,7 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 	private boolean symetriclink;
 	private ArrayList<ConstraintOnAutolinkObject<F>> contrainstonautolinkobject;
 	private UniqueidentifiedDefinition<E> uniqueidentified;
-	private UniqueidentifiedDefinition<F> linkedobjectuniqueidentifieddefinition;
+	private HasidDefinition<F> linkedobjecthasiddefinition;
 	private DataObjectDefinition<E> linkobjectdefinition;
 
 	/**
@@ -363,22 +363,21 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 	 * sets the unique identified definition of the object being referenced by the
 	 * link
 	 * 
-	 * @param linkedobjectuniqueidentifieddefinition definition of the unique
-	 *                                               identified property of the data
+	 * @param linkedobjectuniqueidentifieddefinition definition of the hasid property of the data
 	 *                                               object referenced by the link
 	 */
-	public void setGenericsObjectforlinkProperty(UniqueidentifiedDefinition<F> linkedobjectuniqueidentifieddefinition) {
-		this.linkedobjectuniqueidentifieddefinition = linkedobjectuniqueidentifieddefinition;
+	public void setGenericsObjectforlinkProperty(HasidDefinition<F> linkedobjecthasiddefinition) {
+		this.linkedobjecthasiddefinition = linkedobjecthasiddefinition;
 
 	}
 
 	/**
-	 * gets the unique identified property of the linked object
+	 * gets the hasid property of the linked object
 	 * 
-	 * @return the unique identified property of the linked object
+	 * @return the hasid property of the linked object
 	 */
-	public UniqueidentifiedDefinition<F> getLinkedObjectUniqueIdentifiedDefinition() {
-		return this.linkedobjectuniqueidentifieddefinition;
+	public HasidDefinition<F> getLinkedObjectHasidDefinition() {
+		return this.linkedobjecthasiddefinition;
 	}
 
 	@Override

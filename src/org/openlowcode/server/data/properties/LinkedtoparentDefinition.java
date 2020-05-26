@@ -48,7 +48,7 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LinkedtoparentDefinition.class.getName());
 	private DataObjectDefinition<F> referenceobjectdefinition;
-	private UniqueidentifiedDefinition<F> uniqueidentifiedforparentobjectforlink;
+	private HasidDefinition<F> hasidforparentobjectforlink;
 	private UniqueidentifiedDefinition<E> uniqueidentifiedforthisobject;
 	private StringStoredField id;
 	private DisplayProfile<E> displayprofilehideparentfields;
@@ -211,24 +211,24 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 	}
 
 	/**
-	 * gets the unique identified property for the parent object
+	 * gets the hasid property for the parent object
 	 * 
-	 * @return unique identified property for the parent object
+	 * @return hasid property for the parent object
 	 */
-	public UniqueidentifiedDefinition<F> getGenericsParentobjectforlinkProperty() {
-		return this.uniqueidentifiedforparentobjectforlink;
+	public HasidDefinition<F> getGenericsParentobjectforlinkProperty() {
+		return this.hasidforparentobjectforlink;
 	}
 
 	/**
 	 * sets generic property unique identified for the parent object
 	 * 
-	 * @param uniqueidentifiedforparentobjectforlink generic property unique
+	 * @param hasidforparentobjectforlink generic property unique
 	 *                                               identified for the parent
 	 *                                               object
 	 */
 	public void setGenericsParentobjectforlinkProperty(
-			UniqueidentifiedDefinition<F> uniqueidentifiedforparentobjectforlink) {
-		this.uniqueidentifiedforparentobjectforlink = uniqueidentifiedforparentobjectforlink;
+			HasidDefinition<F> hasidforparentobjectforlink) {
+		this.hasidforparentobjectforlink = hasidforparentobjectforlink;
 
 	}
 

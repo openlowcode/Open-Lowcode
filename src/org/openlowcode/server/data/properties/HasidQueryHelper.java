@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -29,21 +29,22 @@ import org.openlowcode.server.data.storage.StoredFieldSchema;
 import org.openlowcode.server.data.storage.TableAlias;
 
 /**
- * Query helper to search for objects with a uniqueidentified property
+ * Query helper to search for objects with an hasid property
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
+ * @since 2.0
  *
  */
-public class UniqueidentifiedQueryHelper {
-	private static UniqueidentifiedQueryHelper singleton = new UniqueidentifiedQueryHelper();
+public class HasidQueryHelper {
+	private static HasidQueryHelper singleton = new HasidQueryHelper();
 	private static final int BATCH_QUERY_SIZE = 20;
 	private static final String BLANK_ID = "NEVERLAND";
 
 	/**
 	 * @return the singleton query helper
 	 */
-	public static UniqueidentifiedQueryHelper get() {
+	public static HasidQueryHelper get() {
 		return singleton;
 	}
 
@@ -57,7 +58,7 @@ public class UniqueidentifiedQueryHelper {
 	 */
 	public static <E extends DataObject<E>> QueryCondition getIdQueryCondition(TableAlias alias, String idvalue,
 			DataObjectDefinition<E> parentdefinition) {
-		UniqueidentifiedDefinition<E> definition = new UniqueidentifiedDefinition<E>(parentdefinition);
+		HasidDefinition<E> definition = new HasidDefinition<E>(parentdefinition);
 		@SuppressWarnings("unchecked")
 		StoredFieldSchema<String> id = (StoredFieldSchema<String>) definition.getDefinition().lookupOnName("ID");
 		if (alias == null)
@@ -74,13 +75,13 @@ public class UniqueidentifiedQueryHelper {
 	 * @return the object if found, null if nothing found
 	 */
 	public <E extends DataObject<E>> E readone(DataObjectId<E> id, DataObjectDefinition<E> definition,
-			UniqueidentifiedDefinition<E> propertydefinition) {
+			HasidDefinition<E> propertydefinition) {
 		NamedList<TableAlias> aliaslist = new NamedList<TableAlias>();
 		TableAlias alias = definition.getAlias("SINGLEOBJECT");
 		aliaslist.add(alias);
 		QueryCondition objectuniversalcondition = definition.getUniversalQueryCondition(propertydefinition,
 				"SINGLEOBJECT");
-		QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(alias, id.getId(),
+		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(alias, id.getId(),
 				definition);
 		QueryCondition finalcondition = uniqueidcondition;
 		if (objectuniversalcondition != null) {
@@ -117,9 +118,9 @@ public class UniqueidentifiedQueryHelper {
 	 *                           the object
 	 * @return the list of objects
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E>> E[] readseveralpotentialexisting(
+	public <E extends DataObject<E> & HasidInterface<E>> E[] readseveralpotentialexisting(
 			DataObjectId<E>[] id, DataObjectDefinition<E> definition,
-			UniqueidentifiedDefinition<E> propertydefinition) {
+			HasidDefinition<E> propertydefinition) {
 		return readseveral(id, definition, propertydefinition, false);
 	}
 
@@ -135,8 +136,8 @@ public class UniqueidentifiedQueryHelper {
 	 * @return an array of objects corresponding to the provided ids in the order of
 	 *         the ids provided
 	 */
-	private <E extends DataObject<E> & UniqueidentifiedInterface<E>> E[] readseveral(DataObjectId<E>[] id,
-			DataObjectDefinition<E> definition, UniqueidentifiedDefinition<E> propertydefinition,
+	private <E extends DataObject<E> & HasidInterface<E>> E[] readseveral(DataObjectId<E>[] id,
+			DataObjectDefinition<E> definition, HasidDefinition<E> propertydefinition,
 			boolean blowifabsent) {
 		ArrayList<E> results = new ArrayList<E>();
 		HashMap<String, E> resultsbyid = new HashMap<String, E>();
@@ -153,12 +154,12 @@ public class UniqueidentifiedQueryHelper {
 			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
 				QueryCondition thisuniqueidcondition = null;
 				if (j < id.length) {
-					thisuniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(alias, id[j].getId(),
+					thisuniqueidcondition = HasidQueryHelper.getIdQueryCondition(alias, id[j].getId(),
 							definition);
 				} else {
 					// all queries will have batch size conditions. If not enough id, a blank id is
 					// used
-					thisuniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(alias, BLANK_ID,
+					thisuniqueidcondition = HasidQueryHelper.getIdQueryCondition(alias, BLANK_ID,
 							definition);
 				}
 				uniqueidcondition.addCondition(thisuniqueidcondition);
@@ -198,8 +199,8 @@ public class UniqueidentifiedQueryHelper {
 	 *                           the object
 	 * @return the list of objects
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E>> E[] readseveral(DataObjectId<E>[] id,
-			DataObjectDefinition<E> definition, UniqueidentifiedDefinition<E> propertydefinition) {
+	public <E extends DataObject<E> & HasidInterface<E>> E[] readseveral(DataObjectId<E>[] id,
+			DataObjectDefinition<E> definition, HasidDefinition<E> propertydefinition) {
 		return readseveral(id, definition, propertydefinition, true);
 	}
 

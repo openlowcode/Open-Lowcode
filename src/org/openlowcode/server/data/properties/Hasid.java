@@ -62,4 +62,11 @@ public class Hasid<E extends DataObject<E>>
 
 	}
 
+	/**
+	 * @return the Hasid property definition
+	 */
+	public HasidDefinition<E> getDefinition() {
+		return hasiddefinition;
+	}
+
 }

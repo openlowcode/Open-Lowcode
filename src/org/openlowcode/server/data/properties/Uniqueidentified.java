@@ -109,7 +109,7 @@ public class Uniqueidentified<E extends DataObject<E>>
 			Uniqueidentified<E> uniqueidentified = uniqueidentifiedbatch[i];
 			QueryCondition objectuniversalcondition = uniqueidentified.definition.getParentObject()
 					.getUniversalQueryCondition(uniqueidentified.definition, null);
-			QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(null,
+			QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null,
 					uniqueidentified.getRelatedHasid().getId().getId(), uniqueidentified.definition.getParentObject());
 			QueryCondition finalcondition = uniqueidcondition;
 			if (objectuniversalcondition != null) {
@@ -130,7 +130,7 @@ public class Uniqueidentified<E extends DataObject<E>>
 	public void update(E object) {
 		QueryCondition objectuniversalcondition = definition.getParentObject().getUniversalQueryCondition(definition,
 				null);
-		QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(null,
+		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null,
 				this.hasid.getId().getId(), definition.getParentObject());
 		QueryCondition finalcondition = uniqueidcondition;
 		if (objectuniversalcondition != null) {
@@ -154,7 +154,7 @@ public class Uniqueidentified<E extends DataObject<E>>
 	public void refresh(E object) {
 		QueryCondition objectuniversalcondition = definition.getParentObject().getUniversalQueryCondition(definition,
 				null);
-		QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(null,
+		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null,
 				this.hasid.getId().getId(), definition.getParentObject());
 		QueryCondition finalcondition = uniqueidcondition;
 		if (objectuniversalcondition != null) {
@@ -223,7 +223,7 @@ public class Uniqueidentified<E extends DataObject<E>>
 				"DELETING OBJECT ID=" + this.hasid.getId().getId() + ", " + this.parentpayload.dropPayloadObjectList());
 		QueryCondition objectuniversalcondition = definition.getParentObject().getUniversalQueryCondition(definition,
 				null);
-		QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(null,
+		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null,
 				this.hasid.getId().getId(), definition.getParentObject());
 		QueryCondition finalcondition = uniqueidcondition;
 		if (objectuniversalcondition != null) {
@@ -312,7 +312,7 @@ public class Uniqueidentified<E extends DataObject<E>>
 			}
 			QueryCondition objectuniversalcondition = uniqueidentified.definition.getParentObject()
 					.getUniversalQueryCondition(uniqueidentified.definition, null);
-			QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(null,
+			QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null,
 					uniqueidentified.getRelatedHasid().getId().getId(), uniqueidentified.definition.getParentObject());
 			QueryCondition finalcondition = uniqueidcondition;
 			if (objectuniversalcondition != null) {

@@ -80,7 +80,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 		if ((this.casteddefinition.getRightobjectdef().hasProperty("NUMBERED"))
 				|| (this.casteddefinition.getRightobjectdef().hasProperty("NAMED"))) {
 			DataObjectId<G> rightobjectid = linkobject.getRgid();
-			G rightobject = UniqueidentifiedQueryHelper.get().readone(rightobjectid,
+			G rightobject = HasidQueryHelper.get().readone(rightobjectid,
 					casteddefinition.getRightobjectdef(), casteddefinition.getRightObjectUniqueidentified());
 			if (rightobject == null) {
 				updatenote.append(" flat file loader with object not yet loaded");
@@ -131,7 +131,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 					.toArray(rightobjectdefinition.generateIdArrayTemplate());
 			UniqueidentifiedDefinition<G> rightuidefinition = (UniqueidentifiedDefinition<G>) rightobjectdefinition
 					.getProperty("UNIQUEIDENTIFIED");
-			G[] rightobjects = UniqueidentifiedQueryHelper.get().readseveral(rightobjectidarray, rightobjectdefinition,
+			G[] rightobjects = HasidQueryHelper.get().readseveral(rightobjectidarray, rightobjectdefinition,
 					rightuidefinition);
 			for (int i = 0; i < rightobjects.length; i++) {
 				G rightobject = rightobjects[i];
@@ -166,7 +166,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 	 */
 	public void preprocStoredobjectInsert(E object) {
 		DataObjectId<F> leftobjectid = object.getLfid();
-		F leftobject = UniqueidentifiedQueryHelper.get().readone(leftobjectid,
+		F leftobject = HasidQueryHelper.get().readone(leftobjectid,
 				casteddefinition.getLeftiteratedobjectdef(),
 				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition());
 		if (leftobject.getDefinitionFromObject().hasProperty("ITERATED")) {
@@ -190,12 +190,12 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 	 */
 	public void commonpreprocForDeleteAndUpdate(DataObjectDefinition<E> definition, E object, String updatenote) {
 		DataObjectId<F> leftobjectid = object.getLfid();
-		F leftobject = UniqueidentifiedQueryHelper.get().readone(leftobjectid,
+		F leftobject = HasidQueryHelper.get().readone(leftobjectid,
 				casteddefinition.getLeftiteratedobjectdef(),
 				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition());
 		// get old iteration of link and close it;
 		DataObjectId<E> objectid = object.getId();
-		E oldobject = UniqueidentifiedQueryHelper.get().readone(objectid, definition,
+		E oldobject = HasidQueryHelper.get().readone(objectid, definition,
 				casteddefinition.getLinkobject().getUniqueidentifiedDefinitionForLinkObject());
 		oldobject.archivethisiteration(leftobject.getIteration());
 		if (leftobject.getDefinitionFromObject().hasProperty("ITERATED")) {
@@ -305,7 +305,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 		DataObjectId<F>[] leftobjectidarray = leftobjectids.toArray(leftobjectdefinition.generateIdArrayTemplate());
 		UniqueidentifiedDefinition<F> leftuidefinition = (UniqueidentifiedDefinition<F>) leftobjectdefinition
 				.getProperty("UNIQUEIDENTIFIED");
-		F[] leftobjects = UniqueidentifiedQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
+		F[] leftobjects = HasidQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
 				leftuidefinition);
 
 		// 1 - A put old parent iteration in the last iter
@@ -313,7 +313,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 		DataObjectId<E>[] objectidarray = objectids.toArray(definition.generateIdArrayTemplate());
 		UniqueidentifiedDefinition<E> uidefinition = (UniqueidentifiedDefinition<E>) definition
 				.getProperty("UNIQUEIDENTIFIED");
-		E[] oldobjects = UniqueidentifiedQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
+		E[] oldobjects = HasidQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
 		DataObjectPayload[] oldpayloads = new DataObjectPayload[oldobjects.length];
 		for (int i = 0; i < oldobjects.length; i++) {
 			Iteratedlink<E, F, G> iteratedlinkforold = oldobjects[i].getPropertyForObject(preprociteratedlinkbatch[0]);
@@ -365,7 +365,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 		UniqueidentifiedDefinition<F> leftuidefinition = (UniqueidentifiedDefinition<F>) leftobjectdefinition
 				.getProperty("UNIQUEIDENTIFIED");
 
-		F[] leftobjects = UniqueidentifiedQueryHelper.get().readseveralpotentialexisting(leftobjectidarray,
+		F[] leftobjects = HasidQueryHelper.get().readseveralpotentialexisting(leftobjectidarray,
 				leftobjectdefinition, leftuidefinition);
 		boolean hasobjects = false;
 		// this may need to be improved as it manages correctly
@@ -381,7 +381,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 			DataObjectId<E>[] objectidarray = objectids.toArray(definition.generateIdArrayTemplate());
 			UniqueidentifiedDefinition<E> uidefinition = (UniqueidentifiedDefinition<E>) definition
 					.getProperty("UNIQUEIDENTIFIED");
-			E[] oldobjects = UniqueidentifiedQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
+			E[] oldobjects = HasidQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
 			DataObjectPayload[] oldpayloads = new DataObjectPayload[oldobjects.length];
 			for (int i = 0; i < oldobjects.length; i++) {
 				Iteratedlink<E, F, G> iteratedlinkforold = oldobjects[i]
@@ -436,7 +436,7 @@ public class Iteratedlink<E extends DataObject<E> & LinkobjectInterface<E, F, G>
 						.toArray(leftobjectdefinition.generateIdArrayTemplate());
 				UniqueidentifiedDefinition<F> leftuidefinition = (UniqueidentifiedDefinition<F>) leftobjectdefinition
 						.getProperty("UNIQUEIDENTIFIED");
-				F[] leftobjects = UniqueidentifiedQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
+				F[] leftobjects = HasidQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
 						leftuidefinition);
 				// 2 - generate update note (with access on right object to massify
 				if (leftobjectdefinition.hasProperty("ITERATED")) {

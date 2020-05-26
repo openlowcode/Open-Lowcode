@@ -130,6 +130,16 @@ public abstract class Property<E extends Property<E>>
 	}
 
 	/**
+	 * This method allows a property to add another property on the same object.
+	 * This is authorized only when the property is on the same objet
+	 * 
+	 * @param propertyonsameobject the property to add on same object
+	 */
+	protected void addPropertyOnSameObject(Property<?> propertyonsameobject) {
+		this.parent.addProperty(propertyonsameobject);
+	}
+
+	/**
 	 * @return the number of external object properties
 	 */
 	public int getExternalObjectPropertySize() {

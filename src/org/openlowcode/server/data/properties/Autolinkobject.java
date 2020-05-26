@@ -29,7 +29,7 @@ import org.openlowcode.server.data.storage.StoredField;
  * @param <E> the data object used as autolink
  * @param <F> the data object being referenced by the autolink
  */
-public class Autolinkobject<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>> extends DataObjectProperty<E> {
+public class Autolinkobject<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & HasidInterface<F>> extends DataObjectProperty<E> {
 	private static Logger logger = Logger.getLogger(Autolinkobject.class.getName());
 	private StoredField<String> lfid;
 	private StoredField<String> rgid;
