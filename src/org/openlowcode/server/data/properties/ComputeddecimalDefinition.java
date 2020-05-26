@@ -35,11 +35,14 @@ import org.openlowcode.server.graphic.widget.SDecimalFormatter;
  *
  * @param <E> parent data object
  */
-public class ComputeddecimalDefinition<E extends DataObject<E>> extends DataObjectPropertyDefinition<E> {
+public class ComputeddecimalDefinition<E extends DataObject<E>>
+		extends
+		DataObjectPropertyDefinition<E> {
 	private DecimalStoredField computedValue;
 	private String label;
 	private Formula<E> formula;
 	private SDecimalFormatter formatter;
+	private int priority;
 
 	public Formula<E> getFormula() {
 		return this.formula;
@@ -58,15 +61,24 @@ public class ComputeddecimalDefinition<E extends DataObject<E>> extends DataObje
 	 *                     digits after comma)
 	 * @param formula      the formula to compute the decimal
 	 * @param formatter    formatter of the decimal field
+	 * @param priority     priority for the display field (between -1000 and 1000)
 	 */
-	public ComputeddecimalDefinition(DataObjectDefinition<E> parentobject, String name, String label, int precision,
-			int scale, Formula<E> formula, SDecimalFormatter formatter) {
+	public ComputeddecimalDefinition(
+			DataObjectDefinition<E> parentobject,
+			String name,
+			String label,
+			int precision,
+			int scale,
+			Formula<E> formula,
+			SDecimalFormatter formatter,
+			int priority) {
 		super(parentobject, name);
 		computedValue = new DecimalStoredField(this.getName().toUpperCase(), null, precision, scale);
 		this.addFieldSchema(computedValue);
 		this.label = label;
 		this.formula = formula;
 		this.formatter = formatter;
+		this.priority = priority;
 	}
 
 	@Override
@@ -85,17 +97,19 @@ public class ComputeddecimalDefinition<E extends DataObject<E>> extends DataObje
 		FieldSchemaForDisplay<E>[] returnvalue = new FieldSchemaForDisplay[1];
 		if (formatter == null)
 			returnvalue[0] = new FieldSchemaForDisplay<E>(label, "Calculated field for " + label, computedValue, false,
-					false, 100, 20, this.parentobject);
+					false, priority, 20, this.parentobject);
 		if (formatter != null)
 			returnvalue[0] = new FieldSchemaForDisplay<E>(label, "Calculated field for " + label, computedValue,
-					formatter, false, false, 100, 20, this.parentobject);
+					formatter, false, false, priority, 20, this.parentobject);
 
 		return returnvalue;
 	}
 
 	@Override
-	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
-			String[] columnattributes, PropertyExtractor<E> propertyextractor,
+	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
+			DataObjectDefinition<E> objectdefinition,
+			String[] columnattributes,
+			PropertyExtractor<E> propertyextractor,
 			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		throw new RuntimeException("Not yet implemented");
 	}

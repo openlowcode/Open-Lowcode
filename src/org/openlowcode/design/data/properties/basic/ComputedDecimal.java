@@ -43,9 +43,11 @@ public class ComputedDecimal
 	private int precision;
 	private int scale;
 	private String fieldlabel;
+	private int priority;
 
+	
 	/**
-	 * creates a computed decimal field with a formatter
+	 * creates a computed decimal field with a formatter with default priority for display
 	 * 
 	 * @param name             name of the field (should be valid java attribute
 	 *                         name)
@@ -66,12 +68,40 @@ public class ComputedDecimal
 			int scale,
 			FormulaDefinitionElement formula,
 			DecimalFormatter decimalformatter) {
+		this(name,fieldlabel,precision,scale,formula,decimalformatter,100);
+	}
+	
+	/**
+	 * creates a computed decimal field with a formatter
+	 * 
+	 * @param name             name of the field (should be valid java attribute
+	 *                         name)
+	 * @param fieldlabel       label in default language
+	 * 
+	 * @param precision        (digits to the right of decimal point (e.g. 533.33
+	 *                         has precision on 2)
+	 * @param scale            total number of digits of the number (e.g. 533.33 is
+	 *                         5 digits)
+	 * @param formula          formula to calculate the field value
+	 * @param decimalformatter formatter for the field (if graphical display is
+	 *                         expected)
+	 * @param priority         priority for the field display
+	 */
+	public ComputedDecimal(
+			String name,
+			String fieldlabel,
+			int precision,
+			int scale,
+			FormulaDefinitionElement formula,
+			DecimalFormatter decimalformatter,
+			int priority) {
 		super(name, "COMPUTEDDECIMAL");
 		this.formula = formula;
 		this.decimalformatter = decimalformatter;
 		this.precision = precision;
 		this.scale = scale;
 		this.fieldlabel = fieldlabel;
+		this.priority = priority;
 	}
 
 	@Override
@@ -88,7 +118,7 @@ public class ComputedDecimal
 		this.setExtraAttributes(",\"" + fieldlabel.replace("\"", "\\\"") + "\"," + precision + "," + scale
 				+ ",new Formula(" + StringFormatter.formatForJavaClass(parent.getName()) + ".getComputeddecimalfor"
 				+ this.getInstancename().toLowerCase() + "Extractor()," + formula.generateFormulaElement() + "),"
-				+ (decimalformatter != null ? decimalformatter.generateDefinition() : "null"));
+				+ (decimalformatter != null ? decimalformatter.generateDefinition() : "null")+","+priority);
 		alltriggers = new ArrayList<CalculatedFieldTriggerPath>();
 		formula.setTriggersOnSourceFields(new CalculatedFieldTriggerPath(this));
 
@@ -97,15 +127,14 @@ public class ComputedDecimal
 	/**
 	 * creates a computed decimal field without a formatter
 	 * 
-	 * @param name             name of the field (should be valid java attribute
-	 *                         name)
-	 * @param fieldlabel       label in default language
+	 * @param name       name of the field (should be valid java attribute name)
+	 * @param fieldlabel label in default language
 	 * 
-	 * @param precision        (digits to the right of decimal point (e.g. 533.33
-	 *                         has precision on 2)
-	 * @param scale            total number of digits of the number (e.g. 533.33 is
-	 *                         5 digits)
-	 * @param formula          formula to calculate the field value
+	 * @param precision  (digits to the right of decimal point (e.g. 533.33 has
+	 *                   precision on 2)
+	 * @param scale      total number of digits of the number (e.g. 533.33 is 5
+	 *                   digits)
+	 * @param formula    formula to calculate the field value
 	 */
 	public ComputedDecimal(String name, String fieldlabel, int precision, int scale, FormulaDefinitionElement formula) {
 		this(name, fieldlabel, precision, scale, formula, null);
