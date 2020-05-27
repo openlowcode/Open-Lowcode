@@ -40,7 +40,7 @@ public class TimePeriodDataElt extends SimpleDataElt {
 
 	@Override
 	public String defaultTextRepresentation() {
-		return payload.toString();
+		return (payload!=null?payload.toString():"[TimePeriod not set]");
 	}
 
 	@Override
