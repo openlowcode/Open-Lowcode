@@ -44,5 +44,10 @@ public class TriggerConditionCreate<E extends DataObject<E> & UniqueidentifiedIn
 	public boolean executeBeforeDelete() {
 		return false;
 	}
+
+	@Override
+	public boolean executeBeforeUpdate() {
+		return false;
+	}
 	
 }

@@ -66,6 +66,11 @@ public class Trigger
 		MethodAdditionalProcessing triggeronupdate = new MethodAdditionalProcessing(false,
 				uniqueidentified.getDataAccessMethod("UPDATE"));
 		this.addMethodAdditionalProcessing(triggeronupdate);
+
+		MethodAdditionalProcessing triggerbeforeupdate = new MethodAdditionalProcessing(true,
+				uniqueidentified.getDataAccessMethod("UPDATE"));
+		this.addMethodAdditionalProcessing(triggerbeforeupdate);
+
 		MethodAdditionalProcessing triggerondelete = new MethodAdditionalProcessing(true,
 				uniqueidentified.getDataAccessMethod("DELETE"));
 		this.addMethodAdditionalProcessing(triggerondelete);

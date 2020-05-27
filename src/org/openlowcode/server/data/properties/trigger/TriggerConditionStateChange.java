@@ -65,5 +65,8 @@ public class TriggerConditionStateChange<E extends DataObject<E> & Uniqueidentif
 
 		return false;
 	}
-
+	@Override
+	public boolean executeBeforeUpdate() {
+		return false;
+	}
 }

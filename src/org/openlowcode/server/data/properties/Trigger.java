@@ -70,6 +70,19 @@ public class Trigger<E extends DataObject<E> & UniqueidentifiedInterface<E>> ext
 	}
 
 	/**
+	 * pre-processing the object before object update
+	 * 
+	 * @param object the object
+	 * 
+	 * @since 1.7
+	 */
+	public void  preprocUniqueidentifiedUpdate(E object) {
+		if (triggerdefinition.getTriggerCondition().executeBeforeUpdate()) {
+			processTriggerNow(object);
+		}
+	}
+	
+	/**
 	 * post-processing after object delete
 	 * 
 	 * @param object the object
@@ -154,6 +167,21 @@ public class Trigger<E extends DataObject<E> & UniqueidentifiedInterface<E>> ext
 		for (int i = 0; i < triggerbatch.length; i++)
 			triggerbatch[i].postprocUniqueidentifiedUpdate(objectbatch[i]);
 	}
+	
+	/**
+	 * massive pre-processing of update
+	 * 
+	 * @param objectbatch  object batch
+	 * @param triggerbatch trigger batch
+	 * @since 1.7
+	 */
+	public static <E extends DataObject<E> & UniqueidentifiedInterface<E>> void preprocUniqueidentifiedUpdate(
+			E[] objectbatch, Trigger<E>[] triggerbatch) {
+		logger.warning("----------- Not optimized for massive treatment --------------------");
+		for (int i = 0; i < triggerbatch.length; i++)
+			triggerbatch[i].preprocUniqueidentifiedUpdate(objectbatch[i]);
+	}
+	
 
 	/**
 	 * massive post-processing of insert
@@ -175,6 +203,7 @@ public class Trigger<E extends DataObject<E> & UniqueidentifiedInterface<E>> ext
 	 * @param object the object on which to execute the trigger
 	 */
 	private void processTriggerImmediately(E object) {
+		logger.severe("   --> Process Trigger Immediately");
 		CustomTriggerExecution<E> trigger = triggerdefinition.getTriggerExecution().generate();
 		trigger.compute(object);
 	}
@@ -194,6 +223,17 @@ public class Trigger<E extends DataObject<E> & UniqueidentifiedInterface<E>> ext
 				.addTriggerToList(new TriggerToExecute<E>(triggerdefinition.getTriggerExecution().generate(), object));
 	}
 
+	/**
+	 * Executes immediately the trigger
+	 * 
+	 * @param object the object on which to execute the trigger
+	 * @since 1.7
+	 */
+	private void processTriggerNow(E object) {
+		triggerdefinition.getTriggerExecution().generate().execute(object);
+		
+	}
+	
 	/**
 	 * sets dependent property unique identified
 	 * 

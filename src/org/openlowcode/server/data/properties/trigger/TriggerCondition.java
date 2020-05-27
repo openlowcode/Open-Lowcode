@@ -45,4 +45,10 @@ public abstract class TriggerCondition<E extends DataObject<E> & Uniqueidentifie
 	 */
 	public abstract boolean executeOnStateChange(ChoiceValue<?> newstate);
 
+	/**
+	 * @return true if the trigger should be executed before object update
+	 * @since 1.7
+	 */
+	public abstract boolean executeBeforeUpdate();
+	
 }

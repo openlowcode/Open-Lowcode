@@ -15,16 +15,16 @@ import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
 
 /**
- * a trigger condition that is triggered when object is deleted
+ * This trigger will execute before persistence during an update.
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
+ * @since 1.7
  *
- * @param <E> data object the condition is created on
  */
-public class TriggerConditionDelete<E extends DataObject<E> & UniqueidentifiedInterface<E>>
-		extends TriggerCondition<E> {
-
+public class TriggerConditionBeforeUpdate<E extends DataObject<E> & UniqueidentifiedInterface<E>>
+		extends
+		TriggerCondition<E> {
 	@Override
 	public boolean executeOnInsert() {
 		return false;
@@ -36,17 +36,18 @@ public class TriggerConditionDelete<E extends DataObject<E> & UniqueidentifiedIn
 	}
 
 	@Override
-	public boolean executeBeforeDelete() {
-		return true;
+	public boolean executeOnStateChange(ChoiceValue<?> newstate) {
+
+		return false;
 	}
 
 	@Override
-	public boolean executeOnStateChange(ChoiceValue<?> newstate) {
+	public boolean executeBeforeDelete() {
 
 		return false;
 	}
 	@Override
 	public boolean executeBeforeUpdate() {
-		return false;
+		return true;
 	}
 }

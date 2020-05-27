@@ -46,5 +46,8 @@ public class TriggerConditionCreateUpdate<E extends DataObject<E> & Uniqueidenti
 
 		return false;
 	}
-
+	@Override
+	public boolean executeBeforeUpdate() {
+		return false;
+	}
 }
