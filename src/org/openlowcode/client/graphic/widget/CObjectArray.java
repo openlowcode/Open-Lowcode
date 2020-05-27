@@ -495,12 +495,10 @@ public class CObjectArray
 
 		@Override
 		public void handle(MouseEvent mouseevent) {
-			logger.warning("  ----> Mouse Event detected inside Object array ");
-			if (mouseevent.getClickCount() == 2 && mouseevent.isShiftDown()) {
-
-				thisobjectarray.copyTableToClipboard(false);
-			}
-			if (!mouseevent.isShiftDown())
+			logger.fine("  ----> Mouse Event detected inside Object array ");
+			
+			// only transmit click if double click, single click stays local
+			if (!mouseevent.isShiftDown()) if (mouseevent.getClickCount()>1)
 				if (isregisteredaction)
 					if (thisobjectarray.thistable.getSelectionModel().getSelectedItem() != null) {
 						logger.severe(" --> launching handling of event");
@@ -547,24 +545,7 @@ public class CObjectArray
 			MouseButton button = event.getButton();
 
 			if (button == MouseButton.PRIMARY) {
-				if (event.getClickCount() == 1 && (event.isShiftDown())) {
-
-					if (!thisobjectarray.updatemodeactive) { // currently, table in read mode, move to
-						logger.fine("moving tableview " + thisobjectarray.name + " to update mode");
-						thisobjectarray.thistable.setEditable(true);
-						thisobjectarray.thistable.getSelectionModel().setCellSelectionEnabled(true);
-						thisobjectarray.thistable.setBackground(thisobjectarray.editablebackground);
-						thisobjectarray.updatemodeactive = true;
-						thisobjectarray.startupdate.setDisable(true);
-						thisobjectarray.commitupdate.setDisable(false);
-
-					} else { // currently, table in update mode, update all changed rows and move back to
-								// read-only
-
-						thisobjectarray.launchupdate(null, event);
-
-					}
-				}
+			
 				if (event.getClickCount() == 1 && (!event.isShiftDown())) {
 					if (thisobjectarray.thistable.getEditingCell() == null) {
 						@SuppressWarnings("unchecked")
@@ -577,7 +558,7 @@ public class CObjectArray
 					}
 				}
 				// checking that something is actually selecting when double-clicking.
-				if ((event.getClickCount() > 1) || (event.getClickCount() == 1 && event.isControlDown()))
+				if (event.getClickCount() > 1)
 					if (thisobjectarray.thistable.getSelectionModel().getSelectedItem() != null) {
 						// trigger the action on double click only if updatemode is not active
 						if (!thisobjectarray.updatemodeactive) {
@@ -682,6 +663,7 @@ public class CObjectArray
 				thistable.setBackground(editablebackground);
 
 			} else {
+				thistable.getSelectionModel().setCellSelectionEnabled(false);
 				startupdate.setDisable(false);
 				commitupdate.setDisable(true);
 
