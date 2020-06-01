@@ -31,7 +31,6 @@ import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.tools.misc.NamedList;
 
-
 /**
  * This property is added to objects that are parents for a parent to child
  * relation
@@ -244,7 +243,7 @@ public class LinkedFromChildren
 					for (int j = 0; j < linkedfromchildren.getParent().getPropertySize(); j++) {
 						Property<?> thisproperty = linkedfromchildren.getParent().getPropertyAt(j);
 						boolean done = false;
-						sg.wl("      // item "+j );
+						sg.wl("      // item " + j);
 						if (thisproperty instanceof LinkedFromChildren) {
 							LinkedFromChildren thislinkedfromchildren = (LinkedFromChildren) thisproperty;
 							if (thislinkedfromchildren.getName().compareTo(linkedfromchildren.getName()) == 0) {
@@ -258,19 +257,18 @@ public class LinkedFromChildren
 
 						}
 						// not clear if needed, see github issue #26
-						
+
 						if (!done) {
 							for (int k = 0; k < thisproperty.getContextDataForCreationSize(); k++) {
 								// treats specific case of recursive linked to parent
 								boolean exception = false;
-								if (thisproperty instanceof LinkedToParent) 
+								if (thisproperty instanceof LinkedToParent)
 									exception = true;
-								
+
 								if (!exception)
-								sg.wl("		create"
-										+ childclassattribute + "withparentaction.set" + StringFormatter
-												.formatForJavaClass(thisproperty.getContextDataForCreation(k).getName())
-										+ "();");
+									sg.wl("		create" + childclassattribute + "withparentaction.set" + StringFormatter
+											.formatForJavaClass(thisproperty.getContextDataForCreation(k).getName())
+											+ "();");
 
 							}
 						}
@@ -397,8 +395,8 @@ public class LinkedFromChildren
 							sg.wl("		SPopupButton exportchildrenfor" + linknameshortname
 									+ "popupbutton = new SPopupButton(this, exportchildrenfor" + linknameshortname
 									+ "popup, \"Export Loadable File\", \"\");");
-							sg.wl("		childrenactionbandfor" + childclassattribute + ".addElement(exportchildrenfor" + linknameshortname
-									+ "popupbutton);			");
+							sg.wl("		childrenactionbandfor" + childclassattribute + ".addElement(exportchildrenfor"
+									+ linknameshortname + "popupbutton);			");
 
 						}
 						sg.wl("		SFileDownloader exportchildrenfor" + linknameshortname
@@ -496,7 +494,7 @@ public class LinkedFromChildren
 				sg.wl("");
 				sg.wl("		// ------------------------------------------------------------------------------------------");
 				sg.wl("		// Display all children objects of type " + childclassname + " in " + objectclass
-						+ " as GRID-, reverse = "+LinkedFromChildren.this.reversetree);
+						+ " as GRID-, reverse = " + LinkedFromChildren.this.reversetree);
 				sg.wl("		// ------------------------------------------------------------------------------------------");
 				sg.wl("");
 
@@ -546,23 +544,26 @@ public class LinkedFromChildren
 					sg.wl("				" + linknameattribute + "values,");
 				}
 				sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition());");
-				
+
 				// ------------------- Reverse tree display
-				
+
 				if (LinkedFromChildren.this.reversetree) {
 					StringBuffer readonlyfields = new StringBuffer();
-					for (int i=0;i<LinkedFromChildren.this.infofieldforreverseshow.length;i++) {
+					for (int i = 0; i < LinkedFromChildren.this.infofieldforreverseshow.length; i++) {
 						String field = LinkedFromChildren.this.infofieldforreverseshow[i];
-						if (i>0) readonlyfields.append(',');
-						readonlyfields.append(childclassname+".get"+StringFormatter.formatForJavaClass(field)+"FieldMarker()");
-						
+						if (i > 0)
+							readonlyfields.append(',');
+						readonlyfields.append(
+								childclassname + ".get" + StringFormatter.formatForJavaClass(field) + "FieldMarker()");
+
 					}
 					StringBuffer readonlyfieldsexceptions = new StringBuffer();
-					if (LinkedFromChildren.this.exceptionsforinfofieldconsolidation!=null)
-						for (int i=0;i<LinkedFromChildren.this.exceptionsforinfofieldconsolidation.length;i++) {
+					if (LinkedFromChildren.this.exceptionsforinfofieldconsolidation != null)
+						for (int i = 0; i < LinkedFromChildren.this.exceptionsforinfofieldconsolidation.length; i++) {
 							String exception = LinkedFromChildren.this.exceptionsforinfofieldconsolidation[i];
-							if (i>0) readonlyfieldsexceptions.append(',');
-							if (exception==null) {
+							if (i > 0)
+								readonlyfieldsexceptions.append(',');
+							if (exception == null) {
 								readonlyfieldsexceptions.append("null");
 							} else {
 								readonlyfieldsexceptions.append("\"");
@@ -570,13 +571,13 @@ public class LinkedFromChildren
 								readonlyfieldsexceptions.append("\"");
 							}
 						}
-					sg.wl("		" + linknameattribute + "grid.setReverseTree((DataObjectFieldMarker<" + childclassname + ">[])");
-					sg.wl("				(new DataObjectFieldMarker<?>[] {"+readonlyfields+"}),new String[]{"+readonlyfieldsexceptions.toString()+"});");
-					
-					
-					
+					sg.wl("		" + linknameattribute + "grid.setReverseTree((DataObjectFieldMarker<" + childclassname
+							+ ">[])");
+					sg.wl("				(new DataObjectFieldMarker<?>[] {" + readonlyfields + "}),new String[]{"
+							+ readonlyfieldsexceptions.toString() + "});");
+
 				}
-				
+
 				sg.w("		" + linknameattribute + "grid.setWarningForUnsavedEdition();");
 				sg.wl("");
 				sg.wl("		massupdate" + linknameattribute + ".set" + childclassname + "(" + linknameattribute
@@ -735,9 +736,26 @@ public class LinkedFromChildren
 		this.columndisplayforgrid = columndisplayforgrid;
 		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
 		this.cellfieldsforgrid = cellfieldsforgrid;
-		this.reversetree=false;
+		this.reversetree = false;
 	}
 
+	/**
+	 * Creates a Linked From Children with reverse grid (editable tree table)
+	 * 
+	 * @param name                                unique name amongst linked from
+	 *                                            children property of this object
+	 * @param childobjectforlink                  definition of the child object
+	 * @param originobjectproperty                LinkedToParent property on the
+	 *                                            child object
+	 * @param linedisplayforgrid                  the column used for line display
+	 * @param columndisplayforgrid                the column used for column display
+	 * @param secondarycolumndisplayforgrid       the column used for secondary
+	 *                                            column
+	 * @param cellfieldsforgrid                   field displayed as main value
+	 * @param infofieldforreverseshow             list of info fields shown
+	 * @param exceptionsforinfofieldconsolidation exception values to avoid
+	 *                                            consolidating in info fields
+	 */
 	public LinkedFromChildren(
 			String name,
 			DataObjectDefinition childobjectforlink,
@@ -748,9 +766,44 @@ public class LinkedFromChildren
 			String[] cellfieldsforgrid,
 			String[] infofieldforreverseshow,
 			String[] exceptionsforinfofieldconsolidation) {
+		this(name, childobjectforlink, originobjectproperty, linedisplayforgrid, columndisplayforgrid,
+				secondarycolumndisplayforgrid, cellfieldsforgrid);
+		this.infofieldforreverseshow = infofieldforreverseshow;
+		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
+		this.reversetree = true;
+	}
+
+	/**
+	 * Creates a Linked From Children with reverse grid (editable tree table)
+	 * 
+	 * @param name                          unique name amongst linked from children
+	 *                                      property of this object
+	 * @param childobjectforlink            definition of the child object
+	 * @param originobjectproperty          LinkedToParent property on the child
+	 *                                      object
+	 * @param linkedfromchildrenwidgetdisplaypriority widget display priority
+	 * @param linedisplayforgrid            the column used for line display
+	 * @param columndisplayforgrid          the column used for column display
+	 * @param secondarycolumndisplayforgrid the column used for secondary column
+	 * @param cellfieldsforgrid field displayed as main value
+	 * @param infofieldforreverseshow list of info fields shown
+	 * @param exceptionsforinfofieldconsolidation exception values to avoid consolidating in info fields
+	 */
+	public LinkedFromChildren(
+			String name,
+			DataObjectDefinition childobjectforlink,
+			LinkedToParent<?> originobjectproperty,
+			WidgetDisplayPriority linkedfromchildrenwidgetdisplaypriority,
+			String linedisplayforgrid,
+			String columndisplayforgrid,
+			String secondarycolumndisplayforgrid,
+			String[] cellfieldsforgrid,
+			String[] infofieldforreverseshow,
+			String[] exceptionsforinfofieldconsolidation) {
 		this(name,childobjectforlink,originobjectproperty,linedisplayforgrid,columndisplayforgrid,secondarycolumndisplayforgrid,cellfieldsforgrid);
 		this.infofieldforreverseshow = infofieldforreverseshow;
 		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
+		this.linkedfromchildrenwidgetdisplaypriority = linkedfromchildrenwidgetdisplaypriority;
 		this.reversetree=true;
 	}
 

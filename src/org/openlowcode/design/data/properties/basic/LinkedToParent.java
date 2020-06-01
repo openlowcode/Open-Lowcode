@@ -348,13 +348,21 @@ public class LinkedToParent<E extends DataObjectDefinition>
 				if (this.specifictitleforchildrentable != null)
 					linkedfromchildren.setSpecificTitleForChildrenTable(specifictitleforchildrentable);
 			} else {
+				if (!this.reversetreegrid) {
 				linkedfromchildren = new LinkedFromChildren(
 						this.getInstancename() + "for" + parent.getName().toLowerCase(), this.parent, this,
 						this.priorityforlinkedfromparent, this.linedisplayforgrid, this.columndisplayforgrid,
 						this.secondarycolumndisplayforgrid, this.cellvaluestoshow);
+				
+				} else {
+					linkedfromchildren = new LinkedFromChildren(
+							this.getInstancename() + "for" + parent.getName().toLowerCase(), this.parent, this,
+							this.priorityforlinkedfromparent,this.linedisplayforgrid, this.columndisplayforgrid, this.secondarycolumndisplayforgrid,
+							this.cellvaluestoshow,this.infofieldforreverseshow,this.exceptionsforinfofieldconsolidation);
+				}
 				if (this.specifictitleforchildrentable != null)
 					linkedfromchildren.setSpecificTitleForChildrenTable(specifictitleforchildrentable);
-			}
+				}
 			if (deletechildren) {
 				DeleteChildrenWhenParentDeletedFinal deletechildrenfinal = new DeleteChildrenWhenParentDeletedFinal(
 						linkedfromchildren);
