@@ -654,4 +654,12 @@ public class CTimePeriodField
 		return (t) -> (t.toString());
 	}
 
+	@Override
+	public Function<TimePeriod, Boolean> HorizontalSumException() {
+
+		return (t) -> (new Boolean(!t.isFull()));
+	}
+	
+	
+
 }

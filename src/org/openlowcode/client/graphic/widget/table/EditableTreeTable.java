@@ -219,12 +219,14 @@ public class EditableTreeTable<E extends Object> {
 	 * @param operator            an operator for the payload field providing parse,
 	 *                            sum, and divide function
 	 * @param formatvalidator
+	 * @since 1.8
 	 */
 
 	public <F, G> void setColumnGrouping(
 			Function<E, F> extracttitle,
 			Function<F, String> generatetitlekey,
 			Function<F, String> generatetitlelabel,
+			Function<F, Boolean> horizontalconsolidationexception,
 			Function<E, G> payloadextractor,
 			BiConsumer<E, G> payloadintegration,
 			String columngroupinglabel,
@@ -234,7 +236,8 @@ public class EditableTreeTable<E extends Object> {
 		ColumnGrouping<
 				E, F,
 				G> columngrouping = new ColumnGrouping<E, F, G>(extracttitle, generatetitlekey, generatetitlelabel,
-						payloadextractor, payloadintegration, columngroupinglabel, grouping, operator, formatvalidator);
+						horizontalconsolidationexception, payloadextractor, payloadintegration, columngroupinglabel,
+						grouping, operator, formatvalidator);
 		this.columngroups.add(columngrouping);
 	}
 
@@ -254,9 +257,9 @@ public class EditableTreeTable<E extends Object> {
 			String columngroupinglabel,
 			int grouping) {
 		setColumnGrouping(titleextractor.fieldExtractor(), titleextractor.keyExtractor(),
-				titleextractor.labelExtractor(), payloadvalueupdater.fieldExtractor(),
-				payloadvalueupdater.payloadIntegration(), columngroupinglabel, grouping, payloadvalueupdater.operator(),
-				payloadvalueupdater.formatValidator());
+				titleextractor.labelExtractor(), titleextractor.HorizontalSumException(),
+				payloadvalueupdater.fieldExtractor(), payloadvalueupdater.payloadIntegration(), columngroupinglabel,
+				grouping, payloadvalueupdater.operator(), payloadvalueupdater.formatValidator());
 	}
 
 	/**
@@ -270,7 +273,8 @@ public class EditableTreeTable<E extends Object> {
 			String title,
 			ObjectDataElementKeyExtractor<E, G> keyextractor,
 			int grouping) {
-		setColumnReadOnlyField(title, keyextractor.fieldExtractor(), keyextractor.labelExtractor(),keyextractor.keyExtractor(), grouping);
+		setColumnReadOnlyField(title, keyextractor.fieldExtractor(), keyextractor.labelExtractor(),
+				keyextractor.keyExtractor(), grouping);
 	}
 
 	/**
@@ -327,8 +331,8 @@ public class EditableTreeTable<E extends Object> {
 			Function<G, String> keygenerator,
 			int grouping,
 			String keyexception) {
-		ReadOnlyColumn<G> column = new ReadOnlyColumn<G>(title, payloadextractor, displaygenerator, keygenerator,grouping,
-				keyexception);
+		ReadOnlyColumn<G> column = new ReadOnlyColumn<G>(title, payloadextractor, displaygenerator, keygenerator,
+				grouping, keyexception);
 		this.columngroups.add(column);
 	}
 
@@ -821,11 +825,13 @@ public class EditableTreeTable<E extends Object> {
 		private ArrayList<F> alltitles;
 		private Operator<G> operator;
 		private FormatValidator<G> formatvalidator;
+		private Function<F, Boolean> horizontalconsolidationexception;
 
 		public ColumnGrouping(
 				Function<E, F> extracttitle,
 				Function<F, String> generatetitlekey,
 				Function<F, String> generatetitlelabel,
+				Function<F, Boolean> horizontalconsolidationexception,
 				Function<E, G> payloadextractor,
 				BiConsumer<E, G> payloadintegration,
 				String columngroupinglabel,
@@ -836,6 +842,7 @@ public class EditableTreeTable<E extends Object> {
 			this.extracttitle = extracttitle;
 			this.generatetitlekey = generatetitlekey;
 			this.generatetitlelabel = generatetitlelabel;
+			this.horizontalconsolidationexception = horizontalconsolidationexception;
 			this.payloadextractor = payloadextractor;
 			this.payloadintegration = payloadintegration;
 			this.columngroupinglabel = columngroupinglabel;
@@ -906,9 +913,14 @@ public class EditableTreeTable<E extends Object> {
 						G summedpayload = null;
 						for (int i = 0; i < values.getItemsNumber(); i++) {
 							E object = values.getItemAt(i).getPayload();
-							G thispayload = payloadextractor.apply(object);
-							summedpayload = operator.add(thispayload, summedpayload);
-
+							F columncriteria = extracttitle.apply(object);
+							boolean exclude = false;
+							if (columncriteria != null)
+								exclude = horizontalconsolidationexception.apply(columncriteria).booleanValue();
+							if (!exclude) {
+								G thispayload = payloadextractor.apply(object);
+								summedpayload = operator.add(thispayload, summedpayload);
+							}
 						}
 						if (summedpayload == null)
 							return null;
@@ -956,21 +968,24 @@ public class EditableTreeTable<E extends Object> {
 						}
 				}
 			// if comparable, orders the columns
-			boolean comparable=false;
-			if (alltitles.size()>0) {
-				comparable=true;
-				for (int i=0;i<alltitles.size();i++) if (! (alltitles.get(i) instanceof Comparable<?>)) comparable=false;
+			boolean comparable = false;
+			if (alltitles.size() > 0) {
+				comparable = true;
+				for (int i = 0; i < alltitles.size(); i++)
+					if (!(alltitles.get(i) instanceof Comparable<?>))
+						comparable = false;
 			}
 			if (comparable) {
-				Collections.sort(alltitles,new Comparator<F>() {
+				Collections.sort(alltitles, new Comparator<F>() {
 
 					@Override
 					public int compare(F o1, F o2) {
 						@SuppressWarnings("unchecked")
 						Comparable<F> o1comp = (Comparable<F>) o1;
 						return o1comp.compareTo(o2);
-						
-					}});
+
+					}
+				});
 			}
 		}
 
@@ -1099,29 +1114,34 @@ public class EditableTreeTable<E extends Object> {
 							G payload = payloadextractor.apply(object);
 
 							String value = null;
-							String key=null;
+							String key = null;
 							if (payload != null) {
 								value = displaygenerator.apply(payload);
 								key = keyextractor.apply(payload);
-								logger.fine("     analyzing element value '"+value+"', key '"+key+"', valueexception = '"+keyexception+"'");
+								logger.fine("     analyzing element value '" + value + "', key '" + key
+										+ "', valueexception = '" + keyexception + "'");
 							}
 							if (result == null)
-								if (!burnt) if (key!=null) if (!key.equals(keyexception)) {
-									result = value;
-									logger.fine("         put in value "+result+" as '"+key+"' <> '"+keyexception+"'");
-									logger.finest("     > found value " + value + " for " + object.toString());
-								}
+								if (!burnt)
+									if (key != null)
+										if (!key.equals(keyexception)) {
+											result = value;
+											logger.fine("         put in value " + result + " as '" + key + "' <> '"
+													+ keyexception + "'");
+											logger.finest("     > found value " + value + " for " + object.toString());
+										}
 							if (result != null)
-								if (!result.equals(value)) 
-									if (key!=null) if (!key.equals(keyexception)) {
-										logger.fine("         value "+value+" burning "+result);
-										burnt = true;
-										result = null;
-										
-									}
-								
+								if (!result.equals(value))
+									if (key != null)
+										if (!key.equals(keyexception)) {
+											logger.fine("         value " + value + " burning " + result);
+											burnt = true;
+											result = null;
+
+										}
+
 						}
-						logger.fine("          --> "+result+", burnt = "+burnt);
+						logger.fine("          --> " + result + ", burnt = " + burnt);
 					}
 					if (grouping == GROUPING_FIRST) {
 						if (listofobjects.getItemsNumber() >= 1) {
