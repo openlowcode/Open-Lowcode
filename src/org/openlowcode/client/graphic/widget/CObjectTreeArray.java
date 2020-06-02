@@ -357,15 +357,17 @@ public class CObjectTreeArray
 		});
 
 		// ----------------- Set tree table size
+		// Note: this is probably useless as the vertical resize of treetable
+		// does not work in javafx so far
 		int normalizedlinenumber = linenumber;
 		if (normalizedlinenumber > 20)
 			normalizedlinenumber = 20;
-		int maxheight = normalizedlinenumber * treemodel.getFinalRowHeightInPixel() + 40;
-		int preferedheight = maxheight;
-		thistreetable.setMinHeight(preferedheight);
+		int maxheight = linenumber * treemodel.getFinalRowHeightInPixel() + 40;
+		int preferedheight = normalizedlinenumber * treemodel.getFinalRowHeightInPixel() + 40;
+		thistreetable.setMinHeight(80);
 		thistreetable.setPrefHeight(preferedheight);
 		thistreetable.setMaxHeight(maxheight);
-
+		
 		generatenbLinesLabel();
 		return this.thistreetable;
 	}
