@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -7,61 +7,62 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ********************************************************************************/
+
 package org.openlowcode.design.advanced;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.openlowcode.design.data.DataObjectDefinition;
-import org.openlowcode.design.data.properties.basic.LinkedToParent;
+import org.openlowcode.design.data.properties.basic.LinkObject;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 
+
+
 /**
- * Starting from a parent, this node link will navigate to all children of the
- * object. There is no filter on this nodelink, as the filters have to be put,
- * if needed, on the child object
+ * A Node link allowing navigation from the left object of a link to the right
+ * object of a link
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
+ * @since 1.8
  *
  */
-public class LinkedToChildrenNodeLink
+public class LinkObjectNodeLink
 		extends
 		SmartReportNodeLink {
 
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(LinkedToChildrenNodeLink.class.getName());
-
-	private LinkedToParent<?> linkedtoparent;
+	private LinkObject<?, ?> linkobject;
 
 	/**
-	 * @return the related linked to parent property
-	 */
-	public LinkedToParent<?> getLinkedToparent() {
-		return this.linkedtoparent;
-	}
-
-	/**
+	 * Create a new LinkObjectNodeLink
 	 * 
-	 * 
-	 * @param childnode      child node to the link
-	 * @param linkedtoparent linked to parent property used to navigate from parent
-	 *                       to child
+	 * @param childnode  child node (should be right object for the link)
+	 * @param linkobject link object where left is the parent, and right is the link
+	 *                   object
 	 */
-	public LinkedToChildrenNodeLink(SmartReportNode childnode, LinkedToParent<?> linkedtoparent) {
+	public LinkObjectNodeLink(SmartReportNode childnode, LinkObject<?, ?> linkobject) {
 		super(childnode);
-		if (linkedtoparent == null)
-			throw new RuntimeException("LinkedToParent cannot be null");
-		if (this.getChildNode().getRelevantObject() == null)
-			throw new RuntimeException("Node should have a relevant object");
-		if (!this.getChildNode().getRelevantObject().equals(linkedtoparent.getParent()))
+		this.linkobject = linkobject;
+		if (linkobject.getRightobjectforlink() != childnode.getRelevantObject())
 			throw new RuntimeException(
-					"Inconsistent Objects for child node " + this.getChildNode().getRelevantObject().getName()
-							+ " and linkedtoparent parent " + linkedtoparent.getParent().getName());
-		this.linkedtoparent = linkedtoparent;
+					"Incompatible objects, link right object = " + linkobject.getRightobjectforlink().getName()
+							+ ", childnode object = " + childnode.getRelevantObject().getName());
 	}
+
+	
+	
+	@Override
+	protected void generateImports(SourceGenerator sg) throws IOException {
+		DataObjectDefinition linkparentobject = linkobject.getParent();
+		sg.wl("import "+linkparentobject.getOwnermodule().getPath()+".data."+StringFormatter.formatForJavaClass(linkparentobject.getName())+";");
+		sg.wl("import org.openlowcode.server.data.TwoDataObjects;");
+		sg.wl("import org.openlowcode.tools.misc.ObjectUtilities;");
+		
+	}
+
+
 
 	@Override
 	public List<FilterElement<?>> getFilterelement() {
@@ -69,13 +70,13 @@ public class LinkedToChildrenNodeLink
 	}
 
 	@Override
-	public DataObjectDefinition getLeftObject() {
-		return linkedtoparent.getParentObjectForLink();
+	public List<LineGroupingCriteria> getLineGroupingCriteria() {
+		return null;
 	}
 
 	@Override
-	public List<LineGroupingCriteria> getLineGroupingCriteria() {
-		return null;
+	public DataObjectDefinition getLeftObject() {
+		return linkobject.getLeftobjectforlink();
 	}
 
 	@Override
@@ -88,13 +89,14 @@ public class LinkedToChildrenNodeLink
 			int circuitbreaker,
 			DataObjectDefinition rootobject,
 			String reportname) throws IOException {
-		String linkedtoparentinstancename = linkedtoparent.getInstancename().toLowerCase();
-		String childclass = StringFormatter.formatForJavaClass(linkedtoparent.getParent().getName());
-		String childattribute = StringFormatter.formatForAttribute(linkedtoparent.getParent().getName());
-		String parentattribute = StringFormatter.formatForAttribute(linkedtoparent.getParentObjectForLink().getName());
-		String parentclass = StringFormatter.formatForJavaClass(linkedtoparent.getParentObjectForLink().getName());
 
-		String queryattribute="null";
+		String childclass = StringFormatter.formatForJavaClass(linkobject.getRightobjectforlink().getName());
+		String childattribute = StringFormatter.formatForAttribute(linkobject.getRightobjectforlink().getName());
+		String parentattribute = StringFormatter.formatForAttribute(linkobject.getLeftobjectforlink().getName());
+		String parentclass = StringFormatter.formatForJavaClass(linkobject.getLeftobjectforlink().getName());
+		String linkclass = StringFormatter.formatForJavaClass(linkobject.getParent().getName());
+
+		String queryattribute = "null";
 		// no need to be recursive here
 		List<FilterElement<?>> filterelements = this.getChildNode().getFilterelement();
 		List<LineGroupingCriteria> groupingelements = this.getChildNode().getLineGroupingCriteria();
@@ -112,7 +114,7 @@ public class LinkedToChildrenNodeLink
 			queryattribute = childattribute + "_step" + prefixforlinkandchild + "_query";
 
 			sg.wl("		AndQueryCondition " + queryattribute + " = new AndQueryCondition();");
-			
+
 			if (filterelements != null)
 				for (int i = 0; i < filterelements.size(); i++) {
 					FilterElement<?> thiselement = filterelements.get(i);
@@ -121,18 +123,21 @@ public class LinkedToChildrenNodeLink
 					}
 
 				}
-			
+
 		}
+
 		if (first) {
-			sg.wl("		" + childclass + "[] " + childattribute + "_step" + prefixforlinkandchild + " = " + childclass
-					+ ".getallchildrenfor" + linkedtoparentinstancename + "(parentid,QueryFilter.get(" + queryattribute + "));");
+			sg.wl("		TwoDataObjects<" + linkclass + "," + childclass + ">[] " + childattribute + "_step"
+					+ prefixforlinkandchild + " = " + linkclass + ".getlinksandrightobject(parentid,QueryFilter.get("
+					+ queryattribute + "));");
 		} else {
-
-			sg.wl("		" + childclass + "[] " + childattribute + "_step" + prefixforlinkandchild + " = " + parentclass
-					+ ".getallchildrenfor" + linkedtoparentinstancename + "for" + childattribute + "(" + parentattribute
-					+ "_step" + prefixparent + ",QueryFilter.get(" + queryattribute + "));");
-
+			sg.wl("		DataObjectId<"+parentclass+">[] "+parentattribute+"_step"+prefixparent+"_id = ObjectUtilities.generateIdTable("+parentattribute+"_step"+prefixparent+");");
+			sg.wl("		TwoDataObjects<" + linkclass + "," + childclass + ">[] " + childattribute + "_step" + prefixforlinkandchild + "_links = " + linkclass
+					+ ".getlinksandrightobject(" + parentattribute + "_step" + prefixparent + "_id,QueryFilter.get("
+					+ queryattribute + "));");
 		}
+		sg.wl("		"+childclass+"[] "+childattribute+"_step"+prefixforlinkandchild+" = ObjectUtilities.extractUniqueObjectTable("+childattribute+"_step1_1_links, ((a)->(a.getObjectTwo())), ((a)->(a.getId().getId()))).toArray(new "+childclass+"[0]);");
+		
 		boolean hasidtable = false;
 		if (filterelements!=null) for (int i=0;i<filterelements.size();i++) if (filterelements.get(i).needArrayOfObjectId()) hasidtable=true;
 		if (groupingelements!=null) for (int i=0;i<groupingelements.size();i++) if (groupingelements.get(i).needArrayOfObjectId()) hasidtable=true;
@@ -162,6 +167,7 @@ public class LinkedToChildrenNodeLink
 		}
 
 		this.getChildNode().gatherData(sg, circuitbreaker + 1, prefixforlinkandchild, rootobject, reportname);
+
 	}
 
 	@Override
@@ -174,15 +180,17 @@ public class LinkedToChildrenNodeLink
 			int circuitbreaker,
 			DataObjectDefinition rootobject,
 			String reportname) throws IOException {
-		String linkedtoparentinstancename = linkedtoparent.getInstancename().toLowerCase();
-		String childclass = StringFormatter.formatForJavaClass(linkedtoparent.getParent().getName());
-		String childattribute = StringFormatter.formatForAttribute(linkedtoparent.getParent().getName());
-		String parentclass = StringFormatter.formatForJavaClass(linkedtoparent.getParentObjectForLink().getName());
+		String childclass = StringFormatter.formatForJavaClass(linkobject.getRightobjectforlink().getName());
+		String childattribute = StringFormatter.formatForAttribute(linkobject.getRightobjectforlink().getName());
+		@SuppressWarnings("unused")
+		String parentattribute = StringFormatter.formatForAttribute(linkobject.getLeftobjectforlink().getName());
+		String parentclass = StringFormatter.formatForJavaClass(linkobject.getLeftobjectforlink().getName());
+		String linkclass = StringFormatter.formatForJavaClass(linkobject.getParent().getName());
+
 		List<LineGroupingCriteria> groupingcriteria = this.getChildNode().getLineGroupingCriteria();
-		sg.wl("		CompositeObjectMap<" + parentclass + "," + childclass + ","+childclass+"> " + childattribute + "_step"
+		sg.wl("		CompositeObjectMap<" + parentclass + "," + childclass + ",TwoDataObjects<" + linkclass + "," + childclass + ">> " + childattribute + "_step"
 				+ prefixforlinkandchild + "_map");
-		sg.w("			= new CompositeObjectMap<" + parentclass + "," + childclass + ","+childclass+">((a)->(a.getLinkedtoparentfor"
-				+ linkedtoparentinstancename + "id()),((a)->(a))");
+		sg.w("			= new CompositeObjectMap<" + parentclass + "," + childclass + ",TwoDataObjects<" + linkclass + "," + childclass + ">>(((a)->(a.getObjectOne().getLfid())),((a)->(a.getObjectTwo()))");
 		for (int i = 0; i < groupingcriteria.size(); i++) {
 			LineGroupingCriteria thiscriteria = groupingcriteria.get(i);
 			String extractstring = thiscriteria.getExtractorFromobject(prefixforlinkandchild);
@@ -190,9 +198,10 @@ public class LinkedToChildrenNodeLink
 			if (extractstring != null)
 				sg.w("				," + extractstring);
 		}
-		sg.wl(");");
+		sg.w(");");
 		sg.wl("		" + childattribute + "_step" + prefixforlinkandchild + "_map.classifyObjects(" + childattribute
-				+ "_step" + prefixforlinkandchild + ");");
+				+ "_step" + prefixforlinkandchild + "_links);");
+
 	}
 
 }

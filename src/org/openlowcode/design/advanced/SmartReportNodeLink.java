@@ -56,6 +56,18 @@ public abstract class SmartReportNodeLink
 	}
 
 	/**
+	 * Adds imports that are not present by default in the report, to be implemented
+	 * by subclass when relevant
+	 * 
+	 * @param sg source generator
+	 * @throws IOException if there is any communication breakdown
+	 * @since 1.8
+	 */
+	protected void generateImports(SourceGenerator sg) throws IOException{
+
+	}
+
+	/**
 	 * writes the data gathering code
 	 * 
 	 * @param sg                    the source generator to write data gathering

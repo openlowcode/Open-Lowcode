@@ -188,6 +188,8 @@ public abstract class SmartReportNode
 		printImportsForAction(sg);
 		for (int i = 0; i < this.linktochildrennode.size(); i++) {
 			SmartReportNode childnode = this.linktochildrennode.get(i).getChildNode();
+			SmartReportNodeLink childnodelink = this.linktochildrennode.get(i);
+			childnodelink.generateImports(sg);
 			childnode.printImports(sg, circuitbreaker + 1);
 			for (int j = 0; j < childnode.getLineGroupingCriteria().size(); j++) {
 				LineGroupingCriteria thisgroupingcriteria = childnode.getLineGroupingCriteria().get(j);
