@@ -2003,7 +2003,7 @@ public class DataObjectDefinition
 				}
 				exportchildren.addOutputArgument(new LargeBinaryArgument("FLATFILE", false));
 				module.addAction(exportchildren);
-				linkedfromchildren.getChildObject().addActionToDataAdminActionGroup(exportchildren);
+				linkedfromchildren.getChildObject().addActionToReadActionGroup(exportchildren);
 			}
 
 			if (thisproperty instanceof ImageContent) {
