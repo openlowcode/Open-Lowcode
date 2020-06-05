@@ -90,6 +90,7 @@ public class CObjectArray
 
 	@SuppressWarnings("unused")
 	private String externaldatareference;
+	@SuppressWarnings("unused")
 	private String name;
 	private boolean inline;
 	private boolean inputdata;
