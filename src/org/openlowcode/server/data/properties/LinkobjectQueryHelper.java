@@ -816,6 +816,94 @@ public class LinkobjectQueryHelper {
 	}
 
 	/**
+	 * get left object and links corresponding to the given array of right object id
+	 * 
+	 * @param rightid               an array of right object id
+	 * @param additionalcondition   additional filter condition
+	 * @param linkobjectdefinition  definition of the link object
+	 * @param leftobjectdefinition  left object definition
+	 * @param rightobjectdefinition right object definition
+	 * @param propertydefinition    definition of the link object property
+	 * @return a list of left objects and links corresponding to the right object id
+	 */
+	@SuppressWarnings("unchecked")
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & LinkobjectInterface<F, E, G>, G extends DataObject<G> & UniqueidentifiedInterface<G>> TwoDataObjects<E, F>[] getlinksandleftobject(
+			DataObjectId<G>[] rightid, QueryFilter additionalcondition, DataObjectDefinition<F> linkobjectdefinition,
+			DataObjectDefinition<E> leftobjectdefinition, DataObjectDefinition<G> rightobjectdefinition,
+			LinkobjectDefinition<F, E, G> propertyDefinition) {
+		
+		ArrayList<TwoDataObjects<E, F>> results = new ArrayList<TwoDataObjects<E, F>>();
+
+		// work by batches to ensure query is not too long
+		for (int i = 0; i < (rightid.length / BATCH_QUERY_SIZE) + 1; i++) {
+			
+			// generate aliases
+			TableAlias linkalias = linkobjectdefinition.getAlias(LINKSANDBOTHOBJECTS_LINKOBJECTALIAS);
+			TableAlias leftobjectalias = leftobjectdefinition.getAlias(LINKSANDBOTHOBJECTS_LEFTOBJECTALIAS);
+			NamedList<TableAlias> aliaslist = new NamedList<TableAlias>();
+			aliaslist.add(linkalias);
+			aliaslist.add(leftobjectalias);
+			
+			// condition on unique ids
+			OrQueryCondition uniqueidcondition = new OrQueryCondition();
+			int min = i * BATCH_QUERY_SIZE;
+			if (min<rightid.length) {
+			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
+				QueryCondition thisuniqueidcondition = null;
+				if (j < rightid.length) {
+					thisuniqueidcondition = getRightidQueryCondition(linkalias, rightid[j], linkobjectdefinition,
+							leftobjectdefinition, rightobjectdefinition);
+				} else {
+					// all queries will have batch size conditions. If not enough id, a blank id is
+					// used
+					thisuniqueidcondition = getLeftidQueryCondition(linkalias, null, linkobjectdefinition,
+							leftobjectdefinition, rightobjectdefinition);
+
+				}
+				uniqueidcondition.addCondition(thisuniqueidcondition);
+			}
+			
+			
+			AndQueryCondition joinquerycondition = new AndQueryCondition();
+			joinquerycondition.addCondition(uniqueidcondition);
+			joinquerycondition.addCondition(new JoinQueryCondition<String>(linkalias,
+					this.getLeftIdFieldSchema(propertyDefinition), leftobjectalias,
+					leftobjectdefinition.getTableschema().lookupFieldByName("ID"), new QueryOperatorEqual<String>()));
+			if (additionalcondition != null)
+				if (additionalcondition.getCondition() != null)
+					joinquerycondition.addCondition(additionalcondition.getCondition());
+
+			QueryCondition extendedcondition = linkobjectdefinition.extendquery(aliaslist, linkalias, joinquerycondition);
+
+			QueryCondition extendedconditionforleft = leftobjectdefinition.extendquery(aliaslist, leftobjectalias,
+					extendedcondition);
+
+			QueryCondition leftuniversalcondition = leftobjectdefinition.getUniversalQueryCondition(null,
+					LINKSANDBOTHOBJECTS_LEFTOBJECTALIAS);
+			if (leftuniversalcondition != null)
+				extendedconditionforleft = new AndQueryCondition(extendedconditionforleft, leftuniversalcondition);
+
+			QueryCondition linkuniversalcondition = linkobjectdefinition.getUniversalQueryCondition(null,
+					LINKSANDBOTHOBJECTS_LINKOBJECTALIAS);
+			if (linkuniversalcondition != null)
+				extendedconditionforleft = new AndQueryCondition(extendedconditionforleft, linkuniversalcondition);
+
+			Row row = QueryHelper.getHelper().query(new SelectQuery(aliaslist, extendedconditionforleft));
+			
+			while (row.next()) {
+
+				E objectone = leftobjectdefinition.generateFromRow(row, leftobjectalias);
+				F objecttwo = linkobjectdefinition.generateFromRow(row, linkalias);
+				results.add(new TwoDataObjects<E, F>(objectone, objecttwo));
+			}
+			
+			
+		}}
+		
+		return results.toArray(new TwoDataObjects[0]);
+	}
+	
+	/**
 	 * get left object and links corresponding to the right object id
 	 * 
 	 * @param rightid               right object id

@@ -283,7 +283,7 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 		DataAccessMethod getlinksandleftobject = new DataAccessMethod("GETLINKSANDLEFTOBJECT",
 				new ArrayArgument(new TwoObjectsArgument("LINKANDLEFT",
 						new ObjectArgument("leftobject", this.leftobjectforlink), new ObjectArgument("links", parent))),
-				true);
+				true,true);
 		getlinksandleftobject.addInputArgument(
 				new MethodArgument("RIGHTID", new ObjectIdArgument("RIGHTOBJECTID", this.rightobjectforlink)));
 		this.addDataAccessMethod(getlinksandleftobject);

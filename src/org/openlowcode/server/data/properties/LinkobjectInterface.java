@@ -69,4 +69,23 @@ public interface LinkobjectInterface<E extends DataObject<E>, F extends DataObje
 	 * @return
 	 */
 	public MassiveGetlinksandrightobject<E, F, G> getMassiveGetlinksandrightobject();
+	
+	public interface MassiveGetlinksandleftobject<E extends DataObject<E>, F extends DataObject<F>, G extends DataObject<G>> {
+		/**
+		 * gets all links and left objects for the right object
+		 * 
+		 * @param rightid              left object id
+		 * @param additionalcondition additional query filter
+		 * @return all left and link objects
+		 */
+		public TwoDataObjects<F, E>[] getlinksandleftobject(DataObjectId<G>[] rightid, QueryFilter additionalcondition);
+	}
+
+	/**
+	 * gets an helper class that can perform a massive get links and left objects
+	 * for the right object
+	 * 
+	 * @return
+	 */
+	public MassiveGetlinksandleftobject<E, F, G> getMassiveGetlinksandleftobject();
 }
