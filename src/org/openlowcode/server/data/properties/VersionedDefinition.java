@@ -75,21 +75,37 @@ public class VersionedDefinition <E extends DataObject<E>> extends
 		
 		return returnvalue;
 	}
-
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
 			String[] columnattributes, PropertyExtractor<E> propertyextractor,
 			ChoiceValue<ApplocaleChoiceDefinition> locale)  {
+		if (columnattributes == null)
+			throw new RuntimeException("At least one attribute required for Versioned: MASTERID");
+		if (columnattributes != null)
+			if (columnattributes.length == 0)
+				throw new RuntimeException("At least one attribute required for Versioned: MASTERID");
+		if ("MASTERID".equals(columnattributes[0])) {
+			return new VersionedMasterIdFlatFileLoader(objectdefinition, this, false, propertyextractor);
+		}
 		return null;
 	}
 
 	@Override
 	public String[] getLoaderFieldList() {
-		return new String[0];
+		return new String[] {"MASTERID"};
 	}
 
 	@Override
 	public String[] getLoaderFieldSample(String name) {
+		if (name.equals("MASTERID")) {
+			String[] returntable = new String[4];
+			returntable[0] = this.getName() + "&MASTERID";
+			returntable[1] = "OPTIONAL";
+			returntable[2] = "a8c7d";
+			returntable[3] = "the master id of the object (for export only)";
+			return returntable;
+		}
 		return null;
 	}
 
