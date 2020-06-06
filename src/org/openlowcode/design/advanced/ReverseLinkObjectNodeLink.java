@@ -175,17 +175,17 @@ protected void orderData(
 		int circuitbreaker,
 		DataObjectDefinition rootobject,
 		String reportname) throws IOException {
-	String childclass = StringFormatter.formatForJavaClass(linkobject.getRightobjectforlink().getName());
-	String childattribute = StringFormatter.formatForAttribute(linkobject.getRightobjectforlink().getName());
+	String childclass = StringFormatter.formatForJavaClass(linkobject.getLeftobjectforlink().getName());
+	String childattribute = StringFormatter.formatForAttribute(linkobject.getLeftobjectforlink().getName());
 	@SuppressWarnings("unused")
-	String parentattribute = StringFormatter.formatForAttribute(linkobject.getLeftobjectforlink().getName());
-	String parentclass = StringFormatter.formatForJavaClass(linkobject.getLeftobjectforlink().getName());
+	String parentattribute = StringFormatter.formatForAttribute(linkobject.getRightobjectforlink().getName());
+	String parentclass = StringFormatter.formatForJavaClass(linkobject.getRightobjectforlink().getName());
 	String linkclass = StringFormatter.formatForJavaClass(linkobject.getParent().getName());
 
 	List<LineGroupingCriteria> groupingcriteria = this.getChildNode().getLineGroupingCriteria();
 	sg.wl("		CompositeObjectMap<" + parentclass + "," + childclass + ",TwoDataObjects<" + childclass + "," + linkclass + ">> " + childattribute + "_step"
 			+ prefixforlinkandchild + "_map");
-	sg.w("			= new CompositeObjectMap<" + parentclass + "," + childclass + ",TwoDataObjects<" + childclass + "," + linkclass  + ">>(((a)->(a.getObjectTwo().getLfid())),((a)->(a.getObjectOne()))");
+	sg.w("			= new CompositeObjectMap<" + parentclass + "," + childclass + ",TwoDataObjects<" + childclass + "," + linkclass  + ">>(((a)->(a.getObjectTwo().getRgid())),((a)->(a.getObjectOne()))");
 	for (int i = 0; i < groupingcriteria.size(); i++) {
 		LineGroupingCriteria thiscriteria = groupingcriteria.get(i);
 		String extractstring = thiscriteria.getExtractorFromobject(prefixforlinkandchild);
