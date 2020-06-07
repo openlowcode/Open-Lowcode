@@ -12,6 +12,7 @@ package org.openlowcode.client.graphic.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -82,6 +83,10 @@ public class CObjectTreeArray
 	private ArrayList<CBusinessField<?>> payloadlist;
 	private CPageDataRef datareference;
 
+	// to avoid double click that causes mistakes
+	private ObjectDataElt lastactionobject = null;
+	private Date lastactiondate = null;
+
 	private CPageAction action;
 	@SuppressWarnings("unused")
 	private CInlineActionDataRef inlineactiondataref;
@@ -98,6 +103,7 @@ public class CObjectTreeArray
 	private HashMap<String, CPageDataRef> overridenlabels;
 	private PageActionManager actionmanager;
 	private ObjectDataElt selecteditem;
+
 	/**
 	 * @param reader     message reader from the server
 	 * @param parentpath parent path
@@ -266,17 +272,31 @@ public class CObjectTreeArray
 				public void handle(MouseEvent event) {
 					// sometimes, click can go through while no item selected
 					if (thistreetable.getSelectionModel().getSelectedItem() != null) {
-						// to manage simple double click
-						if (event.getClickCount() > 1)
-							actionmanager.getMouseHandler().handle(event);
-					}
-					// to manage click with control. If no special rule, you
-					// need to click 3 times
-					if (event.getClickCount() == 1)
-						if (event.isControlDown()) {
-							actionmanager.getMouseHandler().handle(event);
 
+						// to manage simple double click
+
+						if (event.getClickCount() > 1) {
+							event.consume();
+							// check if there is already a similar event less than a second before
+							boolean suppressbecauseofecho = false;
+							// check if there is already a similar event less than a second before
+							Date currentdate = new Date();
+							if (lastactiondate != null)
+								if (currentdate.getTime() - lastactiondate.getTime() < 800)
+									if (lastactionobject == thistreetable.getSelectionModel().getSelectedItem()
+											.getValue()) {
+										logger.fine("Suppress echo on table tree");
+										suppressbecauseofecho = true;
+									}
+
+							if (!suppressbecauseofecho) {
+
+								lastactionobject = thistreetable.getSelectionModel().getSelectedItem().getValue();
+								lastactiondate = currentdate;
+								actionmanager.getMouseHandler().handle(event);
+							}
 						}
+					}
 
 				}
 
@@ -353,7 +373,9 @@ public class CObjectTreeArray
 		this.thistreetable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
 			if (contextmenu.isShowing())
 				contextmenu.hide();
-				if (newSelection!=null) if (newSelection.getValue()!=null) selecteditem = newSelection.getValue();
+			if (newSelection != null)
+				if (newSelection.getValue() != null)
+					selecteditem = newSelection.getValue();
 		});
 
 		// ----------------- Set tree table size
@@ -367,7 +389,7 @@ public class CObjectTreeArray
 		thistreetable.setMinHeight(80);
 		thistreetable.setPrefHeight(preferedheight);
 		thistreetable.setMaxHeight(maxheight);
-		
+
 		generatenbLinesLabel();
 		return this.thistreetable;
 	}
