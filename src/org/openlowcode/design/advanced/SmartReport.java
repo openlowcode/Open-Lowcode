@@ -684,7 +684,14 @@ public class SmartReport
 
 				}
 			}
-
+		sg.wl("		// --------------------- Consolidators for fields outside of main value");
+		ArrayList<String> extraconsolidators = rootnode.gatherExtraConsolidators(sg, parentobject, this.getName(),0);
+		StringBuffer extraconsolidatorsprint = new StringBuffer();
+		for (int i=0;i<extraconsolidators.size();i++) {
+			extraconsolidatorsprint.append(",");
+			extraconsolidatorsprint.append(extraconsolidators.get(i));
+		}
+		sg.wl("");
 		sg.wl("		// --------------------  Create Report Tree -----------------------------------");
 
 		sg.wl("		ReportTree<Reportfor" + reportvariablename + "> reporttree = new ReportTree<Reportfor"
@@ -692,7 +699,7 @@ public class SmartReport
 		sg.wl("				Reportfor" + reportvariablename + ".getDefinition(),");
 		sg.wl("				(object,name) -> object.setLabel(name),");
 		sg.wl("				object -> object.getLabel(),");
-		sg.wl("				new ReportTree.Consolidator[] {dynamichelper" + totalconsolidators.toString() + "},");
+		sg.wl("				new ReportTree.Consolidator[] {dynamichelper" + totalconsolidators.toString() +extraconsolidatorsprint+ "},");
 		sg.wl("				(object) -> object.setDynamicHelperForFlexibledecimalfields(dynamichelper),");
 		sg.wl("				\"Grand Total\");");
 		sg.wl("		ArrayList<String> rootclassification = new ArrayList<String>();");

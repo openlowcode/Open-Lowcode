@@ -107,4 +107,30 @@ public abstract class LineGroupingCriteria {
 	 *         queried before
 	 */
 	public abstract boolean needArrayOfObjectId();
+	
+	/**
+	 * @return true if additional fields should be processed as part of this line grouping criteria
+	 * 
+	 */
+	public boolean hasAdditionalField() {
+		return false;
+	}
+
+	/**
+	 * gathers extra consolidators for the grouping
+	 * 
+	 * @param sg source generator for the smart report action
+	 * @param parentobject parent data object
+	 * @param name name of the report
+	 * @return the list of extra consolidators
+	 * @throws IOException  if something bad happens generating the file
+	 * @since 1.9
+	 */
+	public ArrayList<String> gatherExtraConsolidatorsForThisGrouping(
+			SourceGenerator sg,
+			DataObjectDefinition parentobject,
+			String name) throws IOException {
+		return null;
+	}
+	
 }

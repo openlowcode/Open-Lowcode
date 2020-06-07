@@ -19,9 +19,6 @@ import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Field;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
-import org.openlowcode.server.action.utility.SmartReportUtility;
-import org.openlowcode.server.action.utility.SmartReportUtility.ColumnGrouping;
-import org.openlowcode.tools.data.TimePeriod;
 
 /**
  * A node on an object
@@ -168,9 +165,13 @@ public class ObjectReportNode
 		String objectvariable = StringFormatter.formatForAttribute(object.getName());
 		String reportvariablename = StringFormatter.formatForAttribute(smartReport.getName());
 		boolean isdataback = false;
-		for (int i = 0; i < this.groupingcriterias.size(); i++)
+		boolean hasextrafields = false;
+		for (int i = 0; i < this.groupingcriterias.size(); i++) {
 			if (this.groupingcriterias.get(i).isbacktobject())
 				isdataback = true;
+			if (this.groupingcriterias.get(i).hasAdditionalField())
+				hasextrafields=true;
+		}
 		String parent = "parentid"; // if level = 1
 		if (level > 1)
 			parent = "this" + StringFormatter.formatForAttribute(parentnode.getRelevantObject().getName()) + "step"
@@ -207,7 +208,7 @@ public class ObjectReportNode
 		if (columncriteria != null)
 			columncriteria.writeColumnValueGenerator(sg, this, prefix);
 		MainReportValue mainreportvalue = this.getMainReportValue();
-		if ((mainreportvalue != null) || (isdataback)) {
+		if ((mainreportvalue != null) || (isdataback) || (hasextrafields)) {
 			sg.wl(extraindent + " 			Reportfor" + reportvariablename + " newreportitem" + prefix
 					+ " = new Reportfor" + reportvariablename + "();");
 			sg.wl(extraindent + "				newreportitem" + prefix
@@ -276,6 +277,19 @@ public class ObjectReportNode
 			thiscriteria.feedfields(fieldstoadd, before);
 		}
 
+	}
+
+	@Override
+	protected ArrayList<String> gatherExtraConsolidatorsforthisnode(
+			SourceGenerator sg,
+			DataObjectDefinition parentobject,
+			String name) throws IOException {
+		ArrayList<String> extraconsolidators = new ArrayList<String>();
+		for (int i=0;i<this.groupingcriterias.size();i++) {
+			ArrayList<String> thoseconsolidators = this.groupingcriterias.get(i).gatherExtraConsolidatorsForThisGrouping(sg,parentobject,name);
+		if (thoseconsolidators!=null) extraconsolidators.addAll(thoseconsolidators);
+		}
+		return extraconsolidators;
 	}
 
 }

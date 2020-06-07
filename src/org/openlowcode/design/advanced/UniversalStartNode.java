@@ -94,4 +94,14 @@ public class UniversalStartNode
 		// nothing to do
 	}
 
+
+
+	@Override
+	protected ArrayList<String> gatherExtraConsolidatorsforthisnode(
+			SourceGenerator sg,
+			DataObjectDefinition parentobject,
+			String name) throws IOException {
+		return null;
+	}
+
 }

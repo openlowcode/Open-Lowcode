@@ -197,7 +197,7 @@ public abstract class SmartReportNode
 				if (specificimports != null)
 					for (int k = 0; k < specificimports.length; k++)
 						sg.wl(specificimports[k]);
-				
+
 			}
 			ColumnCriteria thiscolumncriteria = childnode.getColumnCriteria();
 			if (thiscolumncriteria != null) {
@@ -361,6 +361,48 @@ public abstract class SmartReportNode
 			SmartReport smartReport,
 			int level) throws IOException;
 
+	/**
+	 * prints the extra consolidators for the node
+	 * 
+	 * @param sg source generator for the smart report action
+	 * @param parentobject parent data object
+	 * @param name name of the report
+	 * @return the list of extra consolidators
+	 * @throws IOException if something bad happens writing the file
+	 * @since 1.9
+	 */
+	protected abstract ArrayList<
+			String> gatherExtraConsolidatorsforthisnode(
+					SourceGenerator sg, 
+					DataObjectDefinition parentobject, 
+					String name) throws IOException;
+
+	/**
+	 * recursive print the extra consolidators for the node
+	 * 
+	 * @param sg source generator for the smart report action
+	 * @param parentobject parent data object
+	 * @param name name of the report
+	 * @return the list of extra consolidators
+	 * @throws IOException if something bad happens writing the file
+	 * @since 1.9
+	 */
+	protected ArrayList<String> gatherExtraConsolidators(
+					SourceGenerator sg, 
+					DataObjectDefinition parentobject, 
+					String name,int circuitbreaker) throws IOException {
+		ArrayList<String> valuesforreturn = new ArrayList<String>();
+		if (circuitbreaker>1024) throw new RuntimeException("Circuit breaker recursive node path in report ");
+		ArrayList<String> valuesforreturnfornode = this.gatherExtraConsolidatorsforthisnode(sg, parentobject, name);
+		if (valuesforreturnfornode!=null) valuesforreturn.addAll(valuesforreturnfornode);
+		for (int i=0;i<this.linktochildrennode.size();i++) {
+			SmartReportNode childnode = this.linktochildrennode.get(i).getChildNode();
+			ArrayList<String> thosevalues = childnode.gatherExtraConsolidators(sg, parentobject, name,circuitbreaker+1);
+			if (thosevalues!=null) valuesforreturn.addAll(thosevalues);
+		}
+		return valuesforreturn;
+	}
+	
 	/**
 	 * recursive process to find a back to object clause on the tree (generates an
 	 * action to show the object)

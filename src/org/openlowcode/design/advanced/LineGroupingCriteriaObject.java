@@ -14,9 +14,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.openlowcode.design.data.DataObjectDefinition;
+import org.openlowcode.design.data.DecimalField;
 import org.openlowcode.design.data.Field;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
+
 
 /**
  * the line grouping criteria on object will create grouping nodes for objects
@@ -201,6 +203,17 @@ public class LineGroupingCriteriaObject
 	}
 
 	@Override
+	public boolean hasAdditionalField() {
+		if (this.fieldstoshowbeforemainvalue != null)
+			if (this.fieldstoshowbeforemainvalue.size() > 0)
+				return true;
+		if (this.fieldstoshowaftermainvalue != null)
+			if (this.fieldstoshowaftermainvalue.size() > 0)
+				return true;
+		return false;
+	}
+
+	@Override
 	protected void feedfields(ArrayList<Field> fieldlist, boolean before) {
 		if (before) {
 			for (int i = 0; i < this.fieldstoshowbeforemainvalue.size(); i++) {
@@ -243,5 +256,56 @@ public class LineGroupingCriteriaObject
 	@Override
 	public boolean needArrayOfObjectId() {
 		return false;
+	}
+
+	@Override
+	public ArrayList<String> gatherExtraConsolidatorsForThisGrouping(
+			SourceGenerator sg,
+			DataObjectDefinition parentobject,
+			String name) throws IOException {
+		ArrayList<String> consolidators = new ArrayList<String>();
+		if (this.fieldstoshowbeforemainvalue != null)
+			for (int i = 0; i < fieldstoshowbeforemainvalue.size(); i++) {
+				Field field = fieldstoshowbeforemainvalue.get(i);
+				if (field instanceof DecimalField)
+					consolidators.add(generateConsolidatorForField((DecimalField) field, sg, parentobject, name));
+
+			}
+
+		if (fieldstoshowaftermainvalue != null)
+			for (int i = 0; i < fieldstoshowaftermainvalue.size(); i++) {
+				Field field = fieldstoshowaftermainvalue.get(i);
+				if (field instanceof DecimalField)
+					consolidators.add(generateConsolidatorForField((DecimalField) field, sg, parentobject, name));
+			}
+		return consolidators;
+	}
+
+	private String generateConsolidatorForField(
+			DecimalField field,
+			SourceGenerator sg,
+			DataObjectDefinition parentobject,
+			String name) throws IOException {
+		String fieldattribute = StringFormatter.formatForAttribute(field.getName());
+		String fieldclass = StringFormatter.formatForJavaClass(field.getName());
+		String consolidatorname = "consolidatorfor" + fieldattribute;
+
+		String reportclass = StringFormatter.formatForJavaClass("reportfor"+name);
+		
+		sg.wl("		ReportTree.Consolidator<");
+		sg.wl("				"+reportclass+"> "+consolidatorname+" = new ReportTree.Consolidator<"+reportclass+">() { ");
+		sg.wl("					@Override ");
+		sg.wl("					public void consolidate("+reportclass+" parent, "+reportclass+" child) { ");
+		sg.wl("						ReportTree.ValueExtractor< ");
+		sg.wl("								"+reportclass+", BigDecimal> valueextractor = ((a) -> (a.get"+fieldclass+"())); ");
+		sg.wl("						ReportTree.ValueSetter<"+reportclass+", BigDecimal> valuesetter = ((a, b) -> { ");
+		sg.wl("							a.set"+fieldclass+"(b); ");
+		sg.wl("						}); ");
+		sg.wl("						ReportTree.sumInparent(parent, child, valueextractor, valuesetter); ");
+		sg.wl("						parent.get"+fieldclass+"(); ");
+		sg.wl("					} ");
+		sg.wl("				};		");
+
+		return consolidatorname;
 	}
 }
