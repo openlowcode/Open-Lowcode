@@ -23,7 +23,6 @@ import org.openlowcode.server.data.storage.TableAlias;
  *         SAS</a>
  * @param <E> the left object
  * @param <F> the right object
- * @param <G> any type relevant to the control
  */
 public abstract class ConstraintOnLinkObject<E extends DataObject<E>, F extends DataObject<F>> {
 
