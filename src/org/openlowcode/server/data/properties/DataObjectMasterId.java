@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -15,6 +15,7 @@ import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.runtime.OLcServer;
 import org.openlowcode.server.runtime.SModule;
 import org.openlowcode.tools.structure.ObjectDataElt;
+import org.openlowcode.tools.structure.ObjectMasterIdDataElt;
 
 /**
  * a data object master id encapsulates the unique text id for the set of
@@ -117,6 +118,13 @@ public class DataObjectMasterId<E extends DataObject<E>> {
 		return new DataObjectMasterId<E>(element.getUID(), definition);
 	}
 
+	public static <E extends DataObject<E>> DataObjectMasterId<E> generatefromDataObjectMasterIdElt(ObjectMasterIdDataElt element,
+			DataObjectDefinition<E> definition) {
+
+		return new DataObjectMasterId<E>(element.getId(), definition);
+
+	}
+	
 	@Override
 	public String toString() {
 
@@ -144,5 +152,23 @@ public class DataObjectMasterId<E extends DataObject<E>> {
 	 */
 	public String getObjectId() {
 		return definition.getModuleName() + ":" + definition.getName();
+	}
+	
+
+	/**
+	 * allows to get the object from the id in algorithms that are common to several
+	 * object types
+	 * 
+	 * @return the object after it has been lookup up
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public E lookupObject() {
+		String[] splitobjectid = this.getObjectId().split(":");
+		if (splitobjectid.length != 2)
+			throw new RuntimeException(
+					"objectid should have two components separated by ':', but does not have  " + this.getObjectId());
+		String modulename = splitobjectid[0];
+		SModule module = OLcServer.getServer().getModuleByName(modulename);
+		return (E) (module.getDataObjectBasedOnGenericMasterId((DataObjectMasterId) this));
 	}
 }

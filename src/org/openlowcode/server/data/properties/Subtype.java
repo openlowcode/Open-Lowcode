@@ -10,7 +10,6 @@
 
 package org.openlowcode.server.data.properties;
 
-import org.openlowcode.module.designer.data.Propertydef;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectProperty;

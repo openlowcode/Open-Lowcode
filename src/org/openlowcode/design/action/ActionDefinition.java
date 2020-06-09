@@ -26,6 +26,7 @@ import org.openlowcode.design.data.argument.MultipleChoiceArgument;
 import org.openlowcode.design.data.argument.NodeTreeArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
+import org.openlowcode.design.data.argument.ObjectMasterIdArgument;
 import org.openlowcode.design.data.argument.StringArgument;
 import org.openlowcode.design.data.argument.TimePeriodArgument;
 import org.openlowcode.design.data.argument.TimestampArgument;
@@ -1179,6 +1180,44 @@ public abstract class ActionDefinition
 
 					treated = true;
 				}
+				
+				if (thisarrayarg.getPayload() instanceof ObjectMasterIdArgument) {
+					ObjectMasterIdArgument thisobjectidinarray = (ObjectMasterIdArgument) thisarrayarg.getPayload();
+					String argumentname = thisobjectidinarray.getName().toLowerCase();
+
+					sg.wl("		if (attribute" + i + ".getArrayPayloadEltType() instanceof ObjectMasterIdDataEltType) {");
+					sg.wl("				ArrayList<DataObjectMasterId<"
+							+ StringFormatter.formatForJavaClass(thisobjectidinarray.getObjectType()) + ">> listfor"
+							+ argumentname + " = new ArrayList<DataObjectMasterId<"
+							+ StringFormatter.formatForJavaClass(thisobjectidinarray.getObjectType()) + ">>();");
+					sg.wl("				for (int i=0;i<attribute" + i + ".getObjectNumber();i++) {");
+					sg.wl("					ObjectMasterIdDataElt thisobjectid = (ObjectMasterIdDataElt) attribute" + i
+							+ ".getObjectAtIndex(i);");
+					sg.wl("					if (thisobjectid.getName().compareTo(\"" + argumentname.toUpperCase()
+							+ "\")==0) {");
+					sg.wl("					listfor" + argumentname
+							+ ".add(DataObjectMasterId.generatefromDataObjectMasterIdElt(thisobjectid,"
+							+ StringFormatter.formatForJavaClass(thisobjectidinarray.getObjectType())
+							+ ".getDefinition()));");
+					sg.wl("					} else {");
+					sg.wl("						throw new RuntimeException(String.format(\"was expecting an objectid attribute inside array called "
+							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
+							+ ", got %s \",thisobjectid.getName()));");
+					sg.wl("					}");
+					sg.wl("				}");
+					sg.wl("				" + argumentname + " = (DataObjectMasterId<"
+							+ StringFormatter.formatForJavaClass(thisobjectidinarray.getObjectType()) + ">[]) listfor"
+							+ argumentname + ".toArray(new DataObjectMasterId[0]);");
+					sg.wl("			} else {");
+					sg.wl("				throw new RuntimeException(String.format(\"was expecting an ObjectMasterId inside array called "
+							+ argumentname.toUpperCase() + " as attribute " + i + " of action " + this.getName()
+							+ ", got %s \",attribute" + i + ".getArrayPayloadEltType() ));");
+					sg.wl("				");
+					sg.wl("			}				");
+
+					treated = true;
+				}				
+				
 				if (thisarrayarg.getPayload() instanceof ChoiceArgument) {
 					ChoiceArgument thischoiceinarrayarg = (ChoiceArgument) thisarrayarg.getPayload();
 					String argumentname = thischoiceinarrayarg.getName().toLowerCase();

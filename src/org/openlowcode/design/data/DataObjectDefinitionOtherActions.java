@@ -21,6 +21,7 @@ import org.openlowcode.design.data.properties.basic.ImageContent;
 import org.openlowcode.design.data.properties.basic.LeftForLink;
 import org.openlowcode.design.data.properties.basic.Lifecycle;
 import org.openlowcode.design.data.properties.basic.LinkObject;
+import org.openlowcode.design.data.properties.basic.LinkObjectToMaster;
 import org.openlowcode.design.data.properties.basic.LinkedFromChildren;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
 import org.openlowcode.design.data.properties.basic.PrintOut;
@@ -1050,6 +1051,92 @@ public class DataObjectDefinitionOtherActions {
 	 * @throws IOException if anything bad happens during the generation
 	 */
 
+	public static void generateCreateLinkToMasterActionToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
+		String leftobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
+		String leftobjectattributename = StringFormatter
+				.formatForAttribute(linkobjecttomaster.getLeftobjectforlink().getName());
+		String rightobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getRightobjectforlink().getName());
+		String rightobjectattributename = StringFormatter
+				.formatForAttribute(linkobjecttomaster.getRightobjectforlink().getName());
+		String linkclassname = StringFormatter.formatForJavaClass(dataobject.getName());
+		String linkattributename = StringFormatter.formatForAttribute(dataobject.getName());
+
+		sg.wl("package " + module.getPath() + ".action.generated;");
+		sg.wl("");
+		sg.wl("import " + module.getPath() + ".action.generated.AbsCreate" + linkattributename + "Action;");
+		sg.wl("import " + module.getPath() + ".action.generated.AbsShow" + leftobjectattributename + "Action;");
+		sg.wl("import " + module.getPath() + ".action.generated.AtgShow" + leftobjectattributename + "Action;");
+		Module rightobjectmodule = linkobjecttomaster.getRightobjectforlink().getOwnermodule();
+		sg.wl("import " + rightobjectmodule.getPath() + ".data." + rightobjectclassname + ";");
+		sg.wl("import " + module.getPath() + ".data." + linkclassname + ";");
+		Module leftobjectmodule = linkobjecttomaster.getLeftobjectforlink().getOwnermodule();
+		sg.wl("import " + leftobjectmodule.getPath() + ".data." + leftobjectclassname + ";");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectMasterId;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("import java.util.function.Function;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
+		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+		sg.wl("");
+		sg.wl("public class AtgCreate" + linkattributename + "Action extends AbsCreate" + linkattributename
+				+ "Action {");
+		sg.wl("");
+		sg.wl("	public AtgCreate" + linkattributename + "Action(SModule parent) {");
+		sg.wl("		super(parent);");
+		sg.wl("		");
+		sg.wl("	}");
+		sg.wl("	private DataObjectId<" + leftobjectclassname + "> leftobject" + leftobjectattributename + ";");
+		sg.wl("	@Override");
+		sg.wl("	public DataObjectId<" + linkclassname + ">[] executeActionLogic(DataObjectId<" + leftobjectclassname
+				+ "> leftobject" + leftobjectattributename + ",");
+		sg.wl("			" + linkclassname + " " + linkattributename + ",");
+		sg.wl("			DataObjectMasterId<" + rightobjectclassname + ">[] rightobject" + rightobjectattributename
+				+ ",Function<TableAlias,QueryFilter> datafilter)  {");
+
+		sg.wl("		DataObjectId<" + linkclassname + ">[] answerid = new DataObjectId[rightobject"
+				+ rightobjectattributename + ".length];");
+		sg.wl("		for (int i=0;i< rightobject" + rightobjectattributename + ".length;i++) {");
+		sg.wl("			" + linkclassname + " copyof" + linkattributename + " = " + linkattributename + ".deepcopy();");
+
+		sg.wl("			copyof" + linkattributename + ".setleftobject(leftobject" + leftobjectattributename + ");");
+		sg.wl("			copyof" + linkattributename + ".setrightobjectmaster(rightobject" + rightobjectattributename
+				+ "[i]);");
+		sg.wl("			copyof" + linkattributename + ".insert();");
+		sg.wl("			answerid[i] = copyof" + linkattributename + ".getId();");
+		sg.wl("			}");
+		sg.wl("		this.leftobject" + leftobjectattributename + " = leftobject" + leftobjectattributename + ";");
+		sg.wl("		return answerid;");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public SPage choosePage(DataObjectId<" + linkclassname + ">[] newlinkid)  {");
+		sg.wl("		AbsShow" + leftobjectattributename + "Action action =  AtgShow" + leftobjectattributename
+				+ "Action.get();");
+		sg.wl("		return action.executeAndShowPage(leftobject" + leftobjectattributename + ");");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("}	");
+
+		sg.close();
+	}
+	
+	
+	
+	/**
+	 * generates the code for create link action (and show left object)
+	 * 
+	 * @param dataobject data object definition
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anything bad happens during the generation
+	 */
+
 	public static void generateCreateLinkActionToFile(
 			DataObjectDefinition dataobject,
 			SourceGenerator sg,
@@ -1207,6 +1294,94 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.close();
 	}
+	
+	/**
+	 * generates the code for create link action (and show right object)
+	 * 
+	 * @param dataobject data object definition
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anything bad happens during the generation
+	 */
+	public static void generateCreateLinkToMasterActionAndShowRightToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
+		String leftobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
+		String leftobjectattributename = StringFormatter
+				.formatForAttribute(linkobjecttomaster.getLeftobjectforlink().getName());
+		String rightobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getRightobjectforlink().getName());
+		String rightobjectattributename = StringFormatter
+				.formatForAttribute(linkobjecttomaster.getRightobjectforlink().getName());
+		String linkclassname = StringFormatter.formatForJavaClass(dataobject.getName());
+		String linkattributename = StringFormatter.formatForAttribute(dataobject.getName());
+
+		sg.wl("package " + module.getPath() + ".action.generated;");
+		sg.wl("");
+		sg.wl("import " + module.getPath() + ".action.generated.AbsCreate" + linkattributename + "Action;");
+		Module rightobjectmodule = linkobjecttomaster.getRightobjectforlink().getOwnermodule();
+		sg.wl("import " + rightobjectmodule.getPath() + ".action.generated.AbsShow" + rightobjectattributename
+				+ "Action;");
+		sg.wl("import " + rightobjectmodule.getPath() + ".action.generated.AtgShow" + rightobjectattributename
+				+ "Action;");
+
+		sg.wl("import " + rightobjectmodule.getPath() + ".data." + rightobjectclassname + ";");
+		sg.wl("import " + module.getPath() + ".data." + linkclassname + ";");
+		Module leftobjectmodule = linkobjecttomaster.getLeftobjectforlink().getOwnermodule();
+		sg.wl("import " + leftobjectmodule.getPath() + ".data." + leftobjectclassname + ";");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectMasterId;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("import java.util.function.Function;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
+		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+		sg.wl("");
+		sg.wl("public class AtgCreate" + linkattributename + "andshowright" + rightobjectattributename
+				+ "Action extends AbsCreate" + linkattributename + "andshowright" + rightobjectattributename
+				+ "Action {");
+		sg.wl("");
+		sg.wl("	public AtgCreate" + linkattributename + "andshowright" + rightobjectattributename
+				+ "Action(SModule parent) {");
+		sg.wl("		super(parent);");
+		sg.wl("		");
+		sg.wl("	}");
+		sg.wl("	private DataObjectId<" + rightobjectclassname + "> rightobject" + rightobjectattributename + ";");
+		sg.wl("	@Override");
+		sg.wl("	public DataObjectId<" + linkclassname + ">[] executeActionLogic(DataObjectId<" + leftobjectclassname
+				+ ">[] leftobject" + leftobjectattributename + ",");
+		sg.wl("			" + linkclassname + " " + linkattributename + ",");
+		sg.wl("			DataObjectId<" + rightobjectclassname + "> rightobject" + rightobjectattributename
+				+ ",Function<TableAlias,QueryFilter> datafilter)  {");
+		sg.wl("		DataObjectMasterId<"+rightobjectclassname+"> rightobjectmsid = "+rightobjectclassname+".readone(rightobject" + rightobjectattributename+").getMasterid();");
+		sg.wl("		DataObjectId<" + linkclassname + ">[] answerid = new DataObjectId[leftobject"
+				+ leftobjectattributename + ".length];");
+		sg.wl("		for (int i=0;i< leftobject" + leftobjectattributename + ".length;i++) {");
+		sg.wl("			" + linkclassname + " copyof" + linkattributename + " = " + linkattributename + ".deepcopy();");
+		sg.wl("			copyof" + linkattributename + ".setleftobject(leftobject" + leftobjectattributename + "[i]);");
+		sg.wl("			copyof" + linkattributename + ".setrightobjectmaster(rightobjectmsid);");
+		sg.wl("			copyof" + linkattributename + ".insert();");
+		sg.wl("			answerid[i] = copyof" + linkattributename + ".getId();");
+		sg.wl("			}");
+		sg.wl("		this.rightobject" + rightobjectattributename + " = rightobject" + rightobjectattributename + ";");
+		sg.wl("		return answerid;");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public SPage choosePage(DataObjectId<" + linkclassname + ">[] newlinkid)  {");
+		sg.wl("		AbsShow" + rightobjectattributename + "Action action =  AtgShow" + rightobjectattributename
+				+ "Action.get();");
+		sg.wl("		return action.executeAndShowPage(rightobject" + rightobjectattributename + ");");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("}	");
+
+		sg.close();
+	}
+	
+	
 
 	/**
 	 * generates the code for the standard create action

@@ -18,9 +18,11 @@ import org.openlowcode.design.data.properties.basic.FileContent;
 import org.openlowcode.design.data.properties.basic.HasAutolink;
 import org.openlowcode.design.data.properties.basic.ImageContent;
 import org.openlowcode.design.data.properties.basic.LeftForLink;
+import org.openlowcode.design.data.properties.basic.LeftForLinkToMaster;
 import org.openlowcode.design.data.properties.basic.Lifecycle;
 import org.openlowcode.design.data.properties.basic.LinkedFromChildren;
 import org.openlowcode.design.data.properties.basic.RightForLink;
+import org.openlowcode.design.data.properties.basic.RightForLinkToMaster;
 import org.openlowcode.design.data.properties.basic.Schedule;
 import org.openlowcode.design.data.properties.basic.SimpleTaskWorkflow;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
@@ -320,6 +322,46 @@ public class DataObjectDefinitionShowAction {
 				extraargumentfordata.add("Rightforlinkfor" + linkedobject.getName().toLowerCase() + "blankforadd");
 
 			}
+			
+			if (dataobjectproperty instanceof LeftForLinkToMaster) {
+				LeftForLinkToMaster<?, ?> dataobjectleftforlink = (LeftForLinkToMaster<?, ?>) dataobjectproperty;
+				DataObjectDefinition linkedobject = dataobjectleftforlink.getLinkObjectDefinition();
+				String dataobjectlinkobjectclass = StringFormatter.formatForJavaClass(linkedobject.getName());
+				String dataobjectextravariable = "extradatafor"
+						+ StringFormatter.formatForJavaClass(dataobjectleftforlink.getName());
+				sg.wl("		" + dataobjectlinkobjectclass + "[] " + dataobjectextravariable + " = "
+						+ dataobjectlinkobjectclass + ".getalllinksfromleftid(id,null);");
+				sg.wl("		AtgMassupdate" + StringFormatter.formatForAttribute(linkedobject.getName())
+						+ "Action.get().freezeUnauthorizedObjects(" + dataobjectextravariable + ");");
+				extravariableforaction.add(dataobjectextravariable);
+				extraargumentfordata.add("Leftforlinktomasterfor" + linkedobject.getName().toLowerCase());
+				String dataobjectblankextravariable = "blankforaddfor"
+						+ StringFormatter.formatForJavaClass(dataobjectleftforlink.getName());
+				sg.wl("		" + dataobjectlinkobjectclass + " " + dataobjectblankextravariable + " = new "
+						+ dataobjectlinkobjectclass + "();");
+				extravariableforaction.add(dataobjectblankextravariable);
+				extraargumentfordata.add("Leftforlinktomasterfor" + linkedobject.getName().toLowerCase() + "blankforadd");
+			}
+			if (dataobjectproperty instanceof RightForLinkToMaster) {
+				RightForLinkToMaster<?, ?> dataobjectrightforlink = (RightForLinkToMaster<?, ?>) dataobjectproperty;
+				DataObjectDefinition linkedobject = dataobjectrightforlink.getLinkObjectDefinition();
+				String dataobjectlinkobjectclass = StringFormatter.formatForJavaClass(linkedobject.getName());
+				String dataobjectextravariable = "extradatafor"
+						+ StringFormatter.formatForJavaClass(dataobjectrightforlink.getName());
+				sg.wl("		" + dataobjectlinkobjectclass + "[] " + dataobjectextravariable + " = "
+						+ dataobjectlinkobjectclass + ".getalllinksfromrightmsid("+objectvariable+".getMasterid(),null);");
+				extravariableforaction.add(dataobjectextravariable);
+				extraargumentfordata.add("Rightforlinktomasterfor" + linkedobject.getName().toLowerCase());
+				String dataobjectblankextravariable = "blankforaddfor"
+						+ StringFormatter.formatForJavaClass(dataobjectrightforlink.getName());
+				sg.wl("		" + dataobjectlinkobjectclass + " " + dataobjectblankextravariable + " = new "
+						+ dataobjectlinkobjectclass + "();");
+				extravariableforaction.add(dataobjectblankextravariable);
+				extraargumentfordata.add("Rightforlinktomasterfor" + linkedobject.getName().toLowerCase() + "blankforadd");
+
+			}
+			
+			
 			if (dataobjectproperty instanceof HasAutolink) {
 				HasAutolink<?> hasautolink = (HasAutolink<?>) dataobjectproperty;
 				DataObjectDefinition linkedobject = hasautolink.getLinkObjectDefinition();

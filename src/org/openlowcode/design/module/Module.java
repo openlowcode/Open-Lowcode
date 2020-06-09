@@ -51,6 +51,7 @@ import org.openlowcode.design.data.properties.basic.FileContent;
 import org.openlowcode.design.data.properties.basic.ImageContent;
 import org.openlowcode.design.data.properties.basic.Lifecycle;
 import org.openlowcode.design.data.properties.basic.LinkObject;
+import org.openlowcode.design.data.properties.basic.LinkObjectToMaster;
 import org.openlowcode.design.data.properties.basic.LinkedFromChildren;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
 import org.openlowcode.design.data.properties.basic.PrintOut;
@@ -72,9 +73,10 @@ import org.openlowcode.module.system.design.SystemModule;
 import org.openlowcode.tools.trace.ConsoleFormatter;
 
 /**
- * A module is the basic unit of an Open Lowcode application. It is made of a group of
- * data objects ( {@link org.openlowcode.design.data.DataObjectDefinition})
- * tightly linked together.
+ * A module is the basic unit of an Open Lowcode application. It is made of a
+ * group of data objects (
+ * {@link org.openlowcode.design.data.DataObjectDefinition}) tightly linked
+ * together.
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
@@ -731,6 +733,7 @@ public class Module
 		sg.wl("import org.openlowcode.server.graphic.widget.SMenuItem;");
 		sg.wl("import org.openlowcode.server.runtime.SModuleHelper;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectMasterId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.action.ActionExecution;");
 		sg.wl("import org.openlowcode.server.graphic.SPageAddon;");
@@ -1117,6 +1120,28 @@ public class Module
 		sg.wl("		throw new  RuntimeException(\"Object \"+objectname+\" not found in module \"+this.getName());");
 		sg.wl("	}");
 		sg.wl("");
+
+		sg.wl("	@Override");
+		sg.wl("	public DataObject getDataObjectBasedOnGenericMasterId(DataObjectMasterId genericmasterid) {");
+		sg.wl("		String [] splitobjectid = genericmasterid.getObjectId().split(\":\");");
+		sg.wl("		if (splitobjectid.length!=2) throw new  RuntimeException(\"objectid should have two components separated by ':', but does not have  \"+genericmasterid.getObjectId());");
+		sg.wl("		String modulename = splitobjectid[0];");
+		sg.wl("		if (modulename.compareTo(this.getName())!=0) throw new  RuntimeException(\"wrong module, expected \"+this.getName()+\", got \"+modulename+\" for objectid \"+genericmasterid);");
+		sg.wl("		String objectname = splitobjectid[1];");
+		for (int i = 0; i < this.getObjectNumber(); i++) {
+			DataObjectDefinition thisobject = this.getObject(i);
+			if (thisobject.getPropertyByName("VERSIONED") != null) {
+				String uppercasename = thisobject.getName().toUpperCase();
+				String classname = StringFormatter.formatForJavaClass(thisobject.getName());
+				sg.wl("		if (objectname.equals(\"" + uppercasename + "\")) return " + classname
+						+ ".getlastversion(DataObjectMasterId.castDataObjectMasterId(genericmasterid," + classname
+						+ ".getDefinition()));");
+			}
+		}
+		sg.wl("		// Exception if not found");
+		sg.wl("		throw new  RuntimeException(\"Object (with property versioned) \"+objectname+\" not found in module \"+this.getName());");
+		sg.wl("	}");
+
 		sg.wl("	@Override");
 		sg.wl("	public DataObject getDataObjectBasedOnGenericId(DataObjectId genericid)  {");
 		sg.wl("		// Get Object");
@@ -1136,7 +1161,7 @@ public class Module
 			}
 		}
 		sg.wl("		// Exception if not found");
-		sg.wl("		throw new  RuntimeException(\"Object \"+objectname+\" not found in module \"+this.getName());");
+		sg.wl("		throw new  RuntimeException(\"Object (with property UniqueIdentified) \"+objectname+\" not found in module \"+this.getName());");
 		sg.wl("	}");
 
 		sg.wl("	@Override");
@@ -1568,10 +1593,14 @@ public class Module
 				boolean autolink = false;
 
 				boolean linkobject = false;
+				boolean linkobjecttomaster = false;
+				
 				if (currentobject.getPropertyByName("LINKOBJECT") != null)
 					linkobject = true;
 				if (currentobject.getPropertyByName("AUTOLINKOBJECT") != null)
 					autolink = true;
+				if (currentobject.getPropertyByName("LINKOBJECTTOMASTER")!=null)
+					linkobjecttomaster=true;
 				if (linkedtoparents != null)
 					for (int i1 = 0; i1 < linkedtoparents.length; i1++) {
 						LinkedToParent<?> thislinkedtoparent = linkedtoparents[i1];
@@ -1587,7 +1616,7 @@ public class Module
 							}
 						}
 					}
-				if (((!subobject) && (!autolink) && (!linkobject)) || ((linkobject) && (currentobject.IsIterated()))) {
+				if (((!subobject) && (!autolink) && (!linkobject) && (!linkobjecttomaster)) || ((linkobject) && (currentobject.IsIterated()))) {
 					String fullfilepathdelete = srcautoactionfolder + "Atg"
 							+ StringFormatter.formatForJavaClass("DELETE" + currentobject.getName()) + "Action.java";
 					logger.info("generating file " + fullfilepathdelete);
@@ -1640,6 +1669,25 @@ public class Module
 							this);
 
 				}
+				if (linkobjecttomaster) {
+					String fullfilepathdeletelinkandshowleft = srcautoactionfolder + "Atg"
+							+ StringFormatter.formatForJavaClass("DELETE" + currentobject.getName() + "ANDSHOWLEFT")
+							+ "Action.java";
+					logger.info("generating file " + fullfilepathdeletelinkandshowleft);
+					DataObjectDefinitionDeleteAndUpdate.generateDeleteLinkToMasterAndShowLeftToFile(currentobject,
+							new SourceGenerator(new File(fullfilepathdeletelinkandshowleft), this.getAuthor(),
+									this.getVersionid()),
+							this);
+
+					String fullfilepathdeletelinkandshowright = srcautoactionfolder + "Atg"
+							+ StringFormatter.formatForJavaClass("DELETE" + currentobject.getName() + "ANDSHOWRIGHT")
+							+ "Action.java";
+					logger.info("generating file " + fullfilepathdeletelinkandshowright);
+					DataObjectDefinitionDeleteAndUpdate.generateDeleteLinkToMasterAndShowRightToFile(currentobject,
+							new SourceGenerator(new File(fullfilepathdeletelinkandshowright), this.getAuthor(),
+									this.getVersionid()),
+							this);
+				}
 			}
 
 			if (currentobject.isShowActionAutomaticallyGenerated()) {
@@ -1685,6 +1733,7 @@ public class Module
 			}
 			LinkObject<?, ?> linkproperty = (LinkObject<?, ?>) currentobject.getPropertyByName("LINKOBJECT");
 			AutolinkObject<?> autolinkproperty = (AutolinkObject<?>) currentobject.getPropertyByName("AUTOLINKOBJECT");
+			LinkObjectToMaster<?,?> linktomasterproperty = (LinkObjectToMaster<?,?>) currentobject.getPropertyByName("LINKOBJECTTOMASTER");
 			if (linkproperty != null) {
 				// create link
 				String fullfilepathcreatelink = srcautoactionfolder + "Atg"
@@ -1778,6 +1827,47 @@ public class Module
 				}
 
 			}
+			
+			if (linktomasterproperty!=null) {
+				String fullfilepathcreatelink = srcautoactionfolder + "Atg"
+						+ StringFormatter.formatForJavaClass("CREATE" + currentobject.getName()) + "Action.java";
+				logger.info("generating file " + fullfilepathcreatelink);
+				DataObjectDefinitionOtherActions.generateCreateLinkToMasterActionToFile(currentobject,
+						new SourceGenerator(new File(fullfilepathcreatelink), this.getAuthor(), this.getVersionid()),
+						this);
+				
+				String fullfilepathcreatelinkandshowright = srcautoactionfolder + "Atg"
+						+ StringFormatter.formatForJavaClass("CREATE" + currentobject.getName() + "ANDSHOWRIGHT"
+								+ linktomasterproperty.getRightobjectforlink().getName())
+						+ "Action.java";
+				logger.info("generating file " + fullfilepathcreatelinkandshowright);
+
+				DataObjectDefinitionOtherActions.generateCreateLinkToMasterActionAndShowRightToFile(currentobject,
+						new SourceGenerator(new File(fullfilepathcreatelinkandshowright), this.getAuthor(),
+								this.getVersionid()),
+						this);
+				
+				if (!currentobject.isShowActionAutomaticallyGenerated()) {
+					String fullfilepathmassupdate = srcautoactionfolder + "Atg"
+							+ StringFormatter.formatForJavaClass("MASSUPDATE" + currentobject.getName())
+							+ "Action.java";
+					logger.info("generating file " + fullfilepathmassupdate);
+					DataObjectDefinitionDeleteAndUpdate.generateMassUpdateActionToFile(currentobject,
+							new SourceGenerator(new File(fullfilepathmassupdate), this.getAuthor(),
+									this.getVersionid()),
+							this);
+				}
+				String fullfilepathmassupdateandshowleft = srcautoactionfolder + "Atg"
+						+ StringFormatter.formatForJavaClass("MASSUPDATE" + currentobject.getName() + "ANDSHOWLEFT")
+						+ "Action.java";
+				logger.info("generating file " + fullfilepathmassupdateandshowleft);
+				DataObjectDefinitionDeleteAndUpdate.generateMassUpdateLinkToMasterAndShowLeftToFile(currentobject,
+						new SourceGenerator(new File(fullfilepathmassupdateandshowleft), this.getAuthor(),
+								this.getVersionid()),
+						this, linktomasterproperty);
+
+			}
+			
 			if (autolinkproperty != null) {
 				// create link
 				String fullfilepathprepareupdate = srcautoactionfolder + "Atg"
@@ -1812,7 +1902,7 @@ public class Module
 			}
 
 			if (currentobject.isUniqueIdentified())
-				if (((linkproperty == null) && (autolinkproperty == null))
+				if (((linkproperty == null) && (autolinkproperty == null) && (linktomasterproperty==null))
 						|| (currentobject.isShowActionAutomaticallyGenerated())) {
 					String fullfilepathpreparestandardcreateaction = srcautoactionfolder + "Atg"
 							+ StringFormatter.formatForJavaClass("PREPARESTANDARDCREATE" + currentobject.getName())

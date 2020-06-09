@@ -1,13 +1,3 @@
-/********************************************************************************
- * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0 .
- *
- * SPDX-License-Identifier: EPL-2.0
- ********************************************************************************/
-
 package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
@@ -26,20 +16,9 @@ import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.PageDefinition;
 import org.openlowcode.tools.misc.NamedList;
 
-/**
- * This property is added to an object that is on the left of a
- * {@link org.openlowcode.design.data.properties.basic.LinkObject} <br>
- * <br>
- * Warning: this should not be added directly by developers <br>
- * Dependent property :
- * {@link org.openlowcode.design.data.properties.basic.UniqueIdentified}
- * 
- * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
- *         SAS</a>
- */
-public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDefinition>
+public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataObjectDefinition>
 		extends
-		Property<LeftForLink<E, F>> {
+		Property<LeftForLinkToMaster<E, F>> {
 
 	private NamedList<DynamicActionDefinition> actionsonobjectid;
 	private NamedList<DynamicActionDefinition> actionsonselectedlinkid;
@@ -48,14 +27,14 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 	private UniqueIdentified uniqueidentified;
 	private E linkdataobject;
 	private F rightobjectforlink;
-	private LinkObject<E, F> linkobject;
+	private LinkObjectToMaster<E, F> linkobjecttomaster;
 	private WidgetDisplayPriority linkfromleftpriority;
 
 	/**
 	 * @return the widget for link from left (table)
 	 */
 	public Widget generateLinkFromLeftTableWidget() {
-		return new LinkFromLeftTableWidget(this);
+		return new LinkToMasterFromLeftTableWidget(this);
 	}
 
 	/**
@@ -69,23 +48,23 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 	 * @param linkfromleftpriority widget display priority for the left for link
 	 *                             widget on the object
 	 */
-	public LeftForLink(
+	public LeftForLinkToMaster(
 			E linkdataobject,
 			F rightobjectforlink,
-			LinkObject<E, F> linkobject,
+			LinkObjectToMaster<E, F> linkobjecttomaster,
 			WidgetDisplayPriority linkfromleftpriority) {
-		super(linkdataobject.getName(), "LEFTFORLINK");
+		super(linkdataobject.getName(), "LEFTFORLINKTOMASTER");
 		this.linkdataobject = linkdataobject;
 		this.rightobjectforlink = rightobjectforlink;
-		this.linkobject = linkobject;
+		this.linkobjecttomaster = linkobjecttomaster;
 		this.linkfromleftpriority = linkfromleftpriority;
 	}
 
 	@Override
 	public void controlAfterParentDefinition() {
-		this.addPropertyGenerics(new PropertyGenerics("LINKOBJECT", linkdataobject, linkobject));
-		this.addPropertyGenerics(new PropertyGenerics("RIGHTOBJECTFORLINK", rightobjectforlink,
-				rightobjectforlink.getPropertyByName("UNIQUEIDENTIFIED")));
+		this.addPropertyGenerics(new PropertyGenerics("LINKOBJECTTOMASTER", linkdataobject, linkobjecttomaster));
+		this.addPropertyGenerics(new PropertyGenerics("RIGHTOBJECTFORLINKTOMASTER", rightobjectforlink,
+				rightobjectforlink.getPropertyByName("VERSIONED")));
 		actionsonobjectid = new NamedList<DynamicActionDefinition>();
 		actionsonselectedlinkid = new NamedList<DynamicActionDefinition>();
 		actiononselectedrightobjectid = new NamedList<DynamicActionDefinition>();
@@ -129,10 +108,10 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 	/**
 	 * @return the link object property on the link object
 	 */
-	public LinkObject<E, F> getLinkObjectProperty() {
+	public LinkObjectToMaster<E, F> getLinkObjectProperty() {
 		DataObjectDefinition linkobject = linkdataobject;
 		@SuppressWarnings("unchecked")
-		LinkObject<E, F> linkobjectproperty = (LinkObject<E, F>) linkobject.getPropertyByName("LINKOBJECT");
+		LinkObjectToMaster<E, F> linkobjectproperty = (LinkObjectToMaster<E, F>) linkobject.getPropertyByName("LINKOBJECTTOMASTER");
 		if (linkobjectproperty == null)
 			throw new RuntimeException("link object does not have property");
 		return linkobjectproperty;
@@ -278,17 +257,17 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 	 *         SAS</a>
 	 *
 	 */
-	public class LinkFromLeftTableWidget
+	public class LinkToMasterFromLeftTableWidget
 			extends
 			Widget {
-		private LeftForLink<E, F> parentproperty;
+		private LeftForLinkToMaster<E, F> parentproperty;
 
 		/**
 		 * creaes a table widget for left for link
 		 * 
 		 * @param parentproperty parent property left for link
 		 */
-		LinkFromLeftTableWidget(LeftForLink<E, F> parentproperty) {
+		LinkToMasterFromLeftTableWidget(LeftForLinkToMaster<E, F> parentproperty) {
 			super("LINKFROMLEFTTABLE");
 			this.parentproperty = parentproperty;
 		}
@@ -316,7 +295,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 			importstatements.add("import " + linkobjectmodule.getPath() + ".data." + linkobjectclass + "Definition;");
 			importstatements.add("import " + linkobjectmodule.getPath() + ".action.generated.AtgMassupdate"
 					+ linkobjectvariable + "andshowleftAction;");
-			LinkObject<E, F> linkobject = parentproperty.getLinkObjectProperty();
+			LinkObjectToMaster<E, F> linkobject = parentproperty.getLinkObjectProperty();
 			Module module = parentproperty.getParent().getOwnermodule();
 			if (linkobject.getBusinessRuleNumber() > 0) {
 				importstatements.add("import " + module.getPath() + ".action.generated.AtgSearchright"
@@ -339,10 +318,15 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 					.formatForAttribute(parentproperty.getRightObjectForLink().getName());
 			String rightobjectclass = StringFormatter
 					.formatForJavaClass(parentproperty.getRightObjectForLink().getName());
+			
+			// ---- temporary code.
+			DisplayLinkAsAttributeFromLeftObject<E, F> attributeasleft = null;
+			/*
 			@SuppressWarnings("unchecked")
 			DisplayLinkAsAttributeFromLeftObject<E, F> attributeasleft = (DisplayLinkAsAttributeFromLeftObject<
 					E, F>) parentproperty.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
-
+*/
+			
 			if (attributeasleft == null) {
 				// -------------------------------------------------------------------------------------------------
 				// show link as table. This is the classical display
@@ -357,7 +341,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 						+ "\",SPageText.TYPE_TITLE,this));");
 				sg.wl("		SObjectArray<" + linkobjectclass + "> left" + linkobjectvariable + "s = new SObjectArray<"
 						+ linkobjectclass + ">(\"LEFT" + linkobjectclass.toUpperCase() + "\",");
-				sg.wl("				this.getLeftforlinkfor" + linkobjectvariable + "(),");
+				sg.wl("				this.getLeftforlinktomasterfor" + linkobjectvariable + "(),");
 				sg.wl("				" + linkobjectclass + ".getDefinition(),");
 				sg.wl("				this);");
 				sg.wl("		left" + linkobjectvariable + "s.addDisplayProfile(" + linkobjectclass + "Definition.get"
@@ -382,7 +366,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 						+ linkobjectvariable + "action = AtgShow" + rightobjectvariable
 						+ "Action.get().getActionRef();");
 				sg.wl("		showright" + rightobjectvariable + "for" + linkobjectvariable + "action.setId(left"
-						+ linkobjectvariable + "s.getAttributeInput(" + linkobjectclass + ".getRgidMarker()));");
+						+ linkobjectvariable + "s.getAttributeInput(" + linkobjectclass + ".getRgmsidMarker()));");
 				sg.wl("		left" + linkobjectvariable + "s.addDefaultAction(showright" + rightobjectvariable + "for"
 						+ linkobjectvariable + "action);");
 				sg.wl("		");
@@ -397,7 +381,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 				sg.wl("		addtoleft" + linkobjectvariable + "s.addElement(titleforleft" + linkobjectvariable + ");");
 				sg.wl("				");
 
-				LinkObject<E, F> linkobjectproperty = parentproperty.getLinkObjectProperty();
+				LinkObjectToMaster<E, F> linkobjectproperty = parentproperty.getLinkObjectProperty();
 				if (linkobjectproperty.getBusinessRuleNumber() > 0) {
 					// if business rule on link, use specific object searcher for right object
 					sg.wl("		SObjectSearcher<" + rightobjectclass + "> " + rightobjectvariable + "searchforaddtoleft"
@@ -430,7 +414,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 						+ "s = new  SObjectDisplay<" + linkobjectclass + ">(\"BLANK"
 						+ linkobject.getName().toUpperCase() + "FORADD\",");
 
-				sg.wl("			this.getLeftforlinkfor" + linkobjectvariable + "blankforadd(), " + linkobjectclass
+				sg.wl("			this.getLeftforlinktomasterfor" + linkobjectvariable + "blankforadd(), " + linkobjectclass
 						+ ".getDefinition(),this, false);");
 				sg.wl("		blanklinkforaddtoleft" + linkobjectvariable + "s.setHideReadOnly();");
 				sg.wl("				");
@@ -445,8 +429,8 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 				sg.wl("		createlinkactionforaddtoleft" + linkobjectvariable + "s.set" + linkobjectclass
 						+ "(blanklinkforaddtoleft" + linkobjectvariable + "s.getObjectInput());");
 				sg.wl("		createlinkactionforaddtoleft" + linkobjectvariable + "s.setRight" + rightobjectvariable
-						+ "id(" + rightobjectvariable + "searchforaddtoleft" + linkobjectvariable
-						+ "s.getresultarray().getAttributeArrayInput(" + rightobjectclass + ".getLinkobjecttomasterrightidMarker()));");
+						+ "msid(" + rightobjectvariable + "searchforaddtoleft" + linkobjectvariable
+						+ "s.getresultarray().getAttributeArrayInput(" + rightobjectclass + ".getMasteridMarker()));");
 				sg.wl("					");
 				sg.wl("		SActionButton createlinkbuttonforaddtoleft" + linkobjectvariable
 						+ " = new SActionButton(\"Add Link\", createlinkactionforaddtoleft" + linkobjectvariable
@@ -478,10 +462,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 						+ "button);");
 				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "buttonbar);");
 				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "s);");
-			} else {
-				// -------------------------------------------------------------------------------------------------
-				// show link as field array
-			}
+			} 
 
 		}
 

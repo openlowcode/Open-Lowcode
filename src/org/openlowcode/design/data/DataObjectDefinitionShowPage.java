@@ -24,6 +24,7 @@ import org.openlowcode.design.data.properties.basic.FileContent;
 import org.openlowcode.design.data.properties.basic.HasAutolink;
 import org.openlowcode.design.data.properties.basic.ImageContent;
 import org.openlowcode.design.data.properties.basic.LeftForLink;
+import org.openlowcode.design.data.properties.basic.LeftForLinkToMaster;
 import org.openlowcode.design.data.properties.basic.Lifecycle;
 import org.openlowcode.design.data.properties.basic.LinkObject;
 import org.openlowcode.design.data.properties.basic.LinkedFromChildren;
@@ -33,6 +34,7 @@ import org.openlowcode.design.data.properties.basic.Numbered;
 import org.openlowcode.design.data.properties.basic.ObjectWithWorkflow;
 import org.openlowcode.design.data.properties.basic.PrintOut;
 import org.openlowcode.design.data.properties.basic.RightForLink;
+import org.openlowcode.design.data.properties.basic.RightForLinkToMaster;
 import org.openlowcode.design.data.properties.basic.Schedule;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
 import org.openlowcode.design.data.properties.basic.UniqueIdentified;
@@ -135,6 +137,7 @@ public class DataObjectDefinitionShowPage
 				Widget childtable = thislinkedfromchildren.generateChildrenTableWidget();
 				this.widgets.add(childtable);
 			}
+			
 			if (thisproperty instanceof LeftForLink) {
 
 				LeftForLink<?, ?> thisleftforlink = (LeftForLink<?, ?>) thisproperty;
@@ -153,6 +156,7 @@ public class DataObjectDefinitionShowPage
 				arrayistree.add(Boolean.FALSE);
 				leftlinkedproperties.add(thisleftforlink);
 			}
+			
 			if (thisproperty instanceof RightForLink) {
 				RightForLink<?, ?> thisrightforlink = (RightForLink<?, ?>) thisproperty;
 				Widget linktablefromright = thisrightforlink.getLinkFromRightTableWidget();
@@ -169,6 +173,44 @@ public class DataObjectDefinitionShowPage
 				arrayistree.add(Boolean.FALSE);
 				rightlinkedproperties.add(thisrightforlink);
 			}
+			
+			if (thisproperty instanceof LeftForLinkToMaster) {
+
+				LeftForLinkToMaster<?, ?> thisleftforlink = (LeftForLinkToMaster<?, ?>) thisproperty;
+				Widget linktable = thisleftforlink.generateLinkFromLeftTableWidget();
+				this.widgets.add(linktable);
+
+				DataObjectDefinition linkedobject = thisleftforlink.getLinkObjectDefinition();
+				linkedobjects.addIfNew(linkedobject);
+				linkedobjects.addIfNew(thisleftforlink.getRightObjectForLink());
+				objectstoshow.addIfNew(thisleftforlink.getRightObjectForLink());
+				islinkedobject = true;
+				arraytypes.add(StringFormatter.formatForJavaClass(linkedobject.getName()));
+				arraynames.add("leftforlink" + StringFormatter.formatForAttribute(linkedobject.getName()));
+				hasblankobject.add(true);
+				blankobjectname.add("blankforaddfor" + StringFormatter.formatForAttribute(linkedobject.getName()));
+				arrayistree.add(Boolean.FALSE);
+
+			}
+			
+			if (thisproperty instanceof RightForLinkToMaster) {
+				RightForLinkToMaster<?, ?> thisrightforlink = (RightForLinkToMaster<?, ?>) thisproperty;
+				Widget linktablefromright = thisrightforlink.getLinkFromRightTableWidget();
+				this.widgets.add(linktablefromright);
+				DataObjectDefinition linkedobject = thisrightforlink.getLinkObjectDefinition();
+				islinkedobject = true;
+				linkedobjects.addIfNew(linkedobject);
+				linkedobjects.addIfNew(thisrightforlink.getLeftObjectForLink());
+				objectstoshow.addIfNew(thisrightforlink.getLeftObjectForLink());
+				arraytypes.add(StringFormatter.formatForJavaClass(linkedobject.getName()));
+				arraynames.add("rightforlink" + StringFormatter.formatForAttribute(linkedobject.getName()));
+				hasblankobject.add(true);
+				blankobjectname.add("blankforaddfor" + StringFormatter.formatForAttribute(linkedobject.getName()));
+				arrayistree.add(Boolean.FALSE);
+
+			}
+			
+			
 			if (thisproperty instanceof HasAutolink) {
 				HasAutolink<?> hasautolink = (HasAutolink<?>) thisproperty;
 				Widget autolinkwidgetfromleftorcommon = hasautolink.getWidgetForLeftOrCommonAutolink();

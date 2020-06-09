@@ -18,6 +18,7 @@ import org.openlowcode.server.action.SActionData;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.properties.DataObjectId;
+import org.openlowcode.server.data.properties.DataObjectMasterId;
 import org.openlowcode.server.graphic.SPage;
 import org.openlowcode.server.graphic.SPageAddon;
 import org.openlowcode.server.graphic.widget.SMenu;
@@ -177,6 +178,12 @@ public abstract class SModule extends Named {
 	 */
 	public abstract DataObject getDataObjectBasedOnGenericId(DataObjectId genericid);
 
+	/**
+	 * @param genericmasterid a master id
+	 * @return the object instance if the object master is versioned
+	 */
+	public abstract DataObject getDataObjectBasedOnGenericMasterId(DataObjectMasterId genericmasterid);
+	
 	/**
 	 * adds a page to this module
 	 * 

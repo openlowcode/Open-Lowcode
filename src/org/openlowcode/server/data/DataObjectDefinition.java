@@ -28,6 +28,7 @@ import org.openlowcode.server.data.DataObjectPropertyDefinition.FieldSchemaForDi
 import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
 import org.openlowcode.server.data.loader.TransientPropertiesForLoader;
 import org.openlowcode.server.data.properties.DataObjectId;
+import org.openlowcode.server.data.properties.DataObjectMasterId;
 import org.openlowcode.server.data.properties.CustomloaderDefinition.CustomloaderHelper;
 import org.openlowcode.server.data.specificstorage.ExternalFieldSchema;
 import org.openlowcode.server.data.specificstorage.JoinQueryConditionDefinition;
@@ -281,7 +282,12 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	 * @return generates a data object id array template.
 	 */
 	public abstract DataObjectId<E>[] generateIdArrayTemplate();
-
+	
+	/**
+	 * @return generates a data object master id array template
+	 */
+	public abstract DataObjectMasterId<E>[] generateMasterIdArrayTemplate();
+	
 	/**
 	 * @return a blank object
 	 */

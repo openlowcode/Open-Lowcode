@@ -17,6 +17,7 @@ import java.util.HashMap;
 import org.openlowcode.design.data.properties.basic.AutolinkObject;
 import org.openlowcode.design.data.properties.basic.DataControl;
 import org.openlowcode.design.data.properties.basic.LinkObject;
+import org.openlowcode.design.data.properties.basic.LinkObjectToMaster;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
@@ -401,6 +402,139 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.close();
 	}
 
+
+	/**
+	 * generates the delete link and show left action for the data object
+	 * 
+	 * @param dataobject data object
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anything bad happens while writing the source code
+	 */
+	public static void generateDeleteLinkToMasterAndShowLeftToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+		String actionname = "Delete" + dataobject.getName().toLowerCase() + "andshowleft";
+		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
+		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
+		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
+		String leftobjectvariable = StringFormatter.formatForAttribute(linkobjecttomaster.getLeftobjectforlink().getName());
+		String leftobjectclass = StringFormatter.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
+		String leftobjectmodulepath = linkobjecttomaster.getLeftobjectforlink().getOwnermodule().getPath();
+		sg.wl("package " + module.getPath() + ".action.generated;");
+		sg.wl("");
+		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
+		sg.wl("import " + leftobjectmodulepath + ".data." + leftobjectclass + ";");
+		sg.wl("import " + leftobjectmodulepath + ".action.generated.AtgShow" + leftobjectvariable + "Action;");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("import java.util.function.Function;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
+		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+		sg.wl("");
+		sg.wl("public class Atg" + actionname + "Action extends Abs" + actionname + "Action {");
+		sg.wl("");
+		sg.wl("	public Atg" + actionname + "Action(SModule parent) {");
+		sg.wl("		super(parent);");
+		sg.wl("		");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public ActionOutputData executeActionLogic(DataObjectId<" + leftobjectclass + "> " + leftobjectvariable + "id,");
+		sg.wl("			DataObjectId<" + objectclass + "> " + objectvariable
+				+ "id,Function<TableAlias,QueryFilter> datafilter)");
+		sg.wl("			 {");
+		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(" + objectvariable
+				+ "id);");
+		sg.wl("		" + objectvariable + ".delete();");
+		sg.wl("		return new ActionOutputData(" + leftobjectvariable + "id);");
+		sg.wl("			");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public SPage choosePage(ActionOutputData outputdata)");
+		sg.wl("			 {");
+		sg.wl("	return AtgShow" + leftobjectvariable + "Action.get().executeAndShowPage(outputdata.getParent"
+				+ leftobjectvariable + "id());");
+		sg.wl("	}");
+		sg.wl("	");
+		sg.wl("}");
+
+		sg.close();
+	}
+
+	/**
+	 * generates the delete link and show right action for the data object
+	 * 
+	 * @param dataobject data object
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anything bad happens while writing the source code
+	 */
+	public static void generateDeleteLinkToMasterAndShowRightToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+
+		String actionname = "Delete" + dataobject.getName().toLowerCase() + "andshowright";
+		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
+		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
+		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
+		String rightobjectvariable = StringFormatter.formatForAttribute(linkobjecttomaster.getRightobjectforlink().getName());
+		String rightobjectclass = StringFormatter.formatForJavaClass(linkobjecttomaster.getRightobjectforlink().getName());
+		String rightobjectmodulepath = linkobjecttomaster.getRightobjectforlink().getOwnermodule().getPath();
+		sg.wl("package " + module.getPath() + ".action.generated;");
+		sg.wl("");
+		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
+		sg.wl("import " + rightobjectmodulepath + ".data." + rightobjectclass + ";");
+		sg.wl("import " + rightobjectmodulepath + ".action.generated.AtgShow" + rightobjectvariable + "Action;");
+
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("import java.util.function.Function;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
+		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+		sg.wl("");
+		sg.wl("public class Atg" + actionname + "Action extends Abs" + actionname + "Action {");
+		sg.wl("");
+		sg.wl("	public Atg" + actionname + "Action(SModule parent) {");
+		sg.wl("		super(parent);");
+		sg.wl("		");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public ActionOutputData executeActionLogic(");
+		sg.wl("			DataObjectId<" + objectclass + "> " + objectvariable
+				+ "id,Function<TableAlias,QueryFilter> datafilter)");
+		sg.wl("			 {");
+		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(" + objectvariable
+				+ "id);");
+		sg.wl("		DataObjectId<" + rightobjectclass + "> " + rightobjectvariable + "id = " + rightobjectclass + ".getlastversion(" + objectvariable
+				+ ".getRgmsid()).getId();");
+		sg.wl("		" + objectvariable + ".delete();");
+		sg.wl("		return new ActionOutputData(" + rightobjectvariable + "id);");
+		sg.wl("			");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public SPage choosePage(ActionOutputData outputdata)");
+		sg.wl("			 {");
+		sg.wl("	return AtgShow" + rightobjectvariable + "Action.get().executeAndShowPage(outputdata.getParent"
+				+ rightobjectvariable + "id());");
+		sg.wl("	}");
+		sg.wl("	");
+		sg.wl("}");
+
+		sg.close();
+	}
+
+	
+	
 	/**
 	 * generate the code for the prepare update action
 	 * 
@@ -704,6 +838,74 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.close();
 	}
 
+	/**
+	 * generate a mass update of link tomasterobjects and show the left object after the
+	 * action
+	 * 
+	 * @param dataobject data object
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @param linkobjecttomaster link object
+	 * @throws IOException if anything bad happens while writing the source code
+	 */
+	public static void generateMassUpdateLinkToMasterAndShowLeftToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module,
+			LinkObjectToMaster<?, ?> linkobjecttomaster) throws IOException {
+		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
+		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
+
+		String leftobjectclass = StringFormatter.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
+		String leftobjectvariable = StringFormatter.formatForAttribute(linkobjecttomaster.getLeftobjectforlink().getName());
+
+		sg.wl("package " + module.getPath() + ".action.generated;");
+		sg.wl("");
+		sg.wl("import java.util.function.Function;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+		sg.wl("");
+		sg.wl("import " + linkobjecttomaster.getLeftobjectforlink().getOwnermodule().getPath() + ".data." + leftobjectclass
+				+ ";");
+		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
+		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("");
+		sg.wl("public class AtgMassupdate" + objectvariable + "andshowleftAction extends AbsMassupdate" + objectvariable
+				+ "andshowleftAction {");
+		sg.wl("");
+		sg.wl("	public AtgMassupdate" + objectvariable + "andshowleftAction(SModule parent) {");
+		sg.wl("		super(parent);");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		String updatenoteargument = "";
+		if (dataobject.IsIterated())
+			updatenoteargument = ",String updatenote";
+		sg.wl("	public DataObjectId<" + leftobjectclass + "> executeActionLogic(" + objectclass + "[] " + objectvariable
+				+ updatenoteargument + ", DataObjectId<" + leftobjectclass + "> " + leftobjectvariable + "id,");
+		sg.wl("			Function<TableAlias, QueryFilter> datafilter)  {");
+		sg.wl("		for (int i=0;i<" + objectvariable + ".length;i++) {");
+		sg.wl("			" + objectclass + " this" + objectvariable + " = " + objectvariable + "[i];");
+		if (dataobject.IsIterated())
+			sg.wl("			this" + objectvariable + ".setupdatenote(updatenote);");
+		sg.wl("			this" + objectvariable + ".update();");
+		sg.wl("		}");
+		sg.wl("		return " + leftobjectvariable + "id;");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public SPage choosePage(DataObjectId<" + leftobjectclass + "> " + leftobjectvariable + "idthru)  {");
+		sg.wl("		return AtgShow" + leftobjectvariable + "Action.get().executeAndShowPage(" + leftobjectvariable
+				+ "idthru);");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("}");
+		sg.close();
+	}
+	
 	/**
 	 * generate a mass update of children objects and show the parent object after
 	 * the action

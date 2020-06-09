@@ -45,6 +45,10 @@ public class Versioned
 		extends
 		Property<Versioned> {
 
+	public UniqueIdentified getRelatedUniqueIdentified() {
+		return this.uniqueidentified;
+	}
+	
 	private UniqueIdentified uniqueidentified;
 	private boolean restrictnewversion;
 
