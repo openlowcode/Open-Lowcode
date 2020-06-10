@@ -135,6 +135,10 @@ public class DataObjectMasterId<E extends DataObject<E>> {
 	public boolean equals(Object otherobject) {
 		if (otherobject instanceof DataObjectMasterId) {
 			DataObjectMasterId<?> otherid = (DataObjectMasterId<?>) otherobject;
+			if (otherid.getId()==null) {
+				if (this.id==null) return true;
+				return false;
+			}
 			return otherid.getId().equals(this.id);
 		}
 		return false;
@@ -143,7 +147,7 @@ public class DataObjectMasterId<E extends DataObject<E>> {
 	@Override
 	public int hashCode() {
 
-		return this.id.hashCode();
+		return (id!=null?this.id.hashCode():"".hashCode());
 	}
 
 	/**
