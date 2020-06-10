@@ -94,7 +94,7 @@ public class ArrayDataElt<E extends DataElt> extends DataElt {
 		if (!arrayelt.getType().equals(arrayelementtype))
 			throw new RuntimeException(String.format(
 					"try to add objects with incompatible types in an array with name %s, array type: %s, object type: %s ",
-					this.getName(), this.getType(), arrayelt.getType()));
+					this.getName(), arrayelementtype, arrayelt.getType()));
 		arraycontent.add(arrayelt);
 	}
 

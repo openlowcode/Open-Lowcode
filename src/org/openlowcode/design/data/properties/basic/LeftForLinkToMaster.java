@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 [Open Lowcode SAS](https://openlowcode.com/)
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0 .
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ********************************************************************************/
+
 package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
@@ -16,6 +26,16 @@ import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.PageDefinition;
 import org.openlowcode.tools.misc.NamedList;
 
+/**
+ * The property for an object that is left for a link to master relationship
+ * 
+ * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+ *         SAS</a>
+ *
+ * @param <E> current object
+ * @param <F> link to master object
+ * @since 1.9
+ */
 public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataObjectDefinition>
 		extends
 		Property<LeftForLinkToMaster<E, F>> {
@@ -111,7 +131,9 @@ public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataO
 	public LinkObjectToMaster<E, F> getLinkObjectProperty() {
 		DataObjectDefinition linkobject = linkdataobject;
 		@SuppressWarnings("unchecked")
-		LinkObjectToMaster<E, F> linkobjectproperty = (LinkObjectToMaster<E, F>) linkobject.getPropertyByName("LINKOBJECTTOMASTER");
+		LinkObjectToMaster<
+				E,
+				F> linkobjectproperty = (LinkObjectToMaster<E, F>) linkobject.getPropertyByName("LINKOBJECTTOMASTER");
 		if (linkobjectproperty == null)
 			throw new RuntimeException("link object does not have property");
 		return linkobjectproperty;
@@ -318,15 +340,16 @@ public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataO
 					.formatForAttribute(parentproperty.getRightObjectForLink().getName());
 			String rightobjectclass = StringFormatter
 					.formatForJavaClass(parentproperty.getRightObjectForLink().getName());
-			
+
 			// ---- temporary code.
 			DisplayLinkAsAttributeFromLeftObject<E, F> attributeasleft = null;
 			/*
-			@SuppressWarnings("unchecked")
-			DisplayLinkAsAttributeFromLeftObject<E, F> attributeasleft = (DisplayLinkAsAttributeFromLeftObject<
-					E, F>) parentproperty.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
-*/
-			
+			 * @SuppressWarnings("unchecked") DisplayLinkAsAttributeFromLeftObject<E, F>
+			 * attributeasleft = (DisplayLinkAsAttributeFromLeftObject< E, F>)
+			 * parentproperty.getLinkObjectProperty().getBusinessRuleByName(
+			 * "DISPLAYASATTRIBUTEFROMLEFT");
+			 */
+
 			if (attributeasleft == null) {
 				// -------------------------------------------------------------------------------------------------
 				// show link as table. This is the classical display
@@ -346,7 +369,7 @@ public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataO
 				sg.wl("				this);");
 				sg.wl("		left" + linkobjectvariable + "s.addDisplayProfile(" + linkobjectclass + "Definition.get"
 						+ linkobjectclass + "Definition().getDisplayProfileHideleftobjectfields());");
-				
+				sg.wl("	left" + linkobjectvariable + "s.setMinFieldPriority(-900);");
 				sg.wl("		left" + linkobjectvariable + "s.setWarningForUnsavedEdition();");
 				sg.wl("		AtgMassupdate" + linkobjectvariable + "andshowleftAction.ActionRef updateleft"
 						+ linkobjectvariable + "s = AtgMassupdate" + linkobjectvariable
@@ -366,7 +389,8 @@ public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataO
 						+ linkobjectvariable + "action = AtgShow" + rightobjectvariable
 						+ "Action.get().getActionRef();");
 				sg.wl("		showright" + rightobjectvariable + "for" + linkobjectvariable + "action.setId(left"
-						+ linkobjectvariable + "s.getAttributeInput(" + linkobjectclass + ".getRgmsidMarker()));");
+						+ linkobjectvariable + "s.getAttributeInput(" + linkobjectclass
+						+ ".getLinkobjecttomasterrightidMarker()));");
 				sg.wl("		left" + linkobjectvariable + "s.addDefaultAction(showright" + rightobjectvariable + "for"
 						+ linkobjectvariable + "action);");
 				sg.wl("		");
@@ -414,8 +438,8 @@ public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataO
 						+ "s = new  SObjectDisplay<" + linkobjectclass + ">(\"BLANK"
 						+ linkobject.getName().toUpperCase() + "FORADD\",");
 
-				sg.wl("			this.getLeftforlinktomasterfor" + linkobjectvariable + "blankforadd(), " + linkobjectclass
-						+ ".getDefinition(),this, false);");
+				sg.wl("			this.getLeftforlinktomasterfor" + linkobjectvariable + "blankforadd(), "
+						+ linkobjectclass + ".getDefinition(),this, false);");
 				sg.wl("		blanklinkforaddtoleft" + linkobjectvariable + "s.setHideReadOnly();");
 				sg.wl("				");
 				sg.wl("		addtoleft" + linkobjectvariable + "s.addElement(blanklinkforaddtoleft" + linkobjectvariable
@@ -462,7 +486,7 @@ public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataO
 						+ "button);");
 				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "buttonbar);");
 				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "s);");
-			} 
+			}
 
 		}
 

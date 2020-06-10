@@ -14,7 +14,11 @@ import org.openlowcode.server.data.storage.StoredTableSchema;
 import org.openlowcode.server.data.storage.StoredFieldSchema;
 import org.openlowcode.server.data.storage.QueryOperator;
 import org.openlowcode.server.data.storage.QueryCondition;
+
+import java.util.function.Function;
+
 import org.openlowcode.server.data.DataObjectDefinition;
+import org.openlowcode.server.data.storage.AndQueryCondition;
 import org.openlowcode.server.data.storage.JoinQueryCondition;
 import org.openlowcode.server.data.storage.TableAlias;
 
@@ -35,6 +39,7 @@ public class JoinQueryConditionDefinition<E extends Object> {
 	private String sidetablesuffix;
 	private QueryOperator<E> joinqueryoperator;
 	private DataObjectDefinition<?> sidetableobjectdefinition;
+	private Function<String, QueryCondition> additionalqueryconditiononsideobject;
 
 	/**
 	 * creates a join query condition definition
@@ -45,9 +50,14 @@ public class JoinQueryConditionDefinition<E extends Object> {
 	 * @param sidetablefield    side table field for the join query
 	 * @param joinqueryoperator Operator (typically equal)
 	 */
-	public JoinQueryConditionDefinition(StoredTableSchema maintable, StoredFieldSchema<E> maintablefield,
-			StoredTableSchema sidetable, String sidetablesuffix, StoredFieldSchema<E> sidetablefield,
-			DataObjectDefinition<?> sidetableobjectdefinition, QueryOperator<E> joinqueryoperator) {
+	public JoinQueryConditionDefinition(
+			StoredTableSchema maintable,
+			StoredFieldSchema<E> maintablefield,
+			StoredTableSchema sidetable,
+			String sidetablesuffix,
+			StoredFieldSchema<E> sidetablefield,
+			DataObjectDefinition<?> sidetableobjectdefinition,
+			QueryOperator<E> joinqueryoperator) {
 		super();
 		this.maintable = maintable;
 		this.maintablefield = maintablefield;
@@ -57,6 +67,43 @@ public class JoinQueryConditionDefinition<E extends Object> {
 		this.sidetableobjectdefinition = sidetableobjectdefinition;
 		this.joinqueryoperator = joinqueryoperator;
 
+	}
+
+	/**
+	 * creates a join query condition definition with extra condition on side table
+	 * 
+	 * @param maintable                            main table
+	 * @param maintablefield                       main table field for the join
+	 *                                             query
+	 * @param sidetable                            side table
+	 * @param sidetablesuffix                      suffix for side table alias
+	 * @param sidetablefield                       side table field for the join
+	 *                                             query
+	 * @param sidetableobjectdefinition            definition of the side object
+	 * @param joinqueryoperator                    Operator (typically equal)
+	 * @param additionalqueryconditiononsideobject an additional query condition
+	 *                                             (typically get only latest
+	 *                                             version...)
+	 * @since 1.9
+	 */
+	public JoinQueryConditionDefinition(
+			StoredTableSchema maintable,
+			StoredFieldSchema<E> maintablefield,
+			StoredTableSchema sidetable,
+			String sidetablesuffix,
+			StoredFieldSchema<E> sidetablefield,
+			DataObjectDefinition<?> sidetableobjectdefinition,
+			QueryOperator<E> joinqueryoperator,
+			Function<String, QueryCondition> additionalqueryconditiononsideobject) {
+		super();
+		this.maintable = maintable;
+		this.maintablefield = maintablefield;
+		this.sidetable = sidetable;
+		this.sidetablefield = sidetablefield;
+		this.sidetablesuffix = sidetablesuffix;
+		this.sidetableobjectdefinition = sidetableobjectdefinition;
+		this.joinqueryoperator = joinqueryoperator;
+		this.additionalqueryconditiononsideobject = additionalqueryconditiononsideobject;
 	}
 
 	/**
@@ -79,7 +126,11 @@ public class JoinQueryConditionDefinition<E extends Object> {
 	 * @return the universal query condition for the side object
 	 */
 	public QueryCondition generateSideTableUniversalQueryCondition(String maintablealias) {
-		return sidetableobjectdefinition.getUniversalQueryCondition(null, maintablealias + sidetablesuffix);
+		if (this.additionalqueryconditiononsideobject == null)
+			return sidetableobjectdefinition.getUniversalQueryCondition(null, maintablealias + sidetablesuffix);
+		return new AndQueryCondition(
+				sidetableobjectdefinition.getUniversalQueryCondition(null, maintablealias + sidetablesuffix),
+				additionalqueryconditiononsideobject.apply(maintablealias + sidetablesuffix));
 	}
 
 }

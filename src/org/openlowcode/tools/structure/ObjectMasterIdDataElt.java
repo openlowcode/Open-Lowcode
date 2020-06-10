@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -50,7 +50,7 @@ public class ObjectMasterIdDataElt extends SimpleDataElt {
 	 * @param name name of the data element
 	 */
 	public ObjectMasterIdDataElt(String name) {
-		super(name, new ObjectIdDataEltType());
+		super(name, new ObjectMasterIdDataEltType());
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class ObjectMasterIdDataElt extends SimpleDataElt {
 	 * @param objectid id of the type of object
 	 */
 	public ObjectMasterIdDataElt(String name, String id, String objectid) {
-		super(name, new ObjectIdDataEltType());
+		super(name, new ObjectMasterIdDataEltType());
 		this.id = id;
 		this.objectid = objectid;
 	}
@@ -69,7 +69,7 @@ public class ObjectMasterIdDataElt extends SimpleDataElt {
 	 * @param id   id of the instance of the object
 	 */
 	public ObjectMasterIdDataElt(String name, String id) {
-		super(name, new ObjectIdDataEltType());
+		super(name, new ObjectMasterIdDataEltType());
 		this.id = id;
 	}
 
@@ -78,12 +78,12 @@ public class ObjectMasterIdDataElt extends SimpleDataElt {
 	 * @param objectid id of the type of object
 	 */
 	public ObjectMasterIdDataElt(String name, ObjectIdInterface objectid) {
-		super(name, new ObjectIdDataEltType());
+		super(name, new ObjectMasterIdDataEltType());
 		this.id = objectid.getId();
 		this.objectid = objectid.getObjectId();
 	}
 
-	private ObjectMasterIdDataElt(String name, ObjectIdDataEltType type, String id) {
+	private ObjectMasterIdDataElt(String name, ObjectMasterIdDataEltType type, String id) {
 		super(name, type);
 		this.id = id;
 	}
@@ -109,7 +109,7 @@ public class ObjectMasterIdDataElt extends SimpleDataElt {
 
 	@Override
 	public ObjectMasterIdDataElt cloneElt() {
-		return new ObjectMasterIdDataElt(this.getName(), (ObjectIdDataEltType) this.getType(), this.id);
+		return new ObjectMasterIdDataElt(this.getName(), (ObjectMasterIdDataEltType) this.getType(), this.id);
 	}
 
 	@Override

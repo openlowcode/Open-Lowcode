@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.openlowcode.tools.messages.MessageWriter;
@@ -282,12 +283,12 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	 * @return generates a data object id array template.
 	 */
 	public abstract DataObjectId<E>[] generateIdArrayTemplate();
-	
+
 	/**
 	 * @return generates a data object master id array template
 	 */
 	public abstract DataObjectMasterId<E>[] generateMasterIdArrayTemplate();
-	
+
 	/**
 	 * @return a blank object
 	 */
@@ -333,6 +334,48 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		StoredFieldSchema<?> storedfield = (StoredFieldSchema<?>) field;
 		return new JoinQueryConditionDefinition(maintable, maintablefield, tableschema, sidetablesuffix, storedfield,
 				this, operator);
+	}
+
+	/**
+	 * generates a join query definition
+	 * 
+	 * @param maintable                            the main table to join this
+	 *                                             object into
+	 * @param maintablefield                       the field to use on main table
+	 * @param propertyname                         name of the property to join in
+	 * @param propertyfield                        field of the property
+	 * @param sidetablesuffix                      suffix to add to this table
+	 * @param operator                             typically equals for a foreign
+	 *                                             key
+	 * @param additionalqueryconditiononsideobject additional condition on side
+	 *                                             object (e.g. only get latest
+	 *                                             version)
+	 * @return a join query condition
+	 * @since 1.9
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <Z extends Object> JoinQueryConditionDefinition<Z> generateJoinQueryDefinition(
+			StoredTableSchema maintable,
+			StoredFieldSchema<Z> maintablefield,
+			String propertyname,
+			String propertyfield,
+			String sidetablesuffix,
+			QueryOperator<Z> operator,
+			Function<String, QueryCondition> additionalqueryconditiononsideobject) {
+		DataObjectPropertyDefinition<E> propertydefinition = propertydeflist.lookupOnName(propertyname);
+		if (propertydefinition == null)
+			throw new RuntimeException("did not find property with name = '" + propertyname + "', available list = "
+					+ propertydeflist.dropNameList());
+		FieldSchema<?> field = propertydefinition.getFieldSchemaByName(propertyfield);
+		if (field == null)
+			throw new RuntimeException("did not find field with name '" + propertyfield + ", , available list = "
+					+ propertydefinition.dropfieldnamelist());
+		if (!(field instanceof StoredFieldSchema))
+			throw new RuntimeException("definition of externalfield joinquerycondition " + maintablefield.getName()
+					+ " is referencing another external field : " + field);
+		StoredFieldSchema<?> storedfield = (StoredFieldSchema<?>) field;
+		return new JoinQueryConditionDefinition(maintable, maintablefield, tableschema, sidetablesuffix, storedfield,
+				this, operator, additionalqueryconditiononsideobject);
 	}
 
 	/**

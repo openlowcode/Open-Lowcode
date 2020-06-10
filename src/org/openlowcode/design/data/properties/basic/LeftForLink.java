@@ -446,7 +446,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 						+ "(blanklinkforaddtoleft" + linkobjectvariable + "s.getObjectInput());");
 				sg.wl("		createlinkactionforaddtoleft" + linkobjectvariable + "s.setRight" + rightobjectvariable
 						+ "id(" + rightobjectvariable + "searchforaddtoleft" + linkobjectvariable
-						+ "s.getresultarray().getAttributeArrayInput(" + rightobjectclass + ".getLinkobjecttomasterrightidMarker()));");
+						+ "s.getresultarray().getAttributeArrayInput(" + rightobjectclass + ".getIdMarker()));");
 				sg.wl("					");
 				sg.wl("		SActionButton createlinkbuttonforaddtoleft" + linkobjectvariable
 						+ " = new SActionButton(\"Add Link\", createlinkactionforaddtoleft" + linkobjectvariable

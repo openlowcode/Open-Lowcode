@@ -49,6 +49,8 @@ import org.openlowcode.tools.structure.ObjectDataElt;
 import org.openlowcode.tools.structure.ObjectDataEltType;
 import org.openlowcode.tools.structure.ObjectIdDataElt;
 import org.openlowcode.tools.structure.ObjectIdDataEltType;
+import org.openlowcode.tools.structure.ObjectMasterIdDataElt;
+import org.openlowcode.tools.structure.ObjectMasterIdDataEltType;
 import org.openlowcode.tools.structure.SimpleDataElt;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
@@ -894,6 +896,21 @@ public class CObjectArray
 			ObjectIdDataElt objectid = new ObjectIdDataElt(eltname, textfield.getPayload());
 			return objectid;
 		}
+		
+		if (type instanceof ObjectMasterIdDataEltType) {
+			if (objectfieldname == null)
+				throw new RuntimeException("objectid field should have an objectfieldname");
+			ObjectDataElt object = this.thistable.getSelectionModel().getSelectedItem().getObject();
+			SimpleDataElt field = object.lookupEltByName(objectfieldname);
+			if (field == null)
+				throw new RuntimeException(
+						"field not found " + objectfieldname + ", available fields = " + object.dropFieldNames());
+			if (!(field instanceof TextDataElt))
+				throw new RuntimeException("field for name = " + objectfieldname + " is not text");
+			TextDataElt textfield = (TextDataElt) field;
+			ObjectMasterIdDataElt objectid = new ObjectMasterIdDataElt(eltname, textfield.getPayload());
+			return objectid;
+		}
 
 		if (type instanceof TextDataEltType) {
 			TextDataElt updatenote = new TextDataElt(eltname, this.updatenotecomment);
@@ -977,6 +994,27 @@ public class CObjectArray
 				return output;
 			}
 
+
+			if (payloadtypeinarray instanceof ObjectMasterIdDataEltType) {
+				Iterator<ObjectTableRow> selectedobjects = this.thistable.getSelectionModel().getSelectedItems()
+						.iterator();
+				ArrayDataElt<ObjectMasterIdDataElt> output = new ArrayDataElt<ObjectMasterIdDataElt>(eltname, payloadtypeinarray);
+				while (selectedobjects.hasNext()) {
+					ObjectDataElt thisobject = selectedobjects.next().getObject();
+					SimpleDataElt field = thisobject.lookupEltByName(objectfieldname);
+					if (field == null)
+						throw new RuntimeException("field not found " + objectfieldname + ", available fields = "
+								+ thisobject.dropFieldNames());
+					if (!(field instanceof TextDataElt))
+						throw new RuntimeException("field for name = " + objectfieldname + " is not text");
+					TextDataElt textfield = (TextDataElt) field;
+					ObjectMasterIdDataElt objectid = new ObjectMasterIdDataElt(eltname, textfield.getPayload());
+					output.addElement(objectid);
+				}
+				return output;
+			}
+
+			
 		}
 		// add here treatment of array element.
 

@@ -36,7 +36,7 @@ import org.openlowcode.tools.misc.NamedList;
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
- *
+ * @since 1.9
  */
 public class LinkobjecttomasterQueryHelper {
 
@@ -795,7 +795,7 @@ public class LinkobjecttomasterQueryHelper {
 				joinquerycondition.addCondition(uniqueidcondition);
 				joinquerycondition.addCondition(
 						new JoinQueryCondition<String>(linkalias, this.getRightMasterIdFieldSchema(propertyDefinition),
-								rightobjectalias, rightobjectdefinition.getTableschema().lookupFieldByName("MSID"),
+								rightobjectalias, rightobjectdefinition.getTableschema().lookupFieldByName("MASTERID"),
 								new QueryOperatorEqual<String>()));
 				joinquerycondition.addCondition(VersionedQueryHelper.getLatestVersionQueryCondition(rightobjectalias, rightobjectdefinition));
 				if (additionalcondition != null)

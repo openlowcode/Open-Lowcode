@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -32,6 +32,7 @@ public class CActionDataLoc extends Named {
 	public static final String TEXT_TYPE = "TXT";
 	public static final String OBJ_TYPE = "OBJ";
 	public static final String OBJ_ID_TYPE = "OID";
+	public static final String OBJ_MS_ID_TYPE = "OMI";
 	public static final String CHOICE_TYPE = "CHT";
 	public static final String MULTI_CHOICE_TYPE = "MLC";
 	public static final String ARRAY_PREFIX = "ARR/";
@@ -58,6 +59,8 @@ public class CActionDataLoc extends Named {
 			typesupported = true;
 		if (this.type.compareTo(OBJ_ID_TYPE) == 0)
 			typesupported = true;
+		if (this.type.compareTo(OBJ_MS_ID_TYPE) == 0)
+			typesupported=true;
 		if (this.type.compareTo(CHOICE_TYPE) == 0)
 			typesupported = true;
 		if (this.type.compareTo(MULTI_CHOICE_TYPE) == 0)
@@ -80,6 +83,8 @@ public class CActionDataLoc extends Named {
 			if (subtype.compareTo(OBJ_ID_TYPE) == 0)
 				typesupported = true;
 			if (subtype.compareTo(CHOICE_TYPE) == 0)
+				typesupported = true;
+			if (subtype.compareTo(OBJ_MS_ID_TYPE) == 0)
 				typesupported = true;
 		}
 		if (!typesupported)
