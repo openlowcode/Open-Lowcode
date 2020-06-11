@@ -74,10 +74,10 @@ public class Linkobject<E extends DataObject<E> & LinkobjectInterface<E, F, G>, 
 		}
 
 		rgid = (StoredField<String>) this.field.lookupOnName("RGID");
-		if (leftobjectdefinition.hasProperty("NAMED")) {
+		if (rightobjectdefinition.hasProperty("NAMED")) {
 			linkobjectrightobjectname = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTRIGHTNAME");
 		}
-		if (leftobjectdefinition.hasProperty("NUMBERED")) {
+		if (rightobjectdefinition.hasProperty("NUMBERED")) {
 			linkobjectrightobjectnr = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTRIGHTNR");
 		}
 

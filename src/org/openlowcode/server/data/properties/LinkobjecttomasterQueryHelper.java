@@ -875,7 +875,7 @@ public class LinkobjecttomasterQueryHelper {
 		joinquerycondition.addCondition(idcondition);
 		joinquerycondition.addCondition(new JoinQueryCondition<String>(linkalias,
 				this.getRightMasterIdFieldSchema(propertyDefinition), rightobjectalias,
-				rightobjectdefinition.getTableschema().lookupFieldByName("MSID"), new QueryOperatorEqual<String>()));
+				rightobjectdefinition.getTableschema().lookupFieldByName("MASTERID"), new QueryOperatorEqual<String>()));
 		joinquerycondition.addCondition(VersionedQueryHelper.getLatestVersionQueryCondition(rightobjectalias, rightobjectdefinition));
 		if (additionalcondition != null)
 			if (additionalcondition.getCondition() != null)

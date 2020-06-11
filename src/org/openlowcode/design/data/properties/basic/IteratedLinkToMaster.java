@@ -45,7 +45,7 @@ public class IteratedLinkToMaster extends Property<IteratedLink> {
 	 * @param dependentlinkobject dependent link object
 	 */
 	public IteratedLinkToMaster(LinkObjectToMaster<?, ?> dependentlinkobject) {
-		super("ITERATEDLINK");
+		super("ITERATEDLINKTOMASTER");
 		this.linkobjecttomaster = dependentlinkobject;
 	}
 
@@ -53,7 +53,7 @@ public class IteratedLinkToMaster extends Property<IteratedLink> {
 	 * creates an iterated link, not specifying the link object
 	 */
 	public IteratedLinkToMaster() {
-		super("ITERATEDLINK");
+		super("ITERATEDLINKTOMASTER");
 
 	}
 
@@ -77,7 +77,7 @@ public class IteratedLinkToMaster extends Property<IteratedLink> {
 		this.addPropertyGenerics(new PropertyGenerics("LEFTOBJECTFORLINK", linkobjecttomaster.getLeftobjectforlink(),
 				linkobjecttomaster.getLeftobjectforlink().getPropertyByName("ITERATED")));
 		this.addPropertyGenerics(new PropertyGenerics("RIGHTOBJECTFORLINK", linkobjecttomaster.getRightobjectforlink(),
-				linkobjecttomaster.getRightobjectforlink().getPropertyByName("UNIQUEIDENTIFIED")));
+				linkobjecttomaster.getRightobjectforlink().getPropertyByName("VERSIONED")));
 
 		DataAccessMethod archivecurrentiteration = new DataAccessMethod("ARCHIVETHISITERATION", null, false);
 		archivecurrentiteration

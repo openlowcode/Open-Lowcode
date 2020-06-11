@@ -31,6 +31,7 @@ import org.openlowcode.server.data.properties.HasFlexibleDefinition;
 import org.openlowcode.server.data.properties.Linkedfromchildren;
 import org.openlowcode.server.data.properties.Linkedtoparent;
 import org.openlowcode.server.data.properties.Linkobject;
+import org.openlowcode.server.data.properties.Linkobjecttomaster;
 import org.openlowcode.server.data.properties.Numbered;
 import org.openlowcode.server.data.properties.Uniqueidentified;
 import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
@@ -139,6 +140,22 @@ public abstract class DataObject<E extends DataObject<E>> extends Named {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Uniqueidentified<E> getUniqueidentiedFromLinkObject(Linkobject linkobjectproperty) {
+		if (linkobjectproperty == null)
+			throw new RuntimeException(
+					"To get uniqueidentified on object " + this.getName() + ", non null linkobject is required");
+		DataObjectProperty<E> uniqueidentifieduncast = this.payload.lookupPropertyOnName("UNIQUEIDENTIFIED");
+		return (Uniqueidentified<E>) uniqueidentifieduncast;
+	}
+	
+	/**
+	 * This is a dirty trick to get left object uniqueidentified property from a
+	 * link object to master property.
+	 * 
+	 * @param linkobjectto masterproperty the link object property
+	 * @return the casted property
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Uniqueidentified<E> getUniqueidentiedFromLinkObjectToMaster(Linkobjecttomaster linkobjectproperty) {
 		if (linkobjectproperty == null)
 			throw new RuntimeException(
 					"To get uniqueidentified on object " + this.getName() + ", non null linkobject is required");

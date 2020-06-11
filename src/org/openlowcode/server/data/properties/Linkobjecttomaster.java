@@ -68,20 +68,25 @@ this.rightobjectdefinition = rightobjectdefinition;
 this.linkobjectdefinition = definition;
 lfid = (StoredField<String>) this.field.lookupOnName("LFID");
 if (leftobjectdefinition.hasProperty("NAMED")) {
-	linkobjectleftobjectname = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTLEFTNAME");
+	linkobjectleftobjectname = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTTOMASTERLEFTNAME");
 }
 if (leftobjectdefinition.hasProperty("NUMBERED")) {
-	linkobjectleftobjectnr = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTLEFTNR");
+	linkobjectleftobjectnr = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTTOMASTERLEFTNR");
 }
 
 rgmsid = (StoredField<String>) this.field.lookupOnName("RGMSID");
-if (leftobjectdefinition.hasProperty("NAMED")) {
-	linkobjectrightobjectname = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTRIGHTNAME");
+if (rightobjectdefinition.hasProperty("NAMED")) {
+	linkobjectrightobjectname = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTTOMASTERRIGHTNAME");
 }
-if (leftobjectdefinition.hasProperty("NUMBERED")) {
-	linkobjectrightobjectnr = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTRIGHTNR");
+if (rightobjectdefinition.hasProperty("NUMBERED")) {
+	linkobjectrightobjectnr = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTTOMASTERRIGHTNR");
 }
-linkobjectrightid = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTRIGHTID");
+linkobjectrightid = (ExternalField<String>) this.field.lookupOnName("LINKOBJECTTOMASTERRIGHTID");
+if (this.linkobjectrightid==null) {
+	logger.severe(" --------- Audit no linkobjecttomasterrightid------------------------");
+	logger.severe("     * "+this.field.dropNameList());
+	
+}
 }
 
 /**
