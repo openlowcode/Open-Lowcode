@@ -11,12 +11,14 @@
 package org.openlowcode.server.data.properties;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.openlowcode.tools.misc.NamedList;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.QueryHelper;
 import org.openlowcode.server.data.storage.AndQueryCondition;
+import org.openlowcode.server.data.storage.OrQueryCondition;
 import org.openlowcode.server.data.storage.QueryCondition;
 import org.openlowcode.server.data.storage.QueryFilter;
 import org.openlowcode.server.data.storage.QueryOperatorEqual;
@@ -36,6 +38,8 @@ import org.openlowcode.server.data.storage.TableAlias;
 public class VersionedQueryHelper {
 	private static VersionedQueryHelper singleton = new VersionedQueryHelper();
 	public static String singleobjectalias = "SINGLEOBJECT";
+	private static final int BATCH_QUERY_SIZE = 20;
+	private static final String BLANK_ID = "NEVERLAND";
 
 	/**
 	 * gets a query condition filtering on master id (the common identifier to all
@@ -125,7 +129,7 @@ public class VersionedQueryHelper {
 		QueryCondition masteridlatestcondition = new AndQueryCondition(masteridcondition, latestcondition);
 		QueryCondition finalcondition = masteridlatestcondition;
 		if (objectuniversalcondition != null) {
-			finalcondition = new AndQueryCondition(objectuniversalcondition, masteridcondition);
+			finalcondition = new AndQueryCondition(objectuniversalcondition, masteridlatestcondition);
 		}
 
 		QueryCondition extendedcondition = definition.extendquery(aliaslist, alias, finalcondition);
@@ -147,6 +151,63 @@ public class VersionedQueryHelper {
 		}
 	}
 
+	/**
+	 * gest the last version of the object for the specified list of master ids
+	 * 
+	 * @param masterid           master id
+	 * @param definition         definiton of the object
+	 * @param propertydefinition definition of the versioned property for the object
+	 * @return the last version of the object for the master id, or null if nothing
+	 *         is found
+	 */
+	public <E extends DataObject<E> & VersionedInterface<E>> E[] getlastversion(DataObjectMasterId<E>[] masterid,
+			DataObjectDefinition<E> definition, VersionedDefinition<E> propertydefinition) {
+		
+		ArrayList<E> results = new ArrayList<E>();;
+		// work by batches to ensure query is not too long
+		for (int i = 0; i < (masterid.length / BATCH_QUERY_SIZE) + 1; i++) {
+			NamedList<TableAlias> aliaslist = new NamedList<TableAlias>();
+			TableAlias alias = definition.getAlias("SINGLEOBJECT");
+			aliaslist.add(alias);
+			QueryCondition objectuniversalcondition = definition.getUniversalQueryCondition(propertydefinition,
+					"SINGLEOBJECT");
+			OrQueryCondition uniqueidcondition = new OrQueryCondition();
+			int min = i * BATCH_QUERY_SIZE;
+			if (min < masterid.length) {
+			for (int j = min; j < min + BATCH_QUERY_SIZE; j++) {
+				QueryCondition thisuniqueidcondition = null;
+				if (j < masterid.length) {
+					thisuniqueidcondition = VersionedQueryHelper.getMasterIdQueryCondition(alias, masterid[i].getId(),definition);
+				} else {
+					// all queries will have batch size conditions. If not enough id, a blank id is
+					// used
+					thisuniqueidcondition = VersionedQueryHelper.getMasterIdQueryCondition(alias, BLANK_ID,definition);
+				}
+				uniqueidcondition.addCondition(thisuniqueidcondition);
+			}
+			
+			uniqueidcondition.addCondition(VersionedQueryHelper.getLatestVersionQueryCondition(alias, definition));
+
+			QueryCondition finalcondition = uniqueidcondition;
+			if (objectuniversalcondition != null) {
+				finalcondition = new AndQueryCondition(objectuniversalcondition, uniqueidcondition);
+			}
+
+			QueryCondition extendedcondition = definition.extendquery(aliaslist, alias, finalcondition);
+			Row answer = QueryHelper.getHelper().query(new SelectQuery(aliaslist, extendedcondition));
+			while (answer.next()) {
+				E formattedanswer = definition.generateFromRow(answer, alias);
+				results.add(formattedanswer);
+			}
+			}
+		}
+		
+		return results.toArray(definition.generateArrayTemplate());
+		
+		
+	}
+
+	
 	/**
 	 * gets all versions of the object for the specified master id
 	 * 

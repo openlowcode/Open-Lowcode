@@ -145,7 +145,7 @@ public class Versioned
 		this.addDataAccessMethod(revise);
 
 		DataAccessMethod getlastversion = new DataAccessMethod("GETLASTVERSION", new ObjectArgument("OBJECT", parent),
-				false);
+				false,true);
 		getlastversion.addInputArgument(new MethodArgument("MASTERID", new ObjectMasterIdArgument("MASTERID", parent)));
 		this.addDataAccessMethod(getlastversion);
 

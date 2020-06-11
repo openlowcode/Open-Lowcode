@@ -11,6 +11,7 @@
 package org.openlowcode.server.data.properties;
 
 import org.openlowcode.server.data.DataObject;
+import org.openlowcode.server.data.properties.UniqueidentifiedInterface.MassiveDelete;
 
 /**
  * the interface all versioned objects comply to
@@ -58,4 +59,27 @@ public interface VersionedInterface<E extends DataObject<E>> extends Uniqueident
 	public interface MassiveRevise<E extends DataObject<E>> {
 		public E[] revise(E[] objectbatch);
 	}
+	
+	/**
+	 * This function allows the massive selection of last version of object
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 *
+	 * @param <E> the object type
+	 */
+	public interface MassiveGetlastversion<E extends DataObject<E>> {
+
+		/**
+		 * @param masteridbatch the list of master ids on which to query
+		 * @return the corresponding list of object
+		 */
+		public E[] getlastversion(DataObjectMasterId<E>[] masteridbatch);
+	}
+
+	/**
+	 * @return a function allowing massive get last version of this object
+	 */
+	public MassiveGetlastversion<E> getMassiveGetlastversion();
+
 }
