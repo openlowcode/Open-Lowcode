@@ -30,7 +30,8 @@ import org.openlowcode.server.data.storage.StoredField;
  * @param <E>
  */
 public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>>
-		extends DataObjectProperty<E> {
+		extends
+		DataObjectProperty<E> {
 	private StoredField<String> masteridfield;
 	private StoredField<String> lastversionfield;
 	private StoredField<String> versionfield;
@@ -50,9 +51,47 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 		this.versionscheme = new AlphanumericVersionScheme();
 	}
 
+	/**
+	 * @param objectbatch
+	 * @param versionedarrayforbatch
+	 */
+	@SuppressWarnings("unchecked")
+	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> void initversion(
+			E[] objectbatch,
+			Versioned<E>[] versionedarrayforbatch) {
+		if (objectbatch == null)
+			throw new RuntimeException("object batch is null");
+		if (versionedarrayforbatch == null)
+			throw new RuntimeException("versioned batch is null");
+		if (objectbatch.length != versionedarrayforbatch.length)
+			throw new RuntimeException("Object batch length " + objectbatch.length
+					+ " is not consistent with versioned batch length " + objectbatch.length);
+		if (objectbatch.length > 0) {
+			// ----- batch control
+			
+			Uniqueidentified<E>[] uniqueidentifiedforobject = new Uniqueidentified[objectbatch.length];
+			// ---- initiating data
+			for (int i = 0; i < objectbatch.length; i++) {
+				versionedarrayforbatch[i].preprocStoredobjectInsert(objectbatch[i]);
+				uniqueidentifiedforobject[i] = versionedarrayforbatch[i].uniqueidentified;
+			}
+			Uniqueidentified.update(objectbatch, uniqueidentifiedforobject);
+		}
+	}
+
+	/**
+	 * @param object
+	 */
+	public void initversion(E object) {
+		this.preprocStoredobjectInsert(object);
+		object.update();
+		
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> E[] revise(
-			E[] objectbatch, Versioned<E>[] versionedarrayforbatch) {
+			E[] objectbatch,
+			Versioned<E>[] versionedarrayforbatch) {
 		// ------------------------------------- control of data size
 		if (objectbatch == null)
 			throw new RuntimeException("object batch is null");
@@ -170,8 +209,9 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 	 * @param objectbatch            the batch of object
 	 * @param versionedarrayforbatch the corresponding batch of versioned properties
 	 */
-	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> void postprocUniqueidentifiedDelete(
-			E[] objectbatch, Versioned<E>[] versionedarrayforbatch) {
+	public static <
+			E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<
+					E>> void postprocUniqueidentifiedDelete(E[] objectbatch, Versioned<E>[] versionedarrayforbatch) {
 		if (objectbatch == null)
 			throw new RuntimeException("object batch is null");
 		if (versionedarrayforbatch == null)
@@ -250,8 +290,9 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 	 * @param objectbatch    batch of object
 	 * @param versionedbatch corresponding batch of versioned properties
 	 */
-	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> void preprocStoredobjectInsert(
-			E[] objectbatch, Versioned<E>[] versionedbatch) {
+	public static <
+			E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<
+					E>> void preprocStoredobjectInsert(E[] objectbatch, Versioned<E>[] versionedbatch) {
 		// no need for specific batch algorithm as no persistence for the procedure when
 		// using id generated with same algorith as UniqueIdentified id
 		for (int i = 0; i < versionedbatch.length; i++)

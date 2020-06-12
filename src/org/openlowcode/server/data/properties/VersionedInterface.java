@@ -11,7 +11,6 @@
 package org.openlowcode.server.data.properties;
 
 import org.openlowcode.server.data.DataObject;
-import org.openlowcode.server.data.properties.UniqueidentifiedInterface.MassiveDelete;
 
 /**
  * the interface all versioned objects comply to
@@ -21,7 +20,9 @@ import org.openlowcode.server.data.properties.UniqueidentifiedInterface.MassiveD
  *
  * @param <E>
  */
-public interface VersionedInterface<E extends DataObject<E>> extends UniqueidentifiedInterface<E> {
+public interface VersionedInterface<E extends DataObject<E>>
+		extends
+		UniqueidentifiedInterface<E> {
 	/**
 	 * @return gets the last version indicator 'Y' or 'N'
 	 */
@@ -36,6 +37,35 @@ public interface VersionedInterface<E extends DataObject<E>> extends Uniqueident
 	 * @return the master id
 	 */
 	public DataObjectMasterId<E> getMasterid();
+
+	/**
+	 * initializes the version for objects created before the versioned property was
+	 * added. Triggered automatically by a migrator
+	 */
+	public void initversion();
+
+	/**
+	 * @return a function to perform a massive init version
+	 */
+	public MassiveInitversion<E> getMassiveInitversion();
+
+	/**
+	 * interface for an performing massive init version for an object. This is used
+	 * for the migrator to initiate version
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 *
+	 * @param <E> data object
+	 */
+	public interface MassiveInitversion<E extends DataObject<E>> {
+		/**
+		 * performs init version on an object batch
+		 * 
+		 * @param objectbatch object batcj
+		 */
+		public void initversion(E[] objectbatch);
+	}
 
 	/**
 	 * revises the latest version of an object
@@ -59,7 +89,7 @@ public interface VersionedInterface<E extends DataObject<E>> extends Uniqueident
 	public interface MassiveRevise<E extends DataObject<E>> {
 		public E[] revise(E[] objectbatch);
 	}
-	
+
 	/**
 	 * This function allows the massive selection of last version of object
 	 * 

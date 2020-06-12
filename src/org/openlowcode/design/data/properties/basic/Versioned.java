@@ -26,6 +26,7 @@ import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.BooleanArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectMasterIdArgument;
+import org.openlowcode.design.data.migrator.DataMigratorInitVersion;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
@@ -123,6 +124,8 @@ public class Versioned
 		this.addElement(id, "Master Id", "technical identification common to all versions of an object",
 				Property.FIELDDISPLAY_NORMAL, -49, 25);
 		this.addIndex(new Index("MSID", id, true));
+		// ------------ add automatic migrator
+		this.getParent().getOwnermodule().addMigrator(new DataMigratorInitVersion(this.getParent()));
 
 	}
 
@@ -167,6 +170,11 @@ public class Versioned
 				new ObjectArgument("PREVIOUSVERSION", parent), false);
 		getpreviousversion.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
 		this.addDataAccessMethod(getpreviousversion);
+		
+		DataAccessMethod initversion = new DataAccessMethod("INITVERSION",null,false,true);
+		initversion.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
+		this.addDataAccessMethod(initversion);
+		
 	}
 
 	@Override
