@@ -16,9 +16,7 @@ import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
-import org.openlowcode.server.data.properties.StoredobjectQueryHelper;
-import org.openlowcode.server.data.properties.VersionedQueryHelper;
-import org.openlowcode.server.data.storage.QueryFilter;
+
 
 
 /**
@@ -29,7 +27,7 @@ import org.openlowcode.server.data.storage.QueryFilter;
  *         SAS</a>
  *
  */
-public class DataMigratorInitVersion
+public class DataMigratorInitVersionMasterId
 		extends
 		DataMigrator {
 	private DataObjectDefinition object;
@@ -39,14 +37,14 @@ public class DataMigratorInitVersion
 	 * 
 	 * @param object data object
 	 */
-	public DataMigratorInitVersion(DataObjectDefinition object) {
-		super(object.getOwnermodule().getCode() + "." + object.getName() + ".INITVERSION");
+	public DataMigratorInitVersionMasterId(DataObjectDefinition object) {
+		super(object.getOwnermodule().getCode() + "." + object.getName() + ".INITVERSIONMASTERID");
 		this.object = object;
 	}
 
 	@Override
 	public String getClassName() {
-		return StringFormatter.formatForJavaClass(object.getName()) + "GenerateNumberMigrator";
+		return StringFormatter.formatForJavaClass(object.getName()) + "GenerateVersionMasterIdMigrator";
 	}
 
 	@Override
@@ -56,12 +54,14 @@ public class DataMigratorInitVersion
 		sg.wl("import org.openlowcode.server.data.migrator.SDataMigrator;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import org.openlowcode.server.data.properties.VersionedQueryHelper;");
+		sg.wl("import org.openlowcode.server.data.properties.StoredobjectQueryHelper;");
+		sg.wl("import org.openlowcode.server.data.storage.OrQueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import " + object.getOwnermodule().getPath() + ".data." + objectclass + ";");
-		sg.wl("public class " + objectclass + "GenerateNumberMigrator extends SDataMigrator {");
-		sg.wl("	private static String NAME = \"" + object.getOwnermodule().getName().toUpperCase() + "."
-				+ object.getName().toUpperCase() + ".INITVERSION\";");
-		sg.wl("	public " + objectclass + "GenerateNumberMigrator(SModule parent) {");
+		sg.wl("public class " + objectclass + "GenerateVersionMasterIdMigrator extends SDataMigrator {");
+		sg.wl("	private static String NAME = \"" 
+				+ object.getName().toUpperCase() + ".INITMSID\";");
+		sg.wl("	public " + objectclass + "GenerateVersionMasterIdMigrator(SModule parent) {");
 		sg.wl("		super(NAME, parent);");
 		sg.wl("");
 		sg.wl("	}");
@@ -75,16 +75,20 @@ public class DataMigratorInitVersion
 		sg.wl("	public long executeNormalMigration() {");
 		
 		
-sg.wl("		"+objectclass+"[] allactivitieswithblankversion = "+objectclass+"");
+sg.wl("		"+objectclass+"[] allobjectswithnomasterid = "+objectclass+"");
 sg.wl("				.getallactive(");
-sg.wl("						QueryFilter.get(VersionedQueryHelper.getVersionQueryCondition(");
+sg.wl("						QueryFilter.get(new OrQueryCondition(VersionedQueryHelper.getMasterIdQueryCondition(");
 sg.wl("								"+objectclass+".getDefinition()");
 sg.wl("										.getAlias(StoredobjectQueryHelper.maintablealiasforgetallactive),");
-sg.wl("								\"\", "+objectclass+".getDefinition())));");
+sg.wl("								\"\", "+objectclass+".getDefinition()),VersionedQueryHelper.getMasterIdQueryCondition(");
+sg.wl("								"+objectclass+".getDefinition()");
+sg.wl("										.getAlias(StoredobjectQueryHelper.maintablealiasforgetallactive),");
+sg.wl("								null, "+objectclass+".getDefinition()))));");
 sg.wl("");
-sg.wl("		if (allactivitieswithblankversion != null) {");
-sg.wl("			"+objectclass+".initversion(allactivitieswithblankversion);");
-sg.wl("			return allactivitieswithblankversion.length;");
+sg.wl("		if (allobjectswithnomasterid != null) if (allobjectswithnomasterid.length>0) {");
+sg.wl("			"+objectclass+".initversion(allobjectswithnomasterid);");
+sg.wl("			"+objectclass+".update(allobjectswithnomasterid);");
+sg.wl("			return allobjectswithnomasterid.length;");
 sg.wl("		}");
 sg.wl("		return 0;");
 				

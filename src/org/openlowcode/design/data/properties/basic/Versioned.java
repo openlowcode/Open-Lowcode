@@ -26,7 +26,7 @@ import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.BooleanArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectMasterIdArgument;
-import org.openlowcode.design.data.migrator.DataMigratorInitVersion;
+import org.openlowcode.design.data.migrator.DataMigratorInitVersionMasterId;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
@@ -125,7 +125,7 @@ public class Versioned
 				Property.FIELDDISPLAY_NORMAL, -49, 25);
 		this.addIndex(new Index("MSID", id, true));
 		// ------------ add automatic migrator
-		this.getParent().getOwnermodule().addMigrator(new DataMigratorInitVersion(this.getParent()));
+		this.getParent().getOwnermodule().addMigrator(new DataMigratorInitVersionMasterId(this.getParent()));
 
 	}
 

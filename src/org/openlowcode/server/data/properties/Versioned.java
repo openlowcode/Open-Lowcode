@@ -67,15 +67,11 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 			throw new RuntimeException("Object batch length " + objectbatch.length
 					+ " is not consistent with versioned batch length " + objectbatch.length);
 		if (objectbatch.length > 0) {
-			// ----- batch control
-			
-			Uniqueidentified<E>[] uniqueidentifiedforobject = new Uniqueidentified[objectbatch.length];
+
 			// ---- initiating data
 			for (int i = 0; i < objectbatch.length; i++) {
-				versionedarrayforbatch[i].preprocStoredobjectInsert(objectbatch[i]);
-				uniqueidentifiedforobject[i] = versionedarrayforbatch[i].uniqueidentified;
+				versionedarrayforbatch[i].initversion(objectbatch[i]);
 			}
-			Uniqueidentified.update(objectbatch, uniqueidentifiedforobject);
 		}
 	}
 
@@ -83,11 +79,15 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 	 * @param object
 	 */
 	public void initversion(E object) {
-		this.preprocStoredobjectInsert(object);
-		object.update();
-		
+		lastversionfield.setPayload("Y");
+		String id = "2" + Long.toHexString(Uniqueidentified.getNextId());
+		// NOTE: due to path algorithm, it is assumed the id only contains letters and
+		// figures (especially "[", "]" and "/" are forbidden
+		masteridfield.setPayload(id);
+		// default logic
+
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> E[] revise(
 			E[] objectbatch,
