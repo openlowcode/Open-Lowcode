@@ -98,6 +98,7 @@ public abstract class SDataMigrator
 			migratoridattribute.update();
 			dataupdated = executeNormalMigration();
 			migratoridattribute.setValue(MIGRATOR_FINISHED);
+			migratoridattribute.setComment("Full execution: "+dataupdated+" lines updated");
 			migratoridattribute.update();
 		}
 
@@ -105,6 +106,7 @@ public abstract class SDataMigrator
 			logger.warning(" --- *** --- Launching migrator recovery for " + describeMigrator() + "");
 			dataupdated = executeRecoveryMigration();
 			migratoridattribute.setValue(MIGRATOR_FINISHED);
+			migratoridattribute.setComment("Recovery execution: "+dataupdated+" lines updated");
 			migratoridattribute.update();
 		}
 
