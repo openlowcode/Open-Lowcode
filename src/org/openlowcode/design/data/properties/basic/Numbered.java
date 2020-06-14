@@ -62,12 +62,13 @@ public class Numbered
 	}
 
 	private String numberlabel = "Object Number";
+	private int numberedextralength;
 
 	/**
-	 * create the 'Numbered' property with the default 'Number' labal
+	 * create the 'Numbered' property with the default 'Number' label
 	 */
 	public Numbered() {
-		this(null);
+		this(null, 64);
 	}
 
 	/**
@@ -77,12 +78,39 @@ public class Numbered
 	 * @param newnumberlabel the specific label for the number on that object
 	 */
 	public Numbered(String newnumberlabel) {
+		this(newnumberlabel, 64);
+	}
+
+	/**
+	 * create the 'Numbered' property with the default 'Number' label, and a
+	 * specified extra length for the numbered field. The numbered field can be from
+	 * 64 to 1024
+	 * 
+	 * @param extralength a number between 64 (default) and 1024
+	 */
+	public Numbered(int extralength) {
+		this(null, extralength);
+	}
+
+	/**
+	 * 
+	 * create the 'Numbered' property with a specific number label (e.g. 'Social
+	 * Security Nr') and a specified extra length for the numbered field. The
+	 * numbered field can be from 64 to 1024
+	 * 
+	 * @param newnumberlabel the specific label for the number on that object
+	 * @param extralength    a number between 64 (default) and 1024
+	 */
+	public Numbered(String newnumberlabel, int extralength) {
 		super("NUMBERED");
 		if (newnumberlabel != null)
 			this.numberlabel = newnumberlabel;
 		if (newnumberlabel != null)
 			this.addFieldOverrides(new FieldOverrideForProperty("NUMBER", newnumberlabel));
-
+		if (extralength<64) throw new RuntimeException("Numbered extra length cannot be smaller than 64, value passed = "+extralength);
+		if (extralength>1024) throw new RuntimeException("Numbered extra length cannot be higher than 1024, value passed = "+extralength);
+		this.numberedextralength = extralength;
+		this.setExtraAttributes(","+numberedextralength);
 	}
 
 	/**
@@ -98,20 +126,20 @@ public class Numbered
 		this.addDependentProperty(uniqueidentified);
 		DataAccessMethod setnumber = new DataAccessMethod("SETOBJECTNUMBER", null, false);
 		setnumber.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
-		setnumber.addInputArgument(new MethodArgument("NR", new StringArgument("NR", 64)));
+		setnumber.addInputArgument(new MethodArgument("NR", new StringArgument("NR", numberedextralength)));
 		this.addDataAccessMethod(setnumber);
 		// Fields
-		StoredElement number = new StringStoredElement("NR", 64);
+		StoredElement number = new StringStoredElement("NR", numberedextralength);
 		this.addElementasSearchElement(number, numberlabel, "unique business identifier of the object",
 				Property.FIELDDIPLSAY_TITLE_MOD, 900, 30, new SearchWidgetDefinition(true, "NR", numberlabel));
 		this.addIndex(new Index("NUMBERINDEX", number, false));
 		DataAccessMethod getobjectbynumber = new DataAccessMethod("GETOBJECTBYNUMBER",
 				new ArrayArgument(new ObjectArgument("OBJECT", parent)), false);
-		getobjectbynumber.addInputArgument(new MethodArgument("NR", new StringArgument("NR", 64)));
+		getobjectbynumber.addInputArgument(new MethodArgument("NR", new StringArgument("NR", numberedextralength)));
 		this.addDataAccessMethod(getobjectbynumber);
 		DataAccessMethod getobjectbyuniquenumber = new DataAccessMethod("GETUNIQUEOBJECTBYNUMBER",
 				new ObjectArgument("OBJECT", parent), true);
-		getobjectbyuniquenumber.addInputArgument(new MethodArgument("NR", new StringArgument("NR", 64)));
+		getobjectbyuniquenumber.addInputArgument(new MethodArgument("NR", new StringArgument("NR", numberedextralength)));
 		this.addDataAccessMethod(getobjectbyuniquenumber);
 
 	}
@@ -149,7 +177,7 @@ public class Numbered
 		if (this.autonumberingrule == null) {
 			returnvalues = new String[1];
 			returnvalues[0] = ".setobjectnumber(number);";
-			this.addDataInput(new StringArgument("NUMBER", 64, this.numberlabel));
+			this.addDataInput(new StringArgument("NUMBER", numberedextralength, this.numberlabel));
 
 		} else {
 			MethodAdditionalProcessing generatenumber = new MethodAdditionalProcessing(true,

@@ -37,23 +37,45 @@ import org.openlowcode.server.data.storage.StringStoredField;
  * @param <E> the parent data object
  */
 public class NumberedDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>>
-		extends DataObjectPropertyDefinition<E> {
+		extends
+		DataObjectPropertyDefinition<E> {
 
 	private StringStoredField nr;
 	private CheckExistingNumber<E> numbercheck;
 	UniqueidentifiedDefinition<E> dependentdefinitionuniqueidentified;
 	private AutonumberingRule<E> autonumberingrule;
-
 	private String numberlabel = "Number";
+	private int numberfieldlength;
 
+	/**
+	 * 
+	 * 
+	 * @param overridescheckexistingnumber
+	 */
 	public void overridesCheckExistingNumber(CheckExistingNumber<E> overridescheckexistingnumber) {
 		this.numbercheck = overridescheckexistingnumber;
 	}
 
+	/**
+	 * Creates a numbered property with default numbered length (64 characters)
+	 * 
+	 * @param parentobject object the property is added on
+	 */
 	public NumberedDefinition(DataObjectDefinition<E> parentobject) {
+		this(parentobject, 64);
+	}
+
+	/**
+	 * Creates a numbered property with specified numbered length
+	 * 
+	 * @param parentobject      object the property is added on
+	 * @param numberfieldlength specified number field length
+	 */
+	public NumberedDefinition(DataObjectDefinition<E> parentobject, int numberfieldlength) {
 		super(parentobject, "NUMBERED");
+		this.numberfieldlength = numberfieldlength;
 		numbercheck = new CheckExistingNumber<E>(this);
-		nr = new StringStoredField("NR", null, 64);
+		nr = new StringStoredField("NR", null, this.numberfieldlength);
 		this.addFieldSchema(nr);
 		this.autonumberingrule = null;
 		StoredTableIndex nrindex = new StoredTableIndex("NR");
@@ -131,8 +153,10 @@ public class NumberedDefinition<E extends DataObject<E> & UniqueidentifiedInterf
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(DataObjectDefinition<E> objectdefinition,
-			String[] columnattributes, PropertyExtractor<E> propertyextractor,
+	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
+			DataObjectDefinition<E> objectdefinition,
+			String[] columnattributes,
+			PropertyExtractor<E> propertyextractor,
 			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		if (columnattributes.length == 0)
 			return new NumberedFlatFileLoader(objectdefinition, this, false, propertyextractor);
