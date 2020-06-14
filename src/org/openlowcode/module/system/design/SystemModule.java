@@ -739,7 +739,7 @@ public class SystemModule
 		DataObjectDefinition systemattribute = new DataObjectDefinition("SYSTEMATTRIBUTE", "System Attribute", this);
 		systemattribute.addProperty(new StoredObject());
 		systemattribute.addProperty(new UniqueIdentified());
-		systemattribute.addProperty(new Numbered());
+		systemattribute.addProperty(new Numbered(256));
 		systemattribute.addProperty(new CreationLog());
 		systemattribute.addProperty(new UpdateLog());
 		systemattribute.addProperty(new Iterated());
