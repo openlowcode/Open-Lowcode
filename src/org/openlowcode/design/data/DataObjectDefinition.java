@@ -207,7 +207,11 @@ public class DataObjectDefinition
 	 *                 parameters
 	 */
 	public void addLoaderAlias(String alias, String fullpath) {
-
+		String oldfullpath = this.loaderalias.get(alias);
+		if (oldfullpath != null) {
+			throw new RuntimeException("Duplicate alias " + alias + " for object " + this.getName() + ", oldfullpath="
+					+ oldfullpath + ", new full path =" + fullpath);
+		}
 		this.loaderalias.put(alias, fullpath);
 		this.aliaslist.add(alias);
 	}
@@ -1061,7 +1065,7 @@ public class DataObjectDefinition
 						thisrightforlink.getLinkObjectDefinition()));
 
 			}
-			
+
 			if (thisproperty instanceof LeftForLinkToMaster) {
 				LeftForLinkToMaster<?, ?> thisleftforlink = (LeftForLinkToMaster<?, ?>) thisproperty;
 				showpage.addInputParameter(new ArrayArgument(
@@ -1077,7 +1081,7 @@ public class DataObjectDefinition
 						thisrightforlink.getLinkObjectDefinition()));
 
 			}
-			
+
 			if (thisproperty instanceof HasAutolink) {
 				HasAutolink<?> thisautolink = (HasAutolink<?>) thisproperty;
 				// autolink as left
@@ -1235,17 +1239,19 @@ public class DataObjectDefinition
 		return deleteaction;
 	}
 
-
 	private ActionDefinition generateDeleteLinkToMasterAndShowLeft() {
 		String deleteactionname = "DELETE" + this.getName() + "ANDSHOWLEFT";
-		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) this.getPropertyByName("LINKOBJECTTOMASTER");
+		LinkObjectToMaster<
+				?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) this.getPropertyByName("LINKOBJECTTOMASTER");
 		DynamicActionDefinition deleteaction = new DynamicActionDefinition(deleteactionname, true);
-		deleteaction.addInputArgumentAsAccessCriteria(new ObjectIdArgument(
-				"LEFT" + linkobjecttomaster.getLeftobjectforlink().getName() + "ID", linkobjecttomaster.getLeftobjectforlink()));
+		deleteaction.addInputArgumentAsAccessCriteria(
+				new ObjectIdArgument("LEFT" + linkobjecttomaster.getLeftobjectforlink().getName() + "ID",
+						linkobjecttomaster.getLeftobjectforlink()));
 		deleteaction.addInputArgument(new ObjectIdArgument(this.getName() + "ID", this));
 
-		deleteaction.addOutputArgument(new ObjectIdArgument(
-				"PARENT" + linkobjecttomaster.getLeftobjectforlink().getName() + "ID", linkobjecttomaster.getLeftobjectforlink()));
+		deleteaction.addOutputArgument(
+				new ObjectIdArgument("PARENT" + linkobjecttomaster.getLeftobjectforlink().getName() + "ID",
+						linkobjecttomaster.getLeftobjectforlink()));
 		linkobjecttomaster.getLeftobjectforlink().addActionToModifyGroup(deleteaction);
 		this.addActionToCreateNewGroup(deleteaction);
 		return deleteaction;
@@ -1255,14 +1261,15 @@ public class DataObjectDefinition
 		String deleteactionname = "DELETE" + this.getName() + "ANDSHOWRIGHT";
 		DynamicActionDefinition deleteaction = new DynamicActionDefinition(deleteactionname, true);
 		deleteaction.addInputArgument(new ObjectIdArgument(this.getName() + "ID", this));
-		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) this.getPropertyByName("LINKOBJECTTOMASTER");
-		deleteaction.addOutputArgument(new ObjectIdArgument(
-				"PARENT" + linkobjecttomaster.getRightobjectforlink().getName() + "ID", linkobjecttomaster.getRightobjectforlink()));
+		LinkObjectToMaster<
+				?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) this.getPropertyByName("LINKOBJECTTOMASTER");
+		deleteaction.addOutputArgument(
+				new ObjectIdArgument("PARENT" + linkobjecttomaster.getRightobjectforlink().getName() + "ID",
+						linkobjecttomaster.getRightobjectforlink()));
 		this.addActionToCreateNewGroup(deleteaction);
 		return deleteaction;
 	}
 
-	
 	private ActionDefinition generateDeleteAutolinkAndShowObject() {
 		// security done
 		String deleteactionname = "DELETEAUTOLINK" + this.getName() + "ANDSHOWOBJECT";
@@ -1398,7 +1405,7 @@ public class DataObjectDefinition
 		this.addActionToModifyGroup(massupdateaction);
 		return massupdateaction;
 	}
-	
+
 	private ActionDefinition generateMassUpdateLinkToMasterAndShowLeftAction(LinkObjectToMaster<?, ?> linkobjecttyped) {
 		String massupdateactionname = "MASSUPDATE" + this.getName() + "ANDSHOWLEFT";
 		DynamicActionDefinition massupdateaction = new DynamicActionDefinition(massupdateactionname, true);
@@ -1452,8 +1459,9 @@ public class DataObjectDefinition
 		this.addActionToCreateNewGroup(createlinkaction);
 		return createlinkaction;
 	}
-	
-	private ActionDefinition generateCreateLinkToMasterActionAndShowRight(LinkObjectToMaster<?,?> linkobjecttomasterproperty) {
+
+	private ActionDefinition generateCreateLinkToMasterActionAndShowRight(
+			LinkObjectToMaster<?, ?> linkobjecttomasterproperty) {
 		String createlinkactionname = "CREATE" + this.getName() + "ANDSHOWRIGHT"
 				+ linkobjecttomasterproperty.getRightobjectforlink().getName().toUpperCase();
 		DynamicActionDefinition createlinkaction = new DynamicActionDefinition(createlinkactionname, true);
@@ -1487,24 +1495,22 @@ public class DataObjectDefinition
 
 		return createlinkaction;
 	}
-	
-	private ActionDefinition generateCreateLinkToMasterAction(LinkObjectToMaster<?,?> linkobjecttomasterproperty ) {
+
+	private ActionDefinition generateCreateLinkToMasterAction(LinkObjectToMaster<?, ?> linkobjecttomasterproperty) {
 		String createlinkactionname = "CREATE" + this.getName();
 		DynamicActionDefinition createlinkaction = new DynamicActionDefinition(createlinkactionname, true);
 		createlinkaction.addInputArgumentAsAccessCriteria(
 				new ObjectIdArgument("LEFT" + linkobjecttomasterproperty.getLeftobjectforlink().getName() + "ID",
 						linkobjecttomasterproperty.getLeftobjectforlink()));
 		createlinkaction.addInputArgument(new ObjectArgument(this.getName(), this));
-		createlinkaction.addInputArgument(new ArrayArgument(
-				new ObjectMasterIdArgument("RIGHT" + linkobjecttomasterproperty.getRightobjectforlink().getName() + "MSID",
-						linkobjecttomasterproperty.getRightobjectforlink())));
+		createlinkaction.addInputArgument(new ArrayArgument(new ObjectMasterIdArgument(
+				"RIGHT" + linkobjecttomasterproperty.getRightobjectforlink().getName() + "MSID",
+				linkobjecttomasterproperty.getRightobjectforlink())));
 		createlinkaction.addOutputArgument(new ArrayArgument(new ObjectIdArgument("NEWLINKID", this)));
 		linkobjecttomasterproperty.getLeftobjectforlink().addActionToModifyGroup(createlinkaction);
 		this.addActionToCreateNewGroup(createlinkaction);
 		return createlinkaction;
 	}
-	
-
 
 	private ActionDefinition generateShowAutoLinkTree(AutolinkObject<?> autolinkobject) {
 		// security done
@@ -1846,7 +1852,7 @@ public class DataObjectDefinition
 						thisrightforlink.getLinkObjectDefinition()));
 
 			}
-			
+
 			if (thisproperty instanceof LeftForLinkToMaster) {
 				@SuppressWarnings("rawtypes")
 				LeftForLinkToMaster<?, ?> thisleftforlink = (LeftForLinkToMaster) thisproperty;
@@ -1864,8 +1870,7 @@ public class DataObjectDefinition
 						thisrightforlink.getLinkObjectDefinition()));
 
 			}
-			
-			
+
 			if (thisproperty instanceof HasAutolink) {
 				HasAutolink<?> hasautolink = (HasAutolink<?>) thisproperty;
 				// leftforlink
@@ -1951,13 +1956,13 @@ public class DataObjectDefinition
 			boolean autolink = false;
 
 			boolean linkobject = false;
-			boolean linktomaster=false;
+			boolean linktomaster = false;
 			if (this.getPropertyByName("LINKOBJECT") != null)
 				linkobject = true;
 			if (this.getPropertyByName("AUTOLINKOBJECT") != null)
 				autolink = true;
-			if (this.getPropertyByName("LINKOBJECTTOMASTER") !=null)
-				linktomaster=true;
+			if (this.getPropertyByName("LINKOBJECTTOMASTER") != null)
+				linktomaster = true;
 			if (linkedtoparents != null)
 				for (int i = 0; i < linkedtoparents.length; i++) {
 					LinkedToParent<?> thislinkedtoparent = linkedtoparents[i];
@@ -1976,7 +1981,8 @@ public class DataObjectDefinition
 						}
 					}
 				}
-			if (((!subobject) && (!autolink) && (!linkobject) && (!linktomaster)) || ((linkobject) && (this.IsIterated()))) {
+			if (((!subobject) && (!autolink) && (!linkobject) && (!linktomaster))
+					|| ((linkobject) && (this.IsIterated()))) {
 				module.addAction(generateDeleteAction());
 			}
 			if (autolink) {
@@ -1992,10 +1998,9 @@ public class DataObjectDefinition
 			if (linktomaster) {
 				module.addAction(this.generateDeleteLinkToMasterAndShowLeft());
 				module.addAction(this.generateDeleteLinkToMasterAndShowRight());
-				
+
 			}
-			
-			
+
 		}
 
 		if ((this.IsIterated()) || (this.isVersioned())) {
@@ -2055,7 +2060,7 @@ public class DataObjectDefinition
 		Property<?> linkobject = this.getPropertyByName("LINKOBJECT");
 		Property<?> autolinkobject = this.getPropertyByName("AUTOLINKOBJECT");
 		Property<?> linkobjecttomaster = this.getPropertyByName("LINKOBJECTTOMASTER");
-		
+
 		if (linkobject != null) {
 			LinkObject<?, ?> linkobjecttyped = (LinkObject<?, ?>) linkobject;
 			module.addAction(this.generateCreateLinkAction(linkobjecttyped));
@@ -2084,8 +2089,8 @@ public class DataObjectDefinition
 				}
 			}
 		}
-		
-		if (linkobjecttomaster!=null) {
+
+		if (linkobjecttomaster != null) {
 			LinkObjectToMaster<?, ?> linkobjecttomastertyped = (LinkObjectToMaster<?, ?>) linkobjecttomaster;
 			module.addAction(this.generateCreateLinkToMasterAction(linkobjecttomastertyped));
 			module.addAction(this.generateCreateLinkToMasterActionAndShowRight(linkobjecttomastertyped));
@@ -2093,7 +2098,7 @@ public class DataObjectDefinition
 				module.addAction(this.generateMassUpdateAction());
 			module.addAction(this.generateMassUpdateLinkToMasterAndShowLeftAction(linkobjecttomastertyped));
 		}
-		
+
 		if (autolinkobject != null) {
 			AutolinkObject<?> autolinkobjecttyped = (AutolinkObject<?>) autolinkobject;
 			module.addAction(this.generateCreateAutolinkAction(autolinkobjecttyped));
@@ -2105,7 +2110,8 @@ public class DataObjectDefinition
 
 		}
 		if (this.isUniqueIdentified())
-			if (((linkobject == null) && (autolinkobject == null) && (linkobjecttomaster == null)) || (this.isShowActionAutomaticallyGenerated())) {
+			if (((linkobject == null) && (autolinkobject == null) && (linkobjecttomaster == null))
+					|| (this.isShowActionAutomaticallyGenerated())) {
 				module.addAction(this.generatePrepareStandardCreateAction());
 				module.addAction(this.generateStandardCreateAction());
 
@@ -2427,10 +2433,10 @@ public class DataObjectDefinition
 		}
 		if (this.getPropertyByName("AUTOLINKOBJECT") != null)
 			return false;
-		
+
 		if (this.getPropertyByName("LINKOBJECTTOMASTER") != null)
 			return false;
-		
+
 		return true;
 	}
 
@@ -2962,7 +2968,7 @@ public class DataObjectDefinition
 		sg.wl("import org.openlowcode.server.graphic.widget.SDecimalFormatter;");
 		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.server.data.message.TObjectMasterIdDataEltType;");
-		
+
 		sg.wl("import org.openlowcode.tools.structure.IntegerDataEltType;");
 		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import org.openlowcode.server.data.storage.StoredFieldSchema;");
@@ -3077,7 +3083,7 @@ public class DataObjectDefinition
 			Element[] propertyelements = thisproperty.getElements();
 			for (int j = 0; j < propertyelements.length; j++) {
 				Element element = propertyelements[j];
-				
+
 				if (element instanceof ExternalElement) {
 					ExternalElement externalelement = (ExternalElement) element;
 					StoredElement referencedstoredelement = externalelement.getReferencedPropertyElement();
@@ -3085,19 +3091,20 @@ public class DataObjectDefinition
 						ObjectIdStoredElement idelement = (ObjectIdStoredElement) referencedstoredelement;
 						String referencedclass = null;
 						if (idelement.getReferencedObject() != null) {
-							referencedclass = StringFormatter.formatForJavaClass(idelement.getReferencedObject().getName());
+							referencedclass = StringFormatter
+									.formatForJavaClass(idelement.getReferencedObject().getName());
 							sg.wl("	private AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
 									+ ",TObjectIdDataEltType<" + referencedclass + ">> "
 									+ StringFormatter.formatForAttribute(externalelement.getName()) + "marker;");
 						} else {
 							sg.wl("	private AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
-									+ ",TObjectIdDataEltType> " + StringFormatter.formatForAttribute(externalelement.getName())
-									+ "marker;");
+									+ ",TObjectIdDataEltType> "
+									+ StringFormatter.formatForAttribute(externalelement.getName()) + "marker;");
 
 						}
 					}
 				}
-				
+
 				if (element instanceof ObjectIdStoredElement) {
 					ObjectIdStoredElement idelement = (ObjectIdStoredElement) element;
 					String referencedclass = null;
@@ -3113,7 +3120,7 @@ public class DataObjectDefinition
 
 					}
 				}
-				
+
 				if (element instanceof ObjectMasterIdStoredElement) {
 					ObjectMasterIdStoredElement idelement = (ObjectMasterIdStoredElement) element;
 					String referencedclass = null;
@@ -3124,12 +3131,12 @@ public class DataObjectDefinition
 								+ StringFormatter.formatForAttribute(idelement.getName()) + "marker;");
 					} else {
 						sg.wl("	private AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
-								+ ",TObjectMasterIdDataEltType> " + StringFormatter.formatForAttribute(idelement.getName())
-								+ "marker;");
+								+ ",TObjectMasterIdDataEltType> "
+								+ StringFormatter.formatForAttribute(idelement.getName()) + "marker;");
 
 					}
 				}
-				
+
 				if (element instanceof IntegerStoredElement) {
 					IntegerStoredElement integerelement = (IntegerStoredElement) element;
 					sg.wl("	private AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
@@ -3152,7 +3159,7 @@ public class DataObjectDefinition
 			Element[] propertyelements = thisproperty.getElements();
 			for (int j = 0; j < propertyelements.length; j++) {
 				Element element = propertyelements[j];
-				
+
 				if (element instanceof ExternalElement) {
 					ExternalElement externalelement = (ExternalElement) element;
 					StoredElement referencedstoredelement = externalelement.getReferencedPropertyElement();
@@ -3160,19 +3167,22 @@ public class DataObjectDefinition
 						ObjectIdStoredElement idelement = (ObjectIdStoredElement) referencedstoredelement;
 						String referencedclass = null;
 						if (idelement.getReferencedObject() != null) {
-							referencedclass = StringFormatter.formatForJavaClass(idelement.getReferencedObject().getName());
+							referencedclass = StringFormatter
+									.formatForJavaClass(idelement.getReferencedObject().getName());
 							sg.wl("		" + StringFormatter.formatForAttribute(externalelement.getName())
-									+ "marker = new AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
-									+ ",TObjectIdDataEltType<" + referencedclass + ">>(\"" + externalelement.getName() + "\");");
+									+ "marker = new AttributeMarker<"
+									+ StringFormatter.formatForJavaClass(this.getName()) + ",TObjectIdDataEltType<"
+									+ referencedclass + ">>(\"" + externalelement.getName() + "\");");
 						} else {
 							sg.wl("		" + StringFormatter.formatForAttribute(externalelement.getName())
-									+ "marker = new AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
-									+ ",TObjectIdDataEltType>(\"" + externalelement.getName() + "\");");
+									+ "marker = new AttributeMarker<"
+									+ StringFormatter.formatForJavaClass(this.getName()) + ",TObjectIdDataEltType>(\""
+									+ externalelement.getName() + "\");");
 
 						}
 					}
 				}
-				
+
 				if (element instanceof ObjectIdStoredElement) {
 					ObjectIdStoredElement idelement = (ObjectIdStoredElement) element;
 					String referencedclass = null;
@@ -3188,7 +3198,7 @@ public class DataObjectDefinition
 
 					}
 				}
-				
+
 				if (element instanceof ObjectMasterIdStoredElement) {
 					ObjectMasterIdStoredElement idelement = (ObjectMasterIdStoredElement) element;
 					String referencedclass = null;
@@ -3196,7 +3206,8 @@ public class DataObjectDefinition
 						referencedclass = StringFormatter.formatForJavaClass(idelement.getReferencedObject().getName());
 						sg.wl("		" + StringFormatter.formatForAttribute(idelement.getName())
 								+ "marker = new AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
-								+ ",TObjectMasterIdDataEltType<" + referencedclass + ">>(\"" + idelement.getName() + "\");");
+								+ ",TObjectMasterIdDataEltType<" + referencedclass + ">>(\"" + idelement.getName()
+								+ "\");");
 					} else {
 						sg.wl("		" + StringFormatter.formatForAttribute(idelement.getName())
 								+ "marker = new AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
@@ -3204,7 +3215,7 @@ public class DataObjectDefinition
 
 					}
 				}
-				
+
 				if (element instanceof IntegerStoredElement) {
 					IntegerStoredElement integerelement = (IntegerStoredElement) element;
 					sg.wl("		" + StringFormatter.formatForAttribute(integerelement.getName())
@@ -3382,7 +3393,6 @@ public class DataObjectDefinition
 			Element[] propertyelements = thisproperty.getElements();
 			for (int j = 0; j < propertyelements.length; j++) {
 				Element element = propertyelements[j];
-				
 
 				if (element instanceof ExternalElement) {
 					ExternalElement externalelement = (ExternalElement) element;
@@ -3391,7 +3401,8 @@ public class DataObjectDefinition
 						ObjectIdStoredElement idelement = (ObjectIdStoredElement) referencedstoredelement;
 						String referencedclass = null;
 						if (idelement.getReferencedObject() != null) {
-							referencedclass = StringFormatter.formatForJavaClass(idelement.getReferencedObject().getName());
+							referencedclass = StringFormatter
+									.formatForJavaClass(idelement.getReferencedObject().getName());
 							sg.wl("	public AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
 									+ ", TObjectIdDataEltType<" + referencedclass + ">> get"
 									+ StringFormatter.formatForJavaClass(externalelement.getName()) + "Marker() {");
@@ -3401,12 +3412,12 @@ public class DataObjectDefinition
 									+ StringFormatter.formatForJavaClass(externalelement.getName()) + "Marker() {");
 
 						}
-						sg.wl("		return " + StringFormatter.formatForAttribute(externalelement.getName()) + "marker;");
+						sg.wl("		return " + StringFormatter.formatForAttribute(externalelement.getName())
+								+ "marker;");
 						sg.wl("	}");
 					}
 				}
-				
-				
+
 				if (element instanceof ObjectIdStoredElement) {
 					ObjectIdStoredElement idelement = (ObjectIdStoredElement) element;
 					String referencedclass = null;
@@ -4350,22 +4361,23 @@ public class DataObjectDefinition
 						ObjectIdStoredElement idelement = (ObjectIdStoredElement) referencedstoredelement;
 						String referencedclass = null;
 						if (idelement.getReferencedObject() != null) {
-							referencedclass = StringFormatter.formatForJavaClass(idelement.getReferencedObject().getName());
+							referencedclass = StringFormatter
+									.formatForJavaClass(idelement.getReferencedObject().getName());
 							sg.wl("	public static AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
 									+ ",TObjectIdDataEltType<" + referencedclass + ">> get"
 									+ StringFormatter.formatForJavaClass(externalelement.getName()) + "Marker() {");
 						} else {
 							sg.wl("	public static AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
-									+ ",TObjectIdDataEltType> get" + StringFormatter.formatForJavaClass(externalelement.getName())
-									+ "Marker() {");
+									+ ",TObjectIdDataEltType> get"
+									+ StringFormatter.formatForJavaClass(externalelement.getName()) + "Marker() {");
 
 						}
-						sg.wl("		return definition.get" + StringFormatter.formatForJavaClass(externalelement.getName())
-								+ "Marker();");
+						sg.wl("		return definition.get"
+								+ StringFormatter.formatForJavaClass(externalelement.getName()) + "Marker();");
 						sg.wl("	}");
 					}
 				}
-				
+
 				if (element instanceof ObjectMasterIdStoredElement) {
 					ObjectMasterIdStoredElement idelement = (ObjectMasterIdStoredElement) element;
 					String referencedclass = null;
@@ -4376,8 +4388,8 @@ public class DataObjectDefinition
 								+ StringFormatter.formatForJavaClass(idelement.getName()) + "Marker() {");
 					} else {
 						sg.wl("	public static AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
-								+ ",TObjectMasterIdDataEltType> get" + StringFormatter.formatForJavaClass(idelement.getName())
-								+ "Marker() {");
+								+ ",TObjectMasterIdDataEltType> get"
+								+ StringFormatter.formatForJavaClass(idelement.getName()) + "Marker() {");
 
 					}
 					sg.wl("		return definition.get" + StringFormatter.formatForJavaClass(idelement.getName())
@@ -4385,7 +4397,7 @@ public class DataObjectDefinition
 					sg.wl("	}");
 
 				}
-				
+
 				if (element instanceof IntegerStoredElement) {
 					IntegerStoredElement integerelement = (IntegerStoredElement) element;
 					sg.wl("	public static AttributeMarker<" + StringFormatter.formatForJavaClass(this.getName())
