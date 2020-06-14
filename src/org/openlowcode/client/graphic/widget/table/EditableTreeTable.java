@@ -41,7 +41,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.TreeTablePosition;
-import javafx.scene.control.TreeTableRow;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
@@ -570,9 +569,54 @@ public class EditableTreeTable<E extends Object> {
 				Wrapper<E>> rootitem = new EditableTreeTableLineItem<Wrapper<E>>("Root", wrappedpayload);
 		treeroot = new TreeItem<EditableTreeTableLineItem<Wrapper<E>>>(rootitem);
 		generateSubTree(this.linegroupings.get(0), treeroot, 1);
+		generateLeavesCount(treeroot, 1);
+		consolidateTree(treeroot,1);
 		treetableview.setRoot(this.treeroot);
 	}
 
+	private int generateLeavesCount(TreeItem<EditableTreeTableLineItem<Wrapper<E>>> item,int currentlevel) {
+		if (currentlevel>1024) throw new RuntimeException("Recursive circuit breaker");
+		if (item.getChildren().size()==0) {
+			item.getValue().setNumberofleaves(1);
+			return 1;
+		}
+		int count =0;
+		for (int i=0;i<item.getChildren().size();i++) {
+			count+=generateLeavesCount(item.getChildren().get(i),currentlevel+1);
+		}
+		item.getValue().setNumberofleaves(count);
+		return count;
+	}
+	
+	private void consolidateTree(TreeItem<EditableTreeTableLineItem<Wrapper<E>>> item,int currentlevel) {
+		if (currentlevel>1024) throw new RuntimeException("Recursive circuit breaker");
+		// if several items, do not simplidy at this level
+		
+		if (item.getValue().getNumberofleaves()>1) {
+			logger.severe(" Item "+item.getValue().getLabel()+" has several children.");
+			for (int i=0;i<item.getChildren().size();i++) {
+				consolidateTree(item.getChildren().get(i),currentlevel+1);
+			}
+		}
+		// one item, if children, cut them
+		if (item.getValue().getNumberofleaves()==1) {
+			if (item.getChildren().size()==1) {
+				logger.severe(" Item "+item.getValue().getLabel()+"has only one data and one child, clear.");
+				String extralabel = consolidatelowerlabels(item.getChildren().get(0),0);
+				item.getValue().updateLabel(item.getValue().getLabel()+" "+extralabel);
+				item.getChildren().clear();
+			} else {
+				logger.severe(" Item "+item.getValue().getLabel()+"has only one data and no child, do nothing");
+			}
+		}
+	}
+	
+	private String consolidatelowerlabels(TreeItem<EditableTreeTableLineItem<Wrapper<E>>> item,int recursivebreaker) {
+		if (recursivebreaker>1024) throw new RuntimeException("Recursive circuit breaker");
+		if (item.getChildren().size()==0) return item.getValue().getLabel();
+		return item.getValue().getLabel()+" "+consolidatelowerlabels(item.getChildren().get(0),recursivebreaker+1);
+	}
+	
 	/**
 	 * Recursive structure to define the subtree
 	 * 
@@ -726,16 +770,11 @@ public class EditableTreeTable<E extends Object> {
 				LargeTextTreeTableCell<
 						EditableTreeTableLineItem<Wrapper<E>>,
 						String> cell = new LargeTextTreeTableCell<EditableTreeTableLineItem<Wrapper<E>>, String>(
-								IDENTICAL_CONVERTER, columngrouping.formatvalidator, null, false, true, 1) {
-							@Override
-							public void startEdit() {
-								TreeTableRow<EditableTreeTableLineItem<Wrapper<E>>> row = getTreeTableRow();
-								if (!EditableTreeTableValueColumn.this.isEditable(row.getTreeItem().getValue()))
-									return;
-
-								super.startEdit();
-							}
-						};
+								IDENTICAL_CONVERTER, columngrouping.formatvalidator, null, (a) -> {
+									logger.severe("Inside read-only criteria");
+									if (EditableTreeTableValueColumn.this.isEditable(a)) return new Boolean(false);
+									return new Boolean(true);
+								}, false, true, 1);
 
 				return cell;
 			});

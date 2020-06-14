@@ -10,6 +10,7 @@
 
 package org.openlowcode.client.graphic.widget.table;
 
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.openlowcode.client.graphic.widget.ValueFormatter;
@@ -26,6 +27,7 @@ import javafx.scene.control.*;
 import javafx.util.StringConverter;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import javafx.event.Event;
@@ -51,6 +53,8 @@ public class LargeTextTreeTableCell<S, T>
 	private boolean alignonright;
 	private boolean largedisplay;
 	private double lineheightfortable;
+
+	private Function<S, Boolean> forcereadonlycriteria = null;
 
 	/**
 	 * creates a large text table cell with no restriction for data entry and
@@ -132,6 +136,45 @@ public class LargeTextTreeTableCell<S, T>
 			this.setAlignment(Pos.TOP_RIGHT);
 	}
 
+	/**
+	 * create a large text table cell with a criteria for cells being read-only or
+	 * read-write
+	 * 
+	 * @param converter             converter to generate the object from strin
+	 *                              entered
+	 * @param entryrestrictions     restrictions on text entry
+	 * @param readonlyformatter     formatter for read-only
+	 * @param forcereadonlycriteria criteria to force cells as read-only. Read-only
+	 *                              cells will appear as grey (not black). Returns
+	 *                              true to force cell as read-only
+	 * @param largedisplay          true if several lines (large display)
+	 * @param alignonright          true to align on right
+	 * @param lineheight            line height in pixel
+	 */
+	public LargeTextTreeTableCell(
+			StringConverter<T> converter,
+			FormatValidator<?> entryrestrictions,
+			ValueFormatter<T> readonlyformatter,
+			Function<S, Boolean> forcereadonlycriteria,
+			boolean largedisplay,
+			boolean alignonright,
+			double lineheight) {
+		this.lineheightfortable = lineheight;
+		setConverter(converter);
+		this.entryrestrictions = entryrestrictions;
+		this.readonlyformatter = readonlyformatter;
+		this.alignonright = alignonright;
+		this.largedisplay = largedisplay;
+		this.forcereadonlycriteria = forcereadonlycriteria;
+		if (this.largedisplay) {
+			this.getStyleClass().add("text-area-table-cell");
+		} else {
+			this.getStyleClass().add("text-field-table-cell");
+		}
+		if (alignonright)
+			this.setAlignment(Pos.TOP_RIGHT);
+	}
+
 	private ObjectProperty<
 			StringConverter<T>> converter = new SimpleObjectProperty<StringConverter<T>>(this, "converter");
 	private String oldtext;
@@ -150,6 +193,11 @@ public class LargeTextTreeTableCell<S, T>
 
 	@Override
 	public void startEdit() {
+		if (this.forcereadonlycriteria != null) {
+			if (this.forcereadonlycriteria.apply(this.getTreeTableRow().getItem()).booleanValue())
+				return;
+		}
+
 		if (!isEditable() || !getTreeTableView().isEditable() || !getTableColumn().isEditable()) {
 			return;
 		}
@@ -180,7 +228,12 @@ public class LargeTextTreeTableCell<S, T>
 	public void updateItem(T item, boolean empty) {
 		super.updateItem(item, empty);
 		logger.fine("edit " + item);
-		updateItem(this, getConverter(), null, null, textField, readonlyformatter, item);
+		Color defaultcolor = null;
+		if (this.forcereadonlycriteria != null)
+			if (this.getTreeTableRow().getItem() != null)
+				if (this.forcereadonlycriteria.apply(this.getTreeTableRow().getItem()).booleanValue())
+					defaultcolor = Color.GREY;
+		updateItem(this, getConverter(), null, null, textField, readonlyformatter, item, defaultcolor);
 	}
 
 	/***************************************************************************************
@@ -204,7 +257,8 @@ public class LargeTextTreeTableCell<S, T>
 			final Node graphic,
 			final TextInputControl textField,
 			ValueFormatter<T> readonlyformatter,
-			T item) {
+			T item,
+			Color textcolorforreadonly) {
 		if (cell.isEmpty()) {
 			cell.setText(null);
 			cell.setGraphic(null);
@@ -222,8 +276,12 @@ public class LargeTextTreeTableCell<S, T>
 					cell.setGraphic(textField);
 				}
 			} else {
-				if (readonlyformatter == null)
+				if (readonlyformatter == null) {
 					cell.setText(getItemText(cell, converter));
+					if (textcolorforreadonly != null)
+						cell.setTextFill(textcolorforreadonly);
+				}
+
 				if (readonlyformatter != null)
 					cell.setGraphic(readonlyformatter.getWidget(item));
 
@@ -299,9 +357,9 @@ public class LargeTextTreeTableCell<S, T>
 			TextField textField = new TextField(getItemText(cell, converter));
 			if (alignright)
 				textField.setAlignment(Pos.CENTER_RIGHT);
-				
+
 			textField.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, new EventHandler<Event>() {
-				
+
 				@Override
 				public void handle(Event event) {
 					event.consume();
@@ -368,7 +426,8 @@ public class LargeTextTreeTableCell<S, T>
 					cell.commitEdit(converter.fromString(textic.getText()));
 					t.consume();
 					@SuppressWarnings("unchecked")
-					TreeTablePosition<S, T> position =  (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel()
+							.getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().requestFocus();
@@ -395,7 +454,8 @@ public class LargeTextTreeTableCell<S, T>
 					t.consume();
 					cell.getTreeTableView().getFocusModel().focusRightCell();
 					@SuppressWarnings("unchecked")
-					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel()
+							.getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().edit(position.getRow(), position.getTableColumn());
@@ -410,7 +470,8 @@ public class LargeTextTreeTableCell<S, T>
 					t.consume();
 					cell.getTreeTableView().getFocusModel().focusLeftCell();
 					@SuppressWarnings("unchecked")
-					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel()
+							.getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().edit(position.getRow(), position.getTableColumn());
@@ -427,7 +488,8 @@ public class LargeTextTreeTableCell<S, T>
 					t.consume();
 					cell.getTreeTableView().getFocusModel().focusAboveCell();
 					@SuppressWarnings("unchecked")
-					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel()
+							.getFocusedCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());
 					cell.getTreeTableView().edit(position.getRow(), position.getTableColumn());
@@ -441,7 +503,8 @@ public class LargeTextTreeTableCell<S, T>
 					cell.commitEdit(converter.fromString(textic.getText()));
 					t.consume();
 					@SuppressWarnings("unchecked")
-					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel().getFocusedCell();
+					TreeTablePosition<S, T> position = (TreeTablePosition<S, T>) cell.getTreeTableView().getFocusModel()
+							.getFocusedCell();
 					cell.getTreeTableView().getFocusModel().focusBelowCell();
 					cell.getTreeTableView().getSelectionModel().clearAndSelect(position.getRow(),
 							position.getTableColumn());

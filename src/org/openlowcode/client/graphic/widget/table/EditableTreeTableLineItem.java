@@ -23,22 +23,43 @@ import java.util.ArrayList;
 public class EditableTreeTableLineItem<E extends Object> {
 	private ArrayList<E> relevantitems;
 	private String label;
+	private int numberofleaves;
+
 	/**
-	 * @param label label of the line item
+	 * @param label         label of the line item
 	 * @param relevantitems number of items in this line-item
 	 */
 	@SuppressWarnings("unchecked")
-	public EditableTreeTableLineItem(String label,ArrayList<E> relevantitems) {
+	public EditableTreeTableLineItem(String label, ArrayList<E> relevantitems) {
 		this.relevantitems = (ArrayList<E>) relevantitems.clone();
-		this.label=label;
+		this.label = label;
 	}
+
+	/**
+	 * get number of leaves
+	 * 
+	 * @return number of leaves
+	 */
+	public int getNumberofleaves() {
+		return numberofleaves;
+	}
+
+	/**
+	 * sets the number of leaves on this root item
+	 * 
+	 * @param numberofleaves number of leaves
+	 */
+	public void setNumberofleaves(int numberofleaves) {
+		this.numberofleaves = numberofleaves;
+	}
+
 	/**
 	 * @return the number of items
 	 */
 	public int getItemsNumber() {
 		return relevantitems.size();
 	}
-	
+
 	/**
 	 * @param index the index of element to send back
 	 * @return the element at the given index in the list of items for this line
@@ -46,11 +67,16 @@ public class EditableTreeTableLineItem<E extends Object> {
 	public E getItemAt(int index) {
 		return relevantitems.get(index);
 	}
+
 	/**
 	 * @return the label for this line
 	 */
 	public String getLabel() {
 		return this.label;
+	}
+
+	public void updateLabel(String newlabel) {
+		this.label = newlabel;
 	}
 
 }
