@@ -80,6 +80,7 @@ public class CMultipleChoiceField
 	private int prefereddisplayintable;
 	private String[] multipledefaultvaluecode;
 	private ArrayList<CheckBox> checkboxpanel;
+	private ArrayList<CChoiceFieldValue> preselectedvalues;
 	private ChoiceField choicefield;
 
 	/**
@@ -94,6 +95,7 @@ public class CMultipleChoiceField
 	public CMultipleChoiceField(MessageReader reader, CPageSignifPath parentpath)
 			throws OLcRemoteException, IOException {
 		super(reader, parentpath);
+		this.preselectedvalues = new ArrayList<CChoiceFieldValue> ();
 		label = reader.returnNextStringField("LBL");
 		compactshow = reader.returnNextBooleanField("CPS");
 		this.twolines = reader.returnNextBooleanField("TWL");
@@ -118,6 +120,8 @@ public class CMultipleChoiceField
 		while (reader.structureArrayHasNextElement("CCL")) {
 			CChoiceFieldValue thischoicevalue = new CChoiceFieldValue(reader.returnNextStringField("STV"),
 					reader.returnNextStringField("DSV"), reader.returnNextStringField("HLP"), sequence);
+			boolean preselected=reader.returnNextBooleanField("PSL");
+			if (preselected) preselectedvalues.add(thischoicevalue);
 			if (thischoicevalue.getDisplayvalue().length() > maxcharlength)
 				maxcharlength = thischoicevalue.getDisplayvalue().length();
 			values.add(thischoicevalue);
@@ -433,6 +437,10 @@ public class CMultipleChoiceField
 			for (int i = 0; i < this.multipledefaultvaluecode.length; i++) {
 				currentchoice[i] = findChoiceFromStoredValue(multipledefaultvaluecode[i]);
 			}
+		}
+		if (this.multipledefaultvaluecode==null) if (this.preselectedvalues.size()>0) {
+			currentchoice = new CChoiceFieldValue[this.preselectedvalues.size()];
+			for (int i=0;i<this.preselectedvalues.size();i++) currentchoice[i] = this.preselectedvalues.get(i);
 		}
 		choicefield = new ChoiceField(actionmanager, compactshow, twolines, label, helper, isactive, iseditable, false,
 				values, currentchoice, restrictedvalues);

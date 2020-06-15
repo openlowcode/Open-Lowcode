@@ -13,6 +13,7 @@ package org.openlowcode.design.data.properties.basic;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.openlowcode.design.data.ChoiceValue;
 import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Index;
@@ -49,7 +50,7 @@ public class Versioned
 	public UniqueIdentified getRelatedUniqueIdentified() {
 		return this.uniqueidentified;
 	}
-	
+
 	private UniqueIdentified uniqueidentified;
 	private boolean restrictnewversion;
 
@@ -117,8 +118,10 @@ public class Versioned
 		this.addElement(version, "Version", "Version of the object", FIELDDISPLAY_NORMAL, 850, 8);
 		StoredElement lastversion = new StringStoredElement("LASTVERSION", 1);
 		this.addElementasSearchElement(lastversion, "Last Version", "unique business identifier of the object",
-				Property.FIELDDIPLSAY_TITLE_MOD, 50, 1, new SearchWidgetDefinition(true, "LASTVERSION", "Last Version",
-						SystemModule.getSystemModule().getLastVersionChoice()));
+				Property.FIELDDIPLSAY_TITLE_MOD, 50, 1,
+				new SearchWidgetDefinition(true, "LASTVERSION", "Last Version",
+						SystemModule.getSystemModule().getLastVersionChoice(), new ChoiceValue[] {
+								SystemModule.getSystemModule().getLastVersionChoice().GetValueForKey("Y") }));
 		// Master Id to refer to the master
 		StoredElement id = new ObjectMasterIdStoredElement("MASTERID", parent);
 		this.addElement(id, "Master Id", "technical identification common to all versions of an object",
@@ -148,7 +151,7 @@ public class Versioned
 		this.addDataAccessMethod(revise);
 
 		DataAccessMethod getlastversion = new DataAccessMethod("GETLASTVERSION", new ObjectArgument("OBJECT", parent),
-				false,true);
+				false, true);
 		getlastversion.addInputArgument(new MethodArgument("MASTERID", new ObjectMasterIdArgument("MASTERID", parent)));
 		this.addDataAccessMethod(getlastversion);
 
@@ -170,11 +173,11 @@ public class Versioned
 				new ObjectArgument("PREVIOUSVERSION", parent), false);
 		getpreviousversion.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
 		this.addDataAccessMethod(getpreviousversion);
-		
-		DataAccessMethod initversion = new DataAccessMethod("INITVERSION",null,false,true);
+
+		DataAccessMethod initversion = new DataAccessMethod("INITVERSION", null, false, true);
 		initversion.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
 		this.addDataAccessMethod(initversion);
-		
+
 	}
 
 	@Override

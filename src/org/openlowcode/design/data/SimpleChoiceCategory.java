@@ -222,5 +222,9 @@ public class SimpleChoiceCategory
 			return false;
 		return true;
 	}
+	
+	public ChoiceValue GetValueForKey(String key) {
+		return this.values.lookupOnName(key);
+	}
 
 }

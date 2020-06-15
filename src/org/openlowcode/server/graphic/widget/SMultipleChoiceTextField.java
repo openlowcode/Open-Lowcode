@@ -11,6 +11,7 @@
 package org.openlowcode.server.graphic.widget;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.function.Function;
 
 import org.openlowcode.server.action.SActionData;
@@ -57,6 +58,7 @@ public class SMultipleChoiceTextField<E extends FieldChoiceDefinition<E>>
 	private int prefereddisplayintable;
 	private boolean compactshow;
 	private boolean twolines;
+	private HashMap<String, ChoiceValue<E>> preselectedvalues;
 
 	/**
 	 * sets linked data to be shown
@@ -107,6 +109,11 @@ public class SMultipleChoiceTextField<E extends FieldChoiceDefinition<E>>
 		this.showintitle = showintitle;
 		this.showinbottomnotes = showinbottomnotes;
 		this.action = action;
+		this.preselectedvalues = new HashMap<String, ChoiceValue<E>>();
+	}
+
+	public void setPreselectedValue(ChoiceValue<E> preselectedvalue) {
+		this.preselectedvalues.put(preselectedvalue.getStorageCode(), preselectedvalue);
 	}
 
 	/**
@@ -182,6 +189,11 @@ public class SMultipleChoiceTextField<E extends FieldChoiceDefinition<E>>
 			writer.addStringField("STV", choicevalue.getName());
 			writer.addStringField("DSV", choicevalue.getDisplayValue());
 			writer.addStringField("HLP", choicevalue.getTooltip());
+			if (this.preselectedvalues.containsKey(choicevalue.getStorageCode())) {
+				writer.addBooleanField("PSL",true);
+			} else {
+				writer.addBooleanField("PSL",false);
+			}
 			writer.endStructure("CCL");
 		}
 		writer.endStructure("CCLS");

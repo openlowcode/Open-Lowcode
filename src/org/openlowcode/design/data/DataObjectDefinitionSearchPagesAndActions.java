@@ -68,8 +68,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		searchactionforrightobjectlink
 				.addInputArgument(new ObjectIdArgument("LEFT" + leftobject.getName().toUpperCase(), leftobject));
 		searchactionforrightobjectlink.forceNoAddress();
-		generateNormalSearchAttributesForObject(rightobject,searchactionforrightobjectlink);
-		
+		generateNormalSearchAttributesForObject(rightobject, searchactionforrightobjectlink);
+
 		searchactionforrightobjectlink.addOutputArgumentAsAccessCriteria(new ArrayArgument(
 				new ObjectArgument("SEARCHRESULTFOR" + rightobject.getName().toUpperCase(), rightobject)));
 		rightobject.addActionToLookupActionGroup(searchactionforrightobjectlink);
@@ -78,8 +78,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		return searchactionforrightobjectlink;
 	}
 
-	
-	
 	/**
 	 * generate the search action looking for potential left object while building a
 	 * link
@@ -95,9 +93,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		searchactionforleftobjectlink
 				.addInputArgument(new ObjectIdArgument("RIGHT" + rightobject.getName().toUpperCase(), rightobject));
 		searchactionforleftobjectlink.forceNoAddress();
-		generateNormalSearchAttributesForObject(leftobject,searchactionforleftobjectlink);
+		generateNormalSearchAttributesForObject(leftobject, searchactionforleftobjectlink);
 		// add normal attributes for search object
-	
+
 		searchactionforleftobjectlink.addOutputArgumentAsAccessCriteria(new ArrayArgument(
 				new ObjectArgument("SEARCHRESULTFOR" + leftobject.getName().toUpperCase(), leftobject)));
 		leftobject.addActionToLookupActionGroup(searchactionforleftobjectlink);
@@ -119,7 +117,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		searchactionforrightobjectlink.forceNoAddress();
 		searchactionforrightobjectlink
 				.addInputArgument(new ObjectIdArgument("LEFT" + linkedobject.getName().toUpperCase(), linkedobject));
-		generateNormalSearchAttributesForObject(linkedobject,searchactionforrightobjectlink);
+		generateNormalSearchAttributesForObject(linkedobject, searchactionforrightobjectlink);
 		searchactionforrightobjectlink.addOutputArgumentAsAccessCriteria(new ArrayArgument(
 				new ObjectArgument("SEARCHRESULTFOR" + linkedobject.getName().toUpperCase(), linkedobject)));
 		linkedobject.addActionToLookupActionGroup(searchactionforrightobjectlink);
@@ -127,8 +125,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		return searchactionforrightobjectlink;
 	}
 
-	
-	private void generateNormalSearchAttributesForObject(DataObjectDefinition object,DynamicActionDefinition searchaction) {
+	private void generateNormalSearchAttributesForObject(
+			DataObjectDefinition object,
+			DynamicActionDefinition searchaction) {
 		SearchWidgetDefinition[] searchwidgets = object.getSearchWidgets();
 		for (int i = 0; i < searchwidgets.length; i++) {
 			SearchWidgetDefinition widget = searchwidgets[i];
@@ -147,14 +146,16 @@ public class DataObjectDefinitionSearchPagesAndActions {
 					}
 				}
 				if (element instanceof TimestampStoredElement) {
-					searchaction.addInputArgument(new TimestampArgument(widget.getFieldname()+"FROM",widget.getDisplayname(), true));
-					searchaction.addInputArgument(new TimestampArgument(widget.getFieldname()+"TO",widget.getDisplayname(), true));
-					
+					searchaction.addInputArgument(
+							new TimestampArgument(widget.getFieldname() + "FROM", widget.getDisplayname(), true));
+					searchaction.addInputArgument(
+							new TimestampArgument(widget.getFieldname() + "TO", widget.getDisplayname(), true));
+
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * general the search action for the data object
 	 * 
@@ -163,7 +164,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 	protected ActionDefinition generateSearchAction() {
 		DynamicActionDefinition searchaction = new DynamicActionDefinition("SEARCH" + object.getName(), true);
 		searchaction.forceNoAddress();
-		generateNormalSearchAttributesForObject(object,searchaction);
+		generateNormalSearchAttributesForObject(object, searchaction);
 		searchaction.addOutputArgumentAsAccessCriteria(
 				new ArrayArgument(new ObjectArgument("SEARCHRESULTFOR" + object.getName(), object)));
 		object.addActionToReadActionGroup(searchaction);
@@ -244,7 +245,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.tools.structure.MultipleChoiceDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.DateDataEltType;");
-		
+
 		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
 		sg.wl("import org.openlowcode.server.action.SActionOutputDataRef;");
 		for (int i = 0; i < searchwidgets.length; i++) {
@@ -273,7 +274,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("		}");
 		sg.wl("");
 		this.generateSettersForAction(linkobject.getRightobjectforlink(), sg);
-		
 
 		sg.wl("		@Override");
 		sg.wl("		public SActionOutputDataRef<ArrayDataEltType<TObjectDataEltType<" + objectclass
@@ -317,7 +317,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 			sg.w("	public " + objectclass + "[] executeActionLogic(DataObjectId<" + parentobjectclass + "> parentid");
 
 		}
-		this.generateSearchArgumentsForAction(linkobject.getRightobjectforlink(), sg,true);	
+		this.generateSearchArgumentsForAction(linkobject.getRightobjectforlink(), sg, true);
 		sg.wl("			" + (searchwidgets.length > 0 ? "," : "") + "Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("");
 		sg.wl("		ArrayList<QueryCondition> andconditions = new ArrayList<QueryCondition>();");
@@ -472,7 +472,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("		}");
 		sg.wl("");
 		this.generateSettersForAction(linkobject.getRightobjectforlink(), sg);
-	
 
 		sg.wl("		@Override");
 		sg.wl("		public SActionOutputDataRef<ArrayDataEltType<TObjectDataEltType<" + rightobjectclass
@@ -504,8 +503,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("	@Override");
 		sg.w("	public " + rightobjectclass + "[] executeActionLogic(DataObjectId<" + leftobjectclass + "> left"
 				+ leftobjectattribute + "id");
-		this.generateSearchArgumentsForAction(linkobject.getRightobjectforlink(), sg,true);
-		
+		this.generateSearchArgumentsForAction(linkobject.getRightobjectforlink(), sg, true);
+
 		sg.wl(",Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("  // TODO data filter is not used");
 		sg.wl("		ArrayList<QueryCondition> andconditions = new ArrayList<QueryCondition>();");
@@ -607,7 +606,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.DateDataEltType;");
-		sg.wl("");	
+		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
@@ -640,7 +639,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("		}");
 		sg.wl("		");
 		this.generateSettersForAction(linkobject.getLeftobjectforlink(), sg);
-		
 
 		sg.wl("		@Override");
 		sg.wl("		public SActionOutputDataRef<ArrayDataEltType<TObjectDataEltType<" + leftobjectclass
@@ -678,8 +676,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("	@Override");
 		sg.w("	public " + leftobjectclass + "[] executeActionLogic(DataObjectId<" + rightobjectclass + "> right"
 				+ rightobjectattribute + "id");
-		this.generateSearchArgumentsForAction(linkobject.getLeftobjectforlink(), sg,true);
-		
+		this.generateSearchArgumentsForAction(linkobject.getLeftobjectforlink(), sg, true);
+
 		sg.wl(",Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("  // TODO data filter is not used");
 		sg.wl("		ArrayList<QueryCondition> andconditions = new ArrayList<QueryCondition>();");
@@ -775,7 +773,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.message.TObjectIdDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.DateDataEltType;");
-		
+
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.data.properties.AutolinkobjectQueryHelper;");
 		sg.wl("import java.util.function.Function;");
@@ -812,7 +810,6 @@ public class DataObjectDefinitionSearchPagesAndActions {
 
 		sg.wl("");
 		this.generateSettersForAction(autolinkobject.getObjectforlink(), sg);
-		
 
 		sg.wl("		@Override");
 		sg.wl("		public SActionOutputDataRef<ArrayDataEltType<TObjectDataEltType<" + rightobjectclass
@@ -849,8 +846,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("	@Override");
 		sg.w("	public " + rightobjectclass + "[] executeActionLogic(DataObjectId<" + leftobjectclass + "> left"
 				+ leftobjectattribute + "id");
-		this.generateSearchArgumentsForAction(autolinkobject.getObjectforlink(), sg,true);
-		
+		this.generateSearchArgumentsForAction(autolinkobject.getObjectforlink(), sg, true);
+
 		sg.wl(",Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("  // TODO data filter is not used");
 		sg.wl("		ArrayList<QueryCondition> andconditions = new ArrayList<QueryCondition>();");
@@ -891,7 +888,10 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.close();
 	}
 
-	private void generateSearchArgumentsForAction(DataObjectDefinition object, SourceGenerator sg,boolean hasattributebefore) throws IOException {
+	private void generateSearchArgumentsForAction(
+			DataObjectDefinition object,
+			SourceGenerator sg,
+			boolean hasattributebefore) throws IOException {
 		boolean first = !hasattributebefore;
 		SearchWidgetDefinition[] searchwidgets = object.getSearchWidgets();
 		for (int i = 0; i < searchwidgets.length; i++) {
@@ -915,7 +915,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 								+ StringFormatter.formatForJavaClass(widget.getMultipleChoiceCategory().getName())
 								+ "ChoiceDefinition>[] " + searchwidgets[i].getFieldname().toLowerCase());
 					}
-					
+
 				}
 				if (element instanceof TimestampStoredElement) {
 					if (first) {
@@ -923,11 +923,13 @@ public class DataObjectDefinitionSearchPagesAndActions {
 					} else {
 						sg.w(",");
 					}
-					sg.w("Date "+searchwidgets[i].getFieldname().toLowerCase()+"from,Date "+searchwidgets[i].getFieldname().toLowerCase()+"to");
+					sg.w("Date " + searchwidgets[i].getFieldname().toLowerCase() + "from,Date "
+							+ searchwidgets[i].getFieldname().toLowerCase() + "to");
 				}
 			}
 		}
 	}
+
 	private void generateSettersForAction(DataObjectDefinition object, SourceGenerator sg) throws IOException {
 		SearchWidgetDefinition[] searchwidgets = object.getSearchWidgets();
 		for (int i = 0; i < searchwidgets.length; i++) {
@@ -962,7 +964,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 					sg.wl("			actionref.set" + StringFormatter.formatForJavaClass(widget.getFieldname())
 							+ "from(function);");
 					sg.wl("			}");
-					
+
 					sg.wl("		@Override");
 					sg.wl("		public void set" + StringFormatter.formatForJavaClass(widget.getFieldname())
 							+ "to(InlineActionRef actionref,Function<SActionInputDataRef<DateDataEltType>, SActionDataLoc<DateDataEltType>> function) { ");
@@ -974,6 +976,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 			}
 		}
 	}
+
 	/**
 	 * generates the source code for the normal search action for a data object
 	 * 
@@ -1064,8 +1067,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 			sg.w("	public " + objectclass + "[] executeActionLogic(");
 
 		}
-		generateSearchArgumentsForAction(object,sg,false);
-		
+		generateSearchArgumentsForAction(object, sg, false);
+
 		sg.wl("			" + (searchwidgets.length > 0 ? "," : "") + "Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("");
 		sg.wl("		ArrayList<QueryCondition> andconditions = new ArrayList<QueryCondition>();");
@@ -1135,7 +1138,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 				String fieldname = StringFormatter.formatForAttribute(widget.getFieldname());
 				String fieldclass = StringFormatter.formatForJavaClass(widget.getFieldname());
 				if (element instanceof StringStoredElement) {
-		
+
 					if (widget.getMultipleChoiceCategory() == null) {
 
 						sg.wl("		if (" + fieldname + "!=null) if (" + fieldname + ".length()>0) {");
@@ -1181,24 +1184,22 @@ public class DataObjectDefinitionSearchPagesAndActions {
 							sg.wl("		}");
 						}
 					}
-					
+
 				}
 				if (element instanceof TimestampStoredElement) {
 					sg.wl("	if (" + fieldname + "from!=null) {");
 					sg.wl("			andconditions.add(new SimpleQueryCondition<Date>(alias,");
-					sg.wl("					" + objectclass + ".getDefinition().get" + fieldclass
-							+ "FieldSchema(),");
+					sg.wl("					" + objectclass + ".getDefinition().get" + fieldclass + "FieldSchema(),");
 					sg.wl("					new  QueryOperatorGreaterOrEqualTo<Date>(),");
 					sg.wl("					" + fieldname + "from));");
 					sg.wl("		}");
 					sg.wl("	if (" + fieldname + "to!=null) {");
 					sg.wl("			andconditions.add(new SimpleQueryCondition<Date>(alias,");
-					sg.wl("					" + objectclass + ".getDefinition().get" + fieldclass
-							+ "FieldSchema(),");
+					sg.wl("					" + objectclass + ".getDefinition().get" + fieldclass + "FieldSchema(),");
 					sg.wl("					new  QueryOperatorSmallerOrEqualTo<Date>(),");
 					sg.wl("					" + fieldname + "to));");
 					sg.wl("		}");
-					
+
 				}
 
 			}
@@ -1270,7 +1271,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.graphic.widget.SMultipleChoiceTextField;");
 		sg.wl("import org.openlowcode.tools.structure.ChoiceDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.DateDataEltType;");
-		
+
 		sg.wl("import org.openlowcode.tools.structure.MultipleChoiceDataEltType;");
 
 		sg.wl("import org.openlowcode.server.data.SimpleFieldChoiceDefinition;");
@@ -1297,7 +1298,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.TextDataEltType;");
 		sg.wl("import org.openlowcode.tools.structure.DateDataEltType;");
-		
+
 		sg.wl("import org.openlowcode.tools.misc.NamedList;");
 
 		for (int i = 0; i < searchwidgets.length; i++) {
@@ -1340,12 +1341,12 @@ public class DataObjectDefinitionSearchPagesAndActions {
 				}
 				if (element instanceof TimestampStoredElement) {
 					sg.wl("		void set" + StringFormatter.formatForJavaClass(widget.getFieldname())
-					+ "from(E actionref,Function<SActionInputDataRef<DateDataEltType>, SActionDataLoc<DateDataEltType>> function); ");
+							+ "from(E actionref,Function<SActionInputDataRef<DateDataEltType>, SActionDataLoc<DateDataEltType>> function); ");
 					sg.wl("		void set" + StringFormatter.formatForJavaClass(widget.getFieldname())
-					+"to(E actionref,Function<SActionInputDataRef<DateDataEltType>, SActionDataLoc<DateDataEltType>> function); ");
+							+ "to(E actionref,Function<SActionInputDataRef<DateDataEltType>, SActionDataLoc<DateDataEltType>> function); ");
 				}
-				
- 			}
+
+			}
 		}
 
 		// todo get all attributes from search action
@@ -1418,13 +1419,22 @@ public class DataObjectDefinitionSearchPagesAndActions {
 								+ "\",\"Choose one or several of the " + searchwidget.getDisplayname() + "s\", ");
 						sg.wl("			" + StringFormatter.formatForJavaClass(multiplechoice.getName())
 								+ "ChoiceDefinition.get(),parentpage,false, false, false, false,null);");
+						if (searchwidget.getPreselectedValues() != null)
+							for (int j = 0; j < searchwidget.getPreselectedValues().length; j++) {
+								ChoiceValue value = searchwidget.getPreselectedValues()[j];
+								sg.wl("			" + searchwidget.getFieldname().toLowerCase()
+										+ "entryfield.setPreselectedValue("
+										+ StringFormatter.formatForJavaClass(multiplechoice.getName())
+										+ "ChoiceDefinition.get()." + value.getName().toUpperCase() + ");");
+
+							}
 						sg.wl("			searchcriteriapayload.addElement(" + searchwidget.getFieldname().toLowerCase()
 								+ "entryfield);");
 
 					}
 				}
 				if (element instanceof TimestampStoredElement) {
-					sg.wl("			STimeRangeEntry "+ searchwidget.getFieldname().toLowerCase()
+					sg.wl("			STimeRangeEntry " + searchwidget.getFieldname().toLowerCase()
 							+ "entryfield = new STimeRangeEntry(parentpage,\"" + searchwidget.getDisplayname()
 							+ "\",\"SEARCHFIELD" + searchwidget.getFieldname().toUpperCase()
 							+ "\",\"select to filter by date\");");
@@ -1461,13 +1471,15 @@ public class DataObjectDefinitionSearchPagesAndActions {
 					}
 				}
 				if (element instanceof TimestampStoredElement) {
-					sg.wl("			searcher.set" + StringFormatter.formatForJavaClass(searchwidget.getFieldname()+"FROM")
-					+ "(search" + objectattribute + "actionref," + searchwidget.getFieldname().toLowerCase()
-					+ "entryfield.getTimeRangeStart());");
-					sg.wl("			searcher.set" + StringFormatter.formatForJavaClass(searchwidget.getFieldname()+"TO")
-					+ "(search" + objectattribute + "actionref," + searchwidget.getFieldname().toLowerCase()
-					+ "entryfield.getTimeRangeEnd());");
-					
+					sg.wl("			searcher.set"
+							+ StringFormatter.formatForJavaClass(searchwidget.getFieldname() + "FROM") + "(search"
+							+ objectattribute + "actionref," + searchwidget.getFieldname().toLowerCase()
+							+ "entryfield.getTimeRangeStart());");
+					sg.wl("			searcher.set"
+							+ StringFormatter.formatForJavaClass(searchwidget.getFieldname() + "TO") + "(search"
+							+ objectattribute + "actionref," + searchwidget.getFieldname().toLowerCase()
+							+ "entryfield.getTimeRangeEnd());");
+
 				}
 			}
 		}
@@ -1722,9 +1734,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 				true);
 		searchactionforparent.addInputArgument(new ObjectIdArgument("PARENTID", parentobject));
 		searchactionforparent.forceNoAddress();
-		
+
 		// add normal attributes for search object
-		generateNormalSearchAttributesForObject(rightobject,searchactionforparent);
+		generateNormalSearchAttributesForObject(rightobject, searchactionforparent);
 		searchactionforparent.addOutputArgumentAsAccessCriteria(new ArrayArgument(
 				new ObjectArgument("SEARCHRESULTFOR" + rightobject.getName().toUpperCase(), rightobject)));
 
@@ -1732,12 +1744,13 @@ public class DataObjectDefinitionSearchPagesAndActions {
 	}
 
 	/**
-	 * @param name name of the data object
-	 * @param sg        source generator
-	 * @param module    parent module
+	 * @param name   name of the data object
+	 * @param sg     source generator
+	 * @param module parent module
 	 * @throws IOException if anyting bad happens while writing the source code
 	 */
-	public static void generateLaunchSearchActionToFile(String name,SourceGenerator sg, Module module) throws IOException {
+	public static void generateLaunchSearchActionToFile(String name, SourceGenerator sg, Module module)
+			throws IOException {
 		String objectvariable = StringFormatter.formatForAttribute(name);
 
 		sg.wl("package " + module.getPath() + ".action.generated;");

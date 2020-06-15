@@ -11,6 +11,7 @@
 package org.openlowcode.design.pages;
 
 import org.openlowcode.design.data.ChoiceCategory;
+import org.openlowcode.design.data.ChoiceValue;
 import org.openlowcode.design.data.Element;
 import org.openlowcode.tools.data.TimePeriod;
 import org.openlowcode.tools.data.TimePeriod.PeriodType;
@@ -58,6 +59,7 @@ public class SearchWidgetDefinition {
 	public static int TYPE_TIMEPERIOD = 103;
 	/**
 	 * search widget is text choice
+	 * 
 	 * @since 1.6
 	 */
 	public static int TYPE_TEXTCHOICE = 104;
@@ -71,7 +73,12 @@ public class SearchWidgetDefinition {
 	private boolean choicesearchinstring;
 	private PeriodType periodtype;
 	private int type;
+	private ChoiceValue[] preselectedvalues;
 
+	public ChoiceValue[] getPreselectedValues() {
+		return preselectedvalues;
+	}
+	
 	/**
 	 * @return the type of search widget (defined as a static int)
 	 */
@@ -139,7 +146,7 @@ public class SearchWidgetDefinition {
 	 * @param multiplechoicecategory choice category. In the case where choice
 	 *                               should be determined by existing value in text
 	 *                               field, just leave blank (new to version 1.6)
-	 *                       
+	 * 
 	 */
 	public SearchWidgetDefinition(
 			boolean primary,
@@ -147,6 +154,34 @@ public class SearchWidgetDefinition {
 			String displayname,
 			ChoiceCategory multiplechoicecategory) {
 		this(primary, fieldname, displayname, multiplechoicecategory, true);
+	}
+
+	/**
+	 * creates a search widget definition using a choice category with default
+	 * values selected. The widget will allow several selections
+	 * 
+	 * @param primary                true if the element should be shown as primary,
+	 *                               false if the field should be shown in the
+	 *                               collapsible part of the search screen
+	 * @param fieldname              name of the field (should be unique for the
+	 *                               object)
+	 * @param displayname            the display name if the name of the element
+	 *                               should be overridden, null else
+	 * @param multiplechoicecategory choice category. In the case where choice
+	 *                               should be determined by existing value in text
+	 *                               field, just leave blank (new to version 1.6)
+	 * @param preselectedvalues      pre-selected values when the widget is first
+	 *                               deployed
+	 * @since 1.9
+	 * 
+	 */
+	public SearchWidgetDefinition(
+			boolean primary,
+			String fieldname,
+			String displayname,
+			ChoiceCategory multiplechoicecategory,ChoiceValue[] preselectedvalues) {
+		this(primary, fieldname, displayname, multiplechoicecategory, true);
+		this.preselectedvalues = preselectedvalues;
 	}
 
 	/**
@@ -230,9 +265,11 @@ public class SearchWidgetDefinition {
 		this.posttreatment = POSTTREATMENT_NONE;
 		this.multiplechoicecategory = multiplechoicecategory;
 		this.choicesearchinstring = searchasstring;
-		if (this.multiplechoicecategory!=null) this.type = TYPE_CHOICE;
-		if (this.multiplechoicecategory==null) this.type = TYPE_TEXTCHOICE;
-		
+		if (this.multiplechoicecategory != null)
+			this.type = TYPE_CHOICE;
+		if (this.multiplechoicecategory == null)
+			this.type = TYPE_TEXTCHOICE;
+
 	}
 
 	/**
