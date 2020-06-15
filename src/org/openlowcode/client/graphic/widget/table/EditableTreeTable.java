@@ -773,7 +773,7 @@ public class EditableTreeTable<E extends Object> {
 						EditableTreeTableLineItem<Wrapper<E>>,
 						String> cell = new LargeTextTreeTableCell<EditableTreeTableLineItem<Wrapper<E>>, String>(
 								IDENTICAL_CONVERTER, columngrouping.formatvalidator, null, (a) -> {
-									logger.severe("Inside read-only criteria");
+									logger.finest("Inside read-only criteria");
 									if (EditableTreeTableValueColumn.this.isEditable(a)) return new Boolean(false);
 									return new Boolean(true);
 								}, false, true, 1);
