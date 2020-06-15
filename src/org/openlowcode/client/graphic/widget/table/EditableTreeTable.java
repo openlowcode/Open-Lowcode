@@ -569,8 +569,8 @@ public class EditableTreeTable<E extends Object> {
 				Wrapper<E>> rootitem = new EditableTreeTableLineItem<Wrapper<E>>("Root", wrappedpayload);
 		treeroot = new TreeItem<EditableTreeTableLineItem<Wrapper<E>>>(rootitem);
 		generateSubTree(this.linegroupings.get(0), treeroot, 1);
-		generateLeavesCount(treeroot, 1);
-		consolidateTree(treeroot,1);
+		generateLeavesCount(treeroot, 0);
+		consolidateTree(treeroot,0);
 		treetableview.setRoot(this.treeroot);
 	}
 
@@ -603,7 +603,9 @@ public class EditableTreeTable<E extends Object> {
 			if (item.getChildren().size()==1) {
 				logger.severe(" Item "+item.getValue().getLabel()+"has only one data and one child, clear.");
 				String extralabel = consolidatelowerlabels(item.getChildren().get(0),0);
-				item.getValue().updateLabel(item.getValue().getLabel()+" "+extralabel);
+				String newlabel = item.getValue().getLabel()+" "+extralabel;
+				if (currentlevel==0) newlabel = extralabel;
+				item.getValue().updateLabel(newlabel);
 				item.getChildren().clear();
 			} else {
 				logger.severe(" Item "+item.getValue().getLabel()+"has only one data and no child, do nothing");
