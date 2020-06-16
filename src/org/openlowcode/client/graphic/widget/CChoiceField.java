@@ -357,8 +357,10 @@ public class CChoiceField
 			if (thisvalue.getStorageCode().compareTo(storedvalue) == 0)
 				return thisvalue;
 		}
-		throw new RuntimeException("display code not found for list of value, code = " + storedvalue + ", field name = "
+		logger.severe("display code not found for list of value, code = " + storedvalue + ", field name = "
 				+ this.datafieldname);
+		return generateInvalidValue(storedvalue);
+		
 	}
 
 	@Override
@@ -537,9 +539,14 @@ public class CChoiceField
 
 				CChoiceFieldValue displayvalue = thischoicefield.valuesbycode.get(code); // try to get display value
 				ArrayList<String> restrictionsonupdate = line.hasFieldRestriction(fieldname);
-				if (displayvalue == null)
+				if (displayvalue == null) {
 					displayvalue = thischoicefield.getBlankChoiceField();
-				if (displayvalue != null)
+					if (code!=null) if (code.length()>0) {
+						displayvalue = thischoicefield.generateInvalidValue(code);
+					}
+				}	
+				
+					if (displayvalue != null)
 					displayvalue.setRestrictionsOnNextValues(restrictionsonupdate);
 				if (line.isRowFrozen())
 					displayvalue = displayvalue.duplicateAsFrozen();
@@ -763,6 +770,10 @@ public class CChoiceField
 		thiscolumn.setCellValueFactory(new TableCellValueFactory(this));
 		thiscolumn.setCellFactory(new TableCellFactory(helper, values));
 		return thiscolumn;
+	}
+
+	public CChoiceFieldValue generateInvalidValue(String code) {
+		return new CChoiceFieldValue(code,"Invalid value "+code,"Invalid value currently in database",-5);
 	}
 
 	/**

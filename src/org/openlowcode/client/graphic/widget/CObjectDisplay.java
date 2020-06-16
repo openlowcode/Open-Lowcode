@@ -26,6 +26,7 @@ import org.openlowcode.client.graphic.CPageDataRef;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.graphic.Callback;
+import org.openlowcode.client.graphic.widget.tools.CChoiceFieldValue;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.ArrayDataEltType;
@@ -510,8 +511,12 @@ public class CObjectDisplay
 				if (currentfield instanceof CChoiceField) {
 					CChoiceField thischoicefield = (CChoiceField) currentfield;
 					String code = objectdata.lookupEltByName(currentfield.getFieldname()).defaultTextRepresentation();
-					if (code.length() > 0)
-						titletext = titletext + "   " + thischoicefield.getChoiceFieldValue(code).getDisplayvalue();
+					if (code.length() > 0) {
+						CChoiceFieldValue choicevalue = thischoicefield.getChoiceFieldValue(code);
+						String choiceprint = "Invalid value "+code;
+						if (choicevalue!=null) choiceprint = choicevalue.getDisplayvalue();
+						titletext = titletext + "   " + choiceprint;
+					}
 				} else {
 					titletext = titletext
 							+ objectdata.lookupEltByName(currentfield.getFieldname()).defaultTextRepresentation();
