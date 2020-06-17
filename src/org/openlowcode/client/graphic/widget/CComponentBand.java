@@ -177,13 +177,14 @@ public class CComponentBand
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		Pane thispane = CComponentBand.returnBandPane(direction);
 		this.bandpane = thispane;
 		if (this.minwidth != 0)
 			thispane.setMinWidth(this.minwidth);
 		for (int i = 0; i < elements.size(); i++) {
-			Node currentnode = elements.get(i).getNode(actionmanager, inputdata, parentwindow, parenttabpanes);
+			Node currentnode = elements.get(i).getNode(actionmanager, inputdata, parentwindow, parenttabpanes,nodetocollapsewhenactiontriggered);
 			// if node is null (e.g. CObjectIdStorage), then do not add it to the graphic
 			if (currentnode != null)
 				thispane.getChildren().add(currentnode);

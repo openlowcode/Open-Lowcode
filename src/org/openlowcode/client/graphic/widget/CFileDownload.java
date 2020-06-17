@@ -83,7 +83,8 @@ public class CFileDownload
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		this.parentwindow = parentwindow;
 		inputdata.addInlineActionDataRef(inlineactiondataref);
 		return null;

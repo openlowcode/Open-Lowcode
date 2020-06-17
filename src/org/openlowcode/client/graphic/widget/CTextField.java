@@ -297,7 +297,8 @@ public class CTextField
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		if (this.datareference != null) {
 			this.inputvalue = getExternalContent(inputdata, datareference);
 		}
@@ -434,6 +435,7 @@ public class CTextField
 				((TextField) textfield).setOnAction(actionmanager);
 		}
 		if (this.inlineaction != null) {
+			inlineaction.setNodeToCollapse(nodetocollapsewhenactiontriggered);
 			actionmanager.registerInlineAction(textfield, inlineaction);
 			if (textfield instanceof TextField)
 				((TextField) textfield).setOnAction(actionmanager);

@@ -153,7 +153,8 @@ public class CPageText
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		if (this.data.compareTo("EXT") == 0) {
 			this.text = getExternalReference(inputdata, dataref);
 		}

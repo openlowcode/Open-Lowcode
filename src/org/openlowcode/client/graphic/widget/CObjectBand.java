@@ -145,20 +145,21 @@ public class CObjectBand
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		dataarray = getExternalContent(inputdata, datareference);
 		Pane objectbandpane = CComponentBand.returnBandPane(CComponentBand.DIRECTION_DOWN);
 
 		for (int i = 0; i < this.dataarray.getObjectNumber(); i++) {
 			ObjectDataElt thisobject = this.dataarray.getObjectAtIndex(i);
 			Node thisobjectnode = CObjectDisplay.generateObjectDisplay(thisobject, this.nodepath, payloadlist, false,
-					true, actionmanager, null, null, inputdata, parentwindow, parenttabpanes);
+					true, actionmanager, null, null, inputdata, parentwindow, parenttabpanes,nodetocollapsewhenactiontriggered);
 			objectbandpane.getChildren().add(thisobjectnode);
 			Callback callback = new CObjectBandCallback(i);
 			if (actiongroup != null) {
 				CPageNode thisactiongroup = actiongroup.deepcopyWithCallback(callback);
-				objectbandpane.getChildren()
-						.add(thisactiongroup.getNode(actionmanager, inputdata, parentwindow, parenttabpanes));
+				objectbandpane.getChildren().add(thisactiongroup.getNode(actionmanager, inputdata, parentwindow,
+						parenttabpanes, nodetocollapsewhenactiontriggered));
 			}
 		}
 

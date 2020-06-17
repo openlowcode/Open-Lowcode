@@ -490,7 +490,8 @@ public class CTimePeriodField
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		if (this.datareference != null) {
 			this.payload = getExternalContent(inputdata, datareference);
 		}

@@ -120,7 +120,8 @@ public class CImageDisplay
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		inputdata.addInlineActionDataRef(this.inlineactiondataref);
 		this.actionmanager = actionmanager;
 		SFile thumbnail = getThumbnail(inputdata, datareference);

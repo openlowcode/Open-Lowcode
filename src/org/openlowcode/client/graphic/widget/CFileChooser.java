@@ -86,7 +86,8 @@ public class CFileChooser
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		FlowPane thispane = new FlowPane();
 		Label thislabel = new Label(title);

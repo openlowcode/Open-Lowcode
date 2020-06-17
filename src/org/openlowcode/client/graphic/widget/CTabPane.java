@@ -90,7 +90,8 @@ public class CTabPane
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		this.tabpane = new TabPane();
 		this.tabpane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -100,7 +101,7 @@ public class CTabPane
 			tab.setText(tabtitles.get(i));
 			TabPane[] newtabarray = Arrays.copyOf(parenttabpanes, parenttabpanes.length + 1, TabPane[].class);
 			newtabarray[parenttabpanes.length] = this.tabpane;
-			Node node = elements.get(i).getNode(actionmanager, inputdata, parentwindow, newtabarray);
+			Node node = elements.get(i).getNode(actionmanager, inputdata, parentwindow, newtabarray,nodetocollapsewhenactiontriggered);
 			if (node instanceof Region) {
 				Region region = (Region) node;
 				region.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, Color.RED, Color.RED, Color.RED,

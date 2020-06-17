@@ -607,7 +607,8 @@ public class CObjectArray
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		this.parenttabpanes = parenttabpanes;
 		modifycolumnmodel(inputdata);
 		this.actionmanager = actionmanager;

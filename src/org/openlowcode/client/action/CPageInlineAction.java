@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.openlowcode.client.graphic.CPage;
 import org.openlowcode.client.graphic.CPageNode;
+import org.openlowcode.client.graphic.widget.CollapsibleNode;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
 import org.openlowcode.tools.misc.Named;
@@ -41,7 +42,7 @@ public class CPageInlineAction extends Named {
 	private NamedList<CActionDataLoc> businessdataloc;
 	private String module;
 	private boolean local;
-
+	private CollapsibleNode nodetocollapse;
 	/**
 	 * @return true if the action is local (there are some actions that are only
 	 *         moving data from a widget to another without call to the server
@@ -175,5 +176,21 @@ public class CPageInlineAction extends Named {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * sets the node to collapse when the inline action is triggered
+	 * @param nodetocollapse node to collapse
+	 * @since 1.9
+	 */
+	public void setNodeToCollapse(CollapsibleNode nodetocollapse) {
+		this.nodetocollapse = nodetocollapse;
+	}
+	/**
+	 * @return the node to collapse, if any is specified
+	 * @since 1.9
+	 */
+	public CollapsibleNode getNodeToCollapse() {
+		return nodetocollapse;
 	}
 }

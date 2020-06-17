@@ -13,6 +13,7 @@ package org.openlowcode.client.graphic;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import org.openlowcode.client.graphic.widget.CollapsibleNode;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
@@ -53,16 +54,24 @@ public abstract class CPageNode {
 
 	/**
 	 *
-	 * @param actionmanager  the action manager on which to register all widgets
-	 *                       that trigger an action
-	 * @param inputdata      the list of input data of the page
-	 * @param parentwindow   the javafx window this widget will be drawn in
-	 * @param parenttabpanes parenttabpanes that should be triggered a layout when
-	 *                       this component resizes
+	 * @param actionmanager                     the action manager on which to
+	 *                                          register all widgets that trigger an
+	 *                                          action
+	 * @param inputdata                         the list of input data of the page
+	 * @param parentwindow                      the javafx window this widget will
+	 *                                          be drawn in
+	 * @param parenttabpanes                    parenttabpanes that should be
+	 *                                          triggered a layout when this
+	 *                                          component resizes
+	 * @param nodetocollapsewhenactiontriggered trigger the node when action 
 	 * @return a displayable node (in JAVAFX)
 	 */
-	public abstract Node getNode(PageActionManager actionmanager, CPageData inputdata, Window parentwindow,
-			TabPane[] parenttabpanes);
+	public abstract Node getNode(
+			PageActionManager actionmanager,
+			CPageData inputdata,
+			Window parentwindow,
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered);
 
 	/**
 	 * Returns a filled data element of the specified data element type. If there is

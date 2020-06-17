@@ -119,7 +119,8 @@ public class CImageChooser
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		BorderPane borderpane = new BorderPane();
 		Button launchaction = new Button(title+" (selection)");
 		Button launchactionfull = new Button(title+" (full)");

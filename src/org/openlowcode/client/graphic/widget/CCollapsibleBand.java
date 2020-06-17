@@ -39,24 +39,28 @@ import javafx.scene.layout.Border;
  */
 public class CCollapsibleBand
 		extends
-		CPageNode {
+		CPageNode
+		implements
+		CollapsibleNode {
 	private String title;
 	private boolean openbydefault;
 	private CPageNode payload;
 	private TitledPane collapsiblepane;
+	private boolean closewheninlineactioninside;
 
 	/**
 	 * Creates a collapsible band from a message from the server
 	 * 
-	 * @param reader message reader from the server
+	 * @param reader     message reader from the server
 	 * @param parentpath path of the parent of this widget in the page widget node
-	 * @throws OLcRemoteException 
+	 * @throws OLcRemoteException
 	 * @throws IOException
 	 */
 	public CCollapsibleBand(MessageReader reader, CPageSignifPath parentpath) throws OLcRemoteException, IOException {
 		super(reader, parentpath);
 		this.title = reader.returnNextStringField("TTL");
 		this.openbydefault = reader.returnNextBooleanField("OBD");
+		this.closewheninlineactioninside = reader.returnNextBooleanField("CII");
 		reader.returnNextStartStructure("PLD");
 		payload = CPageNode.parseNode(reader, this.nodepath);
 		reader.returnNextEndStructure("PLD");
@@ -73,8 +77,10 @@ public class CCollapsibleBand
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
-		Node payloadnode = payload.getNode(actionmanager, inputdata, parentwindow, parenttabpanes);
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
+		Node payloadnode = payload.getNode(actionmanager, inputdata, parentwindow, parenttabpanes,
+				(closewheninlineactioninside ? this : null));
 		collapsiblepane = new TitledPane(this.title, payloadnode);
 		collapsiblepane.setCollapsible(true);
 		collapsiblepane.setExpanded(this.openbydefault);
@@ -99,6 +105,12 @@ public class CCollapsibleBand
 	public void mothball() {
 		collapsiblepane.setContent(null);
 		payload.mothball();
+	}
+
+	@Override
+	public void collapse() {
+		collapsiblepane.setExpanded(false);
+
 	}
 
 }

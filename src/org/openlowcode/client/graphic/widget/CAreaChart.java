@@ -109,7 +109,8 @@ public class CAreaChart
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		currentdata = getExternalContent(inputdata, datareference);
 		setData(currentdata);
 		TemporaryDateAxis xaxis = new TemporaryDateAxis();

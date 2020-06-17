@@ -67,6 +67,7 @@ public class CActionButton
 	private String confirmationmessagecontinuelabel;
 	private String confirmationmessagestoplabel;
 
+
 	private CActionButton(
 			CPageSignifPath parentpath,
 			String significantpath,
@@ -131,7 +132,8 @@ public class CActionButton
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		if (this.conditionalshow) {
 			DataElt thiselement = inputdata.lookupDataElementByName(conditionalshowdatareference.getName());
@@ -165,6 +167,8 @@ public class CActionButton
 				button.setOnMouseClicked(buttonhandler);
 			}
 			if (inlineaction != null) {
+				if (nodetocollapsewhenactiontriggered != null)
+					inlineaction.setNodeToCollapse(nodetocollapsewhenactiontriggered);
 				if (this.forcepopuphidewheninline) {
 					actionmanager.registerInlineActionwithPopupClose(button, inlineaction);
 				} else {

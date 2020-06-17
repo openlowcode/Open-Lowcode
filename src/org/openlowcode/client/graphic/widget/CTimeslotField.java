@@ -142,7 +142,8 @@ public class CTimeslotField
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		HBox totalpane = new HBox(1);
 		totalpane.setPadding(new Insets(1, 1, 1, 0));
 		totalpane.setAlignment(Pos.TOP_LEFT);

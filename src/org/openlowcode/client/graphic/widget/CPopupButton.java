@@ -106,7 +106,8 @@ public class CPopupButton
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		Button button = new Button(label);
 		button.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
 		Label hamburgerlabel = new Label("\u2630");
@@ -128,7 +129,7 @@ public class CPopupButton
 
 				try {
 					CPopupButton.generateAndShowPopup(button,
-							payload.getNode(actionmanager, inputdata, parentwindow, new TabPane[0]), inputdata,
+							payload.getNode(actionmanager, inputdata, parentwindow, new TabPane[0],nodetocollapsewhenactiontriggered), inputdata,
 							parentwindow, allowscroll, showunderwidget);
 				} catch (Exception e) {
 					logger.severe("Unexpected exception " + e.getMessage());

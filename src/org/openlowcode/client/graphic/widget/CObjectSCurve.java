@@ -496,7 +496,8 @@ public class CObjectSCurve
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		if (this.datareference != null) {
 			ArrayDataElt<ObjectDataElt> data = getExternalContent(inputdata, datareference);

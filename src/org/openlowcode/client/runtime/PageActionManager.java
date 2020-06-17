@@ -310,6 +310,7 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 
 				CPageInlineAction currentinlineaction = this.registeredinlineactions.get(event.getSource());
 				if (currentinlineaction != null) {
+
 					processInlineAction(currentinlineaction);
 					return;
 				}
@@ -364,6 +365,8 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 		String actionname = currentinlineaction.getName();
 		String modulename = currentinlineaction.getModule();
 		boolean local = currentinlineaction.isLocal();
+		if (currentinlineaction.getNodeToCollapse()!=null)
+			currentinlineaction.getNodeToCollapse().collapse();
 		CActionData actionattributes = currentinlineaction.getDataContent(page);
 		UnsavedDataWarning warning = checkwarnings(currentinlineaction);
 		boolean continuewithaction = true;
@@ -439,7 +442,7 @@ public class PageActionManager implements EventHandler<ActionEvent> {
 
 						CPageInlineAction currentinlineaction = registeredinlineactions.get(finalobject);
 						if (currentinlineaction != null) {
-
+;
 							processInlineAction(currentinlineaction);
 
 							return;

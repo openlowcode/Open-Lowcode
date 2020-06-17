@@ -261,7 +261,8 @@ public class CChoiceField
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		CChoiceFieldValue currentchoice = null;
 		ArrayList<String> restrictedvalues = null;
 		if (this.datareference != null) {

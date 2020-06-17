@@ -63,7 +63,8 @@ public class CClientUpdate
 	}
 
 	@Override
-	public Node getNode(PageActionManager actionmanager, CPageData pagedata, Window window, TabPane[] parenttabpanes) {
+	public Node getNode(PageActionManager actionmanager, CPageData pagedata, Window window, TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		Pane thispane = CComponentBand.returnBandPane(CComponentBand.DIRECTION_RIGHT);
 

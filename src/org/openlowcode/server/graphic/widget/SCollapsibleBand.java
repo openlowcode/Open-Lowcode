@@ -26,14 +26,18 @@ import org.openlowcode.tools.messages.MessageWriter;
  *         SAS</a>
  *
  */
-public class SCollapsibleBand extends SPageNode {
+public class SCollapsibleBand
+		extends
+		SPageNode {
 
 	private SPageNode payload;
 	private String title;
 	private boolean openbydefault;
+	private boolean closewheninlineactioninside;
 
 	/**
-	 * creates a collapsible band
+	 * creates a collapsible band that does not close when inline action is
+	 * triggered inside
 	 * 
 	 * @param parentpage    parent page
 	 * @param payload       payload inside the collapsible pane
@@ -42,10 +46,32 @@ public class SCollapsibleBand extends SPageNode {
 	 * @param openbydefault true if collapsible pane should be opened by default
 	 */
 	public SCollapsibleBand(SPage parentpage, SPageNode payload, String title, boolean openbydefault) {
+		this(parentpage, payload, title, openbydefault, false);
+	}
+
+	/**
+	 * creates a collapsible band
+	 * 
+	 * @param parentpage                  parent page
+	 * @param payload                     payload inside the collapsible pane
+	 * @param title                       title of the collapsible pane (when
+	 *                                    collapsed, only title text is shown)
+	 * @param openbydefault               true if collapsible pane should be opened
+	 *                                    by default
+	 * @param closewheninlineactioninside close the band if inline action is
+	 *                                    triggered inside
+	 */
+	public SCollapsibleBand(
+			SPage parentpage,
+			SPageNode payload,
+			String title,
+			boolean openbydefault,
+			boolean closewheninlineactioninside) {
 		super(parentpage);
 		this.payload = payload;
 		this.title = title;
 		this.openbydefault = openbydefault;
+		this.closewheninlineactioninside = closewheninlineactioninside;
 	}
 
 	@Override
@@ -60,6 +86,7 @@ public class SCollapsibleBand extends SPageNode {
 	public void WritePayloadToCDL(MessageWriter writer, SPageData input, SecurityBuffer buffer) throws IOException {
 		writer.addStringField("TTL", title);
 		writer.addBooleanField("OBD", openbydefault);
+		writer.addBooleanField("CII", closewheninlineactioninside);
 		writer.startStructure("PLD");
 		payload.WriteToCDL(writer, input, buffer);
 		writer.endStructure("PLD");

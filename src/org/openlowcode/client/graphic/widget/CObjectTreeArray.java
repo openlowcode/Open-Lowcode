@@ -245,7 +245,8 @@ public class CObjectTreeArray
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		this.actionmanager = actionmanager;
 
 		modifycolumnmodel(inputdata);

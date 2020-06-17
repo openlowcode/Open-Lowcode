@@ -59,7 +59,8 @@ public class CTextStorage extends CPageNode {
 	}
 
 	@Override
-	public Node getNode(PageActionManager actionmanager, CPageData inputdata, Window parentwindow,TabPane[] parenttabpanes) {
+	public Node getNode(PageActionManager actionmanager, CPageData inputdata, Window parentwindow,TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		// gets id data
 		DataElt thiselement = inputdata.lookupDataElementByName(datareference.getName());
 		if (thiselement==null) throw new RuntimeException("could not find any page data with name = "+datareference.getName());

@@ -381,7 +381,8 @@ public class CGanntChart
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		GanttPlanning<CGanttTask> planning = new GanttPlanning<CGanttTask>();
 
 		planning.addAttribute("LABEL");
@@ -532,7 +533,7 @@ public class CGanntChart
 								String label = getLabel(selectedelement);
 								timeslotforreschedule = new CTimeslotField(startdate, enddate, parentpathexposed);
 								Node popupnode = timeslotforreschedule.getNode(actionmanager, inputdata, parentwindow,
-										parenttabpanes);
+										parenttabpanes,nodetocollapsewhenactiontriggered);
 								Label title = new Label("Reschedule " + label);
 								title.setFont(Font.font(title.getFont().getName(), FontWeight.BOLD,
 										title.getFont().getSize() * 1.2));

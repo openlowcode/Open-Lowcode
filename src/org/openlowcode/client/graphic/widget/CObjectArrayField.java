@@ -170,7 +170,8 @@ public class CObjectArrayField
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		logger.fine("built node CObjectArrayField " + this.name);
 		this.actionmanager = actionmanager;
 		if (this.inlinefeeding) {
@@ -220,7 +221,7 @@ public class CObjectArrayField
 		thiselementarray = getExternalContent(inputdata, datareference);
 		if (objectatendoffielddata != null)
 			dataatendoffielddata = objectatendoffielddata.getNode(actionmanager, inputdata, parentwindow,
-					parenttabpanes);
+					parenttabpanes,nodetocollapsewhenactiontriggered);
 		refreshDisplay();
 
 		thispane.getChildren().add(datapane);

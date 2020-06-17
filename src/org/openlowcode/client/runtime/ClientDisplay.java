@@ -270,7 +270,7 @@ public class ClientDisplay {
 						connectionbar.setPageAddress(fulladdress);
 
 					Node pagenode = page.getNode().getNode(pageactionmanager, page.getAllInputData(),
-							parent.getMainFrame().getPrimaryStage(), new TabPane[0]);
+							parent.getMainFrame().getPrimaryStage(), new TabPane[0],null);
 					VBox nodeb = new VBox();
 					nodeb.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 					VBox.setMargin(pagenode, new Insets(8, 5, 5, 18));

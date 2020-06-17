@@ -97,7 +97,8 @@ public class CTimeRangeEntry
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		HBox thispane = new HBox();
 		thispane.setSpacing(8);
 

@@ -254,7 +254,8 @@ public class CObjectDisplay
 			String label,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		CComponentBand fieldtable = new CComponentBand(CComponentBand.DIRECTION_DOWN, path);
 
 		// *************** put content ***************
@@ -346,7 +347,7 @@ public class CObjectDisplay
 			contentpane.getChildren().add(titlelabel);
 		}
 
-		contentpane.getChildren().add(fieldtable.getNode(actionmanager, inputdata, parentwindow, parenttabpanes));
+		contentpane.getChildren().add(fieldtable.getNode(actionmanager, inputdata, parentwindow, parenttabpanes,nodetocollapsewhenactiontriggered));
 
 		totalpane.getChildren().add(contentpane);
 		HBox.setHgrow(contentpane, Priority.ALWAYS);
@@ -407,7 +408,8 @@ public class CObjectDisplay
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		modifycolumnmodelandaddsuggestion(inputdata);
 		// *************** get reference data ********
@@ -548,7 +550,8 @@ public class CObjectDisplay
 
 				if (this.hasnoderightoftitle) {
 					titleextendedpane.getChildren().add(this.nodeelementrightoftitle.getNode(actionmanager, inputdata,
-							parentwindow, parenttabpanes));
+							parentwindow, parenttabpanes,
+							nodetocollapsewhenactiontriggered));
 
 				}
 
@@ -583,13 +586,13 @@ public class CObjectDisplay
 			}
 		if (this.hasbuttonbar) {
 			contentpane.getChildren().add(this.buttonbar.getNode(actionmanager, inputdata,
-					parentwindow, parenttabpanes));
+					parentwindow, parenttabpanes,nodetocollapsewhenactiontriggered));
 		}
 		if (this.showcontent) {
-			contentpane.getChildren().add(fieldtable.getNode(actionmanager, inputdata, parentwindow, parenttabpanes));
+			contentpane.getChildren().add(fieldtable.getNode(actionmanager, inputdata, parentwindow, parenttabpanes,nodetocollapsewhenactiontriggered));
 			if (hasmorefields) {
 				morepane = new TitledPane("more",
-						hiddenfieldtable.getNode(actionmanager, inputdata, parentwindow, parenttabpanes));
+						hiddenfieldtable.getNode(actionmanager, inputdata, parentwindow, parenttabpanes,nodetocollapsewhenactiontriggered));
 				morepane.setExpanded(false);
 				morepane.setBorder(Border.EMPTY);
 				morepane.setAnimated(false);

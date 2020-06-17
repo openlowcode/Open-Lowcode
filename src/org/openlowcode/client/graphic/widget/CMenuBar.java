@@ -71,7 +71,8 @@ public class CMenuBar
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		MenuBar menubar = new MenuBar();
 		menubar.setStyle("-fx-base: #ffffff; -fx-hover-base: #ddeeff;");
 		for (int i = 0; i < listofmenus.size(); i++) {

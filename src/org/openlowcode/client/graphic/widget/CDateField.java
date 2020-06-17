@@ -168,7 +168,8 @@ public class CDateField
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		DateField datefield = new DateField(actionmanager, compactshow, twolines, label, helper, readonly, isactive,
 				timeedit, inputvalue, (defaultvalue == 1 ? true : false));

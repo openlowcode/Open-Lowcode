@@ -71,7 +71,8 @@ public class CObjectStorage
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		DataElt thiselement = inputdata.lookupDataElementByName(datareference.getName());
 		if (thiselement == null)
 			throw new RuntimeException("could not find any page data with name = " + datareference.getName());

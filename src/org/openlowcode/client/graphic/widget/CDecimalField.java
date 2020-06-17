@@ -612,7 +612,8 @@ public class CDecimalField
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		if (this.datareference != null) {
 			this.inputvalue = getExternalContent(inputdata, datareference);
 		}

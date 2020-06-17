@@ -66,7 +66,8 @@ public class CSeparator
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		Separator separator = new Separator();
 		if (!horizontal)
 			separator.setOrientation(Orientation.VERTICAL);

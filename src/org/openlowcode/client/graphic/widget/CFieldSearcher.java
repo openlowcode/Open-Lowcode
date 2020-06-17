@@ -159,7 +159,8 @@ public class CFieldSearcher
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		inputdata.addInlineActionDataRef(this.inlineactiondataref);
 		this.searchtooltip = new Tooltip("Enter a few letters or complete name\nand press Enter or Control to search.");
 

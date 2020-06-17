@@ -430,7 +430,8 @@ public class CGrid
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 
 		this.actionmanager = actionmanager;
 		ArrayDataElt<ObjectDataElt> data = getExternalContent(inputdata, datareference);

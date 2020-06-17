@@ -64,7 +64,8 @@ public class CObjectIdStorage
 			PageActionManager actionmanager,
 			CPageData inputdata,
 			Window parentwindow,
-			TabPane[] parenttabpanes) {
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
 		// gets id data
 		DataElt thiselement = inputdata.lookupDataElementByName(datareference.getName());
 		if (thiselement == null)
