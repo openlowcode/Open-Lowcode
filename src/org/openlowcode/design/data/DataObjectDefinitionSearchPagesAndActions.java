@@ -1384,7 +1384,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 
 		sg.wl("			SComponentBand searchcriteriapayload = new SComponentBand(SComponentBand.DIRECTION_DOWN, parentpage);");
 		sg.wl("			SCollapsibleBand searchcriteria = new SCollapsibleBand(parentpage, searchcriteriapayload,\"Search criteria for a "
-				+ object.getLabel() + "\", true);");
+				+ object.getLabel() + "\", true,true);");
 		sg.wl("			this.addElement(searchcriteria);		");
 
 		sg.wl("			");
@@ -1498,6 +1498,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 				+ "Ref(),");
 		sg.wl("					" + objectclass + ".getDefinition(),");
 		sg.wl("					parentpage);");
+		sg.wl("			 " + objectattribute + "searchresult.setRowsToDisplay(10);");
 		sg.wl("			 " + objectattribute + "searchresult.setMinFieldPriority(-200);");
 		sg.wl("			 " + objectattribute + "searchresult.setWarningForUnsavedEdition();");
 		sg.wl("			 " + objectattribute + "searchresult.setAllowDataClear();");
