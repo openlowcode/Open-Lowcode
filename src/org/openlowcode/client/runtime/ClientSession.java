@@ -366,8 +366,8 @@ public class ClientSession {
 						writer.flushMessage();
 					});
 
-					DisplayPageFeedback exceptionmessage = displayPage(activedisplay, startaction, techdetails, null,
-							null, openinnewtab);
+					DisplayPageFeedback exceptionmessage = displayPage(activedisplay, startaction, techdetails, modulename,
+							actionname, openinnewtab);
 					long endaction = System.currentTimeMillis();
 					if (exceptionmessage.getErrormessage() != null) {
 
@@ -577,13 +577,20 @@ public class ClientSession {
 
 			CPage page = new CPage(name, reader, module, action, this.pagebuffer);
 			String pagestring = null;
-			if (page.getPagedescription() != null)
+			if (page.getPagedescription() != null) {
 				pagestring = "{\n" + page.getPagedescription() + "\n}\n";
-
+				PageInBuffer bufferpage = new PageInBuffer(module, action, pagestring);
+				pagebuffer.addPageToBuffer(bufferpage);
+			}
 			reader.returnNextEndStructure("DISPLAYPAGE");
 			reader.returnNextEndMessage();
 			logger.finer("finishes parsing");
+			
+			
 
+			
+			
+			
 			activedisplay.setandDisplayPage(title, fulladdress, page, address, starttime,
 					reader.charcountsinceStartMessage(), page.getBufferedDataUsed() / 1024,
 					this.pagebuffer.getTotalBufferSize() / 1024, showtechdetails, openinnewtab);

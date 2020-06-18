@@ -47,20 +47,26 @@ public class PageBuffer {
 		ArrayList<PageInBuffer> bufferforaction = buffercontent.get(searchkey);
 		if (bufferforaction == null)
 			throw new RuntimeException("Did not find a buffer for module = " + module + " for action = " + action);
+		PageInBuffer thispage = getPageForHashCodeIfExists(bufferforaction,hashcode,size,module,action);
+		if (thispage!=null) return thispage;
+		throw new RuntimeException("Did not find a page for module " + module + " for action = " + action
+				+ ", looked at " + bufferforaction.size() + " buffered pages ");
+	}
+
+	private PageInBuffer getPageForHashCodeIfExists(ArrayList<PageInBuffer> bufferforaction,int hashcode,int size,String module,String action) {
 		for (int i = 0; i < bufferforaction.size(); i++) {
 			PageInBuffer thispage = bufferforaction.get(i);
 			if ((thispage.getCompletepagehashcode() == hashcode) && (thispage.getPagesize() == size)) {
 				return thispage;
 			} else {
-				logger.severe("    * Page for (" + module + "/" + action + ") no match hashcode = "
+				logger.fine("    * Page for (" + module + "/" + action + ") no match hashcode = "
 						+ thispage.getCompletepagehashcode() + "/" + hashcode + ", size = " + thispage.getPagesize()
 						+ "/" + size);
 			}
 		}
-		throw new RuntimeException("Did not find a page for module " + module + " for action = " + action
-				+ ", looked at " + bufferforaction.size() + " buffered pages ");
+		return null;
 	}
-
+	
 	private HashMap<String, ArrayList<PageInBuffer>> buffercontent;
 
 	/**
@@ -72,8 +78,7 @@ public class PageBuffer {
 	}
 
 	/**
-	 * Adds the page to the buffer. Note: the buffer does not have a mechanism to
-	 * ensure a duplicate is added. This should be done by the caller.
+	 * Adds the page to the buffer if it is new
 	 * 
 	 * @param page the page to be added
 	 */
@@ -82,8 +87,13 @@ public class PageBuffer {
 		ArrayList<PageInBuffer> pages = buffercontent.get(searchkey);
 		if (pages == null) {
 			pages = new ArrayList<PageInBuffer>();
+			
 			buffercontent.put(searchkey, pages);
 		}
+		PageInBuffer existingpage = getPageForHashCodeIfExists(pages,page.getCompletepagehashcode(),page.getPagesize(),page.getModule(),page.getAction());
+		if (existingpage!=null) {
+			logger.warning("Trying to store for second time in buffer page for haschode="+page.getCompletepagehashcode()+", size="+page.getPagesize()+", module = "+page.getModule()+", action = "+page.getAction());
+		} else {
 		logger.fine(" *  Page Buffer : for action " + searchkey + " : adds page hashcode="
 				+ page.getCompletepagehashcode() + ", size=" + page.getPagesize() + " at index " + pages.size());
 
@@ -94,6 +104,7 @@ public class PageBuffer {
 					+ ", size = " + pages.get(i).getPagesize());
 		pages.add(page);
 		totalbuffersize += page.getPagesize();
+		}
 	}
 
 	/**
