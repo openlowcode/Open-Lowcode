@@ -65,7 +65,7 @@ public class CPage extends Named {
 	 *                   checksum) of the page to use
 	 * @throws OLcRemoteException if anything bad happened on the server when
 	 *                            sending the page
-	 * @throws IOException        if nayhting bad happens during the transmission
+	 * @throws IOException        if anything bad happens during the transmission
 	 */
 	public CPage(String name, MessageReader reader, String module, String action, PageBuffer pagebuffer)
 			throws OLcRemoteException, IOException {
