@@ -1111,7 +1111,7 @@ public class CGrid
 
 	@Override
 	public void forceUpdateData(DataElt dataelt) {
-		reviewDataWarningForGrid();
+		
 
 		if (!(dataelt instanceof ArrayDataElt))
 			throw new RuntimeException(
@@ -1124,27 +1124,33 @@ public class CGrid
 			updatedrowsbyid.put(thiselementarray.getObjectAtIndex(i).getUID(), thiselementarray.getObjectAtIndex(i));
 		}
 		int updated = 0;
-		for (int i = 0; i < dataingrid.getSize(); i++) {
-			CObjectGridLine<String> currentline = dataingrid.get(i);
-			for (int j = 0; j < currentline.getObjectinlineNumber(); j++) {
-				ObjectInGrid object = currentline.getObjectinline(j);
-				String uid = object.getObject().getUID();
-				ObjectDataElt relevantobject = updatedrowsbyid.get(uid);
-				logger.finest("adding new object through force update data - Adding to Grid Line "
-						+ currentline.getLineLabel() + " (" + currentline.hashCode() + ") " + relevantobject.hashCode()
-						+ " - " + relevantobject.lookupEltByName("ID") + " - "
-						+ relevantobject.lookupEltByName("YEARALLOCATED"));
-				if (relevantobject != null) {
-					object.forceUpdatedObject(relevantobject);
-					updated++;
-				}
+		if (!this.reversetree) {
+			for (int i = 0; i < dataingrid.getSize(); i++) {
+				CObjectGridLine<String> currentline = dataingrid.get(i);
+				for (int j = 0; j < currentline.getObjectinlineNumber(); j++) {
+					ObjectInGrid object = currentline.getObjectinline(j);
+					String uid = object.getObject().getUID();
+					ObjectDataElt relevantobject = updatedrowsbyid.get(uid);
+					logger.finest("adding new object through force update data - Adding to Grid Line "
+							+ currentline.getLineLabel() + " (" + currentline.hashCode() + ") "
+							+ relevantobject.hashCode() + " - " + relevantobject.lookupEltByName("ID") + " - "
+							+ relevantobject.lookupEltByName("YEARALLOCATED"));
+					if (relevantobject != null) {
+						object.forceUpdatedObject(relevantobject);
+						updated++;
+					}
 
+				}
 			}
+			if (updated != thiselementarray.getObjectNumber())
+				actionmanager.getClientSession().getActiveClientDisplay()
+						.updateStatusBar("Received " + thiselementarray.getObjectNumber() + " elements, but only "
+								+ updated + " could be updated on the page", true);
+		} else {
+			logger.severe("Tree Table Resetunmarked items");
+			treetable.unMarkUpdatedItems();
 		}
-		if (updated != thiselementarray.getObjectNumber())
-			actionmanager.getClientSession().getActiveClientDisplay()
-					.updateStatusBar("Received " + thiselementarray.getObjectNumber() + " elements, but only " + updated
-							+ " could be updated on the page", true);
+		reviewDataWarningForGrid();
 	}
 
 	@Override
@@ -1246,7 +1252,9 @@ public class CGrid
 						updatedrow++;
 				}
 			} else {
+				
 				updatedrow = this.treetable.getUpdatedItems().size();
+				logger.severe("Get all updated rows, result = "+updatedrow);
 			}
 			if (updatedrow == 0) {
 				// remove any present unsaved data warning for this component

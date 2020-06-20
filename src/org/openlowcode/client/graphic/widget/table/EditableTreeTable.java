@@ -166,6 +166,13 @@ public class EditableTreeTable<E extends Object> {
 		}
 		return updateditems;
 	}
+	
+	public void unMarkUpdatedItems() {
+		for (int i = 0; i < this.wrappedpayload.size(); i++) {
+			Wrapper<E> item = this.wrappedpayload.get(i);
+			item.setNotUpdated();
+		}
+	}
 
 	/**
 	 * defines a line grouping based on the value of a given field of the payload
@@ -1296,6 +1303,11 @@ public class EditableTreeTable<E extends Object> {
 
 		public Wrapper(E payload) {
 			this.payload = payload;
+		}
+
+		public void setNotUpdated() {
+			this.updated=false;
+			
 		}
 
 		public E getPayload() {
