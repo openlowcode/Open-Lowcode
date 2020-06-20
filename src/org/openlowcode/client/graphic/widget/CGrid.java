@@ -53,7 +53,6 @@ import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
 import org.openlowcode.tools.structure.TimePeriodDataElt;
 
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -806,16 +805,21 @@ public class CGrid
 			ObjectDataElementKeyExtractor<ObjectDataElt, ?> columnextractor = (ObjectDataElementKeyExtractor) linefield;
 			ObjectDataElementValueUpdater<ObjectDataElt, ?> valueupdater = (ObjectDataElementValueUpdater) payloadfield;
 
-			for (int i=0;i<this.infoactionfields.size();i++) {
+			for (int i = 0; i < this.infoactionfields.size(); i++) {
 				CBusinessField<?> infofield = getFieldForFieldName(this.infoactionfields.get(i));
-				if (!(infofield instanceof ObjectDataElementKeyExtractor)) 
-					throw new RuntimeException("Field"+infofield+" cannot be used as info column");
-				ObjectDataElementKeyExtractor<ObjectDataElt,?> infofieldextractor = (ObjectDataElementKeyExtractor) infofield;
+				if (!(infofield instanceof ObjectDataElementKeyExtractor))
+					throw new RuntimeException("Field" + infofield + " cannot be used as info column");
+				ObjectDataElementKeyExtractor<
+						ObjectDataElt, ?> infofieldextractor = (ObjectDataElementKeyExtractor) infofield;
 				String exceptions = this.infoactionfieldsvalueexception.get(i);
-				if (exceptions==null) treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor, EditableTreeTable.GROUPING_SAME);
-				if (exceptions!=null )treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor, EditableTreeTable.GROUPING_SAME,exceptions);
+				if (exceptions == null)
+					treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor,
+							EditableTreeTable.GROUPING_SAME);
+				if (exceptions != null)
+					treetable.setColumnReadOnlyField(infofield.getLabel(), infofieldextractor,
+							EditableTreeTable.GROUPING_SAME, exceptions);
 			}
-			
+
 			treetable.setColumnGrouping(columnextractor, valueupdater, "Total", EditableTreeTable.GROUPING_SUM);
 
 			CBusinessField<?> maincolumnbusinessfield = getFieldForFieldName(this.columnfield);
@@ -894,7 +898,7 @@ public class CGrid
 
 			});
 			if (this.cellaction != null)
-				treetable.setDoubleClickReadOnlyEventHandler(actionmanager.getMouseHandler(),true);
+				treetable.setDoubleClickReadOnlyEventHandler(actionmanager.getMouseHandler(), true);
 			Node treetablenode = treetable.getNode();
 			if (this.cellaction != null)
 				actionmanager.registerEvent(treetablenode, this.cellaction);
@@ -1044,62 +1048,61 @@ public class CGrid
 			if (objectdataloc == null)
 				throw new RuntimeException("objectid field should have an objectfieldname");
 			if (!this.reversetree) {
-			CObjectGridLine<String> gridline = this.tableview.getSelectionModel().getSelectedItem();
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			ObservableList<
-					TablePosition<
-							?,
-							?>> selectedcell = (ObservableList) this.tableview.getSelectionModel().getSelectedCells();
-			if (selectedcell.size() != 1)
-				throw new RuntimeException("Only 1 selected celle is managed");
-			TablePosition<?, ?> cell = selectedcell.get(0);
-			TableColumn<?, ?> selectedcolumn = cell.getTableColumn();
-			TableColumnBase<?, ?> parentcolumn = selectedcolumn.getParentColumn();
-			String columntitle = null;
-			if (parentcolumn == null) {
-				// case of only one value
-				columntitle = selectedcolumn.getText();
-			}
+				CObjectGridLine<String> gridline = this.tableview.getSelectionModel().getSelectedItem();
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				ObservableList<TablePosition<?, ?>> selectedcell = (ObservableList) this.tableview.getSelectionModel()
+						.getSelectedCells();
+				if (selectedcell.size() != 1)
+					throw new RuntimeException("Only 1 selected celle is managed");
+				TablePosition<?, ?> cell = selectedcell.get(0);
+				TableColumn<?, ?> selectedcolumn = cell.getTableColumn();
+				TableColumnBase<?, ?> parentcolumn = selectedcolumn.getParentColumn();
+				String columntitle = null;
+				if (parentcolumn == null) {
+					// case of only one value
+					columntitle = selectedcolumn.getText();
+				}
 
-			if (parentcolumn != null) {
-				// case of several values
+				if (parentcolumn != null) {
+					// case of several values
+					if (!this.hassecondarycolumn)
+						columntitle = parentcolumn.getText();
+
+				}
+				ObjectDataElt object = null;
 				if (!this.hassecondarycolumn)
-					columntitle = parentcolumn.getText();
+					object = gridline.getObjectForColumn(columntitle);
+				if (this.hassecondarycolumn)
+					object = gridline.getObjectForColumn(parentcolumn.getText(), selectedcolumn.getText());
 
-			}
-			ObjectDataElt object = null;
-			if (!this.hassecondarycolumn)
-				object = gridline.getObjectForColumn(columntitle);
-			if (this.hassecondarycolumn)
-				object = gridline.getObjectForColumn(parentcolumn.getText(), selectedcolumn.getText());
-
-			SimpleDataElt field = object.lookupEltByName(objectdataloc);
-			if (field == null)
-				throw new RuntimeException(
-						"field not found " + objectdataloc + ", available fields = " + object.dropFieldNames());
-			if (!(field instanceof TextDataElt))
-				throw new RuntimeException("field for name = " + objectdataloc + " is not text");
-			TextDataElt textfield = (TextDataElt) field;
-			ObjectIdDataElt objectid = new ObjectIdDataElt(eltname, textfield.getPayload());
-			return objectid;
+				SimpleDataElt field = object.lookupEltByName(objectdataloc);
+				if (field == null)
+					throw new RuntimeException(
+							"field not found " + objectdataloc + ", available fields = " + object.dropFieldNames());
+				if (!(field instanceof TextDataElt))
+					throw new RuntimeException("field for name = " + objectdataloc + " is not text");
+				TextDataElt textfield = (TextDataElt) field;
+				ObjectIdDataElt objectid = new ObjectIdDataElt(eltname, textfield.getPayload());
+				return objectid;
 			} else {
 				// get object id of selected cell
 				List<ObjectDataElt> selected = this.treetable.getSelectedElements();
-				if (selected!=null) if (selected.size()==1) {
-					ObjectDataElt selecteditem = selected.get(0);
-					
-					SimpleDataElt field = selecteditem.lookupEltByName(objectdataloc);
-					if (field == null)
-						throw new RuntimeException(
-								"field not found " + objectdataloc + ", available fields = " + selecteditem.dropFieldNames());
-					if (!(field instanceof TextDataElt))
-						throw new RuntimeException("field for name = " + objectdataloc + " is not text");
-					TextDataElt textfield = (TextDataElt) field;
-					ObjectIdDataElt objectid = new ObjectIdDataElt(eltname, textfield.getPayload());
-					return objectid;
-					
-				}
-				
+				if (selected != null)
+					if (selected.size() == 1) {
+						ObjectDataElt selecteditem = selected.get(0);
+
+						SimpleDataElt field = selecteditem.lookupEltByName(objectdataloc);
+						if (field == null)
+							throw new RuntimeException("field not found " + objectdataloc + ", available fields = "
+									+ selecteditem.dropFieldNames());
+						if (!(field instanceof TextDataElt))
+							throw new RuntimeException("field for name = " + objectdataloc + " is not text");
+						TextDataElt textfield = (TextDataElt) field;
+						ObjectIdDataElt objectid = new ObjectIdDataElt(eltname, textfield.getPayload());
+						return objectid;
+
+					}
+
 			}
 		}
 
@@ -1231,14 +1234,19 @@ public class CGrid
 	 */
 	public void reviewDataWarningForGrid() {
 		if (this.unsavedupdatewarning) {
+
 			logger.fine("------------------- starting evaluating unsaved data -----------------------");
-			ObservableList<CObjectGridLine<String>> objecttablerow = tableview.getItems();
-			Iterator<CObjectGridLine<String>> rowiterator = objecttablerow.iterator();
 			int updatedrow = 0;
-			while (rowiterator.hasNext()) {
-				CObjectGridLine<String> thisrow = rowiterator.next();
-				if (thisrow.isRowUpdate())
-					updatedrow++;
+			if (!this.reversetree) {
+				ObservableList<CObjectGridLine<String>> objecttablerow = tableview.getItems();
+				Iterator<CObjectGridLine<String>> rowiterator = objecttablerow.iterator();
+				while (rowiterator.hasNext()) {
+					CObjectGridLine<String> thisrow = rowiterator.next();
+					if (thisrow.isRowUpdate())
+						updatedrow++;
+				}
+			} else {
+				updatedrow = this.treetable.getUpdatedItems().size();
 			}
 			if (updatedrow == 0) {
 				// remove any present unsaved data warning for this component
