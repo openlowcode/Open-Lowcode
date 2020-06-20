@@ -1147,7 +1147,7 @@ public class CGrid
 						.updateStatusBar("Received " + thiselementarray.getObjectNumber() + " elements, but only "
 								+ updated + " could be updated on the page", true);
 		} else {
-			logger.severe("Tree Table Resetunmarked items");
+			logger.fine("Tree Table Resetunmarked items");
 			treetable.unMarkUpdatedItems();
 		}
 		reviewDataWarningForGrid();
@@ -1254,7 +1254,7 @@ public class CGrid
 			} else {
 				
 				updatedrow = this.treetable.getUpdatedItems().size();
-				logger.severe("Get all updated rows, result = "+updatedrow);
+				logger.fine("Get all updated rows, result = "+updatedrow);
 			}
 			if (updatedrow == 0) {
 				// remove any present unsaved data warning for this component
