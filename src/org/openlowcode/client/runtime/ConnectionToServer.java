@@ -21,9 +21,11 @@ import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import org.openlowcode.tools.messages.MessageBufferedWriter;
+import org.openlowcode.tools.messages.MessageElement;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.MessageSimpleReader;
 import org.openlowcode.tools.messages.MessageWriter;
+import org.openlowcode.tools.messages.OLcRemoteException;
 
 /**
  * Wraps the socket connection to the Open Lowcode server, and includes relaunch
@@ -40,6 +42,7 @@ public class ConnectionToServer {
 	private MessageBufferedWriter writer;
 	private String server = null;
 	private int port = -1;
+	private boolean relevant;
 
 	/**
 	 * Should include all actions to send a full command to the server. The
@@ -57,13 +60,18 @@ public class ConnectionToServer {
 	private static final Logger logger = Logger.getLogger(ConnectionToServer.class.getName());
 
 	/**
-	 * Sends the message to the server, restarting the connection if necessary
+	 * Sends the message to the server, restarting the connection if necessary, and
+	 * getting the first element, as in some cases of broken connection, the error
+	 * appears only after trying to get the first element
 	 * 
 	 * @param writertoserver function to send the message to the server
+	 * @return the first message element
 	 * @throws UnknownHostException
 	 * @throws IOException
+	 * @throws OLcRemoteException 
 	 */
-	public void sendMessage(WriterToServer writertoserver) throws UnknownHostException, IOException {
+
+	public MessageElement sendMessage(WriterToServer writertoserver) throws UnknownHostException, IOException, OLcRemoteException {
 		int index = 0;
 		boolean sent = false;
 		while ((index < 2) && (!sent)) {
@@ -73,8 +81,9 @@ public class ConnectionToServer {
 				}
 
 				writertoserver.apply(writer);
-
 				sent = true;
+				return reader.getNextElement();
+				
 			} catch (IOException e) {
 				logger.warning("Client disconnected");
 				clientsocket = new Socket(server, new Integer(port).intValue());
@@ -87,6 +96,7 @@ public class ConnectionToServer {
 				index++;
 			}
 		}
+		throw new RuntimeException("Did not manage to send message after attempt "+(index+1));
 	}
 
 	/**
@@ -110,6 +120,19 @@ public class ConnectionToServer {
 	 * connectToAddressAndGetApplication
 	 */
 	public ConnectionToServer() {
+		this.relevant = true;
+	}
+
+	/**
+	 * creates a connection to server initiated with parameters from the connection
+	 * taken as parameter
+	 * 
+	 * @param originalconnection the original connection
+	 */
+	public ConnectionToServer(ConnectionToServer originalconnection) {
+		this.server = originalconnection.server;
+		this.port = originalconnection.port;
+		this.relevant = true;
 	}
 
 	/**
@@ -214,6 +237,22 @@ public class ConnectionToServer {
 			ClientSession.printException(e);
 		}
 
+	}
+
+	/**
+	 * precises that the connection has been overridden.
+	 */
+	public void markAsIrrelevant() {
+		this.relevant = false;
+
+	}
+
+	/**
+	 * @return true i the connection is relevant, meaning that the page should be
+	 *         written.
+	 */
+	public boolean isRelevant() {
+		return this.relevant;
 	}
 
 }

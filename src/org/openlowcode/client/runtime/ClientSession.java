@@ -79,6 +79,8 @@ public class ClientSession {
 
 	private String questionmarkicon;
 
+	private boolean busy;
+
 	/**
 	 * @return gets the locale on the machine
 	 */
@@ -131,7 +133,10 @@ public class ClientSession {
 	 * @param urltoconnecto    first URL to connect to, null if not used
 	 * @param questionmarkicon question mark icon URL
 	 */
-	public ClientSession(ClientMainFrame mainframe, ActionSourceTransformer transformer, String urltoconnecto,
+	public ClientSession(
+			ClientMainFrame mainframe,
+			ActionSourceTransformer transformer,
+			String urltoconnecto,
 			String questionmarkicon) {
 		this.mainframe = mainframe;
 		this.displaysforconnection = new ArrayList<ClientDisplay>();
@@ -278,20 +283,21 @@ public class ClientSession {
 	 * @param page             page to show the data coming back from the inline
 	 *                         action
 	 */
-	public void sendInlineAction(String actionname, String modulename, CActionData actionattributes,
-			CPage page) {
+	public void sendInlineAction(String actionname, String modulename, CActionData actionattributes, CPage page) {
 		ClientDisplay activedisplay = displaysforconnection.get(activedisplayindex);
 
 		long startaction = System.currentTimeMillis();
-		this.setBusinessScreenFrozen(true);
+		this.setBusinessScreenFrozen(true, connectiontoserver);
+		ConnectionToServer localconnectiontoserver = connectiontoserver;
 		activedisplay.updateStatusBar("Send action to the server " + modulename + "." + actionname);
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
 				try {
-					activedisplay.updateStatusBar("Connection Established with " + connectiontoserver.getServer() + " "
-							+ connectiontoserver.getPort());
-					connectiontoserver.sendMessage((writer) -> {
+
+					activedisplay.updateStatusBar("Connection Established with " + localconnectiontoserver.getServer()
+							+ " " + connectiontoserver.getPort());
+					MessageElement firstelement = localconnectiontoserver.sendMessage((writer) -> {
 						writer.startNewMessage();
 						writer.startStructure("REQUEST");
 						writer.addStringField("CID", cid);
@@ -305,21 +311,23 @@ public class ClientSession {
 						writer.endMessage();
 						writer.flushMessage();
 					});
+					if (localconnectiontoserver.isRelevant()) {
+						DisplayPageFeedback exceptionmessage = enrichPageWithInlineData(firstelement,localconnectiontoserver, page,
+								activedisplay, startaction, techdetails, modulename, actionname);
 
-					DisplayPageFeedback exceptionmessage = enrichPageWithInlineData(page, activedisplay, startaction,
-							techdetails, modulename, actionname);
-					long endaction = System.currentTimeMillis();
-					if (exceptionmessage.getErrormessage() != null) {
+						long endaction = System.currentTimeMillis();
+						if (exceptionmessage.getErrormessage() != null) {
 
-						activedisplay
-								.updateStatusBar("Error message from server : " + exceptionmessage.getErrormessage()
-										+ " - execution time (ms) : " + (endaction - startaction), true);
+							activedisplay
+									.updateStatusBar("Error message from server : " + exceptionmessage.getErrormessage()
+											+ " - execution time (ms) : " + (endaction - startaction), true);
 
+						}
 					}
-					setBusinessScreenFrozen(false);
+					setBusinessScreenFrozen(false, localconnectiontoserver);
 				} catch (Exception e) {
 					treatException(e);
-					setBusinessScreenFrozen(false);
+					setBusinessScreenFrozen(false, localconnectiontoserver);
 
 				}
 			}
@@ -342,15 +350,17 @@ public class ClientSession {
 		ClientDisplay activedisplay = displaysforconnection.get(activedisplayindex);
 
 		long startaction = System.currentTimeMillis();
-		this.setBusinessScreenFrozen(true);
+		this.setBusinessScreenFrozen(true, connectiontoserver);
+		ConnectionToServer localconnectiontoserver = connectiontoserver;
 		activedisplay.updateStatusBar("Send action to the server " + modulename + "." + actionname);
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
 				try {
-					activedisplay.updateStatusBar("Connection Established with " + connectiontoserver.getServer() + " "
-							+ connectiontoserver.getPort());
-					connectiontoserver.sendMessage((writer) -> {
+
+					activedisplay.updateStatusBar("Connection Established with " + localconnectiontoserver.getServer()
+							+ " " + localconnectiontoserver.getPort());
+					MessageElement firstelement = localconnectiontoserver.sendMessage((writer) -> {
 						writer.startNewMessage();
 						writer.startStructure("REQUEST");
 						writer.addStringField("CID", cid);
@@ -366,8 +376,9 @@ public class ClientSession {
 						writer.flushMessage();
 					});
 
-					DisplayPageFeedback exceptionmessage = displayPage(activedisplay, startaction, techdetails, modulename,
-							actionname, openinnewtab);
+					DisplayPageFeedback exceptionmessage = displayPage(firstelement, localconnectiontoserver,
+							activedisplay, startaction, techdetails, modulename, actionname, openinnewtab);
+					setBusinessScreenFrozen(false, localconnectiontoserver);
 					long endaction = System.currentTimeMillis();
 					if (exceptionmessage.getErrormessage() != null) {
 
@@ -379,7 +390,7 @@ public class ClientSession {
 
 				} catch (Exception e) {
 					treatException(e);
-					setBusinessScreenFrozen(false);
+					setBusinessScreenFrozen(false, localconnectiontoserver);
 
 				}
 			}
@@ -395,21 +406,26 @@ public class ClientSession {
 	 * @param back    true if back is possible
 	 */
 	public void sendLink(String address, boolean back) {
+		ConnectionToServer localconnectiontoserver = connectiontoserver;
 		try {
 			ClientDisplay activedisplay = displaysforconnection.get(activedisplayindex);
+
 			boolean confirmcontinue = activedisplay.checkContinueWarning();
 			if (confirmcontinue) {
 				long startaction = System.currentTimeMillis();
-				setBusinessScreenFrozen(true);
+				setBusinessScreenFrozen(true, localconnectiontoserver);
+				localconnectiontoserver = connectiontoserver;
+				final ConnectionToServer localconnectionfinal = localconnectiontoserver;
 				activedisplay.updateStatusBar("requested connection to the address " + address);
 				Thread thread = new Thread() {
 					@Override
 					public void run() {
 						try {
-							String application = connectiontoserver.connectToAddressAndGetApplication(address);
+
+							String application = localconnectionfinal.connectToAddressAndGetApplication(address);
 							activedisplay.updateStatusBar("Connection Established with "
-									+ connectiontoserver.getServer() + " " + connectiontoserver.getPort());
-							connectiontoserver.sendMessage((writer) -> {
+									+ localconnectionfinal.getServer() + " " + localconnectionfinal.getPort());
+							MessageElement startelement = localconnectionfinal.sendMessage((writer) -> {
 								writer.startNewMessage();
 								writer.startStructure("REQUEST");
 								if (cid != null)
@@ -424,8 +440,8 @@ public class ClientSession {
 								writer.flushMessage();
 							});
 
-							DisplayPageFeedback exceptionmessage = displayPage(activedisplay, startaction, techdetails,
-									null, null, false);
+							DisplayPageFeedback exceptionmessage = displayPage(startelement,localconnectionfinal, activedisplay,
+									startaction, techdetails, null, null, false);
 							long endaction = System.currentTimeMillis();
 							if (exceptionmessage.getErrormessage() != null) {
 
@@ -436,10 +452,10 @@ public class ClientSession {
 												true);
 
 							}
-
+							setBusinessScreenFrozen(false, localconnectionfinal);
 						} catch (Exception e) {
 							treatException(e);
-							setBusinessScreenFrozen(false);
+							setBusinessScreenFrozen(false, localconnectionfinal);
 
 						}
 					}
@@ -448,29 +464,36 @@ public class ClientSession {
 			}
 		} catch (Exception e) {
 			treatException(e);
-			setBusinessScreenFrozen(false);
+			setBusinessScreenFrozen(false, localconnectiontoserver);
 
 		}
 	}
 
 	/**
-	 * @param page            current page
-	 * @param activedisplay   client display for the action
-	 * @param starttime       start time of the interaction with the server (for
-	 *                        performance audit purposes)
-	 * @param showtechdetails true if all technical details (memory, speed of
-	 *                        request, network bandwidth used)
-	 * @param module          name of the module
-	 * @param action          name of the line action
+	 * @param localconnectiontoserver local connection to server
+	 * @param page                    current page
+	 * @param activedisplay           client display for the action
+	 * @param starttime               start time of the interaction with the server
+	 *                                (for performance audit purposes)
+	 * @param showtechdetails         true if all technical details (memory, speed
+	 *                                of request, network bandwidth used)
+	 * @param module                  name of the module
+	 * @param action                  name of the line action
 	 * @return a feedback if processing happened well or not
 	 * @throws IOException        if any network breadkown
 	 * @throws OLcRemoteException if anythink bad happened on the server during the
 	 *                            request
 	 */
-	public DisplayPageFeedback enrichPageWithInlineData(CPage page, ClientDisplay activedisplay, long starttime,
-			boolean showtechdetails, String module, String action) throws IOException, OLcRemoteException {
-		MessageReader reader = connectiontoserver.getReader();
-		MessageElement startelement = reader.getNextElement();
+	public DisplayPageFeedback enrichPageWithInlineData(
+			MessageElement startelement,
+			ConnectionToServer localconnectiontoserver,
+			CPage page,
+			ClientDisplay activedisplay,
+			long starttime,
+			boolean showtechdetails,
+			String module,
+			String action) throws IOException, OLcRemoteException {
+		MessageReader reader = localconnectiontoserver.getReader();
 		if (startelement instanceof MessageError) {
 			MessageError messageerror = (MessageError) startelement;
 			DisplayPageFeedback feedback = new DisplayPageFeedback(
@@ -507,23 +530,33 @@ public class ClientSession {
 	}
 
 	/**
-	 * @param activedisplay   current display
-	 * @param starttime       start time of the exchange with the server
-	 * @param showtechdetails true to show tech details
-	 * @param module          name of the module
-	 * @param action          name of the action
-	 * @param openinnewtab    true to open in new tabs
+	 * @param startelement            first element read from the server (error or
+	 *                                message start)
+	 * @param localconnectiontoserver a copy of the server connection valid at time
+	 *                                of start of request
+	 * @param activedisplay           current display
+	 * @param starttime               start time of the exchange with the server
+	 * @param showtechdetails         true to show tech details
+	 * @param module                  name of the module
+	 * @param action                  name of the action
+	 * @param openinnewtab            true to open in new tabs
 	 * @return a feedback
 	 * @throws IOException        if any network breadkown
 	 * @throws OLcRemoteException if anythink bad happened on the server during the
 	 *                            request
 	 */
-	public DisplayPageFeedback displayPage(ClientDisplay activedisplay, long starttime, boolean showtechdetails,
-			String module, String action, boolean openinnewtab) throws IOException, OLcRemoteException {
-		MessageReader reader = connectiontoserver.getReader();
+	public DisplayPageFeedback displayPage(
+			MessageElement startelement,
+			ConnectionToServer localconnectiontoserver,
+			ClientDisplay activedisplay,
+			long starttime,
+			boolean showtechdetails,
+			String module,
+			String action,
+			boolean openinnewtab) throws IOException, OLcRemoteException {
+		MessageReader reader = localconnectiontoserver.getReader();
 		logger.info("starts displaying page in thread " + Thread.currentThread().getId() + " for " + module + "."
 				+ action + " with openinnewtab=" + openinnewtab);
-		MessageElement startelement = reader.getNextElement();
 		if (startelement instanceof MessageError) {
 			MessageError messageerror = (MessageError) startelement;
 			DisplayPageFeedback feedback = new DisplayPageFeedback(
@@ -585,16 +618,14 @@ public class ClientSession {
 			reader.returnNextEndStructure("DISPLAYPAGE");
 			reader.returnNextEndMessage();
 			logger.finer("finishes parsing");
-			
-			
-
-			
-			
-			
-			activedisplay.setandDisplayPage(title, fulladdress, page, address, starttime,
-					reader.charcountsinceStartMessage(), page.getBufferedDataUsed() / 1024,
-					this.pagebuffer.getTotalBufferSize() / 1024, showtechdetails, openinnewtab);
-
+			if (localconnectiontoserver.isRelevant()) {
+				activedisplay.setandDisplayPage(title, fulladdress, page, address, starttime,
+						reader.charcountsinceStartMessage(), page.getBufferedDataUsed() / 1024,
+						this.pagebuffer.getTotalBufferSize() / 1024, showtechdetails, openinnewtab);
+			} else {
+				logger.severe("Connection " + localconnectiontoserver.hashCode()
+						+ " is not relevant anymore, page is not shown");
+			}
 			return new DisplayPageFeedback(null, reader.charcountsinceStartMessage(), pagestring);
 		}
 		// ---------------------------- EXCEPTION CASE 1 - DISPLAY SERVER ERROR
@@ -687,16 +718,43 @@ public class ClientSession {
 	}
 
 	/**
-	 * @param frozen true if widgets should be frozen as one communication is
-	 *               already happening in the server
+	 * @param frozen          true if widgets should be frozen as one communication
+	 *                        is already happening in the server
+	 * @param localconnection the currentconnection
 	 */
-	public void setBusinessScreenFrozen(boolean frozen) {
+	public void setBusinessScreenFrozen(boolean frozen, ConnectionToServer localconnection) {
 		// closing message if required (if error while sending the message)
+		if (frozen)
+			if (busy) {
+				logger.warning("** Client session connection management - Opening second connection");
+				connectiontoserver.markAsIrrelevant();
+				logger.warning("   ---> Connection " + connectiontoserver.hashCode() + " marked as irrelevant");
+				connectiontoserver = new ConnectionToServer(connectiontoserver);
+				logger.warning("   ---> Opening new connection " + connectiontoserver.hashCode());
+			} else {
+				logger.warning("** Client session connection management - Busy on first connection");
+				this.busy = true;
+			}
+
+		if (!frozen) {
+			if (localconnection == connectiontoserver) {
+				logger.warning("** Client session connection management - close current connection");
+				this.busy = false;
+			} else {
+				logger.warning("** Client session connection management - closing obsolete connection");
+				try {
+					localconnection.stopConnection();
+				} catch (IOException exception) {
+					logger.warning("Error in closing obsolete connection " + exception.getMessage());
+
+				}
+			}
+
+		}
 		connectiontoserver.resetSendingMessage();
 		// making connection bar active again
 		for (int i = 0; i < this.displaysforconnection.size(); i++)
 			displaysforconnection.get(i).setBusinessScreenFrozen(frozen);
-		;
 
 	}
 
@@ -724,7 +782,7 @@ public class ClientSession {
 			}
 			this.getActiveClientDisplay().updateStatusBar("Connectionerror " + e.getMessage());
 
-			setBusinessScreenFrozen(false);
+			setBusinessScreenFrozen(false, connectiontoserver);
 		}
 
 	}

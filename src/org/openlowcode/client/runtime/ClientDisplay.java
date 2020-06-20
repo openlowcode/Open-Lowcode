@@ -446,7 +446,7 @@ public class ClientDisplay {
 						updateStatusBar("displayed page succesfully");
 
 					}
-					parent.setBusinessScreenFrozen(false);
+					
 
 				} catch (Exception e) {
 					logger.warning("Error in displaying page " + e.getMessage());
@@ -457,7 +457,7 @@ public class ClientDisplay {
 					}
 
 					updateStatusBar("Error in displaying page :" + e.getMessage(), true);
-					parent.setBusinessScreenFrozen(false);
+					
 
 				}
 			}
