@@ -152,59 +152,21 @@ public class OLcServer {
 	private Logger mainlogger;
 
 	/**
-	 * Creates the server with all the attributes provided by the main method
+	 * Creates the server with all the attributes provided in the configuration file
 	 * 
-	 * @param logfolder            relative log folder path
-	 * @param dbtype               type of database, amonst the type of databases
-	 *                             supported
-	 * @param jdbcurl              URL of the database
-	 * @param jdbcuser             database user
-	 * @param jdbcpassword         database password
-	 * @param minconnection        minimum connection in the connection pool
-	 * @param maxconnection        maximum connection in the connection pool
-	 * @param port                 listening port for the server
-	 * @param modulenamelist       the list of modules (pathes to the main module
-	 *                             class)
-	 * @param messageaudit         true if messages are audited in log
-	 * @param ldapconnectionstring connection string to the ldap
-	 * @param ldapuser             service user for LDAP
-	 * @param ldappassword         service password for LDAP
-	 * @param smtpurl              url of the SMTP server
-	 * @param smtpport             port of the SMTP server
-	 * @param smtpuser             user of the service account of the SMTP server
-	 * @param stmppassword         password of the service account of the SMTP
-	 *                             server
-	 * @param reducedlogs          if true, only warnings and severe logs are set in
-	 *                             logs
-	 * @param clientjar            name of the clientjar to send for the client
-	 *                             updater (default: OLcClient.jar). The file has to
-	 *                             be in the ./client/ folder.
+	 * @param configurationfilepath path to the configuration file (either absolute
+	 *                              or from the current server location)
 	 */
-	public OLcServer(
-			String logfolder,
-			String dbtype,
-			String jdbcurl,
-			String jdbcuser,
-			String jdbcpassword,
-			int minconnection,
-			int maxconnection,
-			int port,
-			String[] modulenamelist,
-			boolean messageaudit,
-			String ldapconnectionstring,
-			String ldapuser,
-			String ldappassword,
-			String smtpurl,
-			int smtpport,
-			String smtpuser,
-			String stmppassword,
-			boolean reducedlogs,
-			String clientjar) {
-		serversingleton = this; // to make sure singleton is initiated for what happens at launch (inside server
-								// creation method)
-		this.clientjar = clientjar;
+	public OLcServer(String configurationfilepath) {
 		try {
-			// init encrypter
+
+			serversingleton = this; // to make sure singleton is initiated for what happens at launch (inside
+									// server)
+
+			OLcServerConfig serverconfig = new OLcServerConfig(configurationfilepath);
+			serverconfig.parseConfigFile();
+			
+			this.clientjar = serverconfig.getCompulsoryValue("CLIENTJAR");
 
 			EncrypterHolder.InitEncrypterHolder(OLcEncrypter.getEncrypter());
 
@@ -215,6 +177,9 @@ public class OLcServer {
 			localhost = InetAddress.getLocalHost();
 
 			// ------------------------ INITIATE LOGGING --------------------------------
+			String logfolder = serverconfig.getCompulsoryValue("LOGFOLDER");
+			boolean reducedlogs = serverconfig.getOptionalBooleanValue("REDUCEDLOGS", true);
+			int port = serverconfig.getCompulsoryIntegerValue("PORT");
 			try {
 				mainlogger = Logger.getLogger(OLcServer.class.getName());
 				initiateLogger(logfolder, reducedlogs, port);
@@ -229,7 +194,23 @@ public class OLcServer {
 				System.exit(1);
 			}
 			mainlogger.info(serverstartuptimer.logTimer(" STARTUP STEP 1: Log file initialization"));
+
 			// ------------------------------- INITIATE CONNECTION POOL -------------------
+			String dbtype = serverconfig.getCompulsoryValue("DBTYPE");
+			String jdbcurl = serverconfig.getCompulsoryValue("JDBC.URL");
+			if (dbtype.equals(DBTYPE_DERBY))
+				if (jdbcurl.indexOf("jdbc:derby:") == -1)
+					jdbcurl = "jdbc:derby:" + jdbcurl;
+			boolean hasadvanceddatabase = validateDBType(dbtype);
+			String jdbcuser = null;
+			String jdbcpassword = null;
+			int minconnection = 1;
+			int maxconnection = 1;
+			if (hasadvanceddatabase) {
+				jdbcuser = serverconfig.getCompulsoryValue("JDBC.USER");
+				jdbcpassword = serverconfig.getCompulsoryValue("JDBC.PASSWORD");
+				maxconnection = serverconfig.getCompulsoryIntegerValue("JDBC.MAXCONNECTIONS");
+			}
 			connectionpool = new SimpleConnectionPool(jdbcurl, jdbcuser, jdbcpassword, minconnection, maxconnection);
 			// connection pool and persistence gateway seem to be inconsistent / redundant
 			PersistenceGateway.setconnectionpool(dbtype, connectionpool);
@@ -239,6 +220,11 @@ public class OLcServer {
 			mainlogger.info(serverstartuptimer.logTimer(" STARTUP STEP 2: JDBC connection pool"));
 
 			// ------------------------------- INITIATE PAGE DIRECTORY --------------------
+			String modulelist = serverconfig.getOptionalValue("MODULES");
+			String[] modulenamelist = new String[0];
+			if (modulelist != null)
+				if (modulelist.length() > 0)
+					modulenamelist = modulelist.split(";");
 			mainlogger.info(
 					"starting to process module directory - " + modulenamelist.length + " modules planned to be added");
 			moduledirectory = new NamedList<SModule>();
@@ -280,20 +266,36 @@ public class OLcServer {
 			processModules(systemmoduleendindex, serverstartuptimer);
 
 			// ------------------------------- INITIATE SECURITY ------------------------
+			String ldapconnectionstring = serverconfig.getOptionalValue("LDAP.CONNECTION");
+			String ldapuser = null;
+			String ldappassword = null;
+			if (ldapconnectionstring != null) {
+				ldapuser = serverconfig.getCompulsoryValue("LDAP.USER");
+				ldappassword = serverconfig.getCompulsoryValue("LDAP.PASSWORD");
+			}
+
 			securitymanager = new SecurityManager(ldapconnectionstring, ldapuser, ldappassword);
 			securitymanager.start();
 			mainlogger.info(serverstartuptimer.logTimer(" STARTUP STEP 6: initiate security engine"));
 
 			// ------------------------------- INITIATE LISTENER ------------------------
 			// ConnectionGateway.initSingle(connectionpool.getConnection());
+
+			boolean messageaudit = serverconfig.getOptionalBooleanValue("MESSAGE.AUDIT", false);
+
 			connectionlisterner = new ConnectionListener(port, this, messageaudit);
 			mainlogger.severe(serverstartuptimer.logTimer(" STARTUP STEP 7: all port listeners initiated"));
+			String smtpurl = serverconfig.getOptionalValue("SMTP.URL");
 			if (smtpurl != null) {
+				String smtpuser = serverconfig.getOptionalValue("SMPT.USER");
+				String smtppassword = serverconfig.getOptionalValue("SMTP.PASSWORD");
+				int smtpport = serverconfig.getOptionalIntegerValue("SMTP.PORT", 0);
 				MailDaemon daemon = null;
 				mainlogger.warning(" starting mail daemon with url = '" + smtpurl + "', port ='" + smtpport
 						+ "', smtpuser = '" + smtpuser + "'");
 				if (smtpuser != null) {
-					daemon = new MailDaemon(smtpurl, smtpport, smtpuser, stmppassword);
+
+					daemon = new MailDaemon(smtpurl, smtpport, smtpuser, smtppassword);
 				} else {
 					if (smtpport > 0) {
 						daemon = new MailDaemon(smtpurl, smtpport);
@@ -309,40 +311,53 @@ public class OLcServer {
 			mainlogger.severe(allserverstartuptimer.logTimer(" STARTUP -- Total time "));
 
 		} catch (Throwable t) {
-			mainlogger.severe("unexpected error during execution, exception details below. Server Shutdown");
-			mainlogger.severe(" * " + t.getClass().getCanonicalName() + " - " + t.getMessage());
-			if (t instanceof SQLException) {
-				SQLException se = (SQLException) t;
-				mainlogger.severe(" * SQLException extra info Error code " + se.getErrorCode() + " - SQLState "
-						+ se.getSQLState());
-				SQLException ne = se.getNextException();
-				if (ne != null)
-					mainlogger.severe(ne.getClass().getCanonicalName() + " - error code " + ne.getErrorCode()
-							+ " - error message " + ne.getMessage());
-			}
-			StackTraceElement[] ste = t.getStackTrace();
-			for (int i = 0; i < ste.length; i++) {
-				mainlogger.severe("   - " + ste[i].toString());
-			}
-			if (t instanceof ExceptionInInitializerError) {
-				ExceptionInInitializerError initerror = (ExceptionInInitializerError) t;
-				mainlogger.severe("  Cause of ExceptionInInitializer error " + initerror.getCause());
-				for (int i = 0; i < initerror.getCause().getStackTrace().length; i++) {
-					mainlogger.severe("   	- " + initerror.getCause().getStackTrace()[i].toString());
+			if (mainlogger != null) {
+				mainlogger.severe("unexpected error during execution, exception details below. Server Shutdown");
+				mainlogger.severe(" * " + t.getClass().getCanonicalName() + " - " + t.getMessage());
+				if (t instanceof SQLException) {
+					SQLException se = (SQLException) t;
+					mainlogger.severe(" * SQLException extra info Error code " + se.getErrorCode() + " - SQLState "
+							+ se.getSQLState());
+					SQLException ne = se.getNextException();
+					if (ne != null)
+						mainlogger.severe(ne.getClass().getCanonicalName() + " - error code " + ne.getErrorCode()
+								+ " - error message " + ne.getMessage());
 				}
-			}
-			Throwable current = t;
-			int circuitbreaker = 0;
-			while ((current.getCause() != null) && (circuitbreaker < 20)) {
-				current = current.getCause();
-				mainlogger.severe("---------- Cause of error detailed below for level " + circuitbreaker);
-				mainlogger.severe(" * " + current.getClass().getCanonicalName() + " - " + current.getMessage());
-				StackTraceElement[] stec = current.getStackTrace();
-				for (int i = 0; i < stec.length; i++) {
-					mainlogger.severe("   - " + stec[i].toString());
+				StackTraceElement[] ste = t.getStackTrace();
+				for (int i = 0; i < ste.length; i++) {
+					mainlogger.severe("   - " + ste[i].toString());
 				}
+				if (t instanceof ExceptionInInitializerError) {
+					ExceptionInInitializerError initerror = (ExceptionInInitializerError) t;
+					mainlogger.severe("  Cause of ExceptionInInitializer error " + initerror.getCause());
+					for (int i = 0; i < initerror.getCause().getStackTrace().length; i++) {
+						mainlogger.severe("   	- " + initerror.getCause().getStackTrace()[i].toString());
+					}
+				}
+				Throwable current = t;
+				int circuitbreaker = 0;
+				while ((current.getCause() != null) && (circuitbreaker < 20)) {
+					current = current.getCause();
+					mainlogger.severe("---------- Cause of error detailed below for level " + circuitbreaker);
+					mainlogger.severe(" * " + current.getClass().getCanonicalName() + " - " + current.getMessage());
+					StackTraceElement[] stec = current.getStackTrace();
+					for (int i = 0; i < stec.length; i++) {
+						mainlogger.severe("   - " + stec[i].toString());
+					}
+				}
+			} else {
+				System.err.println(" Unexpected error before main logger setup "+t.getClass().getName()+" "+t.getMessage());
+				for (int i=0;i<t.getStackTrace().length;i++) System.err.println("   * "+t.getStackTrace()[i]);
 			}
 		}
+	}
+
+	public static boolean validateDBType(String dbtype) {
+		if (dbtype.equals(DBTYPE_DERBY))
+			return false;
+		if (dbtype.equals(DBTYPE_MARIA10_2))
+			return true;
+		throw new RuntimeException("Database type not supported " + dbtype);
 	}
 
 	private int processModules(int startindex, TimeLogger serverstartuptimer) {
@@ -390,110 +405,12 @@ public class OLcServer {
 	}
 
 	public static void main(String args[]) {
-
-		String logfolder = args[0];
-		int port = new Integer(args[1]).intValue();
-		String modulelist = args[2];
-		String[] modules = new String[0];
-		if (!modulelist.equals("null"))
-			modules = modulelist.split(";");
-		boolean auditmessages = new Boolean(args[3]).booleanValue();
-		boolean reducedlogs = new Boolean(args[4]).booleanValue();
-
-		String ldapconnectionstring = args[5];
-		String ldapuser = null;
-		String ldappassword = null;
-		String[] ldapparsed = ldapconnectionstring.split("\\|");
-
-		if (ldapparsed.length == 3) {
-			ldapconnectionstring = ldapparsed[0];
-			ldapuser = ldapparsed[1];
-			ldappassword = ldapparsed[2];
-
-		}
-		String smtptype = args[6];
-		int smtpargnumber = 0;
-
-		if (smtptype.equals("SIMPLESMTP"))
-			smtpargnumber = 2;
-		if (smtptype.equals("SIMPLESMTPNOPORT"))
-			smtpargnumber = 1;
-		if (smtptype.equals("SSLPASSWORDSMTP"))
-			smtpargnumber = 4;
-
-		String dbtype = args[7 + smtpargnumber];
-
-		boolean isargvalid = false;
-		if (args.length == 10 + smtpargnumber)
-			if (dbtype.equals(DBTYPE_DERBY))
-				isargvalid = true;
-		if (args.length == 13 + smtpargnumber)
-			if (dbtype.equals(DBTYPE_MARIA10_2))
-				isargvalid = true;
-		if (args.length == 12 + smtpargnumber)
-			if (dbtype.equals(DBTYPE_MARIA10_2))
-				isargvalid = true;
-		if (args.length == 11 + smtpargnumber)
-			if (dbtype.equals(DBTYPE_MARIA10_2))
-				isargvalid = true;
-
-		if (!isargvalid) {
-			System.err.println(
-					"Error : syntax java OLcServer logfilepattern port modulelist LDAP auditmessages reducedlogs DBTYPE URL [User Password]");
-			System.err.println("   where ");
-			System.err.println(" 1 - logfilepattern is a valid path for your operating system to the log folder.");
-			System.err.println(" 		If the folder does not exist, the server will try to create it");
-			System.err.println(" 2 - port is the port open to clients for socket connection");
-			System.err.println(
-					" 3 - modulelist is a list of module classes separated by  ; . e.g. cspex.pj1.Module1;cspex.pj1.Module2.");
-			System.err.println(
-					"		to install the application only with system module, enter the string 'null' (without quotes)");
-			System.err.println("        Note: the first module specified is the main module of the application.");
-			System.err.println("        The system module does not need to be specified and is added by default");
-			System.err.println(
-					" 4 - auditmessages is either true or false: if true, messages are archived in logs. It should be false for production");
-			System.err.println(
-					" 5 - reducedlogs is either true or false: if true, only warning logs are put in logs. It should be true in production ");
-
-			System.err.println(
-					" 6 - LDAP : ldap server connection string for authentication, enter 'null' if LDAP not setup. If using service acccount");
-			System.err.println("				you can enter LDAPURL|fullqualifiedname|password");
-
-			System.err.println(" 7 - smpttype: SIMPLESMTP or SSLPASSWORDSMTP or SIMPLESMTPNOPORT null");
-			System.err.println(
-					" 7A- smtpserver: e.g. ssl0.ovh.net (if smtptype = SIMPLESMTP or SSLPASSWORDSMTP OR SIMPLESMTPNOPORT)");
-			System.err.println(" 7B- smtpport: e.g. 465 (if smtptype = SIMPLESMTP or SSLPASSWORDSMTP)");
-			System.err.println(" 7C- user: e.g. blabla@toto.com (if smtptype = SSLPASSWORDSMTP)");
-			System.err.println(" 7D- password for the SMTPSERVER (if smtptype = SSLPASSWORDSMTP)");
-			System.err.println(" 8 - DBTYPE is either DERBY or MARIA10.2");
-			System.err.println(" 9 - URL is :");
-			System.err.println("	 * path of the folder if derby");
-			System.err.println("	 * JDBC full URL for MARIA10.2");
-			System.err.println(" 10- Connection pool size (not needed for DERBY, compulsory for MARIA10.2)");
-			System.err.println(" 11- User : jdbc database user (not needed for DERBY)");
-			System.err.println(" 12- Password : jdbc database password (not needed for DERBY)");
-			System.err.println(" 13- Clientjar : name of the client JAR (default is OLcClient.jar)");
-			System.exit(1);
+		if (args.length != 1) {
+			System.err.println("Error : syntax java OLcServer configfilepath");
+			System.err.println("   Where configfilepath is a valid path to an Open Lowcode server");
+			System.err.println("         configuration file");
 		}
 
-		String derbypath = null;
-		String jdbcurl = null;
-		String jdbcuser = null;
-		String jdbcpassword = null;
-
-		int connectionpool = 1;
-		if (dbtype.equals(DBTYPE_DERBY)) {
-			derbypath = args[8 + smtpargnumber];
-			jdbcurl = "jdbc:derby:" + derbypath + ";create=true";
-		}
-		if (dbtype.equals(DBTYPE_MARIA10_2)) {
-			jdbcurl = args[8 + smtpargnumber];
-			connectionpool = new Integer(args[9 + smtpargnumber]).intValue();
-			if (args.length > 10 + smtpargnumber)
-				jdbcuser = args[10 + smtpargnumber];
-			if (args.length > 11 + smtpargnumber)
-				jdbcpassword = args[11 + smtpargnumber];
-		}
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				System.err.println("starting shutdown sequence");
@@ -514,29 +431,8 @@ public class OLcServer {
 				System.err.println("logger closed. shutting down gracefully");
 			}
 		});
-		String smtpurl = null;
-		int smtpport = -1;
-		String smtpuser = null;
-		String smtppassword = null;
-		if (smtptype.equals("SSLPASSWORDSMTP")) {
-			smtpurl = args[7];
-			smtpport = new Integer(args[8]).intValue();
-			smtpuser = args[9];
-			smtppassword = args[10];
-		}
-		if (smtptype.equals("SIMPLESMTP")) {
-			smtpurl = args[7];
-			smtpport = new Integer(args[8]).intValue();
-		}
 
-		if (smtptype.equals("SIMPLESMTPNOPORT")) {
-			smtpurl = args[7];
-		}
-		// client jar is the last argument
-		String clientjar = args[args.length - 1];
-		serversingleton = new OLcServer(logfolder, dbtype, jdbcurl, jdbcuser, jdbcpassword, 1, connectionpool, port,
-				modules, auditmessages, ldapconnectionstring, ldapuser, ldappassword, smtpurl, smtpport, smtpuser,
-				smtppassword, reducedlogs, clientjar);
+		serversingleton = new OLcServer(args[0]);
 	}
 
 	/**
@@ -957,14 +853,17 @@ public class OLcServer {
 	 * overlord of the module or sovereign on the server)
 	 * 
 	 * @param module the name of the module to check for
-	 * @return true if the current user if admin for the module as of rules set above
+	 * @return true if the current user if admin for the module as of rules set
+	 *         above
 	 */
 	public boolean isCurrentUserAdmin(String modulename) {
-		
+
 		SModule module = this.getModuleByName(modulename);
-		if (module==null) throw new RuntimeException("Could not find module for name = "+modulename);
+		if (module == null)
+			throw new RuntimeException("Could not find module for name = " + modulename);
 		DataObjectId<Appuser> currentuserid = getCurrentUserId();
-		if (currentuserid==null) throw new RuntimeException("Could not find user for id = "+currentuserid);
+		if (currentuserid == null)
+			throw new RuntimeException("Could not find user for id = " + currentuserid);
 		Authority[] userauthorities = ServerSecurityBuffer.getUniqueInstance().getAuthoritiesForUser(currentuserid);
 		for (int i = 0; i < userauthorities.length; i++) {
 			if (module.isAuthorityAdmin(userauthorities[i].getNr()))
