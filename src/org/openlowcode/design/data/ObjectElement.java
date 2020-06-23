@@ -94,6 +94,8 @@ public abstract class ObjectElement
 	 */
 	public ObjectElement(String name, String displayname, String tooltip) {
 		super(name);
+		if (name==null) throw new RuntimeException("Name cannot be null");
+		if (name.trim().length()<2) throw new RuntimeException("Name '"+name+"' cannot have less than 2 characters");
 		this.displayname = displayname;
 		this.tooltip = tooltip;
 		elements = new NamedList<Element>();
