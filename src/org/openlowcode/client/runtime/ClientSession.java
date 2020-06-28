@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.HashMap;
 import java.util.logging.Logger;
 import javafx.scene.Node;
 
@@ -27,7 +27,6 @@ import org.openlowcode.tools.messages.MessageElement;
 import org.openlowcode.tools.messages.MessageError;
 import org.openlowcode.tools.messages.MessageReader;
 
-import org.openlowcode.tools.messages.MessageStringField;
 import org.openlowcode.tools.messages.OLcRemoteException;
 import org.openlowcode.tools.misc.NiceFormatters;
 
@@ -38,19 +37,22 @@ import javafx.event.EventHandler;
 import javafx.event.Event;
 
 import javafx.geometry.Insets;
-
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 /**
  * Client managing a session to a given server.
@@ -107,11 +109,28 @@ public class ClientSession {
 	 * sets the title on the active tab (corresponding to the active client display)
 	 * 
 	 * @param newtitle the text title to show
+	 * @param otpstatus status of OTP connection
 	 */
-	public void setTitle(String newtitle) {
+	public void setTitle(String newtitle,String otpstatus) {
+		logger.warning("   --- ---- Starting setting title ");
 		Tab tab = this.tabpane.getTabs().get(activedisplayindex);
-		tab.setText((newtitle.length() > 20 ? newtitle.substring(0, 20) + "..." : newtitle));
-		tab.setTooltip(new Tooltip(newtitle));
+		if (otpstatus.equals("NONE")) {
+			tab.setText((newtitle.length() > 20 ? newtitle.substring(0, 20) + "..." : newtitle));
+			tab.setTooltip(new Tooltip(newtitle));
+			return;
+		}
+		// ---------------------- Process otp status that is not null ---------------
+		BorderPane borderpane = new BorderPane();
+		borderpane.setCenter(new Label(newtitle));
+		Color dotcolor = Color.LIGHTGREEN;
+		if (otpstatus.equals("INVALID")) dotcolor = Color.INDIANRED;
+		Circle dot = new Circle(0, 0, 4);
+		dot.setFill(dotcolor);
+		dot.setStroke(Color.LIGHTGRAY);
+		borderpane.setRight(dot);
+		BorderPane.setAlignment(dot,Pos.CENTER);
+		tab.setText("");
+		tab.setGraphic(borderpane);
 	}
 
 	/**
@@ -312,8 +331,9 @@ public class ClientSession {
 						writer.flushMessage();
 					});
 					if (localconnectiontoserver.isRelevant()) {
-						DisplayPageFeedback exceptionmessage = enrichPageWithInlineData(firstelement,localconnectiontoserver, page,
-								activedisplay, startaction, techdetails, modulename, actionname);
+						DisplayPageFeedback exceptionmessage = enrichPageWithInlineData(firstelement,
+								localconnectiontoserver, page, activedisplay, startaction, techdetails, modulename,
+								actionname);
 
 						long endaction = System.currentTimeMillis();
 						if (exceptionmessage.getErrormessage() != null) {
@@ -440,8 +460,8 @@ public class ClientSession {
 								writer.flushMessage();
 							});
 
-							DisplayPageFeedback exceptionmessage = displayPage(startelement,localconnectionfinal, activedisplay,
-									startaction, techdetails, null, null, false);
+							DisplayPageFeedback exceptionmessage = displayPage(startelement, localconnectionfinal,
+									activedisplay, startaction, techdetails, null, null, false);
 							long endaction = System.currentTimeMillis();
 							if (exceptionmessage.getErrormessage() != null) {
 
@@ -572,41 +592,26 @@ public class ClientSession {
 
 		if (message.compareTo("DISPLAYPAGE") == 0) {
 			// processing cid
-			cid = reader.returnNextStringField("CID");
+			HashMap<String, String> attributes = this.readRequestAttributes(reader);
+			cid = this.getAttribute(attributes, "CID", true);
 			// --- locale from the user, id defined
 
-			locale = reader.returnNextStringField("LCL");
+			locale = this.getAttribute(attributes, "LCL", true);
 			// -- processing display page
-			String name = reader.returnNextStringField("NAME");
-			MessageElement element = reader.getNextElement();
-			if (!(element instanceof MessageStringField))
-				throw new RuntimeException("was expecting a String Field called ADDRESS or TITLE, GOT a"
-						+ element.getClass().getName() + " drop =  " + element.toString());
-			MessageStringField stringelement = (MessageStringField) element;
-			String address = null;
-			String title = null;
-			if (stringelement.getFieldName().compareTo("ADDRESS") == 0) {
-				address = stringelement.getFieldcontent();
-				title = reader.returnNextStringField("TITLE");
-			} else {
-				if (stringelement.getFieldName().compareTo("TITLE") == 0) {
-					title = stringelement.getFieldcontent();
-				} else {
-					throw new RuntimeException("Expected title, got " + stringelement.getFieldName());
-				}
-
-			}
+			String name = this.getAttribute(attributes, "NAME", true);
+			String address = this.getAttribute(attributes, "ADDRESS", false);
+			String title = this.getAttribute(attributes, "TITLE", true);
+			String otpstatus = this.getAttribute(attributes, "OTPSTATUS", true);
 			logger.info("displaying page title = " + title);
 
 			String fulladdress = null;
-			if (address != null) {
-				fulladdress = connectiontoserver.completeAddress(address);
-
-				this.clientdata.addAddress(fulladdress, title);
-
-			} else {
-				this.clientdata.addAddress("", title);
-			}
+			if (address != null)
+				if (address.length() > 0) {
+					fulladdress = connectiontoserver.completeAddress(address);
+					this.clientdata.addAddress(fulladdress, title);
+				} else {
+					this.clientdata.addAddress("", title);
+				}
 
 			CPage page = new CPage(name, reader, module, action, this.pagebuffer);
 			String pagestring = null;
@@ -619,7 +624,8 @@ public class ClientSession {
 			reader.returnNextEndMessage();
 			logger.finer("finishes parsing");
 			if (localconnectiontoserver.isRelevant()) {
-				activedisplay.setandDisplayPage(title, fulladdress, page, address, starttime,
+				logger.warning(" Starting display page "+title+" - "+otpstatus);
+				activedisplay.setandDisplayPage(title, otpstatus, fulladdress, page, address, starttime,
 						reader.charcountsinceStartMessage(), page.getBufferedDataUsed() / 1024,
 						this.pagebuffer.getTotalBufferSize() / 1024, showtechdetails, openinnewtab);
 			} else {
@@ -632,8 +638,9 @@ public class ClientSession {
 		// ------------------------------------------------
 
 		if (message.compareTo("SERVERERROR") == 0) {
-			String errorcode = reader.returnNextStringField("ERC");
-			String errormessage = reader.returnNextStringField("ERM");
+			HashMap<String, String> attributes = this.readRequestAttributes(reader);
+			String errorcode = this.getAttribute(attributes, "ERC", true);
+			String errormessage = this.getAttribute(attributes, "ERM", true);
 			reader.returnNextEndStructure("SERVERERROR");
 			reader.returnNextEndMessage();
 			return new DisplayPageFeedback("Server Error : " + errorcode + " - " + errormessage,
@@ -643,15 +650,15 @@ public class ClientSession {
 		// ------------------------------------------------
 
 		if (message.compareTo("CLIENTUPDATE") == 0) {
-
-			String clientversion = reader.returnNextStringField("CLV");
-			String serverversion = reader.returnNextStringField("SVV");
+			HashMap<String, String> attributes = this.readRequestAttributes(reader);
+			String clientversion = this.getAttribute(attributes, "CLV", true);
+			String serverversion = this.getAttribute(attributes, "SVV", true);
 			Date serverversiondate = reader.returnNextDateField("SVD");
 			reader.returnNextEndStructure("CLIENTUPDATE");
 			reader.returnNextEndMessage();
 			CPage clientupgradepage = mainframe.getClientUpgradePage(clientversion, serverversion, serverversiondate);
 
-			activedisplay.setandDisplayPage("Client Upgrade", null, clientupgradepage,
+			activedisplay.setandDisplayPage("Client Upgrade","NONE", null, clientupgradepage,
 					this.getActiveClientDisplay().getConnectionBar().getAddress().getText(), starttime,
 					reader.charcountsinceStartMessage(), 0, pagebuffer.getTotalBufferSize(), showtechdetails, false);
 
@@ -700,6 +707,49 @@ public class ClientSession {
 				logger.warning(e2.getStackTrace()[i].toString());
 			}
 		}
+	}
+
+	/**
+	 * read a series of string attributes
+	 * 
+	 * @param reader
+	 * @return the list of attributes
+	 * @throws IOException        if any communication error happens
+	 * @throws OLcRemoteException if the server sends an exception
+	 * @since 1.10
+	 */
+	public HashMap<String, String> readRequestAttributes(MessageReader reader) throws OLcRemoteException, IOException {
+		HashMap<String, String> attributes = new HashMap<String, String>();
+		reader.startStructureArray("RQSATR");
+		while (reader.structureArrayHasNextElement("RQSATR")) {
+			String attributename = reader.returnNextStringField("NAM");
+			String attributevalue = reader.returnNextStringField("VAL");
+			reader.returnNextEndStructure("RQSATR");
+			if (attributes.get(attributename) != null)
+				throw new RuntimeException("Duplicate request attribute " + attributename);
+			attributes.put(attributename, attributevalue);
+		}
+		return attributes;
+	}
+
+	/**
+	 * @param attributes           attribute
+	 * @param attributetoget       name of the attribute to get
+	 * @param explodeifnoattribute if true, throw an exception, if false, gives back
+	 *                             an empty (not null) String
+	 * @return the attribute if it exists, according to mode defined
+	 * @since 1.10
+	 */
+	public String getAttribute(
+			HashMap<String, String> attributes,
+			String attributetoget,
+			boolean explodeifnoattribute) {
+		String attribute = attributes.get(attributetoget);
+		if (attribute != null)
+			return attribute;
+		if (explodeifnoattribute)
+			throw new RuntimeException("Attribute " + attributetoget + " is missing");
+		return "";
 	}
 
 	public static void printException(Exception e) {

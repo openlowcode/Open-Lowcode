@@ -52,6 +52,14 @@ public abstract class ActionExecution extends Named {
 	}
 
 	/**
+	 * @return get the parent module
+	 * @since 1.10
+	 */
+	public SModule getParentModule() {
+		return parent;
+	}
+	
+	/**
 	 * sets the message to show in title
 	 * 
 	 * @param message the message to show in title

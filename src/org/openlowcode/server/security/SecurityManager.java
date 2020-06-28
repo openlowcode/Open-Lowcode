@@ -11,6 +11,7 @@
 package org.openlowcode.server.security;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -18,9 +19,16 @@ import org.openlowcode.module.system.action.CreatesessionforuserAction;
 import org.openlowcode.module.system.action.GetsessionforclientAction;
 import org.openlowcode.module.system.data.Appuser;
 import org.openlowcode.module.system.data.Authority;
+import org.openlowcode.module.system.data.Otpcheck;
+import org.openlowcode.module.system.data.OtpcheckDefinition;
 import org.openlowcode.module.system.data.Usergroup;
 import org.openlowcode.module.system.data.Usersession;
 import org.openlowcode.server.data.properties.DataObjectId;
+import org.openlowcode.server.data.properties.LinkedtoparentQueryHelper;
+import org.openlowcode.server.data.storage.AndQueryCondition;
+import org.openlowcode.server.data.storage.QueryFilter;
+import org.openlowcode.server.data.storage.QueryOperatorEqual;
+import org.openlowcode.server.data.storage.SimpleQueryCondition;
 import org.openlowcode.server.runtime.OLcServer;
 
 /**
@@ -30,7 +38,9 @@ import org.openlowcode.server.runtime.OLcServer;
  *         SAS</a>
  *
  */
-public class SecurityManager extends Thread {
+public class SecurityManager
+		extends
+		Thread {
 	Logger logger = Logger.getLogger("");
 	private static long TIMEOUTINMS = 60000;
 	private String ldapconnectionstring = null;
@@ -128,7 +138,35 @@ public class SecurityManager extends Thread {
 		// TODO - check if good way to return user info
 		DataObjectId<Appuser> userid = session.getLinkedtoparentforsessionuserid();
 		OLcServer.getServer().setUserIdForConnection(userid);
+		checkOTPForClient(userid, cid, ipaddress);
 		return userid;
+	}
+
+	/**
+	 * Check OTP for client
+	 * 
+	 * @since 1.10
+	 */
+	private void checkOTPForClient(DataObjectId<Appuser> userid, String cid, String ipaddress) {
+		Otpcheck[] check = Otpcheck.getallchildrenforuser(userid, QueryFilter.get(new AndQueryCondition(
+				new SimpleQueryCondition<String>(
+						OtpcheckDefinition.getOtpcheckDefinition()
+								.getAlias(LinkedtoparentQueryHelper.CHILD_OBJECT_ALIAS),
+						Otpcheck.getDefinition().getClientpidFieldSchema(), new QueryOperatorEqual<String>(), cid),
+				new SimpleQueryCondition<String>(
+						OtpcheckDefinition.getOtpcheckDefinition()
+								.getAlias(LinkedtoparentQueryHelper.CHILD_OBJECT_ALIAS),
+						Otpcheck.getDefinition().getClientipFieldSchema(), new QueryOperatorEqual<String>(), ipaddress))));
+		boolean hasvalidotp = false;
+		for (int i=0;i<check.length;i++) {
+			Date date = new Date();
+			Date creationdate = check[i].getCreated();
+			long hoursofage = (date.getTime()-creationdate.getTime())/(1000*3600);
+			if (hoursofage<8) hasvalidotp=true;
+			logger.info("recovered old OTP connection ("+i+"/"+check.length+")with hours of age = "+hoursofage);
+		}
+		if (hasvalidotp)
+			OLcServer.getServer().setOTPForConnection();
 	}
 
 	/**
@@ -173,5 +211,25 @@ public class SecurityManager extends Thread {
 			logger.warning("Security buffer refresh interrupted: " + e.getMessage());
 		}
 
+	}
+
+	public boolean checkandregisterOTP(String otp) {
+		Appuser currentuser = OLcServer.getServer().getCurrentUser();
+		OTPSecurity otpsecuritymanager = OLcServer.getServer().getOTPSecurityManager();
+		String userid = currentuser.getNr();
+		if (currentuser.getOtpuser() != null)
+			if (currentuser.getOtpuser().trim().length() > 0)
+				userid = currentuser.getOtpuser();
+		boolean valid = otpsecuritymanager.checkOTP(userid, otp);
+		Otpcheck newotpcheck = new Otpcheck();
+		newotpcheck.setparentforuser(currentuser.getId());
+
+		newotpcheck.setClientip(OLcServer.getServer().getIpForConnection());
+		newotpcheck.setClientpid(OLcServer.getServer().getCidForConnection());
+
+		newotpcheck.setCreated(new Date());
+		newotpcheck.insert();
+		OLcServer.getServer().setOTPForConnection();
+		return valid;
 	}
 }

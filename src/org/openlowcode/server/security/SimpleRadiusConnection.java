@@ -22,16 +22,18 @@ import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.logging.Logger;
 
 /**
  * A simplified class to authenticate an OTP on a Radius server
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
+ * @since 1.10
  *
  */
 public class SimpleRadiusConnection {
-
+	private static final Logger logger = Logger.getLogger(SimpleRadiusConnection.class.getName());
 	private static final int MAX_PACKET_SIZE = 4096;
 	private static final int REQUEST_ACCESS_TYPE = 1;
 	private static final int ACCESS_ACCEPT = 2;
@@ -50,7 +52,7 @@ public class SimpleRadiusConnection {
 	 * Creates a simple connection with given server coordinates
 	 * 
 	 * @param server server URL or IP
-	 * @param port port for radius server
+	 * @param port   port for radius server
 	 * @param secret shared secret between client and server
 	 */
 	public SimpleRadiusConnection(String server, int port, String secret) {
@@ -61,11 +63,12 @@ public class SimpleRadiusConnection {
 
 	/**
 	 * @param userid user id for security check
-	 * @param otp one time password
+	 * @param otp    one time password
 	 * @return true if the authentication was confirmed, false else
-	 * @throws UnknownHostException if the server is not known
+	 * @throws UnknownHostException         if the server is not known
 	 * @throws UnsupportedEncodingException if UTF-8 is not installed on the server
-	 * @throws IOException if anything bad happens and connection could not be retried
+	 * @throws IOException                  if anything bad happens and connection
+	 *                                      could not be retried
 	 */
 	public boolean checkOTP(String userid, String otp)
 			throws UnknownHostException, UnsupportedEncodingException, IOException {
@@ -74,15 +77,20 @@ public class SimpleRadiusConnection {
 
 		DatagramSocket socket = new DatagramSocket();
 		socket.setSoTimeout(TIMEOUT);
-		for (int i = 0; i <= RETRY; i++) {
+		int retrycount = 0;
+		boolean success = false;
+		while (retrycount <= RETRY & !success) {
 			try {
 				socket.send(requestsummary.getPayload());
 				socket.receive(reply);
+				success = true;
 			} catch (IOException e) {
+				logger.warning("Exception in communicating with Radius server "+e.getMessage());
+				for (int i=0;i<e.getStackTrace().length;i++) logger.warning("   - "+e.getStackTrace()[i]);
 				try {
 					Thread.sleep(300);
 				} catch (InterruptedException e1) {
-
+					logger.warning("Interrupted Exception " + e1.getMessage());
 				}
 			}
 		}
@@ -110,7 +118,7 @@ public class SimpleRadiusConnection {
 		byte[] authenticator = createRequestAuthenticator(secret, securerandom);
 		DataOutputStream dataoutputstream = new DataOutputStream(outputstream);
 		dataoutputstream.writeByte(REQUEST_ACCESS_TYPE);
-		dataoutputstream.writeByte(0);
+		dataoutputstream.writeByte(1);
 		byte[] encodedpassword = encodepassword(otp, authenticator);
 		byte[] user = userid.getBytes("UTF-8");
 

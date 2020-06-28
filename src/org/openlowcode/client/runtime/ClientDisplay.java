@@ -209,6 +209,7 @@ public class ClientDisplay {
 	 */
 	public void setandDisplayPage(
 			String title,
+			String otpstatus,
 			String fulladdress,
 			CPage page,
 			String address,
@@ -232,7 +233,7 @@ public class ClientDisplay {
 						// this is not beautiful, but allows
 						// to execute everything in the application thread
 						parent.addNewDisplay();
-						parent.getActiveClientDisplay().setandDisplayPage(title, fulladdress, page, address, starttime,
+						parent.getActiveClientDisplay().setandDisplayPage(title,otpstatus, fulladdress, page, address, starttime,
 								messagesize, pagedatachedkb, totalpagecachekb, showtechdetails, false);
 						return;
 					}
@@ -263,9 +264,7 @@ public class ClientDisplay {
 
 								}
 					previousaddress = address;
-
-					if (title != null)
-						parent.setTitle(title);
+					parent.setTitle((title!=null?title:""),otpstatus);
 					if (fulladdress != null)
 						connectionbar.setPageAddress(fulladdress);
 

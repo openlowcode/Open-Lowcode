@@ -21,6 +21,7 @@ import org.openlowcode.server.data.storage.TableAlias;
 import org.openlowcode.server.graphic.SPage;
 import org.openlowcode.server.runtime.OLcServer;
 import org.openlowcode.server.runtime.SModule;
+import org.openlowcode.server.security.OTPSecurity;
 
 /**
  * Login action on the server
@@ -47,6 +48,7 @@ public class LoginAction
 	public ActionOutputData executeActionLogic(
 			String user,
 			String password,
+			String otp,
 			String contextaction,
 			Function<TableAlias, QueryFilter> datafilter) {
 
@@ -57,6 +59,13 @@ public class LoginAction
 		if (session != null) {
 			logger.info("succesfull login of user " + user + " session id = " + session.getId() + " client ip = "
 					+ session.getClientip());
+			OTPSecurity otpsecurity = OLcServer.getServer().getOTPSecurityManager();
+			if (otpsecurity != null)
+				if (otp != null)
+					if (otp.trim().length() > 0) {
+						OLcServer.getServer().getSecuritymanager().checkandregisterOTP(otp);
+					}
+
 			return new ActionOutputData(true, contextaction);
 		} else {
 

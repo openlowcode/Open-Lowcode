@@ -12,6 +12,7 @@ package org.openlowcode.client.graphic.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
@@ -21,6 +22,8 @@ import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.runtime.PageActionManager;
 import javafx.stage.Window;
 import javafx.scene.control.Menu;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  * A menu element that is part of a menu bar
@@ -32,6 +35,8 @@ import javafx.scene.control.Menu;
 public class CMenu {
 	private String label;
 	private ArrayList<CMenuItem> listofitems;
+	private String icon;
+	private static HashMap<String,ImageView> imagesperpath = new HashMap<String,ImageView>();
 
 	/**
 	 * create a menu from a message from the server
@@ -46,6 +51,7 @@ public class CMenu {
 
 		listofitems = new ArrayList<CMenuItem>();
 		label = reader.returnNextStringField("LBL");
+		icon = reader.returnNextStringField("ICN");
 		reader.startStructureArray("ITM");
 		while (reader.structureArrayHasNextElement("ITM")) {
 			reader.returnNextStartStructure("MNUITM");
@@ -65,6 +71,16 @@ public class CMenu {
 	 */
 	public Menu getMenu(PageActionManager actionmanager, CPageData inputdata, Window parentwindow) {
 		Menu menu = new Menu(label);
+		if (icon!=null) if (icon.length()>0) {
+			ImageView image = imagesperpath.get(icon);
+			if (image==null) {
+				image = new ImageView(new Image(icon));
+				image.setFitHeight(16);
+				image.setFitWidth(16);
+				imagesperpath.put(icon, image);
+			}
+			if (image!=null) menu.setGraphic(image);
+		}
 		for (int i = 0; i < listofitems.size(); i++) {
 			menu.getItems().add(listofitems.get(i).getMenuItem(actionmanager, inputdata, parentwindow));
 		}

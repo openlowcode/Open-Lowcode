@@ -35,7 +35,9 @@ import org.openlowcode.tools.misc.NamedList;
  *
  */
 @SuppressWarnings("rawtypes")
-public abstract class SModule extends Named {
+public abstract class SModule
+		extends
+		Named {
 
 	private NamedList<SPage> pages;
 	private NamedList<DataObjectDefinition> moduleobjects;
@@ -46,20 +48,22 @@ public abstract class SModule extends Named {
 	private boolean frameworkfinalversion;
 	private Date generationdate;
 	private String label;
-	
+	private boolean secure = false;
 
 	/**
 	 * A helper method confirming if the given authority is the admin of the module
+	 * 
 	 * @param authoritynr number of the authority
 	 * @return true if the authority given is the admin of the module
 	 * @since 1.5
 	 */
 	public boolean isAuthorityAdmin(String authoritynr) {
-		String moduleadminauthority=code+"_"+this.getName()+"OVERLORD";
-		if (moduleadminauthority.equals(authoritynr)) return true;
+		String moduleadminauthority = code + "_" + this.getName() + "OVERLORD";
+		if (moduleadminauthority.equals(authoritynr))
+			return true;
 		return false;
 	}
-	
+
 	/**
 	 * @return the front page message to show on the module home page
 	 */
@@ -98,8 +102,14 @@ public abstract class SModule extends Named {
 	 *                              framework
 	 * @param generationdate        date the module was generated.
 	 */
-	public SModule(String name, String code, String label, String moduleversion, String frameworkversion,
-			boolean frameworkfinalversion, Date generationdate) {
+	public SModule(
+			String name,
+			String code,
+			String label,
+			String moduleversion,
+			String frameworkversion,
+			boolean frameworkfinalversion,
+			Date generationdate) {
 		super(name);
 		this.label = label;
 		this.moduleversion = moduleversion;
@@ -110,6 +120,20 @@ public abstract class SModule extends Named {
 		pages = new NamedList<SPage>();
 		moduleobjects = new NamedList<DataObjectDefinition>();
 		this.emailmessage = null;
+	}
+
+	/**
+	 * set the module as secure, which means that if an OTP is set on a server, only
+	 * people with OTP login will be able to login
+	 * 
+	 * @since 1.10
+	 */
+	public void setSecure() {
+		this.secure = true;
+	}
+
+	public boolean isSecure() {
+		return this.secure;
 	}
 
 	/**
@@ -183,7 +207,7 @@ public abstract class SModule extends Named {
 	 * @return the object instance if the object master is versioned
 	 */
 	public abstract DataObject getDataObjectBasedOnGenericMasterId(DataObjectMasterId genericmasterid);
-	
+
 	/**
 	 * adds a page to this module
 	 * 
@@ -295,7 +319,47 @@ public abstract class SModule extends Named {
 	 * 
 	 * @param parentaddonpage the page to generate the menu for
 	 * @return the SMenu widget
+	 * @since 1.10
 	 */
 	public abstract SMenu getModuleMenu(SPage parentaddonpage);
 
+	public void setIcon(SMenu menu) {
+		if (this.secure) {
+			Boolean hasotp = OLcServer.getServer().getOTPForConnection();
+			if (Boolean.TRUE.equals(hasotp)) {
+				menu.setIcon("css/Unlock64.png");
+			} else {
+				menu.setIcon("css/Lock64.png");
+			}
+		}
+	}
+
+	/**
+	 * get if the module is restricted for the current user
+	 * 
+	 * @return true if the user is not authorized because of lack of OTP log-in
+	 * @since 1.10
+	 */
+	public boolean IsRestriction() {
+		if (!this.secure)
+			return false;
+		if (this.secure) {
+			if (OLcServer.getServer().getOTPSecurityManager() == null) {
+				// OTP not in place, allow access
+				return false;
+			} else {
+				// OTP in place
+				if (Boolean.TRUE.equals(OLcServer.getServer().getOTPForConnection())) {
+					// if user OTP logged in, allow access
+					return false;
+				} else {
+					// if user not OTP logged in, deny access
+					return true;
+				}
+
+			}
+
+		}
+		return true;
+	}
 }

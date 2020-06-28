@@ -46,17 +46,24 @@ public class SimpleloginPage
 		LoginAction.ActionRef login = LoginAction.get().getActionRef();
 		STextField user = new STextField("User", "USER", "your user account.", 80, "", this, login);
 		STextField password = new STextField("Password", "PASSWORD", "your password", 80, "", this, login);
+		
 		password.hideDisplay();
+		STextField otp = new STextField("One-Time Password","OTP","Your OTP password if you require secure connection",80,"",this,login);
+		otp.hideDisplay();
 		STextStorage context = new STextStorage("CONTEXT", this, this.getContextaction());
 		mainband.addElement(context);
 		login.setUser(user.getTextInput());
 		login.setPassword(password.getTextInput());
+		
+		login.setOtp(otp.getTextInput());
 		login.setContextaction(context.getTextInput());
 		SActionButton send = new SActionButton("OK", login, this);
 		mainband.addElement(new SPageText("Login", SPageText.TYPE_TITLE, this));
 
 		mainband.addElement(user);
 		mainband.addElement(password);
+		mainband.addElement(new SPageText("Please enter one-time password to access secured apps.", SPageText.TYPE_NORMAL,this));
+		mainband.addElement(otp);
 		mainband.addElement(send);
 		mainband.addElement(new SPageText("Welcome to Open Lowcode Server.", SPageText.TYPE_NORMAL, this));
 		return mainband;

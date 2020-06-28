@@ -152,8 +152,8 @@ public class ClientUpdater
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Welcome to Open Lowcode Client Updater");
-		primaryStage.getIcons().add(new Image("css/OLCNC32.png"));
-		primaryStage.getIcons().add(new Image("css/OLCNC64.png"));
+		primaryStage.getIcons().add(new Image("css/OLC64-new.png"));
+		primaryStage.getIcons().add(new Image("css/OLC32-new.png"));
 
 		mainpane = new VBox(3);
 

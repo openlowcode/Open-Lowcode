@@ -46,6 +46,7 @@ import org.openlowcode.server.data.storage.PersistentStorage;
 import org.openlowcode.server.data.storage.jdbcpool.ConnectionPool;
 import org.openlowcode.server.data.storage.jdbcpool.SimpleConnectionPool;
 import org.openlowcode.server.runtime.email.MailDaemon;
+import org.openlowcode.server.security.OTPSecurity;
 import org.openlowcode.server.security.SecurityManager;
 import org.openlowcode.server.security.ServerSecurityBuffer;
 
@@ -150,7 +151,16 @@ public class OLcServer {
 	}
 
 	private Logger mainlogger;
+	private OTPSecurity otpsecurity;
 
+	/**
+	 * @return the OTP Security manager if it exists
+	 * @since 1.10
+	 */
+	public OTPSecurity getOTPSecurityManager() {
+		return this.otpsecurity;
+	}
+	
 	/**
 	 * Creates the server with all the attributes provided in the configuration file
 	 * 
@@ -165,7 +175,7 @@ public class OLcServer {
 
 			OLcServerConfig serverconfig = new OLcServerConfig(configurationfilepath);
 			serverconfig.parseConfigFile();
-			
+
 			this.clientjar = serverconfig.getCompulsoryValue("CLIENTJAR");
 
 			EncrypterHolder.InitEncrypterHolder(OLcEncrypter.getEncrypter());
@@ -276,6 +286,24 @@ public class OLcServer {
 
 			securitymanager = new SecurityManager(ldapconnectionstring, ldapuser, ldappassword);
 			securitymanager.start();
+
+			String otptype = serverconfig.getOptionalValue("OTP.TYPE");
+			if (otptype != null) {
+				boolean validotptype = false;
+				if (otptype.equals("RADIUS")) {
+					String otpserver = serverconfig.getCompulsoryValue("OTP.RADIUS.SERVER");
+					int otpport = serverconfig.getCompulsoryIntegerValue("OTP.RADIUS.PORT");
+					String otpsecret = serverconfig.getCompulsoryValue("OTP.RADIUS.SECRET");
+					otpsecurity = new OTPSecurity(otpserver, otpport, otpsecret);
+					validotptype = true;
+				}
+				if (otptype.equals("STUB")) {
+					otpsecurity = new OTPSecurity();
+					validotptype = true;
+				}
+				if (!validotptype)
+					throw new RuntimeException("Invalid OTP.TYPE " + otptype);
+			}
 			mainlogger.info(serverstartuptimer.logTimer(" STARTUP STEP 6: initiate security engine"));
 
 			// ------------------------------- INITIATE LISTENER ------------------------
@@ -346,8 +374,10 @@ public class OLcServer {
 					}
 				}
 			} else {
-				System.err.println(" Unexpected error before main logger setup "+t.getClass().getName()+" "+t.getMessage());
-				for (int i=0;i<t.getStackTrace().length;i++) System.err.println("   * "+t.getStackTrace()[i]);
+				System.err.println(
+						" Unexpected error before main logger setup " + t.getClass().getName() + " " + t.getMessage());
+				for (int i = 0; i < t.getStackTrace().length; i++)
+					System.err.println("   * " + t.getStackTrace()[i]);
 			}
 		}
 	}
@@ -728,6 +758,7 @@ public class OLcServer {
 
 	private ThreadLocal<String> connectionip = new ThreadLocal<String>();
 	private ThreadLocal<String> connectioncid = new ThreadLocal<String>();
+	private ThreadLocal<Boolean> otpauthorization = new ThreadLocal<Boolean>();
 	private ThreadLocal<DataObjectId<Appuser>> connectionuserid = new ThreadLocal<DataObjectId<Appuser>>();
 	private ThreadLocal<Integer> currentriggerexecution = new ThreadLocal<Integer>();
 	private ThreadLocal<Long> sequenceperthread = new ThreadLocal<Long>();
@@ -803,6 +834,24 @@ public class OLcServer {
 		connectioncid.set(cid);
 	}
 
+	/**
+	 * get the OTP authorization
+	 * 
+	 * @return a true Boolean if OTP has been confirmed for this thread
+	 * @since 1.10
+	 */
+	public Boolean getOTPForConnection() {
+		return this.otpauthorization.get();
+	}
+	
+	/**
+	 * set the OTP Authorization for the current thread
+	 * @since 1.10
+	 */
+	public void setOTPForConnection() {
+		this.otpauthorization.set(Boolean.TRUE);
+	}
+	
 	/**
 	 * @return gets the client id for the connection for the calling thread
 	 */

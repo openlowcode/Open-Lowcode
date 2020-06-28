@@ -329,7 +329,6 @@ public class ServerConnection
 			if (module == null)
 				throw new RuntimeException("Module specified does not exist " + parsedlinkinfo.getModule());
 			if (parsedlinkinfo.getAction() == null) {
-				// TODO add processing in case page is specified
 				action = module.getActionForDefaultPage();
 			} else {
 				action = module.getAction(parsedlinkinfo.getAction());
@@ -639,9 +638,9 @@ public class ServerConnection
 						File clienttodownload = new File("." + File.separator + "client" + File.separator
 								+ OLcServer.getServer().getClientJar());
 						if (!clienttodownload.exists()) {
-							writer.sendMessageError(9999, "Client file missing on server " + clienttodownload
+							writer.sendMessageError(9999, "Client file missing on server " + clienttodownload.getAbsolutePath()
 									+ ". Please contact technical support.");
-							logger.severe("Download client requested download failed, file " + clienttodownload
+							logger.severe("Download client requested download failed, file " + clienttodownload.getAbsolutePath()
 									+ " does not exists");
 						} else {
 							byte[] filecontent = new byte[(int) clienttodownload.length()];
@@ -831,6 +830,9 @@ public class ServerConnection
 		SecurityBuffer buffer = new SecurityBuffer();
 		ActionAuthorization thisactionauthorization = isAuthorized(action, actiondata, buffer);
 		if (thisactionauthorization.getAuthorization() != ActionAuthorization.NOT_AUTHORIZED) {
+			if (action.getParentModule().IsRestriction()) {
+				writer.sendMessageError(9999, "You should connect through OTP to access this action " + action.getName());
+			} else 
 			try { // this is too precisely located. Should catch exception wider
 				logAction(action);
 				OLcServer.getServer().resetTriggersList(); // reset remote server list for thread;
@@ -880,14 +882,22 @@ public class ServerConnection
 	public void sendClientVersionError(MessageWriter writer, String clientversion) throws IOException {
 		writer.startNewMessage();
 		writer.startStructure("CLIENTUPDATE");
-		writer.addStringField("CLV", clientversion);
-		writer.addStringField("SVV", OLcVersion.referenceclientversion);
+		writer.startStructure("RQSATRS");
+		writeRequestAttribute(writer,"CLV", clientversion);
+		writeRequestAttribute(writer,"SVV", OLcVersion.referenceclientversion);		
+		writer.endStructure("RQSATRS");
+
 		writer.addDateField("SVD", OLcVersion.versiondate);
 		writer.endStructure("CLIENTUPDATE");
 		writer.endMessage();
 		writer.flushMessage();
 	}
-
+	public void writeRequestAttribute(MessageWriter writer,String name,String attribute) throws IOException {
+		writer.startStructure("RQSATR");
+		writer.addStringField("NAM",name);
+		writer.addStringField("VAL",attribute);
+		writer.endStructure("RQSATR");
+	}
 	/**
 	 * sends a page
 	 * 
@@ -908,7 +918,8 @@ public class ServerConnection
 		writer.startNewMessage();
 		writer.startStructure("DISPLAYPAGE");
 		String cid = server.getCidForConnection();
-		writer.addStringField("CID", cid);
+		writer.startStructure("RQSATRS");
+		writeRequestAttribute(writer,"CID",cid);
 		String locale = "";
 		if (cid != null)
 			if (cid.length() > 0) {
@@ -917,11 +928,25 @@ public class ServerConnection
 					if (user.getPreflang() != null)
 						locale = user.getPreflang().getStorageCode();
 			}
-		writer.addStringField("LCL", locale);
-		writer.addStringField("NAME", page.getName());
+		writeRequestAttribute(writer,"LCL", locale);
+		writeRequestAttribute(writer,"NAME", page.getName());
 		if (page.hasAdress())
-			writer.addStringField("ADDRESS", page.getAddress());
-		writer.addStringField("TITLE", page.getTitle());
+			writeRequestAttribute(writer,"ADDRESS", page.getAddress());
+		writeRequestAttribute(writer,"TITLE", page.getTitle());
+		boolean serverhasotp = false; 
+		if (OLcServer.getServer().getOTPSecurityManager()!=null) serverhasotp=true;
+		boolean userhasconfirmedotp=false;
+		Boolean otpthread = OLcServer.getServer().getOTPForConnection();
+		if (otpthread!=null) if (otpthread.booleanValue()) userhasconfirmedotp=true;
+		String otpstatus = "NONE";
+		if (serverhasotp) {
+			if (userhasconfirmedotp) otpstatus = "VALID";
+			if (!userhasconfirmedotp) otpstatus = "INVALID";
+		}
+		writeRequestAttribute(writer,"OTPSTATUS",otpstatus);
+		writer.endStructure("RQSATRS");
+		
+
 		writer.startStructure("CONTENT");
 		SPageData data = page.getAllFinalPageAttributes();
 		String pageblank = null;

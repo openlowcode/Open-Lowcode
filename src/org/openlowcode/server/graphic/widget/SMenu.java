@@ -28,6 +28,7 @@ import org.openlowcode.tools.messages.MessageWriter;
 public class SMenu {
 	private ArrayList<SMenuItem> menuitemlist;
 	private String label;
+	private String icon;
 
 	/**
 	 * creates a menu for the given page and the given label
@@ -38,7 +39,31 @@ public class SMenu {
 	public SMenu(SPage parentpage, String label) {
 
 		this.label = label;
+		this.icon = null;
 		menuitemlist = new ArrayList<SMenuItem>();
+	}
+
+	/**
+	 * creates a menu for the given page and the given label
+	 * 
+	 * @param parentpage parent page
+	 * @param label      label in default language
+	 * @param iconpath   path of the icon on the client package
+	 * @since 1.10
+	 */
+	public SMenu(SPage parentpage, String label, String iconpath) {
+		this(parentpage,label);
+		this.icon = iconpath;
+	}
+	
+	/**
+	 * Specifies an icon to show on the menu
+	 * 
+	 * @param iconpath path of the icon on the client package
+	 * @since 1.10
+	 */
+	public void setIcon(String iconpath) {
+		this.icon = iconpath;
 	}
 
 	/**
@@ -77,6 +102,7 @@ public class SMenu {
 	public void writeToOLcMessage(MessageWriter writer, SPageData input, SecurityBuffer buffer) throws IOException {
 		writer.startStructure("MENU");
 		writer.addStringField("LBL", label);
+		writer.addStringField("ICN", icon);
 		writer.startStructure("ITMS");
 		for (int i = 0; i < menuitemlist.size(); i++) {
 			SMenuItem menuitem = menuitemlist.get(i);
