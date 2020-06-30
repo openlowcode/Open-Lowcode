@@ -12,20 +12,28 @@ package org.openlowcode.client.runtime;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.logging.Logger;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+import org.openlowcode.tools.enc.AESCommunicator;
 import org.openlowcode.tools.messages.MessageBufferedWriter;
 import org.openlowcode.tools.messages.MessageElement;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.MessageSimpleReader;
 import org.openlowcode.tools.messages.MessageWriter;
-import org.openlowcode.tools.messages.OLcRemoteException;
+import org.openlowcode.tools.messages.SFile;
 
 /**
  * Wraps the socket connection to the Open Lowcode server, and includes relaunch
@@ -43,7 +51,12 @@ public class ConnectionToServer {
 	private String server = null;
 	private int port = -1;
 	private boolean relevant;
+	private AESCommunicator aescommunicator;
 
+	public String decryptwithaeskey(byte[] encryptedcontent) throws Exception {
+		return aescommunicator.decryptandunzip(encryptedcontent);
+	}
+	
 	/**
 	 * Should include all actions to send a full command to the server. The
 	 * ConnectionToServer may relaunch it several times in case of interruption of
@@ -66,12 +79,10 @@ public class ConnectionToServer {
 	 * 
 	 * @param writertoserver function to send the message to the server
 	 * @return the first message element
-	 * @throws UnknownHostException
-	 * @throws IOException
-	 * @throws OLcRemoteException 
+	 * @throws Exception 
 	 */
 
-	public MessageElement sendMessage(WriterToServer writertoserver) throws UnknownHostException, IOException, OLcRemoteException {
+	public MessageElement sendMessage(WriterToServer writertoserver) throws Exception {
 		int index = 0;
 		boolean sent = false;
 		while ((index < 2) && (!sent)) {
@@ -79,20 +90,27 @@ public class ConnectionToServer {
 				if (clientsocket == null) {
 					initConnection();
 				}
-
-				writertoserver.apply(writer);
+				CharArrayWriter encryptedmessageloc = new CharArrayWriter();
+				MessageBufferedWriter writertoencrypt = new MessageBufferedWriter(new BufferedWriter(encryptedmessageloc), false); 
+				writertoserver.apply(writertoencrypt);
+				writertoencrypt.flushMessage();
+				String messagetoencrypt = encryptedmessageloc.toString();
+				writertoencrypt.close();
+				byte[]encodedmessagetosend = aescommunicator.zipandencrypt(messagetoencrypt);
+				writer.startNewMessage();
+				writer.startStructure("ENCMES");
+				writer.addLongBinaryField("ENCMES",new SFile("ENC",encodedmessagetosend));
+				writer.endStructure("ENCMES");
+				writer.endMessage();
+				
+				
+				
 				sent = true;
 				return reader.getNextElement();
 				
 			} catch (IOException e) {
 				logger.warning("Client disconnected");
-				clientsocket = new Socket(server, new Integer(port).intValue());
-				reader = new MessageSimpleReader(new BufferedReader(
-						new InputStreamReader(clientsocket.getInputStream(), Charset.forName("UTF-8")), 9090));
-				writer = new MessageBufferedWriter(
-						new BufferedWriter(
-								new OutputStreamWriter(clientsocket.getOutputStream(), Charset.forName("UTF-8"))),
-						true);
+				initConnection();
 				index++;
 			}
 		}
@@ -140,7 +158,7 @@ public class ConnectionToServer {
 	 * @return the full address (with server URL)
 	 * @throws IOException
 	 */
-	public String connectToAddressAndGetApplication(String address) throws IOException {
+	public String connectToAddressAndGetApplication(String address) throws Exception {
 		int localport = 8080;
 		int columnindex = address.indexOf(':');
 		int slashindex = address.indexOf('/');
@@ -168,7 +186,7 @@ public class ConnectionToServer {
 		return application;
 	}
 
-	private void initConnection() throws IOException {
+	private void initConnection() throws Exception {
 
 		clientsocket = new Socket(server, new Integer(port).intValue());
 		InputStreamReader streamreader = new InputStreamReader(clientsocket.getInputStream(), Charset.forName("UTF-8"));
@@ -181,8 +199,39 @@ public class ConnectionToServer {
 		logger.fine("OutputStream reader encoding" + socketoutputstream.getEncoding());
 		BufferedWriter bufferedwriter = new BufferedWriter(socketoutputstream);
 		writer = new MessageBufferedWriter(bufferedwriter, true);
+		performSecurityHandshake();
+		
 	}
 
+	private void performSecurityHandshake() throws Exception {
+		reader.returnNextMessageStart();
+		reader.returnNextStartStructure("RSAKEY");
+		byte[] rsapublickey = reader.returnNextLargeBinary("PUBLICKEY").getContent();
+		reader.returnNextEndStructure("RSAKEY");
+		reader.returnNextEndMessage();
+		
+		// ----------------------Generate AES Key --------------------------------------
+		KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+		keyGen.init(256); 
+		SecretKey secretKey = keyGen.generateKey();
+		byte[] aeskey = secretKey.getEncoded();
+		
+		// ----------- keep AES keys ----
+		aescommunicator = new AESCommunicator(secretKey);
+		// --- Encrypt AES key with RSA key ----
+		
+		KeyFactory kf = KeyFactory.getInstance("RSA");
+		PublicKey rsapublickeyasobject = kf.generatePublic(new X509EncodedKeySpec(rsapublickey));
+		Cipher encryptrsacipher = Cipher.getInstance("RSA");
+		encryptrsacipher.init(Cipher.ENCRYPT_MODE, rsapublickeyasobject);
+		byte[] aeskeyencoded = encryptrsacipher.doFinal(aeskey);
+		writer.startNewMessage();
+		writer.startStructure("SESAESKEY");
+		writer.addLongBinaryField("AESKEY",new SFile("Aeskey",aeskeyencoded));
+		writer.endStructure("SESAESKEY");
+		writer.endMessage();
+	}
+	
 	/**
 	 * @return the reader of this connection
 	 */

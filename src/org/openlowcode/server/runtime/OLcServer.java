@@ -26,6 +26,9 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.crypto.Cipher;
+
+import org.openlowcode.tools.enc.AESCommunicator;
 import org.openlowcode.tools.enc.OLcEncrypter;
 import org.openlowcode.tools.encrypt.EncrypterHolder;
 import org.openlowcode.tools.misc.NamedList;
@@ -160,7 +163,7 @@ public class OLcServer {
 	public OTPSecurity getOTPSecurityManager() {
 		return this.otpsecurity;
 	}
-	
+
 	/**
 	 * Creates the server with all the attributes provided in the configuration file
 	 * 
@@ -758,6 +761,8 @@ public class OLcServer {
 
 	private ThreadLocal<String> connectionip = new ThreadLocal<String>();
 	private ThreadLocal<String> connectioncid = new ThreadLocal<String>();
+	private ThreadLocal<AESCommunicator> aescommunicator = new ThreadLocal<AESCommunicator>();
+	private ThreadLocal<Cipher> decryptcipher = new ThreadLocal<Cipher>();
 	private ThreadLocal<Boolean> otpauthorization = new ThreadLocal<Boolean>();
 	private ThreadLocal<DataObjectId<Appuser>> connectionuserid = new ThreadLocal<DataObjectId<Appuser>>();
 	private ThreadLocal<Integer> currentriggerexecution = new ThreadLocal<Integer>();
@@ -807,6 +812,28 @@ public class OLcServer {
 	}
 
 	/**
+	 * set the encrypt cipher for the client connection
+	 * 
+	 * @param AES communicator for the connection thread to the client
+	 * @since 1.10
+	 */
+	public void setAESCommunicator(AESCommunicator communicator) {
+		this.aescommunicator.set(communicator);
+	}
+
+
+
+	/**
+	 * @return the aes cipher for encryption for the current connection
+	 * @since 1.10
+	 */
+	public AESCommunicator getAESCommunicator() {
+		return this.aescommunicator.get();
+	}
+
+
+
+	/**
 	 * sets the user if for the connection for the calling thread
 	 * 
 	 * @param appuserid userid for the calling thread
@@ -843,15 +870,16 @@ public class OLcServer {
 	public Boolean getOTPForConnection() {
 		return this.otpauthorization.get();
 	}
-	
+
 	/**
 	 * set the OTP Authorization for the current thread
+	 * 
 	 * @since 1.10
 	 */
 	public void setOTPForConnection() {
 		this.otpauthorization.set(Boolean.TRUE);
 	}
-	
+
 	/**
 	 * @return gets the client id for the connection for the calling thread
 	 */

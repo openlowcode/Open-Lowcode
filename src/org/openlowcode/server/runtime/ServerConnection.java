@@ -12,6 +12,7 @@ package org.openlowcode.server.runtime;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.CharArrayReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,8 +28,14 @@ import java.util.Date;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.openlowcode.tools.enc.AESCommunicator;
 import org.openlowcode.tools.messages.MessageBufferedWriter;
 import org.openlowcode.tools.messages.MessageElement;
+import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.MessageSimpleReader;
 import org.openlowcode.tools.messages.MessageStartStructure;
 import org.openlowcode.tools.messages.MessageStringField;
@@ -309,6 +316,34 @@ public class ServerConnection
 	}
 
 	/**
+	 * this method will send the RSA public key to the client, and the client will
+	 * then send the AES key to be used for further exchange
+	 * 
+	 * @param reader message reader to the client
+	 * @param writer message writer to the client
+	 * @throws Exception
+	 * @since 1.10
+	 */
+	public void performSecurityHandshake(MessageSimpleReader reader, MessageBufferedWriter writer) throws Exception {
+		writer.startNewMessage();
+		writer.startStructure("RSAKEY");
+		byte[] rsapublickey = OLcServer.getServer().getSecuritymanager().getMainRSAPublicKey();
+		writer.addLongBinaryField("PUBLICKEY", new SFile("PUBLICKEY", rsapublickey));
+		writer.endStructure("RSAKEY");
+		writer.endMessage();
+
+		reader.returnNextMessageStart();
+		reader.returnNextStartStructure("SESAESKEY");
+		byte[] encryptedaeskey = reader.returnNextLargeBinary("AESKEY").getContent();
+		byte[] decryptedaeskey = OLcServer.getServer().getSecuritymanager().decodeWithRSAPrivateKey(encryptedaeskey);
+		SecretKey aeskey = new SecretKeySpec(decryptedaeskey, 0, decryptedaeskey.length, "AES");
+		OLcServer.getServer().setAESCommunicator(new AESCommunicator(aeskey));
+		reader.returnNextEndStructure("SESAESKEY");
+		reader.returnNextEndMessage();
+		logger.info("    ---- successfull security handshacke with client --- ");
+	}
+
+	/**
 	 * launches the action corresponding to the CLink, or throw a RuntimeException
 	 * else
 	 * 
@@ -352,6 +387,223 @@ public class ServerConnection
 
 	}
 
+	private boolean requestdecodedquery(String majorquery, MessageBufferedWriter writer, MessageSimpleReader reader)
+			throws OLcRemoteException, IOException {
+
+		if (majorquery.compareTo("REQUEST") == 0) {
+
+			boolean requesttreated = false;
+			// reads optional string sessionid attribute
+			MessageElement element = reader.getNextElement();
+
+			if (element instanceof MessageStringField) {
+				// detected session id
+				MessageStringField cid = (MessageStringField) element;
+				if (cid.getFieldName().compareTo("CID") != 0)
+					throw new RuntimeException(
+							"expected CID as first attribute of request, got " + cid.getFieldcontent());
+				server.setCidForConnection(cid.getFieldcontent());
+				// get next
+				element = reader.getNextElement();
+			} else {
+				// if no session id, generate a new one
+				server.setCidForConnection(server.generateCid());
+			}
+			if (!(element instanceof MessageStartStructure))
+				throw new RuntimeException("Expecting start structure, got " + element);
+			String minorquery = ((MessageStartStructure) element).getStructurename();
+
+			if (minorquery.compareTo("CLINK") == 0) {
+				requesttreated = true;
+				String address = reader.returnNextStringField("VALUE");
+
+				reader.returnNextEndStructure("CLINK");
+				String clientversion = reader.returnNextStringField("CVR");
+				if (OLcVersion.compareWithClientVersion(clientversion) > 0) {
+					/*
+					 * SPage clientversionerrorpage =
+					 * ClientversionerrorAction.get().executeAndShowPage(clientversion);
+					 * this.sendPage(clientversionerrorpage, writer, null);
+					 */
+					if (clientversion.compareTo("0.32") <= 0)
+						throw new RuntimeException(
+								"Automatic client upgrade not supported for version 0.32 of client and below.");
+					this.sendClientVersionError(writer, clientversion);
+				} else {
+					processCLink(address, writer);
+				}
+			} // ------------------- END OF CLINK
+			if (minorquery.compareTo("ACTION") == 0) {
+				requesttreated = true;
+				String actionname = reader.returnNextStringField("NAME");
+				String modulename = reader.returnNextStringField("MODULE");
+				reader.startStructureArray("PAGBUF");
+				// new v0.69 -- read Buffer Spec ---
+				ArrayList<PageBufferSpec> clientpagesinbuffer = new ArrayList<PageBufferSpec>();
+				while (reader.structureArrayHasNextElement("PAGBUF")) {
+					PageBufferSpec bufferspec = new PageBufferSpec(reader);
+					clientpagesinbuffer.add(bufferspec);
+				}
+				// ------------ read Buffer Spec ---
+				SActionData actiondata = new SActionData(reader);
+
+				SModule module = server.getModuleByName(modulename);
+
+				if (module == null)
+					throw new RuntimeException(String.format("Module unknown %s for action request %s coming from ip",
+							modulename, actionname, ip));
+				ActionExecution action = module.getAction(actionname);
+				if (action == null)
+					throw new RuntimeException(String.format("In module %s,  action unknown %s coming from ip",
+							modulename, actionname, ip));
+
+				DataObjectId<
+						Appuser> userid = server.getSecuritymanager().isValidSession(ip, server.getCidForConnection());
+				if (actionname.compareTo("LOGIN") == 0) {
+					try {
+						SPage answerpage = action.executeActionFromGUI(actiondata);
+						if (answerpage != null) {
+							this.sendPage(answerpage, writer, null, null);
+							logger.info("sent page " + answerpage.getName() + "for action " + actionname
+									+ " to to ip = " + ip + ", for unconnected session ");
+						}
+
+						if (answerpage == null) {
+							// Start of logic to go to previously requested page
+
+							DataElt contextaction = actiondata.lookupAttributeOnName("CONTEXTACTION");
+							if (contextaction == null)
+								throw new RuntimeException("was expecting context data from login action, got nothing");
+							if (!(contextaction instanceof TextDataElt))
+								throw new RuntimeException(
+										"was expecting context data from login action to be text, got "
+												+ contextaction.getClass().getCanonicalName());
+							TextDataElt contextactiontext = (TextDataElt) contextaction;
+							String actionmessage = contextactiontext.getPayload();
+							MessageSimpleReader contactactionreader = new MessageSimpleReader(
+									new StringReader(actionmessage));
+							contactactionreader.returnNextMessageStart();
+							contactactionreader.returnNextStartStructure("CONTEXT");
+							String embeddedactionname = contactactionreader.returnNextStringField("NAME");
+							String embeddedmodulename = contactactionreader.returnNextStringField("MODULE");
+							SActionData embeddedactiondata = new SActionData(contactactionreader);
+							contactactionreader.returnNextEndStructure("CONTEXT");
+							contactactionreader.returnNextEndMessage();
+							contactactionreader.close();
+							// here no need to check that the user exists. However, gets it
+							DataObjectId<Appuser> embeddedactionuserid = server.getSecuritymanager().isValidSession(ip,
+									server.getCidForConnection());
+
+							SModule embeddedmodule = server.getModuleByName(embeddedmodulename);
+
+							if (embeddedmodule == null)
+								throw new RuntimeException(String.format(
+										"Module unknown %s for action request %s coming from ip embedded in login",
+										embeddedmodulename, actionname, ip));
+							ActionExecution embeddedaction = embeddedmodule.getAction(embeddedactionname);
+							if (embeddedaction == null)
+								throw new RuntimeException(String.format(
+										"In module %s,  action unknown %s coming from ip embedded in login ",
+										embeddedmodulename, embeddedmodulename, ip));
+							executeAction(embeddedactionuserid, embeddedaction, embeddedactiondata, writer);
+
+						}
+					} catch (Throwable t) {
+						treatThrowable(t, actionname, userid, writer);
+					}
+
+				} else {
+					if (userid != null) {
+						executeAction(userid, action, actiondata, writer, clientpagesinbuffer);
+
+					} else {
+						setLoginWithContextAction(action, actiondata, writer);
+
+					}
+				}
+				reader.returnNextEndStructure("ACTION"); // close REQUEST SECOND LEVEL
+			}
+
+			if (minorquery.compareTo("INLINEACTION") == 0) {
+				requesttreated = true;
+
+				String actionname = reader.returnNextStringField("NAME");
+				String modulename = reader.returnNextStringField("MODULE");
+				SActionData actiondata = new SActionData(reader);
+				SModule module = server.getModuleByName(modulename);
+				if (module == null)
+					throw new RuntimeException(String.format("Module unknown %s for action request %s coming from ip",
+							modulename, actionname, ip));
+				ActionExecution action = module.getAction(actionname);
+				if (action == null)
+					throw new RuntimeException(String.format("In module %s,  action unknown %s coming from ip",
+							modulename, actionname, ip));
+				DataObjectId<
+						Appuser> userid = server.getSecuritymanager().isValidSession(ip, server.getCidForConnection());
+				if (userid != null) {
+					try {
+						SecurityBuffer buffer = new SecurityBuffer();
+						ActionAuthorization thisactionauthorization = isAuthorized(action, actiondata, buffer);
+						if (thisactionauthorization.getAuthorization() != ActionAuthorization.NOT_AUTHORIZED) {
+							long requeststart = System.currentTimeMillis();
+							logger.info("executing inline action " + modulename + "." + actionname);
+							try {
+								logAction(action);
+								OLcServer.getServer().resetTriggersList(); // reset remote trigger list for
+																			// thread
+								SPageData inlineanswer;
+								if (thisactionauthorization.getAuthorization() == ActionAuthorization.AUTHORIZED) {
+									inlineanswer = action.executeInlineAction(actiondata);
+								} else {
+									// potentially authorized, action is executed with a data filter for the
+									// main query
+									inlineanswer = action.executeInlineAction(actiondata,
+											thisactionauthorization.getAdditionalconditiongenerator());
+								}
+								OLcServer.getServer().executeTriggerList(); // execute remote trigger list
+																			// for thread
+								long requestend = System.currentTimeMillis();
+								logger.info("executed inline action " + modulename + "." + actionname
+										+ ", execution time = " + (requestend - requeststart) + "ms");
+								reader.returnNextEndStructure("INLINEACTION");
+								this.sendInlineData(inlineanswer, writer);
+								logger.info("sent inlinedata from page " + action.getName() + "to to ip = " + ip
+										+ ", for session of user " + userid.getId());
+							} catch (Throwable t) {
+								treatThrowable(t, actionname, userid, writer);
+							}
+
+						} else {
+							writer.sendMessageError(9999, "Not Authorized for the action " + action.getName());
+
+						}
+					} catch (Exception e) {
+						logger.warning("------------------ Error in inline action -------------- ");
+						treatThrowable(e, actionname, userid, writer);
+					}
+
+				} else {
+					SPage loginpage = new SimpleloginPage("");
+					this.sendPage(loginpage, writer, null, null);
+					logger.info("sent login page to to ip = " + ip + " for inlineaction " + actionname);
+				}
+
+			}
+
+			// ----------------------------------------------------------
+			// END OF INLINE ACTION
+			// ----------------------------------------------------------
+
+			if (!requesttreated)
+				throw new RuntimeException(String.format("The request type is invalid :" + minorquery, ip));
+
+			reader.returnNextEndStructure("REQUEST");
+			return true;
+		}
+		logger.severe("Invalid message in encrypted request, type = "+majorquery);
+		return false;
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -368,6 +620,8 @@ public class ServerConnection
 			logger.info("Received new connection from " + ip);
 			logger.info("audit of connection encoding : inbound " + inputstreamreader.getEncoding() + ", outbound = "
 					+ outputstreamwriter.getEncoding());
+
+			performSecurityHandshake(reader, writer);
 
 			labelloop: while ((socket.isConnected()) && (!socket.isClosed())) {
 				// read one CML message
@@ -413,222 +667,37 @@ public class ServerConnection
 
 					boolean majorquerytreated = false;
 					String majorquery = reader.returnNextStartStructure();
-					if (majorquery.compareTo("REQUEST") == 0) {
-						majorquerytreated = true;
-						boolean requesttreated = false;
-						// reads optional string sessionid attribute
-						MessageElement element = reader.getNextElement();
+					if (majorquery.equals("ENCMES")) {
+						byte[] encryptedmessage = reader.returnNextLargeBinary("ENCMES").getContent();
+						String decryptedmessage = OLcServer.getServer().getAESCommunicator()
+								.decryptandunzip(encryptedmessage);
+						MessageSimpleReader specificmessagereader = new MessageSimpleReader(
+								new StringReader(decryptedmessage));
+						StringWriter writertoencrypt = new StringWriter();
+						MessageBufferedWriter specificmessagewriter = new MessageBufferedWriter(
+								new BufferedWriter(writertoencrypt), false);
+						specificmessagereader.returnNextMessageStart();
+						String majorqueryinsideencryption = specificmessagereader.returnNextStartStructure();
+						majorquerytreated = requestdecodedquery(majorqueryinsideencryption, specificmessagewriter,
+								specificmessagereader);
+						specificmessagereader.returnNextEndMessage();
+						if (majorquerytreated) {
+							specificmessagewriter.flushMessage();
+							byte[] encryptedresponse = OLcServer.getServer().getAESCommunicator()
+									.zipandencrypt(writertoencrypt.toString());
 
-						if (element instanceof MessageStringField) {
-							// detected session id
-							MessageStringField cid = (MessageStringField) element;
-							if (cid.getFieldName().compareTo("CID") != 0)
-								throw new RuntimeException(
-										"expected CID as first attribute of request, got " + cid.getFieldcontent());
-							server.setCidForConnection(cid.getFieldcontent());
-							// get next
-							element = reader.getNextElement();
-						} else {
-							// if no session id, generate a new one
-							server.setCidForConnection(server.generateCid());
-						}
-						if (!(element instanceof MessageStartStructure))
-							throw new RuntimeException("Expecting start structure, got " + element);
-						String minorquery = ((MessageStartStructure) element).getStructurename();
-
-						if (minorquery.compareTo("CLINK") == 0) {
-							requesttreated = true;
-							String address = reader.returnNextStringField("VALUE");
-
-							reader.returnNextEndStructure("CLINK");
-							String clientversion = reader.returnNextStringField("CVR");
-							if (OLcVersion.compareWithClientVersion(clientversion) > 0) {
-								/*
-								 * SPage clientversionerrorpage =
-								 * ClientversionerrorAction.get().executeAndShowPage(clientversion);
-								 * this.sendPage(clientversionerrorpage, writer, null);
-								 */
-								if (clientversion.compareTo("0.32") <= 0)
-									throw new RuntimeException(
-											"Automatic client upgrade not supported for version 0.32 of client and below.");
-								this.sendClientVersionError(writer, clientversion);
-							} else {
-								processCLink(address, writer);
-							}
-						} // ------------------- END OF CLINK
-						if (minorquery.compareTo("ACTION") == 0) {
-							requesttreated = true;
-							String actionname = reader.returnNextStringField("NAME");
-							String modulename = reader.returnNextStringField("MODULE");
-							reader.startStructureArray("PAGBUF");
-							// new v0.69 -- read Buffer Spec ---
-							ArrayList<PageBufferSpec> clientpagesinbuffer = new ArrayList<PageBufferSpec>();
-							while (reader.structureArrayHasNextElement("PAGBUF")) {
-								PageBufferSpec bufferspec = new PageBufferSpec(reader);
-								clientpagesinbuffer.add(bufferspec);
-							}
-							// ------------ read Buffer Spec ---
-							SActionData actiondata = new SActionData(reader);
-
-							SModule module = server.getModuleByName(modulename);
-
-							if (module == null)
-								throw new RuntimeException(
-										String.format("Module unknown %s for action request %s coming from ip",
-												modulename, actionname, ip));
-							ActionExecution action = module.getAction(actionname);
-							if (action == null)
-								throw new RuntimeException(String.format(
-										"In module %s,  action unknown %s coming from ip", modulename, actionname, ip));
-
-							DataObjectId<Appuser> userid = server.getSecuritymanager().isValidSession(ip,
-									server.getCidForConnection());
-							if (actionname.compareTo("LOGIN") == 0) {
-								try {
-									SPage answerpage = action.executeActionFromGUI(actiondata);
-									if (answerpage != null) {
-										this.sendPage(answerpage, writer, null, null);
-										logger.info("sent page " + answerpage.getName() + "for action " + actionname
-												+ " to to ip = " + ip + ", for unconnected session ");
-									}
-
-									if (answerpage == null) {
-										// Start of logic to go to previously requested page
-
-										DataElt contextaction = actiondata.lookupAttributeOnName("CONTEXTACTION");
-										if (contextaction == null)
-											throw new RuntimeException(
-													"was expecting context data from login action, got nothing");
-										if (!(contextaction instanceof TextDataElt))
-											throw new RuntimeException(
-													"was expecting context data from login action to be text, got "
-															+ contextaction.getClass().getCanonicalName());
-										TextDataElt contextactiontext = (TextDataElt) contextaction;
-										String actionmessage = contextactiontext.getPayload();
-										MessageSimpleReader contactactionreader = new MessageSimpleReader(
-												new StringReader(actionmessage));
-										contactactionreader.returnNextMessageStart();
-										contactactionreader.returnNextStartStructure("CONTEXT");
-										String embeddedactionname = contactactionreader.returnNextStringField("NAME");
-										String embeddedmodulename = contactactionreader.returnNextStringField("MODULE");
-										SActionData embeddedactiondata = new SActionData(contactactionreader);
-										contactactionreader.returnNextEndStructure("CONTEXT");
-										contactactionreader.returnNextEndMessage();
-										contactactionreader.close();
-										// here no need to check that the user exists. However, gets it
-										DataObjectId<Appuser> embeddedactionuserid = server.getSecuritymanager()
-												.isValidSession(ip, server.getCidForConnection());
-
-										SModule embeddedmodule = server.getModuleByName(embeddedmodulename);
-
-										if (embeddedmodule == null)
-											throw new RuntimeException(String.format(
-													"Module unknown %s for action request %s coming from ip embedded in login",
-													embeddedmodulename, actionname, ip));
-										ActionExecution embeddedaction = embeddedmodule.getAction(embeddedactionname);
-										if (embeddedaction == null)
-											throw new RuntimeException(String.format(
-													"In module %s,  action unknown %s coming from ip embedded in login ",
-													embeddedmodulename, embeddedmodulename, ip));
-										executeAction(embeddedactionuserid, embeddedaction, embeddedactiondata, writer);
-
-									}
-								} catch (Throwable t) {
-									treatThrowable(t, actionname, userid, writer);
-								}
-
-							} else {
-								if (userid != null) {
-									executeAction(userid, action, actiondata, writer, clientpagesinbuffer);
-
-								} else {
-									setLoginWithContextAction(action, actiondata, writer);
-
-								}
-							}
-							reader.returnNextEndStructure("ACTION"); // close REQUEST SECOND LEVEL
-						}
-
-						if (minorquery.compareTo("INLINEACTION") == 0) {
-							requesttreated = true;
-
-							String actionname = reader.returnNextStringField("NAME");
-							String modulename = reader.returnNextStringField("MODULE");
-							SActionData actiondata = new SActionData(reader);
-							SModule module = server.getModuleByName(modulename);
-							if (module == null)
-								throw new RuntimeException(
-										String.format("Module unknown %s for action request %s coming from ip",
-												modulename, actionname, ip));
-							ActionExecution action = module.getAction(actionname);
-							if (action == null)
-								throw new RuntimeException(String.format(
-										"In module %s,  action unknown %s coming from ip", modulename, actionname, ip));
-							DataObjectId<Appuser> userid = server.getSecuritymanager().isValidSession(ip,
-									server.getCidForConnection());
-							if (userid != null) {
-								try {
-									SecurityBuffer buffer = new SecurityBuffer();
-									ActionAuthorization thisactionauthorization = isAuthorized(action, actiondata,
-											buffer);
-									if (thisactionauthorization
-											.getAuthorization() != ActionAuthorization.NOT_AUTHORIZED) {
-										long requeststart = System.currentTimeMillis();
-										logger.info("executing inline action " + modulename + "." + actionname);
-										try {
-											logAction(action);
-											OLcServer.getServer().resetTriggersList(); // reset remote trigger list for
-																						// thread
-											SPageData inlineanswer;
-											if (thisactionauthorization
-													.getAuthorization() == ActionAuthorization.AUTHORIZED) {
-												inlineanswer = action.executeInlineAction(actiondata);
-											} else {
-												// potentially authorized, action is executed with a data filter for the
-												// main query
-												inlineanswer = action.executeInlineAction(actiondata,
-														thisactionauthorization.getAdditionalconditiongenerator());
-											}
-											OLcServer.getServer().executeTriggerList(); // execute remote trigger list
-																						// for thread
-											long requestend = System.currentTimeMillis();
-											logger.info("executed inline action " + modulename + "." + actionname
-													+ ", execution time = " + (requestend - requeststart) + "ms");
-											reader.returnNextEndStructure("INLINEACTION");
-											this.sendInlineData(inlineanswer, writer);
-											logger.info("sent inlinedata from page " + action.getName() + "to to ip = "
-													+ ip + ", for session of user " + userid.getId());
-										} catch (Throwable t) {
-											treatThrowable(t, actionname, userid, writer);
-										}
-
-									} else {
-										writer.sendMessageError(9999,
-												"Not Authorized for the action " + action.getName());
-
-									}
-								} catch (Exception e) {
-									logger.warning("------------------ Error in inline action -------------- ");
-									treatThrowable(e, actionname, userid, writer);
-								}
-
-							} else {
-								SPage loginpage = new SimpleloginPage("");
-								this.sendPage(loginpage, writer, null, null);
-								logger.info("sent login page to to ip = " + ip + " for inlineaction " + actionname);
-							}
+							writer.startNewMessage();
+							writer.startStructure("ENCRES");
+							writer.addLongBinaryField("RESMES", new SFile("PLD", encryptedresponse));
+							writer.endStructure("ENCRES");
+							writer.endMessage();
 
 						}
-
-						// ----------------------------------------------------------
-						// END OF INLINE ACTION
-						// ----------------------------------------------------------
-
-						if (!requesttreated)
-							throw new RuntimeException(String.format("The request type is invalid :" + minorquery, ip));
-
-						reader.returnNextEndStructure("REQUEST");
+						reader.returnNextEndStructure("ENCMES");
+						specificmessagewriter.close();
+						specificmessagereader.close();
 					}
+
 					if (majorquery.equals("DOWNLOADCLIENT")) {
 						majorquerytreated = true;
 						reader.returnNextEndStructure("DOWNLOADCLIENT");
@@ -638,10 +707,10 @@ public class ServerConnection
 						File clienttodownload = new File("." + File.separator + "client" + File.separator
 								+ OLcServer.getServer().getClientJar());
 						if (!clienttodownload.exists()) {
-							writer.sendMessageError(9999, "Client file missing on server " + clienttodownload.getAbsolutePath()
-									+ ". Please contact technical support.");
-							logger.severe("Download client requested download failed, file " + clienttodownload.getAbsolutePath()
-									+ " does not exists");
+							writer.sendMessageError(9999, "Client file missing on server "
+									+ clienttodownload.getAbsolutePath() + ". Please contact technical support.");
+							logger.severe("Download client requested download failed, file "
+									+ clienttodownload.getAbsolutePath() + " does not exists");
 						} else {
 							byte[] filecontent = new byte[(int) clienttodownload.length()];
 							FileInputStream fisfordownload = new FileInputStream(clienttodownload);
@@ -831,29 +900,30 @@ public class ServerConnection
 		ActionAuthorization thisactionauthorization = isAuthorized(action, actiondata, buffer);
 		if (thisactionauthorization.getAuthorization() != ActionAuthorization.NOT_AUTHORIZED) {
 			if (action.getParentModule().IsRestriction()) {
-				writer.sendMessageError(9999, "You should connect through OTP to access this action " + action.getName());
-			} else 
-			try { // this is too precisely located. Should catch exception wider
-				logAction(action);
-				OLcServer.getServer().resetTriggersList(); // reset remote server list for thread;
-				SPage answerpage;
-				if (thisactionauthorization.getAuthorization() == ActionAuthorization.AUTHORIZED) {
-					answerpage = action.executeActionFromGUI(actiondata);
-				} else {
-					answerpage = action.executeActionFromGUI(actiondata,
-							thisactionauthorization.getAdditionalconditiongenerator());
+				writer.sendMessageError(9999,
+						"You should connect through OTP to access this action " + action.getName());
+			} else
+				try { // this is too precisely located. Should catch exception wider
+					logAction(action);
+					OLcServer.getServer().resetTriggersList(); // reset remote server list for thread;
+					SPage answerpage;
+					if (thisactionauthorization.getAuthorization() == ActionAuthorization.AUTHORIZED) {
+						answerpage = action.executeActionFromGUI(actiondata);
+					} else {
+						answerpage = action.executeActionFromGUI(actiondata,
+								thisactionauthorization.getAdditionalconditiongenerator());
+					}
+					if (answerpage == null)
+						throw new RuntimeException("Action " + action.getName() + " / " + action.getClass().getName()
+								+ " brought back a null page");
+					this.sendPage(answerpage, writer, buffer, clientpagesinbuffer);
+
+					logger.info("sent page " + answerpage.getName() + "for action " + actionname + " to to ip = " + ip
+							+ ", for session of user " + userid.getId());
+				} catch (Throwable e) {
+					treatThrowable(e, actionname, userid, writer);
+
 				}
-				if (answerpage == null)
-					throw new RuntimeException("Action " + action.getName() + " / " + action.getClass().getName()
-							+ " brought back a null page");
-				this.sendPage(answerpage, writer, buffer, clientpagesinbuffer);
-
-				logger.info("sent page " + answerpage.getName() + "for action " + actionname + " to to ip = " + ip
-						+ ", for session of user " + userid.getId());
-			} catch (Throwable e) {
-				treatThrowable(e, actionname, userid, writer);
-
-			}
 		} else {
 			writer.sendMessageError(9999, "Not Authorized for the action " + action.getName());
 
@@ -883,8 +953,8 @@ public class ServerConnection
 		writer.startNewMessage();
 		writer.startStructure("CLIENTUPDATE");
 		writer.startStructure("RQSATRS");
-		writeRequestAttribute(writer,"CLV", clientversion);
-		writeRequestAttribute(writer,"SVV", OLcVersion.referenceclientversion);		
+		writeRequestAttribute(writer, "CLV", clientversion);
+		writeRequestAttribute(writer, "SVV", OLcVersion.referenceclientversion);
 		writer.endStructure("RQSATRS");
 
 		writer.addDateField("SVD", OLcVersion.versiondate);
@@ -892,12 +962,14 @@ public class ServerConnection
 		writer.endMessage();
 		writer.flushMessage();
 	}
-	public void writeRequestAttribute(MessageWriter writer,String name,String attribute) throws IOException {
+
+	public void writeRequestAttribute(MessageWriter writer, String name, String attribute) throws IOException {
 		writer.startStructure("RQSATR");
-		writer.addStringField("NAM",name);
-		writer.addStringField("VAL",attribute);
+		writer.addStringField("NAM", name);
+		writer.addStringField("VAL", attribute);
 		writer.endStructure("RQSATR");
 	}
+
 	/**
 	 * sends a page
 	 * 
@@ -919,7 +991,7 @@ public class ServerConnection
 		writer.startStructure("DISPLAYPAGE");
 		String cid = server.getCidForConnection();
 		writer.startStructure("RQSATRS");
-		writeRequestAttribute(writer,"CID",cid);
+		writeRequestAttribute(writer, "CID", cid);
 		String locale = "";
 		if (cid != null)
 			if (cid.length() > 0) {
@@ -928,24 +1000,28 @@ public class ServerConnection
 					if (user.getPreflang() != null)
 						locale = user.getPreflang().getStorageCode();
 			}
-		writeRequestAttribute(writer,"LCL", locale);
-		writeRequestAttribute(writer,"NAME", page.getName());
+		writeRequestAttribute(writer, "LCL", locale);
+		writeRequestAttribute(writer, "NAME", page.getName());
 		if (page.hasAdress())
-			writeRequestAttribute(writer,"ADDRESS", page.getAddress());
-		writeRequestAttribute(writer,"TITLE", page.getTitle());
-		boolean serverhasotp = false; 
-		if (OLcServer.getServer().getOTPSecurityManager()!=null) serverhasotp=true;
-		boolean userhasconfirmedotp=false;
+			writeRequestAttribute(writer, "ADDRESS", page.getAddress());
+		writeRequestAttribute(writer, "TITLE", page.getTitle());
+		boolean serverhasotp = false;
+		if (OLcServer.getServer().getOTPSecurityManager() != null)
+			serverhasotp = true;
+		boolean userhasconfirmedotp = false;
 		Boolean otpthread = OLcServer.getServer().getOTPForConnection();
-		if (otpthread!=null) if (otpthread.booleanValue()) userhasconfirmedotp=true;
+		if (otpthread != null)
+			if (otpthread.booleanValue())
+				userhasconfirmedotp = true;
 		String otpstatus = "NONE";
 		if (serverhasotp) {
-			if (userhasconfirmedotp) otpstatus = "VALID";
-			if (!userhasconfirmedotp) otpstatus = "INVALID";
+			if (userhasconfirmedotp)
+				otpstatus = "VALID";
+			if (!userhasconfirmedotp)
+				otpstatus = "INVALID";
 		}
-		writeRequestAttribute(writer,"OTPSTATUS",otpstatus);
+		writeRequestAttribute(writer, "OTPSTATUS", otpstatus);
 		writer.endStructure("RQSATRS");
-		
 
 		writer.startStructure("CONTENT");
 		SPageData data = page.getAllFinalPageAttributes();

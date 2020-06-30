@@ -11,7 +11,7 @@
 package org.openlowcode.client.runtime;
 
 import java.io.IOException;
-
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,11 +22,10 @@ import org.openlowcode.client.action.CActionData;
 import org.openlowcode.client.graphic.CPage;
 import org.openlowcode.client.graphic.CPageData;
 import org.openlowcode.client.runtime.PageActionManager.ActionSourceTransformer;
-
 import org.openlowcode.tools.messages.MessageElement;
 import org.openlowcode.tools.messages.MessageError;
 import org.openlowcode.tools.messages.MessageReader;
-
+import org.openlowcode.tools.messages.MessageSimpleReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
 import org.openlowcode.tools.misc.NiceFormatters;
 
@@ -108,10 +107,10 @@ public class ClientSession {
 	/**
 	 * sets the title on the active tab (corresponding to the active client display)
 	 * 
-	 * @param newtitle the text title to show
+	 * @param newtitle  the text title to show
 	 * @param otpstatus status of OTP connection
 	 */
-	public void setTitle(String newtitle,String otpstatus) {
+	public void setTitle(String newtitle, String otpstatus) {
 		logger.warning("   --- ---- Starting setting title ");
 		Tab tab = this.tabpane.getTabs().get(activedisplayindex);
 		if (otpstatus.equals("NONE")) {
@@ -123,12 +122,13 @@ public class ClientSession {
 		BorderPane borderpane = new BorderPane();
 		borderpane.setCenter(new Label(newtitle));
 		Color dotcolor = Color.LIGHTGREEN;
-		if (otpstatus.equals("INVALID")) dotcolor = Color.INDIANRED;
+		if (otpstatus.equals("INVALID"))
+			dotcolor = Color.INDIANRED;
 		Circle dot = new Circle(0, 0, 4);
 		dot.setFill(dotcolor);
 		dot.setStroke(Color.LIGHTGRAY);
 		borderpane.setRight(dot);
-		BorderPane.setAlignment(dot,Pos.CENTER);
+		BorderPane.setAlignment(dot, Pos.CENTER);
 		tab.setText("");
 		tab.setGraphic(borderpane);
 	}
@@ -397,7 +397,8 @@ public class ClientSession {
 					});
 
 					DisplayPageFeedback exceptionmessage = displayPage(firstelement, localconnectiontoserver,
-							activedisplay, startaction, techdetails, modulename, actionname, openinnewtab);
+							localconnectiontoserver.getReader(), activedisplay, startaction, techdetails, modulename,
+							actionname, openinnewtab);
 					setBusinessScreenFrozen(false, localconnectiontoserver);
 					long endaction = System.currentTimeMillis();
 					if (exceptionmessage.getErrormessage() != null) {
@@ -461,7 +462,8 @@ public class ClientSession {
 							});
 
 							DisplayPageFeedback exceptionmessage = displayPage(startelement, localconnectionfinal,
-									activedisplay, startaction, techdetails, null, null, false);
+									localconnectionfinal.getReader(), activedisplay, startaction, techdetails, null,
+									null, false);
 							long endaction = System.currentTimeMillis();
 							if (exceptionmessage.getErrormessage() != null) {
 
@@ -500,9 +502,7 @@ public class ClientSession {
 	 * @param module                  name of the module
 	 * @param action                  name of the line action
 	 * @return a feedback if processing happened well or not
-	 * @throws IOException        if any network breadkown
-	 * @throws OLcRemoteException if anythink bad happened on the server during the
-	 *                            request
+	 * @throws Exception 
 	 */
 	public DisplayPageFeedback enrichPageWithInlineData(
 			MessageElement startelement,
@@ -512,7 +512,7 @@ public class ClientSession {
 			long starttime,
 			boolean showtechdetails,
 			String module,
-			String action) throws IOException, OLcRemoteException {
+			String action) throws Exception {
 		MessageReader reader = localconnectiontoserver.getReader();
 		if (startelement instanceof MessageError) {
 			MessageError messageerror = (MessageError) startelement;
@@ -522,10 +522,23 @@ public class ClientSession {
 			return feedback;
 		}
 		activedisplay.updateStatusBar("receives INLINEDATA for action = " + action + ", starting reading");
-		reader.returnNextStartStructure("INLINEDATA");
-		CPageData newdata = new CPageData(reader);
-		reader.returnNextEndStructure("INLINEDATA");
+		reader.returnNextStartStructure("ENCRES");
+		byte[] encryptedmessage = reader.returnNextLargeBinary("RESMES").getContent();
+		String decryptedmessage = localconnectiontoserver.decryptwithaeskey(encryptedmessage);
+		logger.warning(" -------------- Decryptedmessage ------------------------");
+		logger.warning(decryptedmessage);
+		MessageSimpleReader specificmessagereader = new MessageSimpleReader(new StringReader(decryptedmessage));
+		@SuppressWarnings("unused")
+		MessageElement messagefirstelement = specificmessagereader.getNextElement();
+		
+		reader.returnNextEndStructure("ENCRES");
 		reader.returnNextEndMessage();
+
+		specificmessagereader.returnNextStartStructure("INLINEDATA");
+		CPageData newdata = new CPageData(specificmessagereader);
+		specificmessagereader.returnNextEndStructure("INLINEDATA");
+		specificmessagereader.returnNextEndMessage();
+		specificmessagereader.close();
 		String extrastatusmessage = "";
 		if (newdata.getMessage() != null)
 			if (newdata.getMessage().length() > 0)
@@ -561,20 +574,18 @@ public class ClientSession {
 	 * @param action                  name of the action
 	 * @param openinnewtab            true to open in new tabs
 	 * @return a feedback
-	 * @throws IOException        if any network breadkown
-	 * @throws OLcRemoteException if anythink bad happened on the server during the
-	 *                            request
+	 * @throws Exception
 	 */
 	public DisplayPageFeedback displayPage(
 			MessageElement startelement,
 			ConnectionToServer localconnectiontoserver,
+			MessageReader reader,
 			ClientDisplay activedisplay,
 			long starttime,
 			boolean showtechdetails,
 			String module,
 			String action,
-			boolean openinnewtab) throws IOException, OLcRemoteException {
-		MessageReader reader = localconnectiontoserver.getReader();
+			boolean openinnewtab) throws Exception {
 		logger.info("starts displaying page in thread " + Thread.currentThread().getId() + " for " + module + "."
 				+ action + " with openinnewtab=" + openinnewtab);
 		if (startelement instanceof MessageError) {
@@ -589,6 +600,21 @@ public class ClientSession {
 		String message = reader.returnNextStartStructure();
 		// ---------------------------- NORMAL CASE 1 DISPLAY PAGE
 		// ------------------------------------------------
+
+		if (message.compareTo("ENCRES") == 0) {
+			byte[] encryptedmessage = reader.returnNextLargeBinary("RESMES").getContent();
+			String decryptedmessage = localconnectiontoserver.decryptwithaeskey(encryptedmessage);
+			logger.warning(" -------------- Decryptedmessage ------------------------");
+			logger.warning(decryptedmessage);
+			MessageSimpleReader specificmessagereader = new MessageSimpleReader(new StringReader(decryptedmessage));
+			MessageElement messagefirstelement = specificmessagereader.getNextElement();
+			DisplayPageFeedback feedback = displayPage(messagefirstelement, localconnectiontoserver,
+					specificmessagereader, activedisplay, starttime, showtechdetails, module, action, openinnewtab);
+			specificmessagereader.close();
+			reader.returnNextEndStructure("ENCRES");
+			reader.returnNextEndMessage();
+			return feedback;
+		}
 
 		if (message.compareTo("DISPLAYPAGE") == 0) {
 			// processing cid
@@ -624,7 +650,7 @@ public class ClientSession {
 			reader.returnNextEndMessage();
 			logger.finer("finishes parsing");
 			if (localconnectiontoserver.isRelevant()) {
-				logger.warning(" Starting display page "+title+" - "+otpstatus);
+				logger.warning(" Starting display page " + title + " - " + otpstatus);
 				activedisplay.setandDisplayPage(title, otpstatus, fulladdress, page, address, starttime,
 						reader.charcountsinceStartMessage(), page.getBufferedDataUsed() / 1024,
 						this.pagebuffer.getTotalBufferSize() / 1024, showtechdetails, openinnewtab);
@@ -658,14 +684,14 @@ public class ClientSession {
 			reader.returnNextEndMessage();
 			CPage clientupgradepage = mainframe.getClientUpgradePage(clientversion, serverversion, serverversiondate);
 
-			activedisplay.setandDisplayPage("Client Upgrade","NONE", null, clientupgradepage,
+			activedisplay.setandDisplayPage("Client Upgrade", "NONE", null, clientupgradepage,
 					this.getActiveClientDisplay().getConnectionBar().getAddress().getText(), starttime,
 					reader.charcountsinceStartMessage(), 0, pagebuffer.getTotalBufferSize(), showtechdetails, false);
 
 			return new DisplayPageFeedback(null, reader.charcountsinceStartMessage(), null);
 		}
 
-		return new DisplayPageFeedback(null, reader.charcountsinceStartMessage(), null);
+		return new DisplayPageFeedback("Invalid message type " + message, reader.charcountsinceStartMessage(), null);
 
 	}
 

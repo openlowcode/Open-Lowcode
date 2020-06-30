@@ -10,10 +10,21 @@
 
 package org.openlowcode.server.security;
 
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import org.openlowcode.module.system.action.CreatesessionforuserAction;
 import org.openlowcode.module.system.action.GetsessionforclientAction;
@@ -47,6 +58,7 @@ public class SecurityManager
 	private String ldapuser = null;
 	private String ldappassword = null;
 	public HashMap<String, ServerSession> sessionsbyip;
+	private KeyPair servermainrsakeypair;
 
 	/**
 	 * @return the LDAP connection string
@@ -80,13 +92,46 @@ public class SecurityManager
 	 * @param ldapuser             service user to connect to the enterprise LDAP
 	 * @param ldappassword         service password to connect to the enterprise
 	 *                             LDAP
+	 * @throws NoSuchAlgorithmException
 	 */
-	public SecurityManager(String ldapconnectionstring, String ldapuser, String ldappassword) {
+	public SecurityManager(String ldapconnectionstring, String ldapuser, String ldappassword)
+			throws NoSuchAlgorithmException {
 		sessionsbyip = new HashMap<String, ServerSession>();
 		ServerSecurityBuffer.getUniqueInstance();
 		this.ldapconnectionstring = ldapconnectionstring;
 		this.ldapuser = ldapuser;
 		this.ldappassword = ldappassword;
+		generateRSAKeyForServer();
+
+	}
+
+	private void generateRSAKeyForServer() throws NoSuchAlgorithmException {
+		KeyPairGenerator keygenerator = KeyPairGenerator.getInstance("RSA");
+		keygenerator.initialize(2048);
+		servermainrsakeypair = keygenerator.generateKeyPair();
+	}
+
+	/**
+	 * gets the main RSA public key
+	 * 
+	 * @return the server main RSA public key
+	 * @since 1.10
+	 */
+	public byte[] getMainRSAPublicKey() {
+		return servermainrsakeypair.getPublic().getEncoded();
+	}
+
+	/**
+	 * @param datatodecode byte array to decode
+	 * @return the byte array to decode
+	 * @throws Exception if something unexpected happens
+	 * @since 1.10
+	 */
+	public byte[] decodeWithRSAPrivateKey(byte[] datatodecode) throws Exception {
+		PrivateKey privatekey = servermainrsakeypair.getPrivate();
+		Cipher rsacipher = Cipher.getInstance("RSA");
+		rsacipher.init(Cipher.DECRYPT_MODE, privatekey);
+		return rsacipher.doFinal(datatodecode);
 	}
 
 	/**
@@ -156,14 +201,17 @@ public class SecurityManager
 				new SimpleQueryCondition<String>(
 						OtpcheckDefinition.getOtpcheckDefinition()
 								.getAlias(LinkedtoparentQueryHelper.CHILD_OBJECT_ALIAS),
-						Otpcheck.getDefinition().getClientipFieldSchema(), new QueryOperatorEqual<String>(), ipaddress))));
+						Otpcheck.getDefinition().getClientipFieldSchema(), new QueryOperatorEqual<String>(),
+						ipaddress))));
 		boolean hasvalidotp = false;
-		for (int i=0;i<check.length;i++) {
+		for (int i = 0; i < check.length; i++) {
 			Date date = new Date();
 			Date creationdate = check[i].getCreated();
-			long hoursofage = (date.getTime()-creationdate.getTime())/(1000*3600);
-			if (hoursofage<8) hasvalidotp=true;
-			logger.info("recovered old OTP connection ("+i+"/"+check.length+")with hours of age = "+hoursofage);
+			long hoursofage = (date.getTime() - creationdate.getTime()) / (1000 * 3600);
+			if (hoursofage < 8)
+				hasvalidotp = true;
+			logger.info(
+					"recovered old OTP connection (" + i + "/" + check.length + ")with hours of age = " + hoursofage);
 		}
 		if (hasvalidotp)
 			OLcServer.getServer().setOTPForConnection();
