@@ -26,7 +26,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.crypto.Cipher;
 
 import org.openlowcode.tools.enc.AESCommunicator;
 import org.openlowcode.tools.enc.OLcEncrypter;
@@ -762,7 +761,6 @@ public class OLcServer {
 	private ThreadLocal<String> connectionip = new ThreadLocal<String>();
 	private ThreadLocal<String> connectioncid = new ThreadLocal<String>();
 	private ThreadLocal<AESCommunicator> aescommunicator = new ThreadLocal<AESCommunicator>();
-	private ThreadLocal<Cipher> decryptcipher = new ThreadLocal<Cipher>();
 	private ThreadLocal<Boolean> otpauthorization = new ThreadLocal<Boolean>();
 	private ThreadLocal<DataObjectId<Appuser>> connectionuserid = new ThreadLocal<DataObjectId<Appuser>>();
 	private ThreadLocal<Integer> currentriggerexecution = new ThreadLocal<Integer>();

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -18,14 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
-import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.logging.Logger;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 
 import org.openlowcode.tools.enc.AESCommunicator;
 import org.openlowcode.tools.messages.MessageBufferedWriter;
@@ -199,38 +192,12 @@ public class ConnectionToServer {
 		logger.fine("OutputStream reader encoding" + socketoutputstream.getEncoding());
 		BufferedWriter bufferedwriter = new BufferedWriter(socketoutputstream);
 		writer = new MessageBufferedWriter(bufferedwriter, true);
-		performSecurityHandshake();
+		aescommunicator = AESCommunicator.performServerHandshake(reader, writer);
+		
 		
 	}
 
-	private void performSecurityHandshake() throws Exception {
-		reader.returnNextMessageStart();
-		reader.returnNextStartStructure("RSAKEY");
-		byte[] rsapublickey = reader.returnNextLargeBinary("PUBLICKEY").getContent();
-		reader.returnNextEndStructure("RSAKEY");
-		reader.returnNextEndMessage();
-		
-		// ----------------------Generate AES Key --------------------------------------
-		KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-		keyGen.init(256); 
-		SecretKey secretKey = keyGen.generateKey();
-		byte[] aeskey = secretKey.getEncoded();
-		
-		// ----------- keep AES keys ----
-		aescommunicator = new AESCommunicator(secretKey);
-		// --- Encrypt AES key with RSA key ----
-		
-		KeyFactory kf = KeyFactory.getInstance("RSA");
-		PublicKey rsapublickeyasobject = kf.generatePublic(new X509EncodedKeySpec(rsapublickey));
-		Cipher encryptrsacipher = Cipher.getInstance("RSA");
-		encryptrsacipher.init(Cipher.ENCRYPT_MODE, rsapublickeyasobject);
-		byte[] aeskeyencoded = encryptrsacipher.doFinal(aeskey);
-		writer.startNewMessage();
-		writer.startStructure("SESAESKEY");
-		writer.addLongBinaryField("AESKEY",new SFile("Aeskey",aeskeyencoded));
-		writer.endStructure("SESAESKEY");
-		writer.endMessage();
-	}
+	
 	
 	/**
 	 * @return the reader of this connection

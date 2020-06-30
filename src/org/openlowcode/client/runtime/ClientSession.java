@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -504,6 +504,7 @@ public class ClientSession {
 	 * @return a feedback if processing happened well or not
 	 * @throws Exception 
 	 */
+	@SuppressWarnings("unused")
 	public DisplayPageFeedback enrichPageWithInlineData(
 			MessageElement startelement,
 			ConnectionToServer localconnectiontoserver,
@@ -528,7 +529,6 @@ public class ClientSession {
 		logger.warning(" -------------- Decryptedmessage ------------------------");
 		logger.warning(decryptedmessage);
 		MessageSimpleReader specificmessagereader = new MessageSimpleReader(new StringReader(decryptedmessage));
-		@SuppressWarnings("unused")
 		MessageElement messagefirstelement = specificmessagereader.getNextElement();
 		
 		reader.returnNextEndStructure("ENCRES");

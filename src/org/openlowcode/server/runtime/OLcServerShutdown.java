@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,6 +21,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.openlowcode.tools.enc.AESCommunicator;
 import org.openlowcode.tools.messages.MessageBufferedWriter;
 import org.openlowcode.tools.messages.MessageSimpleReader;
 import org.openlowcode.tools.trace.ConsoleFormatter;
@@ -64,6 +65,8 @@ public class OLcServerShutdown {
 					new BufferedReader(new InputStreamReader(clientsocket.getInputStream()), 9090));
 			MessageBufferedWriter writer = new MessageBufferedWriter(
 					new BufferedWriter(new OutputStreamWriter(clientsocket.getOutputStream())), false);
+			@SuppressWarnings("unused")
+			AESCommunicator aescommunicator = AESCommunicator.performServerHandshake(reader, writer);
 			writer.startNewMessage();
 			writer.startStructure("SHUTDOWN");
 			writer.endStructure("SHUTDOWN");

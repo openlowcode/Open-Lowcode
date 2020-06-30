@@ -27,6 +27,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.openlowcode.tools.enc.AESCommunicator;
 import org.openlowcode.tools.messages.MessageBufferedWriter;
 import org.openlowcode.tools.messages.MessageSimpleReader;
 import org.openlowcode.tools.messages.SFile;
@@ -241,6 +242,8 @@ public class ClientUpdater
 					Label connectserver = new Label("Connected Server  " + serverurl);
 					connectserver.setWrapText(true);
 					mainpane.getChildren().add(connectserver);
+					@SuppressWarnings("unused")
+					AESCommunicator aescommunicator = AESCommunicator.performServerHandshake(reader, writer);
 					logger.info("  Starting message");
 					writer.startNewMessage();
 					logger.info("  Put first element in message");
