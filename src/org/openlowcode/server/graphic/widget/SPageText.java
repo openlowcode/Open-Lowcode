@@ -76,6 +76,7 @@ public class SPageText
 			istypesupported = true;
 		if (type == TYPE_WARNING)
 			istypesupported = true;
+		
 
 		if (!istypesupported)
 			throw new RuntimeException("the type is not supported " + type);

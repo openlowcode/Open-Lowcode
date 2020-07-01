@@ -125,6 +125,7 @@ public class CTextField
 	private boolean hassuggestions;
 	private CPageDataRef suggestions;
 	private MultiSelectionComboBox<String> multiselectioncombobox;
+	private boolean showhelperbefore;
 
 	public boolean isRichText() {
 		return richtextedit;
@@ -231,6 +232,7 @@ public class CTextField
 						"Invalid suggestion reference named %s, expected ArrayDataEltType<TextDataEltType>, got %s in CPage ",
 						suggestions.getName(), suggestions));
 		}
+		this.showhelperbefore=reader.returnNextBooleanField("SHB");
 		reader.returnNextEndStructure("TXF");
 	}
 
@@ -302,7 +304,7 @@ public class CTextField
 		if (this.datareference != null) {
 			this.inputvalue = getExternalContent(inputdata, datareference);
 		}
-
+		Pane externalpane=null;
 		Pane thispane;
 		if (this.compactshow) {
 			Pane thisboxpane;
@@ -318,6 +320,14 @@ public class CTextField
 			FlowPane thisflowpane = new FlowPane();
 			thisflowpane.setRowValignment(VPos.TOP);
 			thispane = thisflowpane;
+			if (this.showhelperbefore) {
+				VBox overpane = new VBox(1);
+				externalpane=overpane;
+				Label visiblehelper = new Label(this.helper);
+				visiblehelper.setFont(Font.font(visiblehelper.getFont().getName(), FontPosture.REGULAR, visiblehelper.getFont().getSize()*0.9));
+				overpane.getChildren().add(visiblehelper);
+				overpane.getChildren().add(thisflowpane);
+			}
 		}
 		Label thislabel = new Label(label);
 		thislabel.setFont(Font.font(thislabel.getFont().getName(), FontPosture.ITALIC, thislabel.getFont().getSize()));
@@ -387,7 +397,7 @@ public class CTextField
 			
 			if (textfield != null) { // normal text edition
 				textfield.setTextFormatter(new TextFormatter(rejectChange));
-				if (helper.length() > 0)
+				if (!this.showhelperbefore) if (helper.length() > 0)
 					textfield.setTooltip(new Tooltip(helper));
 				// ** Init text field content
 				if (this.inputvalue != null) {
@@ -440,6 +450,7 @@ public class CTextField
 			if (textfield instanceof TextField)
 				((TextField) textfield).setOnAction(actionmanager);
 		}
+		if (externalpane!=null) return externalpane;
 		return thispane;
 
 	}

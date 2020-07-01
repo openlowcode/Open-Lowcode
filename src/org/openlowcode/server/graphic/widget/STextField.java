@@ -67,7 +67,7 @@ public class STextField
 	private boolean compactshow = false;
 	private boolean twolines = false;
 	private boolean nosmallfield = false;
-
+	private boolean showhelperbefore=false;
 	/**
 	 * creates a text field
 	 * 
@@ -252,7 +252,10 @@ public class STextField
 	public void setReadOnly() {
 		this.readonly = true;
 	}
-
+	public void setShowHelperBefore() {
+		this.showhelperbefore=true;
+	}
+	
 	/**
 	 * defines that the field should not show the text being entered. This is
 	 * typical for passwords
@@ -349,6 +352,7 @@ public class STextField
 		writer.addBooleanField("NSF", this.nosmallfield);
 		writer.addBooleanField("HSG",(this.suggestions!=null));
 		if (this.suggestions!=null) this.suggestions.writeReferenceToCML(writer);
+		writer.addBooleanField("SHB",this.showhelperbefore);
 	}
 
 	@Override

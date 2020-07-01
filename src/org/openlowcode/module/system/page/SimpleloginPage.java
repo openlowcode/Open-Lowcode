@@ -48,8 +48,9 @@ public class SimpleloginPage
 		STextField password = new STextField("Password", "PASSWORD", "your password", 80, "", this, login);
 		
 		password.hideDisplay();
-		STextField otp = new STextField("One-Time Password","OTP","Your OTP password if you require secure connection",80,"",this,login);
+		STextField otp = new STextField("One-Time Password","OTP","Please enter One-Time password (OTP) to access secured apps",80,"",this,login);
 		otp.hideDisplay();
+		otp.setShowHelperBefore();
 		STextStorage context = new STextStorage("CONTEXT", this, this.getContextaction());
 		mainband.addElement(context);
 		login.setUser(user.getTextInput());
@@ -62,7 +63,6 @@ public class SimpleloginPage
 
 		mainband.addElement(user);
 		mainband.addElement(password);
-		mainband.addElement(new SPageText("Please enter one-time password to access secured apps.", SPageText.TYPE_NORMAL,this));
 		mainband.addElement(otp);
 		mainband.addElement(send);
 		mainband.addElement(new SPageText("Welcome to Open Lowcode Server.", SPageText.TYPE_NORMAL, this));
