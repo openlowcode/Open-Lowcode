@@ -1460,6 +1460,7 @@ public class SystemModule
 				StringField.INDEXTYPE_RAWINDEX));
 		otpcheck.addField(new TimestampField("CREATED", "Created", "Date of validation of the OTP", TimestampField.INDEXTYPE_RAWINDEXWITHSEARCH));
 		this.addPrivilege(new Anarchy(enterotp));
+		this.addPrivilege(new Anarchy(confirmotp));
 		
 		this.addPrivilege(new ObjectPersonalPrivilege(usergroup.getReadActionGroup(), usergroupersonal));
 		this.addPrivilege(new ObjectPersonalPrivilege(launchadduser, usergroupersonal));
