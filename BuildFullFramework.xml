@@ -73,6 +73,9 @@ SPDX-License-Identifier: EPL-2.0
 		<delete file="./bin/OLcServer.jar" />
 		<delete file="./bin/OLcUpdater.jar" />
 		<delete file="./bin/OLcClient.jar" />
+		<copy todir="./bin/css">
+ 		 <fileset dir="./src/css"/>
+	</copy>
 	</target>
 	<target name="jar" depends="cleanjar">
 
