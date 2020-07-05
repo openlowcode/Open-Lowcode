@@ -64,6 +64,7 @@ public class AESCommunicator {
 	 */
 	public byte[] zipandencrypt(String message) throws Exception {
 		try {
+			if (message==null) return null;
 			byte[] messagebinary = message.getBytes("UTF-8");
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			deflater.setInput(messagebinary);
@@ -91,6 +92,7 @@ public class AESCommunicator {
 	 */
 	public String decryptandunzip(byte[] encryptedmessage) throws Exception {
 		try {
+			if (encryptedmessage==null) return null;
 			byte[] decryptedzipcontent = decryptaescipher.doFinal(encryptedmessage);
 			inflater.setInput(decryptedzipcontent);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();

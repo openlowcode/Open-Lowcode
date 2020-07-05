@@ -834,6 +834,7 @@ public class ServerConnection
 			StringWriter stringwriter = new StringWriter();
 			MessageBufferedWriter embeddedactionwriter = new MessageBufferedWriter(
 					new BufferedWriter(stringwriter, 100000), false);
+			embeddedactionwriter.setAESCommunicator(OLcServer.getServer().getAESCommunicator());
 			embeddedactionwriter.startNewMessage();
 			embeddedactionwriter.startStructure("CONTEXT");
 			embeddedactionwriter.addStringField("NAME", actionname);
