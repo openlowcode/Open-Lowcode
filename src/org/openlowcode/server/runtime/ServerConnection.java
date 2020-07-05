@@ -91,7 +91,7 @@ public class ServerConnection
 	private static final int MESSAGESTART_WAITING = 0;
 	private static final int MESSAGESTART_FOUND = 1;
 	private static final int MESSAGESTART_ERROR = 2;
-
+	private final static String CLIENT_JAR = "OLcClient.jar";
 	/**
 	 * Creates a server connection
 	 * 
@@ -670,9 +670,11 @@ public class ServerConnection
 								.decryptandunzip(encryptedmessage);
 						MessageSimpleReader specificmessagereader = new MessageSimpleReader(
 								new StringReader(decryptedmessage));
+						specificmessagereader.setAESCommunicator(OLcServer.getServer().getAESCommunicator());
 						StringWriter writertoencrypt = new StringWriter();
 						MessageBufferedWriter specificmessagewriter = new MessageBufferedWriter(
 								new BufferedWriter(writertoencrypt), false);
+						specificmessagewriter.setAESCommunicator(OLcServer.getServer().getAESCommunicator());
 						specificmessagereader.returnNextMessageStart();
 						String majorqueryinsideencryption = specificmessagereader.returnNextStartStructure();
 						majorquerytreated = requestdecodedquery(majorqueryinsideencryption, specificmessagewriter,
@@ -702,7 +704,7 @@ public class ServerConnection
 						logger.severe("Starting treating download client request");
 						writer.startNewMessage();
 						File clienttodownload = new File("." + File.separator + "client" + File.separator
-								+ OLcServer.getServer().getClientJar());
+								+ CLIENT_JAR);
 						if (!clienttodownload.exists()) {
 							writer.sendMessageError(9999, "Client file missing on server "
 									+ clienttodownload.getAbsolutePath() + ". Please contact technical support.");
@@ -713,7 +715,7 @@ public class ServerConnection
 							FileInputStream fisfordownload = new FileInputStream(clienttodownload);
 							fisfordownload.read(filecontent);
 							fisfordownload.close();
-							SFile filetodownload = new SFile(OLcServer.getServer().getClientJar(), filecontent);
+							SFile filetodownload = new SFile(CLIENT_JAR, filecontent);
 							writer.startStructure("NEWCLIENTJAR");
 							writer.addLongBinaryField("JAR", filetodownload);
 							writer.endStructure("NEWCLIENTJAR");

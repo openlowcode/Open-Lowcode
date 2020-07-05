@@ -28,8 +28,6 @@ import java.util.logging.Logger;
 
 
 import org.openlowcode.tools.enc.AESCommunicator;
-import org.openlowcode.tools.enc.OLcEncrypter;
-import org.openlowcode.tools.encrypt.EncrypterHolder;
 import org.openlowcode.tools.misc.NamedList;
 import org.openlowcode.tools.misc.TimeLogger;
 import org.openlowcode.tools.trace.ConsoleFormatter;
@@ -78,12 +76,12 @@ public class OLcServer {
 	private static OLcServer serversingleton;
 	private InetAddress localhost;
 	private ConnectionListener connectionlisterner;
-	private String clientjar;
-
-	public String getClientJar() {
-		return this.clientjar;
+	private String alternativeonewayencryptionkey=null;
+	
+	public String getAlternativeOneWayEncryptionKey() {
+		return this.alternativeonewayencryptionkey;
 	}
-
+	
 	/**
 	 * gets the internet address of the server
 	 * 
@@ -177,10 +175,7 @@ public class OLcServer {
 
 			OLcServerConfig serverconfig = new OLcServerConfig(configurationfilepath);
 			serverconfig.parseConfigFile();
-
-			this.clientjar = serverconfig.getCompulsoryValue("CLIENTJAR");
-
-			EncrypterHolder.InitEncrypterHolder(OLcEncrypter.getEncrypter());
+			this.alternativeonewayencryptionkey = serverconfig.getOptionalValue("ONEWAYKEY");
 
 			String initmessage = "Startup of server version " + getServerVersion();
 			System.out.println(initmessage);

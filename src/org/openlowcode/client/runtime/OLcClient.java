@@ -28,8 +28,6 @@ import org.openlowcode.client.graphic.widget.schedule.GanttTaskCell;
 import org.openlowcode.client.runtime.ClientMainFrame;
 import org.openlowcode.client.runtime.ClientMainFrame.ClientUpgradePageGenerator;
 import org.openlowcode.client.runtime.PageActionManager.ActionSourceTransformer;
-import org.openlowcode.tools.enc.OLcEncrypter;
-import org.openlowcode.tools.encrypt.EncrypterHolder;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
 
@@ -82,7 +80,6 @@ public class OLcClient
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		EncrypterHolder.InitEncrypterHolder(OLcEncrypter.getEncrypter());
 		new ClientMainFrame(stage, OLcVersion.version, // clientversion
 				OLcVersion.versiondate, // clientversiondate
 				getClientUpdateGenerator(), // clientupgradepage

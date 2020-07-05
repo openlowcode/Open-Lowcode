@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import org.openlowcode.tools.enc.AESCommunicator;
+
 /**
  * The message reader abstract class performs all consistency controls of the
  * message, ensuring it makes sense (e.g. that only structures that were opened
@@ -31,6 +33,7 @@ public abstract class MessageReader {
 	private boolean inmessage = false; // gives information about if a message is open or not
 
 	private boolean throwerror;
+	private AESCommunicator aescommunicator;
 
 	/**
 	 * Returns the last elements read in order to be used in error handling.
@@ -41,6 +44,24 @@ public abstract class MessageReader {
 		return lastelementbuffer.getCompactBufferTrace();
 	}
 
+	/**
+	 * sets the AES communicator to be used for two-ways encryption
+	 * @param aescommunicator the relevant communicator for the connection
+	 * @since 1.10
+	 */
+	public void setAESCommunicator(AESCommunicator aescommunicator) {
+		this.aescommunicator = aescommunicator;
+	}
+	
+	/**
+	 * gets the AES communicator to be used for two-ways encryption
+	 * @return the relevant communicator for the connection
+	 * @since 1.10
+	 */
+	public AESCommunicator getAESCommunicator() {
+		return this.aescommunicator;
+	}
+	
 	/**
 	 * creates a message reader that by default will throw an OLcRemoteException if
 	 * a message error is sent on the server. This allows the decoder to have much

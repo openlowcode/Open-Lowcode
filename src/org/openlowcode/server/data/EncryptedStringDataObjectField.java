@@ -82,8 +82,7 @@ public class EncryptedStringDataObjectField<E extends DataObject<E>>
 			content.setPayload(value);
 		if (this.encryptiontype == EncryptedStringDataObjectFieldDefinition.ENCRYPTION_ONEWAY)
 			content.setPayload(encrypter.encryptStringOneWay(value));
-		if (this.encryptiontype == EncryptedStringDataObjectFieldDefinition.ENCRYPTION_TWOWAYS)
-			content.setPayload(encrypter.encryptStringTwoWays(value));
+
 
 	}
 
@@ -94,16 +93,13 @@ public class EncryptedStringDataObjectField<E extends DataObject<E>>
 	 *         way)
 	 */
 	public String getValue() {
-
-		OLcEncrypter encrypter = OLcEncrypter.getEncrypter();
 		if (this.encryptiontype == EncryptedStringDataObjectFieldDefinition.ENCRYPTION_NONE)
 			return content.getPayload();
 		// returns empty string as returning one way encrypted data does not make any
 		// sense
 		if (this.encryptiontype == EncryptedStringDataObjectFieldDefinition.ENCRYPTION_ONEWAY)
 			return content.getPayload();
-		if (this.encryptiontype == EncryptedStringDataObjectFieldDefinition.ENCRYPTION_TWOWAYS)
-			return encrypter.decryptStringTwoWays(content.getPayload());
+
 
 		return "#ERROR#";
 	}

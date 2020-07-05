@@ -46,6 +46,14 @@ public class ConnectionToServer {
 	private boolean relevant;
 	private AESCommunicator aescommunicator;
 
+	/**
+	 * @return the AES Communicator for the connection
+	 * @since 1.10
+	 */
+	protected AESCommunicator getAESCommunicator() {
+		return aescommunicator;
+	}
+	
 	public String decryptwithaeskey(byte[] encryptedcontent) throws Exception {
 		return aescommunicator.decryptandunzip(encryptedcontent);
 	}
@@ -85,6 +93,7 @@ public class ConnectionToServer {
 				}
 				CharArrayWriter encryptedmessageloc = new CharArrayWriter();
 				MessageBufferedWriter writertoencrypt = new MessageBufferedWriter(new BufferedWriter(encryptedmessageloc), false); 
+				writertoencrypt.setAESCommunicator(aescommunicator);
 				writertoserver.apply(writertoencrypt);
 				writertoencrypt.flushMessage();
 				String messagetoencrypt = encryptedmessageloc.toString();

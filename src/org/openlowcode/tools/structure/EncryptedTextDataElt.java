@@ -11,11 +11,12 @@
 package org.openlowcode.tools.structure;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
-import org.openlowcode.tools.encrypt.EncrypterHolder;
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.MessageWriter;
 import org.openlowcode.tools.messages.OLcRemoteException;
+import org.openlowcode.tools.messages.SFile;
 
 /**
  * builds a text data element that is encrypted during the network transmission
@@ -24,7 +25,12 @@ import org.openlowcode.tools.messages.OLcRemoteException;
  *         SAS</a>
  *
  */
-public class EncryptedTextDataElt extends TextDataElt {
+public class EncryptedTextDataElt
+		extends
+		TextDataElt {
+
+	private static Logger logger = Logger.getLogger(EncryptedTextDataElt.class.getName());
+
 	private String payload;
 
 	/**
@@ -33,8 +39,8 @@ public class EncryptedTextDataElt extends TextDataElt {
 	 */
 	public EncryptedTextDataElt(String name, String payload) {
 
-		super(name, EncrypterHolder.get().getEncrypter().encryptStringTwoWays(payload), new EncryptedTextDataEltType());
-		this.payload = EncrypterHolder.get().getEncrypter().encryptStringTwoWays(payload);
+		super(name, new EncryptedTextDataEltType());
+		this.payload = payload;
 
 	}
 
@@ -46,26 +52,45 @@ public class EncryptedTextDataElt extends TextDataElt {
 	@Override
 	public String defaultTextRepresentation() {
 
-		return "[ENCRYPTED:" + this.getPayload() + "]";
+		return "[ENCRYPTEDDATA]";
 
 	}
 
 	public String getPayload() {
-		if (this.payload.length() > 0)
-			return EncrypterHolder.get().getEncrypter().decryptStringTwoWays(this.payload);
-		return "";
+		return payload;
 
 	}
 
 	@Override
 	public void writePayload(MessageWriter writer) throws IOException {
-		writer.addStringField("PLD", this.payload);
-
+		try {
+			writer.addLongBinaryField("PLD", new SFile("PLD", writer.getAESCommunicator().zipandencrypt(payload)));
+		} catch (Exception e) {
+			String loggerstring = "Error in AES encryption " + e.getClass() + " - " + e.getMessage();
+			logger.severe("Error in AES encryption " + e.getClass() + " - " + e.getMessage());
+			for (int i = 0; i < e.getStackTrace().length; i++) {
+				if (i == 10)
+					break;
+				logger.severe("    at " + e.getStackTrace()[i]);
+			}
+			throw new RuntimeException(loggerstring);
+		}
 	}
 
 	@Override
 	public void addPayload(MessageReader reader) throws OLcRemoteException, IOException {
-		this.payload = reader.returnNextStringField("PLD");
+		try {
+		this.payload = reader.getAESCommunicator().decryptandunzip(reader.returnNextLargeBinary("PLD").getContent());
+		} catch (Exception e) {
+			String loggerstring = "Error in AES encryption " + e.getClass() + " - " + e.getMessage();
+			logger.severe("Error in AES encryption " + e.getClass() + " - " + e.getMessage());
+			for (int i = 0; i < e.getStackTrace().length; i++) {
+				if (i == 10)
+					break;
+				logger.severe("    at " + e.getStackTrace()[i]);
+			}
+			throw new RuntimeException(loggerstring);
+		}
 
 	}
 }

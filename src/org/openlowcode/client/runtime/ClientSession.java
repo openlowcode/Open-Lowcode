@@ -529,6 +529,7 @@ public class ClientSession {
 		logger.warning(" -------------- Decryptedmessage ------------------------");
 		logger.warning(decryptedmessage);
 		MessageSimpleReader specificmessagereader = new MessageSimpleReader(new StringReader(decryptedmessage));
+		specificmessagereader.setAESCommunicator(localconnectiontoserver.getAESCommunicator());
 		MessageElement messagefirstelement = specificmessagereader.getNextElement();
 		
 		reader.returnNextEndStructure("ENCRES");
@@ -607,6 +608,7 @@ public class ClientSession {
 			logger.warning(" -------------- Decryptedmessage ------------------------");
 			logger.warning(decryptedmessage);
 			MessageSimpleReader specificmessagereader = new MessageSimpleReader(new StringReader(decryptedmessage));
+			specificmessagereader.setAESCommunicator(localconnectiontoserver.getAESCommunicator());
 			MessageElement messagefirstelement = specificmessagereader.getNextElement();
 			DisplayPageFeedback feedback = displayPage(messagefirstelement, localconnectiontoserver,
 					specificmessagereader, activedisplay, starttime, showtechdetails, module, action, openinnewtab);

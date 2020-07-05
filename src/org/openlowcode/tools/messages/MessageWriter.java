@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.openlowcode.tools.enc.AESCommunicator;
+
 /**
  * An OLc message writer writes to the communication stream a OLc Message. This
  * message should be sent to the communication stream without significant local
@@ -27,11 +29,30 @@ public abstract class MessageWriter {
 	public ArrayList<String> currentpath;
 	public boolean active;
 	private boolean isfirstelementinstructure = true;
+	private AESCommunicator aescommunicator;
 
 	public boolean isIsfirstelementinstructure() {
 		return isfirstelementinstructure;
 	}
-
+	
+	/**
+	 * sets the AES communicator to be used for two-ways encryption
+	 * @param aescommunicator the relevant communicator for the connection
+	 * @since 1.10
+	 */
+	public void setAESCommunicator(AESCommunicator aescommunicator) {
+		this.aescommunicator = aescommunicator;
+	}
+	
+	/**
+	 * gets the AES communicator to be used for two-ways encryption
+	 * @return the relevant communicator for the connection
+	 * @since 1.10
+	 */
+	public AESCommunicator getAESCommunicator() {
+		return this.aescommunicator;
+	}
+	
 	public String getCurrentPadding() {
 
 		return "";

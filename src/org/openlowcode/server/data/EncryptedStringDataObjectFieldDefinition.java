@@ -44,10 +44,6 @@ public class EncryptedStringDataObjectFieldDefinition<E extends DataObject<E>>
 	 * be compared against the encoded value
 	 */
 	public static int ENCRYPTION_ONEWAY = 1;
-	/**
-	 * two ways encryption
-	 */
-	public static int ENCRYPTION_TWOWAYS = 2;
 
 	/**
 	 * @return the enctyption type for this field
@@ -87,8 +83,6 @@ public class EncryptedStringDataObjectFieldDefinition<E extends DataObject<E>>
 		if (encryptiontype == ENCRYPTION_NONE)
 			encryptiontypesupported = true;
 		if (encryptiontype == ENCRYPTION_ONEWAY)
-			encryptiontypesupported = true;
-		if (encryptiontype == ENCRYPTION_TWOWAYS)
 			encryptiontypesupported = true;
 		if (encryptiontypesupported == false)
 			throw new RuntimeException("Encryption type not supported");

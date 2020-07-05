@@ -12,6 +12,8 @@ package org.openlowcode.tools.enc;
 
 import java.util.logging.Logger;
 
+import org.openlowcode.server.runtime.OLcServer;
+
 
 
 /***
@@ -31,6 +33,7 @@ public class OLcEncrypterString {
 	 * @return the encryption string
 	 */
 	protected static String getEncryptionString() {
+		if (OLcServer.getServer().getAlternativeOneWayEncryptionKey()!=null) return OLcServer.getServer().getAlternativeOneWayEncryptionKey();
 		logger.severe("Using default encryption key. This is not recommended for production purpose. Please refer to operation manual");
 		return "HeureuxQuiCommeUlysse";
 	}
