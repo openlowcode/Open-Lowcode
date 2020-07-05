@@ -41,6 +41,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -121,12 +122,28 @@ public class ClientSession {
 		// ---------------------- Process otp status that is not null ---------------
 		BorderPane borderpane = new BorderPane();
 		borderpane.setCenter(new Label(newtitle));
-		Color dotcolor = Color.LIGHTGREEN;
-		if (otpstatus.equals("INVALID"))
-			dotcolor = Color.INDIANRED;
 		Circle dot = new Circle(0, 0, 4);
+		Color dotcolor = null;
+		if (otpstatus.equals("INVALID")) {
+			dotcolor = Color.INDIANRED;
+	        Tooltip t = new Tooltip("You do not have OTP login for this connection. You cannot access secure modules.");
+	        Tooltip.install(dot, t);
+	        dot.addEventHandler(MouseEvent.MOUSE_CLICKED,new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent event) {				
+					ClientSession.this.sendLink(connectiontoserver.completeAddress("SYSTEMMODULE.ENTEROTP"), false);				
+				}
+	        	
+	        });
+		} else {
+			dotcolor = Color.SEAGREEN;
+	        Tooltip t = new Tooltip("You are connected with OTP, you can access secure modules.");
+	        Tooltip.install(dot, t);
+		}
+		
 		dot.setFill(dotcolor);
-		dot.setStroke(Color.LIGHTGRAY);
+		dot.setStroke(Color.LIGHTSLATEGREY);
 		borderpane.setRight(dot);
 		BorderPane.setAlignment(dot, Pos.CENTER);
 		tab.setText("");

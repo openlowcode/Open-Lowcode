@@ -899,8 +899,8 @@ public class ServerConnection
 		ActionAuthorization thisactionauthorization = isAuthorized(action, actiondata, buffer);
 		if (thisactionauthorization.getAuthorization() != ActionAuthorization.NOT_AUTHORIZED) {
 			if (action.getParentModule().IsRestriction()) {
-				writer.sendMessageError(9999,
-						"You should connect through OTP to access this action " + action.getName());
+				ActionExecution enterotp = OLcServer.getServer().getModuleByName("SYSTEMMODULE").getAction("ENTEROTP");
+				executeAction(userid,enterotp,new SActionData(),writer,clientpagesinbuffer);
 			} else
 				try { // this is too precisely located. Should catch exception wider
 					logAction(action);

@@ -49,7 +49,7 @@ public class EnterotpPage
 	protected SPageNode getContent() {
 		SComponentBand mainband = new SComponentBand(SComponentBand.DIRECTION_DOWN, this);
 		mainband.addElement(new SPageText("Create secure connection", SPageText.TYPE_TITLE, this));
-		mainband.addElement(new SPageText("Enter your one-time password below to create a secure connection.", SPageText.TYPE_NORMAL, this));
+		mainband.addElement(new SPageText("Enter your one-time password below to access to secured app.", SPageText.TYPE_NORMAL, this));
 		ActionRef confirmotpaction = ConfirmotpAction.get().getActionRef();
 		STextField otp = new STextField("One-time password", "PASSWORD", "your password", 80, "", this,confirmotpaction);
 		otp.hideDisplay();
