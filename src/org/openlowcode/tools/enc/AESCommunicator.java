@@ -159,7 +159,7 @@ public class AESCommunicator {
 
 		// ----------------------Generate AES Key --------------------------------------
 		KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-		keyGen.init(256);
+		keyGen.init(128);
 		SecretKey secretKey = keyGen.generateKey();
 		byte[] aeskey = secretKey.getEncoded();
 
