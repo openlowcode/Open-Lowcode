@@ -12,7 +12,6 @@ package org.openlowcode.client.graphic.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
