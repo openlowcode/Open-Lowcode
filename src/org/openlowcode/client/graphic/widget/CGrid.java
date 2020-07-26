@@ -93,7 +93,7 @@ public class CGrid
 		extends
 		CPageNode {
 	private String linefield;
-	private String columnfield;
+	
 	private int valuenr;
 	private String[] valuefield;
 	private String name;
@@ -124,8 +124,7 @@ public class CGrid
 	private String updatewarningstop;
 	private String updatenotecomment = null;
 	private PageActionManager actionmanager;
-	private boolean hassecondarycolumn;
-	private String secondarycolumnfield;
+	private ArrayList<String> columnslist;
 	private Tooltip tooltip;
 	private boolean reversetree;
 	private EditableTreeTable<ObjectDataElt> treetable;
@@ -144,10 +143,9 @@ public class CGrid
 		payloadlist = new ArrayList<CBusinessField<?>>();
 		this.name = reader.returnNextStringField("NAME");
 		this.linefield = reader.returnNextStringField("LNF");
-		this.columnfield = reader.returnNextStringField("CLF");
-		this.hassecondarycolumn = reader.returnNextBooleanField("HSC");
-		if (this.hassecondarycolumn)
-			this.secondarycolumnfield = reader.returnNextStringField("SCF");
+		columnslist = new ArrayList<String>();
+		int columnsnr = reader.returnNextIntegerField("CLN");
+		for (int i=0;i<columnsnr;i++) columnslist.add(reader.returnNextStringField("CLF"));
 
 		this.valuenr = reader.returnNextIntegerField("VLN");
 		valuefield = new String[valuenr];
@@ -435,7 +433,7 @@ public class CGrid
 		this.actionmanager = actionmanager;
 		ArrayDataElt<ObjectDataElt> data = getExternalContent(inputdata, datareference);
 		if (!this.reversetree) {
-
+			if (this.columnslist.size()>2) throw new RuntimeException("It is not possible to have more than 2 columns in normal display");
 			this.tooltip = new Tooltip("Double click on cell to see details\nRight click for update and copy");
 			dataingrid = new NamedList<CObjectGridLine<String>>();
 			arraycolumns = new ArrayList<ColumnAndStringIndex<String>>();
@@ -503,13 +501,13 @@ public class CGrid
 						rowordercode = candidaterowcode;
 
 					}
-					if (thisfield.getFieldname().equals(columnfield)) {
+					if (thisfield.getFieldname().equals(this.columnslist.get(0))) {
 						columnvalue = fieldvalue;
 						columnordercode = candidaterowcode;
 					}
 
-					if (this.hassecondarycolumn)
-						if (thisfield.getFieldname().equals(this.secondarycolumnfield)) {
+					if (this.columnslist.size()==2)
+						if (thisfield.getFieldname().equals(this.columnslist.get(1))) {
 							secondarycolumnvalue = fieldvalue;
 						}
 
@@ -529,7 +527,7 @@ public class CGrid
 					throw new RuntimeException("Row value not found on object " + thisline.getUID());
 				if (columnvalue == null)
 					throw new RuntimeException("Column value not found on object " + thisline.getUID());
-				if (this.hassecondarycolumn)
+				if (this.columnslist.size()==2)
 					if (secondarycolumnvalue == null)
 						throw new RuntimeException("Secondary Column Value not found on object " + thisline.getUID());
 				for (int k = 0; k < valuefield.length; k++) {
@@ -544,7 +542,7 @@ public class CGrid
 					dataingrid.add(gridline);
 
 				}
-				if (this.hassecondarycolumn) {
+				if (this.columnslist.size()==2) {
 
 					gridline.addObject(columnvalue, secondarycolumnvalue, displayvalue, fieldlabel, thisline);
 					logger.finest("Adding to Grid Line " + gridline.getLineLabel() + " (" + gridline.hashCode()
@@ -563,7 +561,7 @@ public class CGrid
 					if (valuefield.length == 1) {
 
 						// show one field only per column
-						if (this.hassecondarycolumn) {
+						if (this.columnslist.size()==2) {
 							// just create the missing column for over-column.
 							TableColumn<
 									CObjectGridLine<String>,
@@ -620,7 +618,7 @@ public class CGrid
 
 					}
 				} // actually usefull, as done in the loop of first object only
-				if (this.hassecondarycolumn) {
+				if (this.columnslist.size()==2) {
 					// missing the secondary column
 					if (datacolumnsbyname.get(
 							CObjectGridLine.buildtwofieldscolumnindex(columnvalue, secondarycolumnvalue)) == null) {
@@ -821,31 +819,17 @@ public class CGrid
 			}
 
 			treetable.setColumnGrouping(columnextractor, valueupdater, "Total", EditableTreeTable.GROUPING_SUM);
-
-			CBusinessField<?> maincolumnbusinessfield = getFieldForFieldName(this.columnfield);
-
-			if (!(maincolumnbusinessfield instanceof ObjectDataElementKeyExtractor))
-				throw new RuntimeException(
-						"Field " + this.columnfield + " cannot be used as line criteria for editable table tree");
-			ObjectDataElementKeyExtractor<
-					ObjectDataElt, ?> mainlineextractor = (ObjectDataElementKeyExtractor) maincolumnbusinessfield;
-
-			treetable.setLineGrouping(mainlineextractor);
-
-			if (this.hassecondarycolumn) {
-
-				CBusinessField<?> secondarycolumnbusinessfield = getFieldForFieldName(this.secondarycolumnfield);
-
-				if (!(secondarycolumnbusinessfield instanceof ObjectDataElementKeyExtractor))
+			
+			for (int i=0;i<this.columnslist.size();i++) {
+				CBusinessField<?> currentcolumnbusinessfield = getFieldForFieldName(this.columnslist.get(i));
+				if (!(currentcolumnbusinessfield instanceof ObjectDataElementKeyExtractor))
 					throw new RuntimeException(
-							"Field " + this.columnfield + " cannot be used as line criteria for editable table tree");
+							"Field " + this.columnslist.get(i) + " cannot be used as line criteria for editable table tree");
+				ObjectDataElementKeyExtractor<ObjectDataElt, ?> currentlineextractor = (ObjectDataElementKeyExtractor) currentcolumnbusinessfield;
 
-				ObjectDataElementKeyExtractor<
-						ObjectDataElt,
-						?> secondarylineextractor = (ObjectDataElementKeyExtractor) secondarycolumnbusinessfield;
-
-				treetable.setLineGrouping(secondarylineextractor);
+				treetable.setLineGrouping(currentlineextractor);
 			}
+			
 
 			// -------------------------------------------
 			// ---- C O N T E X T . M E N U --------------
@@ -1065,14 +1049,14 @@ public class CGrid
 
 				if (parentcolumn != null) {
 					// case of several values
-					if (!this.hassecondarycolumn)
+					if (this.columnslist.size()!=2)
 						columntitle = parentcolumn.getText();
 
 				}
 				ObjectDataElt object = null;
-				if (!this.hassecondarycolumn)
+				if (this.columnslist.size()==2)
 					object = gridline.getObjectForColumn(columntitle);
-				if (this.hassecondarycolumn)
+				if (this.columnslist.size()==2)
 					object = gridline.getObjectForColumn(parentcolumn.getText(), selectedcolumn.getText());
 
 				SimpleDataElt field = object.lookupEltByName(objectdataloc);

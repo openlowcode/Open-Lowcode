@@ -60,16 +60,16 @@ public class LinkedFromChildren
 	private UniqueIdentified uniqueidentified;
 	private boolean displaychildrenasgrid;
 	private String linedisplayforgrid;
-	private String columndisplayforgrid;
+
 	private String[] cellfieldsforgrid;
 	private DataObjectDefinition childobject;
 	private LinkedToParent<?> originobjectproperty;
 	private WidgetDisplayPriority linkedfromchildrenwidgetdisplaypriority;
-	private String secondarycolumndisplayforgrid;
 	private String specifictitleforchildrentable = null;
 	private String[] infofieldforreverseshow;
 	private boolean reversetree;
 	private String[] exceptionsforinfofieldconsolidation;
+	private String[] freecolumnsdisplayforgrid;
 
 	/**
 	 * @return the related linked to parent property on the child object
@@ -528,13 +528,18 @@ public class LinkedFromChildren
 
 				sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
 						+ StringFormatter.formatForJavaClass(linkedfromchildren.linedisplayforgrid) + "FieldMarker(),");
-				sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
-						+ StringFormatter.formatForJavaClass(linkedfromchildren.columndisplayforgrid)
-						+ "FieldMarker(),");
-				if (linkedfromchildren.secondarycolumndisplayforgrid != null)
+				sg.wl("					new DataObjectFieldMarker[]{");
+				for (int i=0;i<linkedfromchildren.freecolumnsdisplayforgrid.length;i++) {
+					String currentcolumn = linkedfromchildren.freecolumnsdisplayforgrid[i];
+					if (currentcolumn==null) {
+						String errormessage = "Error, current column is null for "+linkedfromchildren.getName()+" and index = "+i;
+						throw new RuntimeException(errormessage);
+					}
 					sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
-							+ StringFormatter.formatForJavaClass(linkedfromchildren.secondarycolumndisplayforgrid)
-							+ "FieldMarker(),");
+							+ StringFormatter.formatForJavaClass(linkedfromchildren.freecolumnsdisplayforgrid[i])
+							+ "FieldMarker()"+(i<linkedfromchildren.freecolumnsdisplayforgrid.length-1?",":""));
+				}
+				sg.wl("					},");
 
 				if (linkedfromchildren.cellfieldsforgrid.length == 1) {
 					sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
@@ -696,8 +701,9 @@ public class LinkedFromChildren
 		this.linkedfromchildrenwidgetdisplaypriority = linkedfromchildrenwidgetdisplaypriority;
 		this.displaychildrenasgrid = true;
 		this.linedisplayforgrid = linedisplayforgrid;
-		this.columndisplayforgrid = columndisplayforgrid;
-		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
+		this.freecolumnsdisplayforgrid= new String[2];
+		this.freecolumnsdisplayforgrid[0] = columndisplayforgrid;
+		this.freecolumnsdisplayforgrid[1] = secondarycolumndisplayforgrid;
 		this.cellfieldsforgrid = cellfieldsforgrid;
 	}
 
@@ -733,10 +739,77 @@ public class LinkedFromChildren
 					+ ", childobject is null");
 		this.displaychildrenasgrid = true;
 		this.linedisplayforgrid = linedisplayforgrid;
-		this.columndisplayforgrid = columndisplayforgrid;
-		this.secondarycolumndisplayforgrid = secondarycolumndisplayforgrid;
+		this.freecolumnsdisplayforgrid= new String[1];
+		if (secondarycolumndisplayforgrid!=null) {
+			this.freecolumnsdisplayforgrid= new String[2];
+			this.freecolumnsdisplayforgrid[1] = secondarycolumndisplayforgrid;
+		}
+		this.freecolumnsdisplayforgrid[0] = columndisplayforgrid;
+
 		this.cellfieldsforgrid = cellfieldsforgrid;
 		this.reversetree = false;
+	}
+
+	/**
+	 * Creates a Linked From Children with reverse grid (editable tree table)
+	 * 
+	 * @param name                                unique name amongst linked from
+	 *                                            children property of this object
+	 * @param childobjectforlink                  definition of the child object
+	 * @param originobjectproperty                LinkedToParent property on the
+	 *                                            child object
+	 * @param linedisplayforgrid                  the column used for line display
+	 * @param columndisplayforgrid
+	 * @param cellfieldsforgrid
+	 * @param infofieldforreverseshow
+	 * @param exceptionsforinfofieldconsolidation
+	 * @since 1.11
+	 */
+	public LinkedFromChildren(
+			String name,
+			DataObjectDefinition childobjectforlink,
+			LinkedToParent<?> originobjectproperty,
+			String linedisplayforgrid,
+			String[] columndisplayforgrid,
+			String cellfieldsforgrid,
+			String[] infofieldforreverseshow,
+			String[] exceptionsforinfofieldconsolidation) {
+		super(name, "LINKEDFROMCHILDREN");
+		this.addPropertyGenerics(new PropertyGenerics("CHILDOBJECTFORLINK", childobjectforlink, originobjectproperty));
+		this.childobject = childobjectforlink;
+		if (this.childobject == null)
+			throw new RuntimeException("for Linked from children name = " + name + " parent = " + parent.getName()
+					+ ", childobject is null");
+		this.displaychildrenasgrid = true;
+		this.linedisplayforgrid = linedisplayforgrid;
+		this.cellfieldsforgrid = new String[] {cellfieldsforgrid};
+		this.infofieldforreverseshow = infofieldforreverseshow;
+		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
+		this.reversetree = true;
+		this.freecolumnsdisplayforgrid = columndisplayforgrid;
+	}
+	
+	/**
+	 * Specifies display as reverse grid
+	 * @param linedisplayforgrid
+	 * @param columndisplayforgrid
+	 * @param cellfieldsforgrid
+	 * @param infofieldforreverseshow
+	 * @param exceptionsforinfofieldconsolidation
+	 * @since 1.11
+	 */
+	public void setReverseTreeGrid(String linedisplayforgrid,
+			String[] columndisplayforgrid,
+			String cellfieldsforgrid,
+			String[] infofieldforreverseshow,
+			String[] exceptionsforinfofieldconsolidation) {
+		this.displaychildrenasgrid = true;
+		this.linedisplayforgrid = linedisplayforgrid;
+		this.cellfieldsforgrid = new String[] {cellfieldsforgrid};
+		this.infofieldforreverseshow = infofieldforreverseshow;
+		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
+		this.reversetree = true;
+		this.freecolumnsdisplayforgrid = columndisplayforgrid;
 	}
 
 	/**
@@ -776,18 +849,23 @@ public class LinkedFromChildren
 	/**
 	 * Creates a Linked From Children with reverse grid (editable tree table)
 	 * 
-	 * @param name                          unique name amongst linked from children
-	 *                                      property of this object
-	 * @param childobjectforlink            definition of the child object
-	 * @param originobjectproperty          LinkedToParent property on the child
-	 *                                      object
+	 * @param name                                    unique name amongst linked
+	 *                                                from children property of this
+	 *                                                object
+	 * @param childobjectforlink                      definition of the child object
+	 * @param originobjectproperty                    LinkedToParent property on the
+	 *                                                child object
 	 * @param linkedfromchildrenwidgetdisplaypriority widget display priority
-	 * @param linedisplayforgrid            the column used for line display
-	 * @param columndisplayforgrid          the column used for column display
-	 * @param secondarycolumndisplayforgrid the column used for secondary column
-	 * @param cellfieldsforgrid field displayed as main value
-	 * @param infofieldforreverseshow list of info fields shown
-	 * @param exceptionsforinfofieldconsolidation exception values to avoid consolidating in info fields
+	 * @param linedisplayforgrid                      the column used for line
+	 *                                                display
+	 * @param columndisplayforgrid                    the column used for column
+	 *                                                display
+	 * @param secondarycolumndisplayforgrid           the column used for secondary
+	 *                                                column
+	 * @param cellfieldsforgrid                       field displayed as main value
+	 * @param infofieldforreverseshow                 list of info fields shown
+	 * @param exceptionsforinfofieldconsolidation     exception values to avoid
+	 *                                                consolidating in info fields
 	 */
 	public LinkedFromChildren(
 			String name,
@@ -800,11 +878,12 @@ public class LinkedFromChildren
 			String[] cellfieldsforgrid,
 			String[] infofieldforreverseshow,
 			String[] exceptionsforinfofieldconsolidation) {
-		this(name,childobjectforlink,originobjectproperty,linedisplayforgrid,columndisplayforgrid,secondarycolumndisplayforgrid,cellfieldsforgrid);
+		this(name, childobjectforlink, originobjectproperty, linedisplayforgrid, columndisplayforgrid,
+				secondarycolumndisplayforgrid, cellfieldsforgrid);
 		this.infofieldforreverseshow = infofieldforreverseshow;
 		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
 		this.linkedfromchildrenwidgetdisplaypriority = linkedfromchildrenwidgetdisplaypriority;
-		this.reversetree=true;
+		this.reversetree = true;
 	}
 
 	@Override

@@ -56,8 +56,8 @@ public class SGrid<E extends DataObject<E>>
 	private static Logger logger = Logger.getLogger(SGrid.class.getName());
 	private String name;
 	private DataObjectFieldMarker<E> linefield;
-	private DataObjectFieldMarker<E> columnfield;
-	private DataObjectFieldMarker<E> secondarycolumnfield;
+	private ArrayList<DataObjectFieldMarker<E>> columnsfields;
+
 	private ArrayList<DataObjectFieldMarker<E>> valuefield;
 	private ArrayList<DataObjectFieldMarker<E>> infofieldsforreversetree;
 	private ArrayDataElt<TObjectDataElt<E>> objectarray;
@@ -166,13 +166,13 @@ public class SGrid<E extends DataObject<E>>
 		this.name = name;
 		this.objectarray = objectarray;
 		this.linefield = linefield;
-		this.columnfield = columnfield;
+		this.columnsfields = new ArrayList<DataObjectFieldMarker<E>>();
+		this.columnsfields.add(columnfield);
 		this.valuefield = new ArrayList<DataObjectFieldMarker<E>>();
 		this.valuefield.add(uniquevaluefield);
 		this.objectmodel = objectmodel;
 		this.unsaveddatawarning = false;
 		this.updatenote = false;
-		this.secondarycolumnfield = null;
 	}
 
 	/**
@@ -219,8 +219,34 @@ public class SGrid<E extends DataObject<E>>
 			DataObjectFieldMarker<E> uniquevaluefield,
 			DataObjectDefinition<E> objectmodel) {
 		this(name, parentpage, objectarray, linefield, columnfield, uniquevaluefield, objectmodel);
-		this.secondarycolumnfield = secondarycolumnfield;
+		
+		this.columnsfields.add(secondarycolumnfield);
 	}
+	
+	/**
+	 * creates a grid with two column criteria
+	 * 
+	 * @param name                 unique name of the widget
+	 * @param parentpage           page
+	 * @param objectarray          the array of objects to show
+	 * @param linefield            field to use as line
+	 * @param columnfields          fields to use as column
+	 * @param uniquevaluefield     field to show: this is a single value
+	 * @param objectmodel          definition of the object being shown in the grid
+	 * @since 1.11
+	 */
+	public SGrid(
+			String name,
+			SPage parentpage,
+			ArrayDataElt<TObjectDataElt<E>> objectarray,
+			DataObjectFieldMarker<E> linefield,
+			DataObjectFieldMarker<E>[] columnfields,
+			DataObjectFieldMarker<E> uniquevaluefield,
+			DataObjectDefinition<E> objectmodel) {
+		this(name, parentpage, objectarray, linefield, columnfields[0], uniquevaluefield, objectmodel);
+		for (int i=1;i<columnfields.length;i++) this.columnsfields.add(columnfields[i]);
+	}
+	
 
 	/**
 	 * sets the default action after double click on a cell in the grid
@@ -254,12 +280,13 @@ public class SGrid<E extends DataObject<E>>
 		this.name = name;
 		this.objectarray = objectarray;
 		this.linefield = linefield;
-		this.columnfield = columnfield;
+		this.columnsfields = new ArrayList<DataObjectFieldMarker<E>>();
+		this.columnsfields.add(columnfield);
 		this.valuefield = valuefield;
 		this.objectmodel = objectmodel;
 		this.unsaveddatawarning = false;
 		this.updatenote = false;
-		this.secondarycolumnfield = null;
+
 	}
 
 	@Override
@@ -277,17 +304,16 @@ public class SGrid<E extends DataObject<E>>
 	@Override
 	public void WritePayloadToCDL(MessageWriter writer, SPageData input, SecurityBuffer buffer) throws IOException {
 
-		if (this.secondarycolumnfield != null)
+		if (this.columnsfields.size()>1)
 			if (valuefield.size() > 1)
 				throw new RuntimeException(
 						"Secondary column field is not authorized with several value sizes in current version.");
 
 		writer.addStringField("NAME", this.name);
 		writer.addStringField("LNF", linefield.toString());
-		writer.addStringField("CLF", columnfield.toString());
-		writer.addBooleanField("HSC", (!(this.secondarycolumnfield == null)));
-		if (this.secondarycolumnfield != null)
-			writer.addStringField("SCF", secondarycolumnfield.toString());
+		writer.addIntegerField("CLN", this.columnsfields.size());
+		for (int i=0;i<this.columnsfields.size();i++)
+			writer.addStringField("CLF", this.columnsfields.get(i).toString());
 		writer.addIntegerField("VLN", valuefield.size());
 		for (int i = 0; i < valuefield.size(); i++) {
 			DataObjectFieldMarker<E> currentvalue = valuefield.get(i);
