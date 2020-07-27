@@ -426,7 +426,7 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 					}
 
 				}
-				sheet.setColumnWidth(i, (int) (columnmaxchar[i] * 1.14388 * 256));
+				sheet.setColumnWidth(i,width);
 			}
 
 		}
