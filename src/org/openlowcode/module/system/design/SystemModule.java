@@ -1447,6 +1447,24 @@ public class SystemModule
 		StaticPageDefinition otpok = new  StaticPageDefinition("OTPOK");
 		this.AddPage(otpok);
 		
+		DataObjectDefinition serverthread = new DataObjectDefinition("SERVERTHREAD","Server Thread",this);
+		serverthread.addField(new DecimalField("THREADID","Thread Id","",15,0,DecimalField.INDEXTYPE_NONE));
+		serverthread.addField(new DecimalField("SERVERCPU","CPU Time","",15,0,DecimalField.INDEXTYPE_NONE));
+		serverthread.addField(new StringField("NAME", "Name", "", 256, StringField.INDEXTYPE_NONE));
+		serverthread.addField(new StringField("STACK", "Stack Trace", "", 1024, StringField.INDEXTYPE_NONE));
+		
+		
+		
+		StaticActionDefinition probethreads = new StaticActionDefinition("PROBESERVERTHREADS");
+		probethreads.setButtonlabel("Probe server threads");
+		probethreads.addOutputArgument(new ArrayArgument(new ObjectArgument("THREADS", serverthread)));
+		this.addasMenuAction(probethreads);
+		
+		DynamicPageDefinition probethreadspage = new DynamicPageDefinition("PROBESERVERTHREADS");
+		probethreadspage.linkPageToAction(probethreads);
+		this.AddPage(probethreadspage);
+		
+		
 		DynamicActionDefinition confirmotp = new DynamicActionDefinition("CONFIRMOTP");
 		confirmotp.addInputArgument(new StringArgument("OTP", 64));
 		confirmotp.addOutputArgument(new ChoiceArgument("VALID",this.booleanchoice));
