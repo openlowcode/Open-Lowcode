@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -74,6 +74,11 @@ public interface VersionedInterface<E extends DataObject<E>>
 	 */
 	public E revise();
 
+	/**
+	 * @return the previous version if it exists
+	 */
+	public E getpreviousversion();
+	
 	/**
 	 * @return a function allowing massive revise of the type
 	 */

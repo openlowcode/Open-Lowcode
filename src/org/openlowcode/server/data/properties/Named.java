@@ -48,7 +48,7 @@ public class Named<E extends DataObject<E>> extends DataObjectProperty<E> {
 	public void setobjectname(E object, String name) {
 		if (nameddefinition.getAutonamingRule() != null)
 			throw new RuntimeException(" this function can be called only if autonaming property is not set");
-		if (name.length() > NamedDefinition.NAMED_LENGTH)
+		if (name!=null) if (name.length() > NamedDefinition.NAMED_LENGTH)
 			throw new RuntimeException("name is too long");
 		this.objectname.setPayload(name);
 

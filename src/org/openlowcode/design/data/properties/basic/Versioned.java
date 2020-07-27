@@ -149,6 +149,8 @@ public class Versioned
 				true);
 		revise.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
 		this.addDataAccessMethod(revise);
+		
+
 
 		DataAccessMethod getlastversion = new DataAccessMethod("GETLASTVERSION", new ObjectArgument("OBJECT", parent),
 				false, true);

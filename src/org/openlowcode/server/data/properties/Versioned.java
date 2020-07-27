@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 [Open Lowcode SAS](https://openlowcode.com/)
+ * Copyright (c) 2019-2020 [Open Lowcode SAS](https://openlowcode.com/)
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -55,7 +55,6 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 	 * @param objectbatch
 	 * @param versionedarrayforbatch
 	 */
-	@SuppressWarnings("unchecked")
 	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> void initversion(
 			E[] objectbatch,
 			Versioned<E>[] versionedarrayforbatch) {
@@ -87,6 +86,8 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 		// default logic
 
 	}
+
+
 
 	@SuppressWarnings("unchecked")
 	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> E[] revise(
