@@ -1,7 +1,7 @@
 # Open-Lowcode
 **Lowcode framework for enterprises**
 
-Open Lowcode allows organizations develop quickly specific applications, and scale them with a minomum budget. 
+Open Lowcode allows organizations develop quickly specific applications, and scale them with a minimum budget. 
 
 published by [Open Lowcode SAS](https://openlowcode.com). For a quick intro, head for the [10 minutes tutorial](https://openlowcode.com/10-minutes-open-lowcode-tutorial/). To understand design decisions, head for the [Open Lowcode design decisions](https://openlowcode.com/open-lowcode-design-decisions/). 
 
