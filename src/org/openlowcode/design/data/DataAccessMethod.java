@@ -37,6 +37,8 @@ public class DataAccessMethod
 	private boolean needpropertyextractor;
 	private boolean isstaticexecuted = false;
 	private boolean ismassive = false;
+	private boolean allowsconsumer = false;
+	private ObjectArgument implicitobject;
 
 	/**
 	 * @return true if the method accepts a query condition. This is mostly true for
@@ -52,6 +54,10 @@ public class DataAccessMethod
 	 */
 	public boolean needPropertyExtractor() {
 		return this.needpropertyextractor;
+	}
+
+	public boolean allowsconsumer() {
+		return this.allowsconsumer;
 	}
 
 	/**
@@ -78,6 +84,35 @@ public class DataAccessMethod
 		this.implicitobjectmethod = null;
 		this.acceptquerycondition = acceptquerycondition;
 		this.needpropertyextractor = false;
+	}
+
+	/**
+	 * Create a data access method
+	 * 
+	 * @param name                 name of the method. Should be unique amongst all
+	 *                             method properties of the application
+	 * @param output               output of the method
+	 * @param acceptquerycondition specifies if the method accepts an additional
+	 *                             query condition method (example: a select does
+	 *                             not "start" from an object)
+	 * @param masstreatment        true if mass treatment is implemented for this
+	 *                             method. Mass treatment allows to treat
+	 *                             efficiently a batch of objects
+	 * @param allowsconsumer       gives the possibility of adding a consumer
+	 *                             argument to the method. Typically, this consumer
+	 *                             adds data to the object before it is persisted
+	 * @since 1.11
+	 */
+	public DataAccessMethod(
+			String name,
+			ArgumentContent output,
+			boolean acceptquerycondition,
+			boolean masstreatment,
+			boolean allowsconsumer) {
+		this(name, output, acceptquerycondition);
+		this.ismassive = masstreatment;
+		this.allowsconsumer = allowsconsumer;
+
 	}
 
 	/**
@@ -136,6 +171,7 @@ public class DataAccessMethod
 				// note - may need to add a condition on the type of object
 				this.implicitobjectmethod = input.get(i); // as argument is implicit, it will not be an attribute for
 															// the user
+				this.implicitobject = (ObjectArgument) thisargumentcontent;
 				return false;
 
 			}
@@ -214,6 +250,11 @@ public class DataAccessMethod
 		if (this.isAcceptquerycondition()) {
 			arguments.append(",");
 			arguments.append("additionalcondition");
+		}
+
+		if (this.allowsconsumer()) {
+			arguments.append(",");
+			arguments.append("consumer");
 		}
 
 		if (this.isStatic())
@@ -309,6 +350,14 @@ public class DataAccessMethod
 			arguments.append("additionalcondition");
 		}
 
+		if (this.allowsconsumer()) {
+			if (kbis2 > 0) {
+				arguments.append(",");
+			}
+			kbis2++;
+			arguments.append("consumer");
+		}
+
 		if (this.isStatic()) {
 			if (kbis2 > 0)
 				arguments.append(",");
@@ -386,6 +435,14 @@ public class DataAccessMethod
 
 		}
 
+		if (this.allowsconsumer()) {
+			arguments.append(",");
+			arguments.append(
+					"Consumer<" + StringFormatter.formatForJavaClass(this.implicitobject.getMasterObject().getName())
+							+ "> consumer");
+
+		}
+
 		return arguments.toString();
 	}
 
@@ -419,6 +476,13 @@ public class DataAccessMethod
 			if (kbis > 0)
 				arguments.append(",");
 			arguments.append("additionalcondition");
+			kbis++;
+		}
+
+		if (this.allowsconsumer()) {
+			if (kbis > 0)
+				arguments.append(",");
+			arguments.append("consumer");
 			kbis++;
 		}
 
@@ -463,6 +527,16 @@ public class DataAccessMethod
 			arguments.append("QueryFilter additionalcondition");
 			kbis++;
 		}
+
+		if (this.allowsconsumer()) {
+			if (kbis > 0)
+				arguments.append(",");
+			arguments.append(
+					"Consumer<" + StringFormatter.formatForJavaClass(this.implicitobject.getMasterObject().getName())
+							+ "> consumer");
+			kbis++;
+		}
+
 		if (securityarguments) {
 			if (kbis > 0)
 				arguments.append(",");

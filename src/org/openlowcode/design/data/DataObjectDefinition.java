@@ -3796,6 +3796,8 @@ public class DataObjectDefinition
 		sg.wl("import java.math.BigDecimal;");
 		sg.wl("import java.util.ArrayList;");
 		sg.wl("import java.util.Date;");
+		sg.wl("import java.util.function.Consumer;");
+		sg.wl("");
 		sg.wl("import org.openlowcode.server.data.*;");
 		sg.wl("import org.openlowcode.server.data.storage.*;");
 		sg.wl("import org.openlowcode.tools.misc.NamedList;");

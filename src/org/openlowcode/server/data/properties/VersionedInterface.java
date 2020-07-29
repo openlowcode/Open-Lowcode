@@ -10,6 +10,8 @@
 
 package org.openlowcode.server.data.properties;
 
+import java.util.function.Consumer;
+
 import org.openlowcode.server.data.DataObject;
 
 /**
@@ -69,16 +71,18 @@ public interface VersionedInterface<E extends DataObject<E>>
 
 	/**
 	 * revises the latest version of an object
+	 * @param consumer a consumer to execute before persistence of the new version (optional)
 	 * 
 	 * @return the new version created
 	 */
-	public E revise();
+
+	public E revise(Consumer<E> consumer);
 
 	/**
 	 * @return the previous version if it exists
 	 */
 	public E getpreviousversion();
-	
+
 	/**
 	 * @return a function allowing massive revise of the type
 	 */
@@ -92,7 +96,13 @@ public interface VersionedInterface<E extends DataObject<E>>
 	 * @param <E> the object type
 	 */
 	public interface MassiveRevise<E extends DataObject<E>> {
-		public E[] revise(E[] objectbatch);
+		
+		/**
+		 * @param objectbatch batch of objects
+		 * @param consumer consumer to execute before persistence of a new version (optional)
+		 * @return the revised objects
+		 */
+		public E[] revise(E[] objectbatch,Consumer<E> consumer);
 	}
 
 	/**

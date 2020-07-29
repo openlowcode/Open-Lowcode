@@ -11,6 +11,7 @@
 package org.openlowcode.server.data.properties;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectPayload;
@@ -89,9 +90,15 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 
 
 
+	/**
+	 * @param objectbatch
+	 * @param versionedarrayforbatch
+	 * @param consumer
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static <E extends DataObject<E> & UniqueidentifiedInterface<E> & VersionedInterface<E>> E[] revise(
-			E[] objectbatch,
+			E[] objectbatch,Consumer<E> consumer,
 			Versioned<E>[] versionedarrayforbatch) {
 		// ------------------------------------- control of data size
 		if (objectbatch == null)
@@ -135,6 +142,7 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 					NamedInterface<E> newversionobjectnamed = (NamedInterface<E>) newobject;
 					newversionobjectnamed.setobjectname(objectnamed.getObjectname());
 				}
+				consumer.accept(newobject);
 			}
 
 			E[] returnobjectarray = returnobjects
@@ -178,7 +186,7 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 	 * @return the just created version
 	 */
 	@SuppressWarnings("unchecked")
-	public E revise(E object) {
+	public E revise(E object,Consumer<E> consumer) {
 		if (!("Y".equals(this.lastversionfield.getPayload())))
 			throw new RuntimeException("You can only create new version for last version");
 		this.lastversionfield.setPayload("N");
@@ -199,6 +207,7 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 			NamedInterface<E> newversionobjectnamed = (NamedInterface<E>) newversionobject;
 			newversionobjectnamed.setobjectname(objectnamed.getObjectname());
 		}
+		if (consumer!=null) consumer.accept(newversionobject);
 		newversionobject.insert();
 		return newversionobject;
 

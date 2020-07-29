@@ -146,7 +146,7 @@ public class Versioned
 		this.addMethodAdditionalProcessing(setnewlastversionafterdelete);
 
 		DataAccessMethod revise = new DataAccessMethod("REVISE", new ObjectArgument("REVISEDOBJECT", parent), false,
-				true);
+				true,true);
 		revise.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
 		this.addDataAccessMethod(revise);
 		

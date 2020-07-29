@@ -1807,7 +1807,7 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("	public ActionOutputData executeActionLogic(DataObjectId<" + objectclass + "> id,");
 		sg.wl("			Function<TableAlias, QueryFilter> datafilter)  {");
 		sg.wl("		" + objectclass + " oldversion = " + objectclass + ".readone(id);");
-		sg.wl("		" + objectclass + " newversion = oldversion.revise();");
+		sg.wl("		" + objectclass + " newversion = oldversion.revise(null);");
 		sg.wl("		return new ActionOutputData(newversion.getId());");
 		sg.wl("	}");
 		sg.wl("");
