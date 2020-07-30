@@ -117,9 +117,7 @@ public class Hasmultidimensionalchild<
 				F oldchild = previouschildren[i];
 				String childkey = multidimensionalchildhelper.generateKeyForObject(oldchild);
 				if (objectsperkey.get(childkey) != null) {
-					@SuppressWarnings("unchecked")
-					VersionedInterface<F> oldchildcasted = (VersionedInterface<F>) oldchild;
-					F newchild = oldchildcasted.revise();
+					F newchild = oldchild.deepcopy();
 					objectsperkey.put(childkey, newchild);
 				}
 			}
