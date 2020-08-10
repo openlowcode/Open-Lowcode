@@ -127,6 +127,34 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 
 	private DecimalParser decimalparser;
 
+	public static BigDecimal parsemultiplierForExport(String multiplier) {
+		if (multiplier == null)
+			return new BigDecimal(1);
+		if (multiplier.length() == 0)
+			return new BigDecimal(1);
+		if (multiplier.trim().equals("M1000"))
+			return new BigDecimal("0.001");
+		if (multiplier.trim().equals("M100"))
+			return new BigDecimal("0.01");
+		if (multiplier.trim().equals("D1000"))
+			return new BigDecimal("1000");
+		throw new RuntimeException("Invalid multiplier " + multiplier);
+	}
+
+	public static int parseMultiplierForImport(String multiplier) {
+		if (multiplier == null)
+			return DecimalParser.SPECIAL_TREATMENT_NONE;
+		if (multiplier.length() == 0)
+			return DecimalParser.SPECIAL_TREATMENT_NONE;
+		if (multiplier.trim().equals("M1000"))
+			return DecimalParser.SPECIAL_TREATMENT_MULTIPLY_BY_1000;
+		if (multiplier.trim().equals("M100"))
+			return DecimalParser.SPECIAL_TREATMENT_MULTIPLY_BY_100;
+		if (multiplier.trim().equals("D1000"))
+			return DecimalParser.SPECIAL_TREATMENT_DIVIDE_BY_1000;
+		throw new RuntimeException("Invalid multiplier " + multiplier);
+	}
+
 	public DecimalDataObjectFieldFlatFileLoaderColumn(
 			DataObjectDefinition<E> definition,
 			String[] arguments,
@@ -219,4 +247,49 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 
 	}
 
+	/**
+	 * puts a big decimal in cell, formatting as percentage if needed
+	 * 
+	 * @param cell       cell
+	 * @param value      value
+	 * @param multiplier multiplier in the sense of DecimalFlatFileLoader
+	 * @return true if formatting was done, false if formatting was not done
+	 */
+	public static <F extends FieldChoiceDefinition<F>> boolean putContentInCell(
+			Cell cell,
+			BigDecimal value,
+			String multiplier) {
+		BigDecimal multiplierforexport = parsemultiplierForExport(multiplier);
+		cell.setCellValue(value.multiply(multiplierforexport).doubleValue());
+		if (multiplierforexport.equals(new BigDecimal("0.01"))) {
+			CellStyle percentagecellstyle = FlatFileExtractor.createBorderedStyle(cell.getSheet().getWorkbook());
+			percentagecellstyle.setDataFormat(cell.getSheet().getWorkbook().createDataFormat().getFormat("0.0%"));
+			cell.setCellStyle(percentagecellstyle);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * gets a BigDecimal from cell
+	 * 
+	 * @param value           value to parse
+	 * @param scale           scale
+	 * @param precision       precision
+	 * @param locale          locale for import from text (comma or dot as decimal)
+	 * @param modifier        String modifier in the sense of
+	 *                        DecimalDataObjectFieldFlatFileLoader
+	 * @param contextforerror context used in exceptions
+	 * @return
+	 */
+	public static <F extends FieldChoiceDefinition<F>> BigDecimal getContentFromCell(
+			Object value,
+			int scale,
+			int precision,
+			ChoiceValue<ApplocaleChoiceDefinition> locale,
+			int modifier,
+			String contextforerror) {
+		return FlatFileLoader.parseDecimal(value, precision, scale, contextforerror,
+				new DecimalParser(scale, precision, locale, modifier));
+	}
 }

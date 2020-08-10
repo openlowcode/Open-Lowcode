@@ -22,8 +22,6 @@ import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
-
-
 /**
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
@@ -37,25 +35,23 @@ public class HasMultiDimensionalChild
 	private DataObjectDefinition childobjectforlink;
 	private MultiDimensionChild<?> originobjectproperty;
 
-	public HasMultiDimensionalChild(String name,
+	public HasMultiDimensionalChild(
+			String name,
 			DataObjectDefinition childobjectforlink,
 			MultiDimensionChild<?> originobjectproperty) {
 		super(name, "HASMULTIDIMENSIONALCHILD");
 		this.childobjectforlink = childobjectforlink;
 		this.originobjectproperty = originobjectproperty;
 		this.addPropertyGenerics(new PropertyGenerics("CHILDOBJECTFORLINK", childobjectforlink, originobjectproperty));
-		
+
 	}
 
-	
-	
 	@Override
 	public void controlAfterParentDefinition() {
 		this.addDependentProperty(originobjectproperty.getLinkedToParent().getLinkedFromChildren());
-		this.addMethodAdditionalProcessing(new  MethodAdditionalProcessing(false,this.getParent().getPropertyByName("STOREDOBJECT").getDataAccessMethod("INSERT")));
+		this.addMethodAdditionalProcessing(new MethodAdditionalProcessing(false,
+				this.getParent().getPropertyByName("STOREDOBJECT").getDataAccessMethod("INSERT")));
 	}
-
-
 
 	@Override
 	public String[] getPropertyInitMethod() {
@@ -84,7 +80,7 @@ public class HasMultiDimensionalChild
 	@Override
 	public void setFinalSettings() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -99,46 +95,73 @@ public class HasMultiDimensionalChild
 		sg.wl("import org.openlowcode.server.data.properties.multichild.MultichildValueHelper;");
 		sg.wl("import org.openlowcode.server.data.helpers.ReportTree;");
 		this.originobjectproperty.getFirstAxisValue().writeDependentClass(sg, module);
-		writeImportForFieldHelper(sg,module,this.originobjectproperty.getFirstAxisValue());
+		writeImportForFieldHelper(sg, module, this.originobjectproperty.getFirstAxisValue());
 		Field[] secondaxisfields = this.originobjectproperty.getSecondAxisValue();
-		if (secondaxisfields!=null) for (int i=0;i<secondaxisfields.length;i++) {
-			secondaxisfields[i].writeDependentClass(sg, module);
-			writeImportForFieldHelper(sg,module,secondaxisfields[i]);
+		if (secondaxisfields != null)
+			for (int i = 0; i < secondaxisfields.length; i++) {
+				secondaxisfields[i].writeDependentClass(sg, module);
+				writeImportForFieldHelper(sg, module, secondaxisfields[i]);
 
-		}
+			}
+		writeImportForFieldHelper(sg,module,originobjectproperty.getPayloadValue()[0]);
 	}
 
-	private void writeImportForFieldHelper(SourceGenerator sg,Module module,Field field) throws IOException {
+	private void writeImportForFieldHelper(SourceGenerator sg, Module module, Field field) throws IOException {
 		String childclass = StringFormatter.formatForJavaClass(this.childobjectforlink.getName());
 		String attributeclass = StringFormatter.formatForJavaClass(field.getName());
-		sg.wl("import "+module.getPath()+".utility."+childclass+attributeclass+"FieldChildHelper;");		
+		sg.wl("import " + module.getPath() + ".utility." + childclass + attributeclass + "FieldChildHelper;");
 	}
 
 	@Override
 	public void writeAdditionalDefinition(SourceGenerator sg) throws IOException {
-String parentclass = StringFormatter.formatForJavaClass(this.getParent().getName());
-String childclass = StringFormatter.formatForJavaClass(this.childobjectforlink.getName());
-	
-sg.wl("		hasmultidimensionalchildfor"+StringFormatter.formatForAttribute(this.getInstancename())+".setHelperGenerator(() -> {");
-sg.wl("			MultidimensionchildHelper<"+childclass+","+parentclass+"> helper = new  MultidimensionchildHelper<"+childclass+","+parentclass+">((a,b)->a.setValue(ReportTree.sumIfNotNull(a.getValue(),b.getValue())));");
-this.writeHelperForValue(sg,this.originobjectproperty.getFirstAxisValue(), parentclass, childclass);
-Field[] secondaxisfields = this.originobjectproperty.getSecondAxisValue();
-if (secondaxisfields!=null) for (int i=0;i<secondaxisfields.length;i++) {
-	this.writeHelperForValue(sg,secondaxisfields[i], parentclass, childclass);
+		String parentclass = StringFormatter.formatForJavaClass(this.getParent().getName());
+		String childclass = StringFormatter.formatForJavaClass(this.childobjectforlink.getName());
 
-}
-sg.wl("			return helper;");
-sg.wl("		});		");
-		
-		
-	
+		sg.wl("		hasmultidimensionalchildfor" + StringFormatter.formatForAttribute(this.getInstancename())
+				+ ".setHelperGenerator(() -> {");
+		sg.wl("			MultidimensionchildHelper<" + childclass + "," + parentclass
+				+ "> helper = new  MultidimensionchildHelper<" + childclass + "," + parentclass + ">(");
+		sg.wl("				(a,b)->a.setValue(ReportTree.sumIfNotNull(a.getValue(),b.getValue())));");
+		this.writeHelperForValue(sg, this.originobjectproperty.getFirstAxisValue(), parentclass, childclass, true,
+				false);
+		Field[] secondaxisfields = this.originobjectproperty.getSecondAxisValue();
+		if (secondaxisfields != null)
+			for (int i = 0; i < secondaxisfields.length; i++) {
+				this.writeHelperForValue(sg, secondaxisfields[i], parentclass, childclass, false, false);
+
+			}
+
+		Field[] payloadfield = this.originobjectproperty.getPayloadValue();
+		if (payloadfield.length > 1)
+			throw new RuntimeException("Multiple payload not yet supported");
+		this.writeHelperForValue(sg, payloadfield[0], parentclass, childclass, false, true);
+		sg.wl("			return helper;");
+		sg.wl("		});		");
+
 	}
 
-	private void writeHelperForValue(SourceGenerator sg,Field field,String parentclass,String childclass) throws IOException {
+	private void writeHelperForValue(
+			SourceGenerator sg,
+			Field field,
+			String parentclass,
+			String childclass,
+			boolean main,
+			boolean payload) throws IOException {
 		String attributeclass = StringFormatter.formatForJavaClass(field.getName());
 		String attributefield = StringFormatter.formatForJavaClass(field.getName());
-		sg.wl("			MultichildValueHelper<"+childclass+","+field.getJavaType()+","+parentclass+"> "+attributefield+"fieldchildhelper = new "+childclass+attributeclass+"FieldChildHelper((a,b)->a.set"+attributeclass+"(b), (a)->a.get"+attributeclass+"());");
-		sg.wl("			helper.setChildHelper("+attributefield+"fieldchildhelper);");
+		sg.wl("			MultichildValueHelper<" + childclass + "," + field.getJavaType() + "," + parentclass + "> "
+				+ attributefield + "fieldchildhelper =");
+		sg.wl("				 new " + childclass + attributeclass + "FieldChildHelper(");
+		sg.wl("					\"" + field.getName().toUpperCase() + "\",");
+		sg.wl("					(a,b)->a.set" + attributeclass + "(b),");
+		sg.wl("					(a)->a.get" + attributeclass + "(),");
+		sg.wl("					" + field.writeCellFiller() + ",");
+		sg.wl("					" + field.writeCellExtractor() + ");");
+		if (!payload)
+			sg.wl("			helper.setChildHelper(" + attributefield + "fieldchildhelper" + (main ? ",true" : "")+");");
+		if (payload)
+			sg.wl("			helper.setPayloadHelper(" + attributefield + "fieldchildhelper);");
+
 	}
-	
+
 }

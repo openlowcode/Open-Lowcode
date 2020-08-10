@@ -11,9 +11,19 @@
 package org.openlowcode.server.data.properties.multichild;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
+import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
+import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
+import org.openlowcode.server.data.loader.PostUpdateProcessingStore;
+import org.openlowcode.server.data.properties.HasmultidimensionalchildFlatFileLoaderHelper;
+import org.openlowcode.server.data.properties.MultidimensionchildInterface;
+import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
 import org.openlowcode.tools.misc.StandardUtil;
 
 /**
@@ -26,15 +36,57 @@ import org.openlowcode.tools.misc.StandardUtil;
  * @param <F> payload of the field
  * @param <G> type of the parent object (or any other object to be used)
  */
-public abstract class MultichildValueHelper<E extends DataObject<E>, F extends Object, G extends DataObject<G>> {
-	
+public abstract class MultichildValueHelper<
+		E extends DataObject<E> & UniqueidentifiedInterface<E> & MultidimensionchildInterface<E, G>,
+		F extends Object,
+		G extends DataObject<G> & UniqueidentifiedInterface<G>> {
+
+	private static Logger logger = Logger.getLogger(MultichildValueHelper.class.getName());
+
 	private BiConsumer<E, F> setter;
 	private Function<E, F> getter;
 
-	
-	public MultichildValueHelper(BiConsumer<E,F> setter,Function<E,F> getter) {
+	private BiConsumer<Cell, F> cellfiller;
+	private String[] restrictions;
+	private BiFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>, F> payloadparser;
+	private String fieldname;
+
+	private Function<F, String> printer;
+	public MultichildValueHelper(String fieldname,
+			BiConsumer<E, F> setter,
+			Function<E, F> getter,
+			BiConsumer<Cell, F> cellfiller,
+			BiFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>, F> payloadparser,
+			Function<F,String> printer) {
+		this.fieldname = fieldname;
 		this.setter = setter;
 		this.getter = getter;
+		this.cellfiller = cellfiller;
+		this.payloadparser = payloadparser;
+		this.printer = printer;
+		this.restrictions = null;
+	}
+
+
+	
+	public MultichildValueHelper(String fieldname,
+			BiConsumer<E, F> setter,
+			Function<E, F> getter,
+			BiConsumer<Cell, F> cellfiller,
+			BiFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>, F> payloadparser,
+			Function<F,String> printer,
+			String[] restrictions) {
+		this.fieldname = fieldname;
+		this.setter = setter;
+		this.getter = getter;
+		this.cellfiller = cellfiller;
+		this.payloadparser = payloadparser;
+		this.printer = printer;
+		this.restrictions = restrictions;
+	}
+
+	public String getFieldName() {
+		return this.fieldname;
 	}
 	
 	/**
@@ -43,7 +95,7 @@ public abstract class MultichildValueHelper<E extends DataObject<E>, F extends O
 	 * @param parent parent object
 	 */
 	public abstract void setContext(G parent);
-	
+
 	/**
 	 * sets the payload of the field on the child object
 	 * 
@@ -52,6 +104,16 @@ public abstract class MultichildValueHelper<E extends DataObject<E>, F extends O
 	 */
 	public void set(E object, F payload) {
 		setter.accept(object, payload);
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param cell
+	 * @param object
+	 */
+	public void fillCell(Cell cell, E object) {
+		this.cellfiller.accept(cell, this.getter.apply(object));
 	}
 
 	/**
@@ -64,6 +126,14 @@ public abstract class MultichildValueHelper<E extends DataObject<E>, F extends O
 		return getter.apply(object);
 	}
 
+	public String print(F payload) {
+		return this.printer.apply(payload);
+	}
+	
+	public String getAndPrint(E object) {
+		return printer.apply(getter.apply(object));
+	}
+	
 	/**
 	 * gets the minimum values that have to exist for this field in the list of
 	 * children
@@ -126,4 +196,131 @@ public abstract class MultichildValueHelper<E extends DataObject<E>, F extends O
 		}
 		return false;
 	}
+	
+	public boolean LoadIfDifferent(E object,Object value,ChoiceValue<ApplocaleChoiceDefinition> applocale) {
+		F newvalue = payloadparser.apply(value,applocale);
+		F oldvalue = getter.apply(object);
+		if (StandardUtil.compareIncludesNull(newvalue, oldvalue)) {
+			return false;
+		} else {
+			setter.accept(object, newvalue);
+			object.update();
+			return true;
+		}
+	}
+	
+
+	@Override
+	public String toString() {
+		return this.fieldname;
+	}
+
+
+
+
+	public class SecondValueFlatFileLoader
+			extends
+			FlatFileLoaderColumn<G> {
+
+		private boolean mainsecondary = false;
+		private HasmultidimensionalchildFlatFileLoaderHelper<G, E> helper;
+		private int index;
+		private ChoiceValue<ApplocaleChoiceDefinition> applocale;
+
+		public SecondValueFlatFileLoader(HasmultidimensionalchildFlatFileLoaderHelper<G, E> helper,ChoiceValue<ApplocaleChoiceDefinition> applocale, int index,boolean mainsecondary) {
+			this.mainsecondary = mainsecondary;
+			this.helper = helper;
+			this.index = index;
+			this.applocale = applocale;
+		}
+
+		public SecondValueFlatFileLoader(HasmultidimensionalchildFlatFileLoaderHelper<G, E> helper,ChoiceValue<ApplocaleChoiceDefinition> applocale, int index) {
+			this.mainsecondary = false;
+			this.helper = helper;
+			this.index = index;
+			this.applocale = applocale;
+		}
+
+		@Override
+		public String[] getValueRestriction() {
+			return restrictions;
+		}
+
+		@Override
+		public boolean load(G object, Object value, PostUpdateProcessingStore<G> postupdateprocessingstore) {
+			logger.warning("Adding value in index "+index+" value = "+value.toString());
+			helper.setSecondaryValueForLoading(index, MultichildValueHelper.this.print(MultichildValueHelper.this.payloadparser.apply(value,applocale)));
+		
+			// returns false as no change of value is done
+			return false;
+		}
+
+		@Override
+		protected boolean putContentInCell(G currentobject, Cell cell, String context) {
+			E child = helper.getFirstChildForLineKey(context);
+			if (child == null) {
+				logger.warning("Did not find object for key " + context + ". This is not normal behaviour");
+				return false;
+			}
+			F value = getter.apply(child);
+			cell.setCellValue(value.toString());
+			return true;
+
+		}
+
+		@Override
+		public String[] initComplexExtractorForObject(G currentobject) {
+			if (!this.mainsecondary)
+				return null;
+			return helper.generateKeyAndLoadExistingData(currentobject);
+		}
+
+		@Override
+		public boolean isComplexExtractor() {
+			return this.mainsecondary;
+		}
+	}
+
+	public class MainValueFlatFileLoader
+			extends
+			FlatFileLoaderColumn<G> {
+
+		private F mainvalue;
+		private HasmultidimensionalchildFlatFileLoaderHelper<G, E> helper;
+		private ChoiceValue<ApplocaleChoiceDefinition> applocale;
+		private MultichildValueHelper<E,?,G> payloadhelper;
+		
+
+		
+		public MainValueFlatFileLoader(HasmultidimensionalchildFlatFileLoaderHelper<G, E> helper,ChoiceValue<ApplocaleChoiceDefinition> applocale, String unparsedpayload,MultichildValueHelper<E,?,G> payloadhelper) {
+			this.mainvalue = MultichildValueHelper.this.payloadparser.apply(unparsedpayload,applocale);
+			this.helper = helper;
+			this.applocale = applocale;
+			this.payloadhelper = payloadhelper;
+		}
+
+		@Override
+		public boolean load(G object, Object value, PostUpdateProcessingStore<G> postupdateprocessingstore) {
+			helper.setContext(object);
+			String helpercontextkey = helper.getContextKey();
+			E relevantchild = helper.getChildForLineAndColumnKey(helpercontextkey, MultichildValueHelper.this.print(mainvalue));
+			if (relevantchild==null) {
+				throw new RuntimeException("Did not find existing child for key, debug = "+helper.getDebugForLineAndColumnKey(helpercontextkey, MultichildValueHelper.this.print(mainvalue)));
+			}
+			return this.payloadhelper.LoadIfDifferent(relevantchild, value, applocale);
+			
+		}
+
+		@Override
+		protected boolean putContentInCell(G currentobject, Cell cell, String context) {
+			E child = helper.getChildForLineAndColumnKey(context, mainvalue.toString());
+			MultichildValueHelper<E, ?, G> payloadhelper = helper.getPayloadHelper();
+			payloadhelper.fillCell(cell, child);
+
+			return true;
+		}
+
+	}
+
+
 }

@@ -15,6 +15,8 @@ import java.util.function.BiConsumer;
 
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
+import org.openlowcode.server.data.properties.MultidimensionchildInterface;
+import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
 
 /**
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
@@ -23,24 +25,47 @@ import org.openlowcode.server.data.DataObjectDefinition;
  * @param <E> type of child object
  * @param <F> type of parent object
  */
-public class MultidimensionchildHelper<E extends DataObject<E>,F extends DataObject<F>> {
-	private ArrayList<MultichildValueHelper<E, ?,F>> valuehelpers;
-	private BiConsumer<E,E> consolidator;
+public class MultidimensionchildHelper<
+		E extends DataObject<E> & UniqueidentifiedInterface<E> & MultidimensionchildInterface<E, F>,
+		F extends DataObject<F> & UniqueidentifiedInterface<F>> {
+	private ArrayList<MultichildValueHelper<E, ?, F>> secondarycriteriavaluehelpers;
+	private MultichildValueHelper<E, ?, F> maincriteriavaluehelper;
+	private ArrayList<MultichildValueHelper<E, ?, F>> fullvaluehelpers;
+	private MultichildValueHelper<E, ?, F> payloadvaluehelper;
+	private BiConsumer<E, E> consolidator;
+
+	public static String generateKey(ArrayList<String> values) {
+		StringBuffer keybuffer = new StringBuffer();
+		if (values == null)
+			return "";
+		for (int i = 0; i < values.size(); i++) {
+			if (i > 0)
+				keybuffer.append("@|@");
+			keybuffer.append(values.get(i).replace("@", "@@"));
+		}
+		return keybuffer.toString();
+	}
+
+	public String generateKeyForObject(E object, boolean excludemainvalue) {
+		ArrayList<String> elementsforkey = new ArrayList<String>();
+		for (int i = 0; i < secondarycriteriavaluehelpers.size(); i++) {
+			MultichildValueHelper<E, ?, F> thishelper = secondarycriteriavaluehelpers.get(i);
+			
+			elementsforkey.add(thishelper.getAndPrint(object));
+		}
+		if (!excludemainvalue) {
+			elementsforkey.add(maincriteriavaluehelper.getAndPrint(object));
+		}
+		return generateKey(elementsforkey);
+
+	}
+
 	/**
-	 * 
-	 * 
 	 * @param object one object
 	 * @return a unique key with all value helpers
 	 */
 	public String generateKeyForObject(E object) {
-		StringBuffer keybuffer = new StringBuffer();
-		for (int i = 0; i < valuehelpers.size(); i++) {
-			Object value = valuehelpers.get(i).get(object);
-			keybuffer.append(value.toString().replace("@", "@@"));
-			if (i > 0)
-				keybuffer.append("@|@");
-		}
-		return keybuffer.toString();
+		return generateKeyForObject(object, false);
 	}
 
 	/**
@@ -52,10 +77,10 @@ public class MultidimensionchildHelper<E extends DataObject<E>,F extends DataObj
 	 *               yet exist)
 	 * @return the key, or null if the value should be dropped
 	 */
-	
-	public String getKeyForConsolidation(E object,F parent) {
-		for (int i = 0; i < valuehelpers.size(); i++) {
-			MultichildValueHelper<E, ?,F> currentvaluehelper = valuehelpers.get(i);
+
+	public String getKeyForConsolidation(E object, F parent) {
+		for (int i = 0; i < fullvaluehelpers.size(); i++) {
+			MultichildValueHelper<E, ?, F> currentvaluehelper = fullvaluehelpers.get(i);
 			boolean discard = currentvaluehelper.replaceWithDefaultValue(object);
 			if (discard)
 				return null;
@@ -68,11 +93,12 @@ public class MultidimensionchildHelper<E extends DataObject<E>,F extends DataObj
 	 * @param objectdefinition
 	 * @return
 	 */
-	public ArrayList<E> generateObjectsForAllValueHelpers(F parent,DataObjectDefinition<E> objectdefinition) {
+	public ArrayList<E> generateObjectsForAllValueHelpers(F parent, DataObjectDefinition<E> objectdefinition) {
 		ArrayList<E> currentvalues = new ArrayList<E>();
 		currentvalues.add(objectdefinition.generateBlank());
-		for (int i = 0; i < valuehelpers.size(); i++) {
-			currentvalues = generateObjectsForOneValueHelper(parent,currentvalues, objectdefinition, valuehelpers.get(i));
+		for (int i = 0; i < fullvaluehelpers.size(); i++) {
+			currentvalues = generateObjectsForOneValueHelper(parent, currentvalues, objectdefinition,
+					fullvaluehelpers.get(i));
 		}
 
 		return currentvalues;
@@ -82,7 +108,7 @@ public class MultidimensionchildHelper<E extends DataObject<E>,F extends DataObj
 			F parent,
 			ArrayList<E> valuesbeforehelper,
 			DataObjectDefinition<E> objectdefinition,
-			MultichildValueHelper<E, G,F> valuehelper) {
+			MultichildValueHelper<E, G, F> valuehelper) {
 		ArrayList<E> newvaluearray = new ArrayList<E>();
 
 		for (int i = 0; i < valuesbeforehelper.size(); i++) {
@@ -100,29 +126,57 @@ public class MultidimensionchildHelper<E extends DataObject<E>,F extends DataObj
 	/**
 	 * creates a multi-dimensional child helper with any value helper
 	 */
-	public MultidimensionchildHelper(BiConsumer<E,E> consolidator) {
-		this.valuehelpers = new ArrayList<MultichildValueHelper<E, ?,F>>();
+	public MultidimensionchildHelper(BiConsumer<E, E> consolidator) {
+		this.fullvaluehelpers = new ArrayList<MultichildValueHelper<E, ?, F>>();
+		this.secondarycriteriavaluehelpers = new ArrayList<MultichildValueHelper<E, ?, F>>();
 		this.consolidator = consolidator;
+
 	}
+
 	public void setContext(F parent) {
-		for (int i=0;i<this.valuehelpers.size();i++) {
-			this.valuehelpers.get(i).setContext(parent);
+		for (int i = 0; i < this.fullvaluehelpers.size(); i++) {
+			this.fullvaluehelpers.get(i).setContext(parent);
 		}
 	}
-	/** 
+
+	/**
+	 * sets a value helper for a given field
+	 * 
+	 * @param valuehelper
+	 * @boolean main
+	 */
+	public void setChildHelper(MultichildValueHelper<E, ?, F> valuehelper, boolean main) {
+		this.fullvaluehelpers.add(valuehelper);
+		if (main) {
+			this.maincriteriavaluehelper = valuehelper;
+		} else {
+			this.secondarycriteriavaluehelpers.add(valuehelper);
+		}
+	}
+
+	/**
 	 * sets a value helper for a given field
 	 * 
 	 * @param valuehelper
 	 */
-	public void setChildHelper(MultichildValueHelper<E, ?,F> valuehelper) {
-		this.valuehelpers.add(valuehelper);
+	public void setChildHelper(MultichildValueHelper<E, ?, F> valuehelper) {
+		this.setChildHelper(valuehelper, false);
 	}
 
+	public void setPayloadHelper(MultichildValueHelper<E,?,F> payloadvaluehelper) {
+		this.payloadvaluehelper = payloadvaluehelper;
+	}
+	
+	public MultichildValueHelper<E,?,F> getPayloadValueHelper() {
+		return this.payloadvaluehelper;
+	}
+	
+	
 	/**
 	 * @return the number of value helpers
 	 */
 	public int getValueHelperNumber() {
-		return this.valuehelpers.size();
+		return this.fullvaluehelpers.size();
 	}
 
 	/**
@@ -132,13 +186,30 @@ public class MultidimensionchildHelper<E extends DataObject<E>,F extends DataObj
 	 *               (excluded)
 	 * @return the value helper for corresponding index
 	 */
-	public MultichildValueHelper<E, ?,F> getValueHelper(int number) {
-		return valuehelpers.get(number);
+	public MultichildValueHelper<E, ?, F> getValueHelper(int number) {
+		return fullvaluehelpers.get(number);
 	}
+
 	/**
-	 * @return
+	 * @return the consolidator
 	 */
-	public BiConsumer<E,E> getConsolidator() {
+	public BiConsumer<E, E> getConsolidator() {
 		return this.consolidator;
 	}
+
+
+	/**
+	 * @return the main value helper
+	 */
+	public MultichildValueHelper<E, ?, F> getMainValueHelper() {
+		return this.maincriteriavaluehelper;
+	}
+
+	/**
+	 * @return the secondary value helper
+	 */
+	public ArrayList<MultichildValueHelper<E, ?, F>> getSecondaryValueHelpers() {
+		return this.secondarycriteriavaluehelpers;
+	}
+
 }

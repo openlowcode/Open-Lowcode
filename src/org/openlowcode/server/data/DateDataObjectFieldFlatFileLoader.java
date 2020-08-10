@@ -119,5 +119,35 @@ public class DateDataObjectFieldFlatFileLoader<E extends DataObject<E>>
 		cell.setCellStyle(cellStyle);
 		return true;
 	}
-
+	
+	/**
+	 * put a date in a cell
+	 * 
+	 * @param cell spreadsheet cell
+	 * @param value date value
+	 * @param formatasstring format if the date is encoded as String
+	 */
+	public static <F extends FieldChoiceDefinition<F>> void putContentInCell(Cell cell, Date value,String formatasstring) {
+		cell.setCellValue(value);
+		cell.setCellStyle(FlatFileExtractor.createDateStyle(cell.getSheet().getWorkbook(), formatasstring));
+	}
+	
+	/**
+	 * get value from the cell
+	 * 
+	 * @param value a date or String object
+	 * @param timeedit if true, time value is kept, else, date is normalized to noon GMT
+	 * @param formatasstring format of the date if encoded as String
+	 * @param contextforerror a context for error handling
+	 * @return
+	 */
+	public static <F extends FieldChoiceDefinition<F>> Date getContentFromCell(
+			Object value,
+			boolean timeedit,
+			String formatasstring,
+			String contextforerror) {
+		return FlatFileLoader.parseDate(value,
+				contextforerror, timeedit, FlatFileLoader.generateFormat(formatasstring,
+						contextforerror));
+	}
 }

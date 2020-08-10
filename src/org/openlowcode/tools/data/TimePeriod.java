@@ -336,7 +336,18 @@ public class TimePeriod implements Comparable<TimePeriod> {
 			return "M" + (this.yq.month < 10 ? "0" : "") + this.yq.month + "-" + this.year + suffix;
 		throw new RuntimeException("Illegal Period Type");
 	}
-
+	
+	public static String encode(TimePeriod element) {
+		if (element==null) return "";
+		return element.encode();
+	}
+	
+	public static TimePeriod generateFromObject(Object object) {
+		if (object==null) return null;
+		if (object instanceof String) return generateFromString((String)(object));
+		throw new RuntimeException("Not supported class "+object.getClass().toString()+" value = "+object.toString());
+	}
+	
 	/**
 	 * @param value
 	 * @return the TimePeriod (null if value is null or zero length).

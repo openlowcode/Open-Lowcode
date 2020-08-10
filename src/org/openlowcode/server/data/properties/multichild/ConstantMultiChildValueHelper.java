@@ -11,9 +11,15 @@
 package org.openlowcode.server.data.properties.multichild;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
+import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
+import org.openlowcode.server.data.properties.MultidimensionchildInterface;
+import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
 
 /**
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
@@ -23,7 +29,10 @@ import org.openlowcode.server.data.DataObject;
  * @param <F> payload of the field
  * @param <G> type of the parent object (or any other object to be used)
  */
-public class ConstantMultiChildValueHelper<E extends DataObject<E>, F extends Object, G extends DataObject<G>> extends MultichildValueHelper<E,F,G> {
+public class ConstantMultiChildValueHelper<
+E extends DataObject<E> & UniqueidentifiedInterface<E> & MultidimensionchildInterface<E, G>,
+F extends Object,
+G extends DataObject<G> & UniqueidentifiedInterface<G>> extends MultichildValueHelper<E,F,G>  {
 
 	
 	
@@ -32,15 +41,17 @@ public class ConstantMultiChildValueHelper<E extends DataObject<E>, F extends Ob
 	private boolean allowothervalues;
 	private F defaultforotherdata;
 	
-	public ConstantMultiChildValueHelper(F[] minimumvalues,BiConsumer<E, F> setter, Function<E, F> getter) {
-		super(setter, getter);
+	public ConstantMultiChildValueHelper(String fieldname,F[] minimumvalues,BiConsumer<E, F> setter, Function<E, F> getter,BiConsumer<Cell, F> cellfiller,
+			BiFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>, F> payloadparser,Function<F, String> printer) {
+		super(fieldname,setter, getter,cellfiller,payloadparser,printer);
 		this.minimumvalues=minimumvalues;
 		this.maximumvalues=null;
 		this.allowothervalues=true;
 		this.defaultforotherdata=null;
 	}
-	public ConstantMultiChildValueHelper(F[] minimumvalues,F defaultforotherdata,BiConsumer<E, F> setter, Function<E, F> getter) {
-		super(setter, getter);
+	public ConstantMultiChildValueHelper(String fieldname,F[] minimumvalues,F defaultforotherdata,BiConsumer<E, F> setter, Function<E, F> getter,BiConsumer<Cell, F> cellfiller,
+			BiFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>, F> payloadparser,Function<F, String> printer) {
+		super(fieldname,setter, getter,cellfiller,payloadparser,printer);
 		this.minimumvalues=minimumvalues;
 		this.maximumvalues=null;
 		this.allowothervalues=false;

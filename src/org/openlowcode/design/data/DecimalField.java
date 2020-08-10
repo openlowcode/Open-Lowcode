@@ -200,4 +200,19 @@ public class DecimalField
 				(newdisplaylabel != null ? newdisplaylabel : this.getDisplayname()), this.getTooltip(), length,
 				precision, indextype, this.getDisplayPriority(), this.decimalformatter);
 	}
+	
+	@Override
+	public String writeCellExtractor() {
+		return "(a,b)->(DecimalDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a,"+length+","+precision+" ,b, 0,\"MultiChildLoader\"))";
+	}
+
+	@Override
+	public String writeCellFiller() {
+		return "(a,b)->DecimalDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,b,\"MultiChildLoader\")";
+	}
+	
+	@Override
+	public String writePayloadFiller() {
+		return "Not yet implemented";
+	}
 }

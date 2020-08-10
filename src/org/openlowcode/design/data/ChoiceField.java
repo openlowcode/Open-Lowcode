@@ -17,6 +17,7 @@ import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
 
+
 /**
  * A choice field is a field offering a choice to the user between items of a
  * list. As an example would be a choice field asking for size of apparel
@@ -159,6 +160,21 @@ public class ChoiceField
 		return new ChoiceField((newname != null ? newname : this.getName()),
 				(newdisplaylabel != null ? newdisplaylabel : this.getDisplayname()), this.getTooltip(), choice,
 				this.getDisplayPriority(), indextype);
+	}
+
+	@Override
+	public String writeCellExtractor() {
+		return "(a,b)->(ChoiceDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a, "+StringFormatter.formatForJavaClass(choice.getName())+"ChoiceDefinition.get(), null, false,\"MultiChildLoader\"))";
+	}
+
+	@Override
+	public String writeCellFiller() {
+		return "(a,b)->ChoiceDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,b)";
+	}
+
+	@Override
+	public String writePayloadFiller() {
+		return "Not yet implemented";
 	}
 
 }

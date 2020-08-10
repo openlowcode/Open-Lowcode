@@ -90,16 +90,10 @@ public class Hasmultidimensionalchild<
 		// if versioned, get previous version children if it exists
 		F[] previouschildren = null;
 		if (object instanceof VersionedInterface<?>) {
+			@SuppressWarnings("unchecked")
 			VersionedInterface<E> versionedproperty = (VersionedInterface<E>) object;
 			E previousversion = versionedproperty.getpreviousversion();
-			if (previousversion!=null) previouschildren = LinkedtoparentQueryHelper
-					.get(this.casteddefinition.getRelatedDefinitionLinkedFromChildren()
-							.getGenericsChildobjectforlinkProperty().getName())
-					.getallchildren(previousversion.getId(), null,
-							this.casteddefinition.getRelatedDefinitionLinkedFromChildren().getChildObjectDefinition(),
-							this.casteddefinition.getRelatedDefinitionLinkedFromChildren().getParentObject(),
-							this.casteddefinition.getRelatedDefinitionLinkedFromChildren()
-									.getGenericsChildobjectforlinkProperty());
+			if (previousversion!=null) previouschildren = this.casteddefinition.getChildren(previousversion.getId());
 		}
 		// get the blank objects
 

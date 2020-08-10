@@ -47,6 +47,10 @@ public class MultiDimensionChild<E extends DataObjectDefinition>
 		return this.secondaxisvalues;
 	}
 	
+	public Field[] getPayloadValue() {
+		return this.payloadvalues;
+	}
+	
 	public LinkedToParent<E> getLinkedToParent() {
 		return this.linkedtoparent;
 	}

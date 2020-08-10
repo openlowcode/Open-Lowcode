@@ -103,4 +103,19 @@ public class EncryptedStringField
 		throw new RuntimeException("Not yet implemented");
 	}
 
+	@Override
+	public String writeCellExtractor() {
+		throw new RuntimeException("Not yet implemented !");
+	}
+
+	@Override
+	public String writeCellFiller() {
+		throw new RuntimeException("Not yet implemented !");
+	}
+	
+	@Override
+	public String writePayloadFiller() {
+		return "Not yet implemented";
+	}
+
 }

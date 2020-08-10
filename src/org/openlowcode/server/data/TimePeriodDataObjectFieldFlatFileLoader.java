@@ -99,8 +99,18 @@ public class TimePeriodDataObjectFieldFlatFileLoader<E extends DataObject<E>> ex
 					+ " would be of type ChoiceDataObjectField but in reality, it is " + field.getClass().toString());
 		@SuppressWarnings("rawtypes")
 		TimePeriodDataObjectField<E> timeperiodfield = (TimePeriodDataObjectField) field;
-		cell.setCellValue((timeperiodfield.getValue() == null ? "" : timeperiodfield.getValue().encode()));
+		putContentInCell(cell,timeperiodfield.getValue());
 		return false;
+	}
+	
+	/**
+	 * Fills a spreadsheet cell with a TimePeriod value
+	 * 
+	 * @param cell cell to fill
+	 * @param value value
+	 */
+	public static void putContentInCell(Cell cell, TimePeriod value) {
+		cell.setCellValue((value == null ? "" : value.encode()));
 	}
 
 }

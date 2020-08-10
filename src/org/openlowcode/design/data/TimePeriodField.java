@@ -134,4 +134,20 @@ public class TimePeriodField
 				(newdisplaylabel != null ? newdisplaylabel : this.getDisplayname()), this.getTooltip(),
 				this.getDisplayPriority(), type);
 	}
+	
+	@Override
+	public String writeCellExtractor() {
+		return "(a,b)->(TimePeriod.generateFromObject(a))";
+	}
+
+	@Override
+	public String writeCellFiller() {
+		return "(a,b)->TimePeriodDataObjectFieldFlatFileLoader.putContentInCell(a,b)";
+	}
+	
+	@Override
+	public String writePayloadFiller() {
+		return "Not yet implemented";
+	}
+
 }

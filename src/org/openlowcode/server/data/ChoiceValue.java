@@ -34,6 +34,11 @@ public class ChoiceValue<E extends FieldChoiceDefinition<E>> extends Named imple
 	private String tooltip;
 	private boolean activechoice;
 
+	public static String print(ChoiceValue<?> value) {
+		if (value==null) return "";
+		return value.getDisplayValue();
+	}
+	
 	@Override
 	public String getStorageCode() {
 		return this.getName();

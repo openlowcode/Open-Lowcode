@@ -35,18 +35,18 @@ public abstract class Field
 	 * @since 1.6
 	 */
 	protected void setHasFieldValuesQuery() {
-		this.hasfieldvaluesquery=true;
+		this.hasfieldvaluesquery = true;
 	}
 
 	/**
-	 * @return if the field has a values query (a specific method will be created on 
-	 * the object to query all existing values for the field
+	 * @return if the field has a values query (a specific method will be created on
+	 *         the object to query all existing values for the field
 	 * @since 1.6
 	 */
 	public boolean hasFieldValuesQuery() {
 		return this.hasfieldvaluesquery;
 	}
-	
+
 	/**
 	 * If this is set, the only way to update this field is through actions and
 	 * triggers.
@@ -184,4 +184,29 @@ public abstract class Field
 	 * @return
 	 */
 	public abstract Field copy(String newname, String newdisplaylabel);
+
+	/**
+	 * writes a bi-consumer that consumes a cell and a payload, and put the payload
+	 * inside the cell, adding any formatting when required
+	 * 
+	 * @return the bi-consumer source code
+	 * @since 1.11
+	 */
+	public abstract String writeCellExtractor();
+
+	/**
+	 * A function parsing an Object into the payload of this field
+	 * 
+	 * @return the function source code
+	 * @since 1.11
+	 */
+	public abstract String writeCellFiller();
+	
+	/**
+	 * A function printing the payload in String
+	 * 
+	 * @return the function source code
+	 * @since 1.11
+	 */
+	public abstract String writePayloadFiller();
 }

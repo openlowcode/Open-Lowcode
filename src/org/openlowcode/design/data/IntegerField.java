@@ -89,5 +89,19 @@ public class IntegerField
 				(newdisplaylabel != null ? newdisplaylabel : this.getDisplayname()), this.getTooltip(),
 				this.getDisplayPriority());
 	}
+	@Override
+	public String writeCellExtractor() {
+		throw new RuntimeException("Not yet implemented !");
+	}
 
+	@Override
+	public String writeCellFiller() {
+		throw new RuntimeException("Not yet implemented !");
+	}
+
+	@Override
+	public String writePayloadFiller() {
+		return "Not yet implemented";
+	}
+	
 }

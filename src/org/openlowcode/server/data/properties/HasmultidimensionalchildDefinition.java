@@ -22,6 +22,7 @@ import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectPropertyDefinition;
 import org.openlowcode.server.data.PropertyExtractor;
 import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
+import org.openlowcode.server.data.properties.CustomloaderDefinition.CustomloaderHelper;
 import org.openlowcode.server.data.properties.multichild.MultidimensionchildHelper;
 import org.openlowcode.server.data.specificstorage.ExternalFieldSchema;
 import org.openlowcode.server.data.storage.QueryCondition;
@@ -45,6 +46,17 @@ DataObjectPropertyDefinition<E> {
 	private Supplier<MultidimensionchildHelper<F,E>> multidimensionchildhelpergenerator;
 	public MultidimensionchildHelper<F,E> getHelper() {
 		return this.multidimensionchildhelpergenerator.get();
+	}
+	
+	public F[] getChildren(DataObjectId<E> parentid) {
+		return LinkedtoparentQueryHelper
+				.get(this.getRelatedDefinitionLinkedFromChildren()
+						.getGenericsChildobjectforlinkProperty().getName())
+				.getallchildren(parentid, null,
+						this.getRelatedDefinitionLinkedFromChildren().getChildObjectDefinition(),
+						this.getRelatedDefinitionLinkedFromChildren().getParentObject(),
+						this.getRelatedDefinitionLinkedFromChildren()
+								.getGenericsChildobjectforlinkProperty());
 	}
 	
 	public void setHelperGenerator(Supplier<MultidimensionchildHelper<F,E>> multidimensionchildhelpergenerator) {
@@ -97,9 +109,8 @@ DataObjectPropertyDefinition<E> {
 
 	@Override
 	public String[] getLoaderFieldList() {
-		// TODO Auto-generated method stub
 		return null;
-	}
+	} 
 
 	@Override
 	public String[] getLoaderFieldSample(String name) {
@@ -113,5 +124,8 @@ DataObjectPropertyDefinition<E> {
 			DataObjectPayload parentpayload) {
 		return new  Hasmultidimensionalchild<E,F>(this, parentpayload);
 	}
-
+	@Override
+	public CustomloaderHelper<E> getTransientLoaderHelper() {
+		return new HasmultidimensionalchildFlatFileLoaderHelper<E,F>(this);
+	}
 }
