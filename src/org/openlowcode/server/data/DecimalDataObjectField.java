@@ -122,5 +122,8 @@ public class DecimalDataObjectField<E extends DataObject<E>>
 		return definition.getTriggerlist();
 
 	}
-
+	public static String printDecimal(BigDecimal decimal) {
+		if (decimal==null) return null;
+		return decimal.toPlainString();
+	}
 }

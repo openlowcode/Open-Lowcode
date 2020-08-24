@@ -10,6 +10,8 @@
 
 package org.openlowcode.tools.misc;
 
+import java.util.Objects;
+
 /**
  * A utility class to manage pair of objects with a given type
  * 
@@ -46,6 +48,32 @@ public class Pair<E extends Object, F extends Object> {
 	 */
 	public F getSecondobject() {
 		return secondobject;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Pair))
+			return false;
+		Pair<?, ?> otherpair = (Pair<?, ?>) obj;
+		if (!Objects.equals(firstobject, otherpair.firstobject))
+			return false;
+		if (!Objects.equals(secondobject, otherpair.secondobject))
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(firstobject, secondobject);
+	}
+
+	@Override
+	public String toString() {
+		return (firstobject != null ? firstobject.toString() : "null") + "="
+				+ (secondobject != null ? secondobject.toString() : "null");
 	}
 
 }

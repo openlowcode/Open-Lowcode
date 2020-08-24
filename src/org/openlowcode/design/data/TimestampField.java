@@ -171,5 +171,8 @@ public class TimestampField
 	public String writePayloadFiller() {
 		return "Not yet implemented";
 	}
-
+	@Override
+	public String writeStringPrinter() {
+		return "Not yet implemented";
+	}
 }

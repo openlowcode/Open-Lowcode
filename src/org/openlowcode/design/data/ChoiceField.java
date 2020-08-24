@@ -177,4 +177,9 @@ public class ChoiceField
 		return "Not yet implemented";
 	}
 
+	@Override
+	public String writeStringPrinter() {
+		return "(a)->(ChoiceValue.print(a))";
+	}
+
 }

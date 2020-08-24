@@ -270,5 +270,8 @@ public class StringField
 	public String writePayloadFiller() {
 		return "Not yet implemented";
 	}
-	
+	@Override
+	public String writeStringPrinter() {
+		return "(a)->(a)";
+	}
 }

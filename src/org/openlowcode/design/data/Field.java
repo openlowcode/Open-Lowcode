@@ -208,5 +208,14 @@ public abstract class Field
 	 * @return the function source code
 	 * @since 1.11
 	 */
+	
 	public abstract String writePayloadFiller();
+
+	/**
+	 * write a printer for the type of object managed in the dielf
+	 * 
+	 * @return the function source code
+	 * @since 1.11
+	 */
+	public abstract String writeStringPrinter();
 }

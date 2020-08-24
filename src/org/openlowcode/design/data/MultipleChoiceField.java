@@ -147,5 +147,8 @@ public class MultipleChoiceField
 	public String writePayloadFiller() {
 		return "Not yet implemented";
 	}
-	
+	@Override
+	public String writeStringPrinter() {
+		return "(a)->(not yet implemented)";
+	}
 }

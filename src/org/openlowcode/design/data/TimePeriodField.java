@@ -149,5 +149,9 @@ public class TimePeriodField
 	public String writePayloadFiller() {
 		return "Not yet implemented";
 	}
+	@Override
+	public String writeStringPrinter() {
+		return "(a)->(TimePeriod.encode(a))";
+	}
 
 }

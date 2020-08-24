@@ -13,6 +13,7 @@ package org.openlowcode.server.data.properties;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
@@ -184,7 +185,7 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 
 	public void initColumnsForObject(E currentobject) {
 		F[] children = hasmultidimensionalchilddefinition.getChildren(currentobject.getId());
-
+		logger.finest(" ---------------- Generating keys for "+currentobject.dropIdToString()+" ---------------------------");
 		childrenbykey = new HashMap<String, HashMap<String, F>>();
 		for (int i = 0; i < children.length; i++) {
 			F child = children[i];
@@ -194,28 +195,39 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 			if (currentobjectsforkey == null) {
 				currentobjectsforkey = new HashMap<String, F>();
 				childrenbykey.put(keyforchild, currentobjectsforkey);
+				logger.finest("--- adding child map for key "+keyforchild);
 			}
 			String mainvalue = this.helper.getMainValueHelper().getAndPrint(child);
 			F current = currentobjectsforkey.get(mainvalue);
 			if (current != null)
 				logger.warning("  -- Duplicate child for secondary key = " + keyforchild + " for main value "
 						+ mainvalue + " for object = " + currentobject.dropIdToString());
-			if (current == null)
+			if (current == null) {
 				currentobjectsforkey.put(mainvalue, child);
+				logger.finest("      adding element for primary "+keyforchild+" secondary "+mainvalue+" for id "+child.dropIdToString());
+			}
 		}
 
 	}
 
 	public String[] generateKeyAndLoadExistingData(E currentobject) {
+		
+		// Find why two logics with children in initColumn and method below
 		initColumnsForObject(currentobject);
 		F[] children = hasmultidimensionalchilddefinition.getChildren(currentobject.getId());
-		ArrayList<String> classificationkeys = new ArrayList<String>();
+		HashMap<String,String> classificationkeys = new HashMap<String,String>();
 		for (int i = 0; i < children.length; i++) {
 			F child = children[i];
 			String keyforchild = this.helper.generateKeyForObject(child, true);
-			classificationkeys.add(keyforchild);
+			classificationkeys.put(keyforchild,keyforchild);
 		}
-		return classificationkeys.toArray(new String[0]);
+		Set<String> keys = classificationkeys.keySet();
+		Iterator<String> keyiterator = keys.iterator();
+		logger.finest(" ---------------- key drop -------------------");
+		while (keyiterator.hasNext()) logger.finest("         key "+keyiterator.next());
+		logger.finest(" ----------------------------------------");
+		return keys.toArray(new String[0]);
+
 	}
 
 	private ArrayList<String> secondaryvalues = new ArrayList<String>();

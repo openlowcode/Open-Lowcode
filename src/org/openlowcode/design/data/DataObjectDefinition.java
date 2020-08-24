@@ -70,6 +70,7 @@ import org.openlowcode.design.pages.SearchWidgetDefinition;
 import org.openlowcode.design.utility.MultiFieldConstraint;
 import org.openlowcode.tools.misc.Named;
 import org.openlowcode.tools.misc.NamedList;
+import org.openlowcode.tools.misc.Pair;
 import org.openlowcode.module.system.design.SystemModule;
 
 /**
@@ -103,8 +104,12 @@ public class DataObjectDefinition
 	private Module ownermodule;
 	private boolean forcehideobject = false;
 	private HashMap<String, String> loaderalias;
+	private HashMap<Pair<String, String>, Pair<String, String>> dynamicloaderalias;
+	private HashMap<Integer, ArrayList<Pair<String, String>>> dynamicloaderinsertionorder;
+	private HashMap<Pair<String, String>, ChoiceValue[]> restrictionfordynamicalias;
 	private ArrayList<String> aliaslist;
 	private HashMap<String, ChoiceValue[]> restrictionforalias;
+
 	private DataObjectDefinition aliasfilteronparent = null;
 	private ArrayList<StaticActionDefinition> actionsonsearchpage;
 	private int forcedrowheight = 0;
@@ -159,11 +164,59 @@ public class DataObjectDefinition
 	 * @param fullpath     the full path, typically name of the field or property
 	 *                     and parameters
 	 * @param onlyforvalue a list of selected options for the loading for which the
-	 *                     field is valid
+	 *                     field is valid. You can also provide a null value, in
+	 *                     that case, the alias will work as a normal alias
 	 */
 	public void addLoaderAlias(String alias, String fullpath, ChoiceValue[] onlyforvalue) {
 		addLoaderAlias(alias, fullpath);
-		setOnlyValueRestriction(alias, onlyforvalue);
+		if (onlyforvalue != null)
+			setOnlyValueRestriction(alias, onlyforvalue);
+	}
+
+	/**
+	 * adds a dynamic alias in the loading file. The alias is the column name in the
+	 * loading file, and it maps to the Open Lowcode syntax column name. In this
+	 * method, a dynamic alias is defined, allowing to define patterns in the shape
+	 * of
+	 * <ul>
+	 * <li>[Before Alias Text]pattern[After Alias Text]</li>
+	 * <li>[Before path]pattern[After path]</li>
+	 * </ul>
+	 * where the pattern is the same in the alias and path
+	 * 
+	 * @param aliasbefore    the text of the alias before the variable pattern
+	 * @param aliasafter     the text of the alias after the variable patern
+	 * @param fullpathbefore the text of the path before the variable pattern
+	 * @param fullpathafter  the text of the path after the variable pattern
+	 * @param onlyforvalue   a list of selected options for the loading for which
+	 *                       the field is valid. You can also provide a null value,
+	 *                       in that case, the alias will work as a normal alias
+	 * @since 1.11
+	 */
+	public void addDynamicLoaderAlias(
+			String aliasbefore,
+			String aliasafter,
+			String fullpathbefore,
+			String fullpathafter,
+			ChoiceValue[] onlyforvalue) {
+		Pair<String, String> alias = new Pair<String, String>(aliasbefore, aliasafter);
+		Pair<String, String> fullpath = new Pair<String, String>(fullpathbefore, fullpathafter);
+		Pair<String, String> existingpathforalias = this.dynamicloaderalias.get(alias);
+		if (existingpathforalias != null)
+			throw new RuntimeException("Duplicate alias " + alias + " for object " + this.getName() + ", oldfullpath="
+					+ existingpathforalias + ", new full path =" + fullpath);
+		this.dynamicloaderalias.put(alias, fullpath);
+		Integer currentindex = new Integer(this.aliaslist.size());
+		ArrayList<
+				Pair<String, String>> existingdynamicaliasforindex = this.dynamicloaderinsertionorder.get(currentindex);
+		if (existingdynamicaliasforindex == null) {
+			existingdynamicaliasforindex = new ArrayList<Pair<String, String>>();
+			this.dynamicloaderinsertionorder.put(currentindex, existingdynamicaliasforindex);
+		}
+		existingdynamicaliasforindex.add(alias);
+		if (onlyforvalue != null) {
+			this.restrictionfordynamicalias.put(alias, onlyforvalue);
+		}
 	}
 
 	/**
@@ -602,7 +655,9 @@ public class DataObjectDefinition
 		this.loaderalias = new HashMap<String, String>();
 		this.aliaslist = new ArrayList<String>();
 		this.restrictionforalias = new HashMap<String, ChoiceValue[]>();
-
+		this.dynamicloaderalias = new HashMap<Pair<String, String>, Pair<String, String>>();
+		this.restrictionfordynamicalias = new HashMap<Pair<String, String>, ChoiceValue[]>();
+		this.dynamicloaderinsertionorder = new HashMap<Integer, ArrayList<Pair<String, String>>>();
 		this.actionsonsearchpage = new ArrayList<StaticActionDefinition>();
 
 	}
@@ -2983,6 +3038,7 @@ public class DataObjectDefinition
 		if (this.categoryforextractor != null) {
 			sg.wl("import java.util.HashMap;");
 			sg.wl("import java.util.ArrayList;");
+			sg.wl("import org.openlowcode.tools.misc.Pair;");
 
 			sg.wl("import " + this.categoryforextractor.getParentModule().getPath() + ".data.choice."
 					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition;");
@@ -3239,8 +3295,27 @@ public class DataObjectDefinition
 			String alias = aliaslist.get(i);
 			String value = this.loaderalias.get(alias);
 			alias = StringFormatter.escapeforjavastring(alias);
-			sg.wl("		this.setAlias(\"" + alias + "\", \"" + value + "\");");
+			sg.wl("		this.setAlias(\"" + StringFormatter.escapeforjavastring(alias) + "\", \""
+					+ StringFormatter.escapeforjavastring(value) + "\");");
 		}
+
+		if (this.dynamicloaderinsertionorder.size() > 0) {
+			Iterator<Integer> insertionorders = this.dynamicloaderinsertionorder.keySet().iterator();
+			while (insertionorders.hasNext()) {
+				Integer index = insertionorders.next();
+				ArrayList<Pair<String, String>> dynamicaliaslist = this.dynamicloaderinsertionorder.get(index);
+				for (int i = 0; i < dynamicaliaslist.size(); i++) {
+					Pair<String, String> thisdynamicalias = dynamicaliaslist.get(i);
+					Pair<String, String> thisdynamicpath = this.dynamicloaderalias.get(thisdynamicalias);
+					sg.wl("		this.setDynamicLoaderAlias(\""
+							+ StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject()) + "\",\""
+									+ StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject()) + "\",\""+
+							StringFormatter.escapeforjavastring(StringFormatter.escapeforjavastring(thisdynamicpath.getFirstobject()))+"\",\""
+							+StringFormatter.escapeforjavastring(thisdynamicpath.getSecondobject())+"\","+index.toString()+");");
+				}
+			}
+		}
+
 		if (this.preferedspreadsheettabname != null)
 			sg.wl("		this.setPreferedSpreadsheetTab(\""
 					+ StringFormatter.escapeforjavastring(this.preferedspreadsheettabname) + "\");");
@@ -3684,18 +3759,29 @@ public class DataObjectDefinition
 			sg.wl("	}");
 
 		}
-
+	
 		if (this.categoryforextractor != null) {
 			sg.wl("");
 			sg.wl("	private HashMap<String,ChoiceValue<"
 					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
 					+ "ChoiceDefinition>[]> conditionalaliaslist;");
 			sg.wl("");
+			sg.wl("	private HashMap<Pair<String,String>,ChoiceValue<"
+					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
+					+ "ChoiceDefinition>[]> conditionaldynamicaliaslist;");
+			sg.wl("");
+		
 			sg.wl("	public void initConditionalAliasList()  {");
 			sg.wl("		conditionalaliaslist = new HashMap<String,ChoiceValue<"
 					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
 					+ "ChoiceDefinition>[]>();");
+			sg.wl("		conditionaldynamicaliaslist = new HashMap<Pair<String,String>,ChoiceValue<"
+					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
+					+ "ChoiceDefinition>[]>();");
+			
 			Iterator<Entry<String, ChoiceValue[]>> restrictionset = restrictionforalias.entrySet().iterator();
+			
+			// restrictions for simple alias
 			while (restrictionset.hasNext()) {
 				Entry<String, ChoiceValue[]> thisrestriction = restrictionset.next();
 				sg.wl("		conditionalaliaslist.put(\"" + StringFormatter.escapeforjavastring(thisrestriction.getKey())
@@ -3709,6 +3795,23 @@ public class DataObjectDefinition
 				}
 				sg.wl("				});");
 			}
+			Iterator<Entry<Pair<String, String>,ChoiceValue[]>> restrictionfordynamicset = this.restrictionfordynamicalias.entrySet().iterator();
+			while (restrictionfordynamicset.hasNext()) {
+				Entry<Pair<String, String>,ChoiceValue[]> thisrestriction = restrictionfordynamicset.next();
+				sg.wl("		conditionaldynamicaliaslist.put(new Pair(\"" + StringFormatter.escapeforjavastring(thisrestriction.getKey().getFirstobject())+
+						"\",\""+StringFormatter.escapeforjavastring(thisrestriction.getKey().getSecondobject())+"\")"
+				+ ",");
+				sg.wl("			new ChoiceValue[]{");
+				for (int i = 0; i < thisrestriction.getValue().length; i++) {
+					ChoiceValue thisvalue = thisrestriction.getValue()[i];
+					sg.wl("				" + (i == 0 ? "" : ",")
+					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
+					+ "ChoiceDefinition.get()." + thisvalue.getName().toUpperCase());
+		}
+		sg.wl("				});");
+			}
+			
+			
 			sg.wl("		}");
 
 			sg.wl("");

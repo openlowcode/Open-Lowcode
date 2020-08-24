@@ -203,16 +203,21 @@ public class DecimalField
 	
 	@Override
 	public String writeCellExtractor() {
-		return "(a,b)->(DecimalDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a,"+length+","+precision+" ,b, 0,\"MultiChildLoader\"))";
+		return "(a,b)->(DecimalDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a,"+length+","+precision+" ,b, 0,null))";
 	}
 
 	@Override
 	public String writeCellFiller() {
-		return "(a,b)->DecimalDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,b,\"MultiChildLoader\")";
+		return "(a,b)->DecimalDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,b,null)";
 	}
 	
 	@Override
 	public String writePayloadFiller() {
 		return "Not yet implemented";
+	}
+
+	@Override
+	public String writeStringPrinter() {
+		return "(a)->(DecimalDataObjectField.printDecimal(a))";
 	}
 }

@@ -13,6 +13,7 @@ package org.openlowcode.server.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -21,6 +22,7 @@ import org.openlowcode.tools.messages.MessageWriter;
 import org.openlowcode.tools.misc.Named;
 import org.openlowcode.tools.misc.NamedList;
 import org.openlowcode.tools.misc.OrderedList;
+import org.openlowcode.tools.misc.Pair;
 import org.openlowcode.tools.misc.StringDecoder;
 import org.openlowcode.tools.misc.Triple;
 import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
@@ -77,6 +79,11 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	private String modulecode;
 	private HashMap<String, String> loaderalias;
 	private ArrayList<String> aliasesorderedlist;
+	private HashMap<Pair<String,String>,Pair<String,String>> dynamicloaderalias;
+	private HashMap<Integer,ArrayList<Pair<String,String>>> dynamicloaderinsertionorder;
+
+	
+	
 	private String preferedspreadsheettabname = null;
 
 	/**
@@ -95,10 +102,23 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 
 	/**
 	 * @return a non null String with the full path for a column if the given alias
-	 *         is defined;
+	 *         is defined. Checks both static and dynamic aliases;
 	 */
 	public String getLoaderAlias(String alias) {
-		return loaderalias.get(alias);
+		// checks simple alias
+		String simplealias = loaderalias.get(alias);
+		if (simplealias!=null) return simplealias;
+		// check dynamic alias
+		Iterator<Pair<String,String>> dynamicaliasesiterator = this.dynamicloaderalias.keySet().iterator();
+		while (dynamicaliasesiterator.hasNext()) {
+			Pair<String,String> dynamicalias = dynamicaliasesiterator.next();
+			if (alias.startsWith(dynamicalias.getFirstobject())) if (alias.endsWith(dynamicalias.getSecondobject())) {
+				String middle = alias.substring(dynamicalias.getFirstobject().length(),alias.length()-dynamicalias.getSecondobject().length());
+				Pair<String,String> dynamicloadingcolumn = this.dynamicloaderalias.get(dynamicalias);
+				return dynamicloadingcolumn.getFirstobject()+middle+dynamicloadingcolumn.getSecondobject();
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -109,7 +129,46 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		loaderalias.put(alias, fullpath);
 		aliasesorderedlist.add(alias);
 	}
-
+	/**
+	 * adds a dynamic alias in the loading file. The alias is the column name in the
+	 * loading file, and it maps to the Open Lowcode syntax column name. In this
+	 * method, a dynamic alias is defined, allowing to define patterns in the shape
+	 * of
+	 * <ul>
+	 * <li>[Before Alias Text]pattern[After Alias Text]</li>
+	 * <li>[Before path]pattern[After path]</li>
+	 * </ul>
+	 * where the pattern is the same in the alias and path
+	 * 
+	 * @param aliasbefore    the text of the alias before the variable pattern
+	 * @param aliasafter     the text of the alias after the variable patern
+	 * @param fullpathbefore the text of the path before the variable pattern
+	 * @param fullpathafter  the text of the path after the variable pattern
+	 * @since 1.11
+	 */
+	public void setDynamicLoaderAlias(
+			String aliasbefore,
+			String aliasafter,
+			String fullpathbefore,
+			String fullpathafter,int insertafter) {
+		Pair<String,String> alias = new Pair<String,String>(aliasbefore,aliasafter);
+		Pair<String,String> fullpath = new Pair<String,String>(fullpathbefore,fullpathafter);
+		Pair<String,String> existingpathforalias = this.dynamicloaderalias.get(alias);
+		if (existingpathforalias!=null)
+		throw new RuntimeException("Duplicate alias " + alias + " for object " + this.getName() + ", oldfullpath="
+				+ existingpathforalias + ", new full path =" + fullpath);
+		this.dynamicloaderalias.put(alias,fullpath);
+		Integer currentindex = insertafter;
+		ArrayList<Pair<String,String>> existingdynamicaliasforindex = this.dynamicloaderinsertionorder.get(currentindex);
+		if (existingdynamicaliasforindex==null) {
+			existingdynamicaliasforindex = new ArrayList<Pair<String,String>>();
+			this.dynamicloaderinsertionorder.put(currentindex, existingdynamicaliasforindex);
+		}
+		existingdynamicaliasforindex.add(alias);
+		
+	}
+	
+	
 	/**
 	 * @return the number of loader aliases declared
 	 */
@@ -124,7 +183,32 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	public String getAliasat(int index) {
 		return aliasesorderedlist.get(index);
 	}
-
+	
+	/**
+	 * get the dynamic alias to insert before the static alias at the following index
+	 * 
+	 * @param index index for next normal alias
+	 * @return the list of specific aliases if relevant, or null if no specific alias
+	 * @since 1.11
+	 */
+	@SuppressWarnings("unchecked")
+	public Pair<String,String>[] getDynamicAliasForIndex(int index) {
+		ArrayList<Pair<String, String>> specificaliases = this.dynamicloaderinsertionorder.get(new  Integer(index));
+		return specificaliases.toArray(new Pair[0]);
+	}
+	
+	
+	
+	/**
+	 * Gets the dynamic column for the provided dynamic alias
+	 * 
+	 * @param dynamicalias the dynamic alias
+	 * @return the corresponding loader column value or null if the alias pair is unknown
+	 * @since 1.11
+	 */
+	public Pair<String,String> getColumnForDynamicAlias(Pair<String,String> dynamicalias) {
+		return this.dynamicloaderalias.get(dynamicalias);
+	}
 	/**
 	 * @param preferedspreadsheettabname
 	 */
@@ -871,6 +955,8 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		fieldconstraints = new NamedList<SMultiFieldConstraint>();
 		loaderalias = new HashMap<String, String>();
 		aliasesorderedlist = new ArrayList<String>();
+		dynamicloaderalias = new HashMap<Pair<String,String>,Pair<String,String>> ();
+		dynamicloaderinsertionorder = new HashMap<Integer,ArrayList<Pair<String,String>>> ();
 	}
 
 	/**
@@ -1695,10 +1781,10 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	 * @param restrictions some unauthorized values
 	 * @return
 	 */
-	public static <Z extends FieldChoiceDefinition<Z>> boolean isAliasValid(
-			String alias,
+	public static <Y extends Object,Z extends FieldChoiceDefinition<Z>> boolean isAliasValid(
+			Y alias,
 			ChoiceValue<Z> filter,
-			HashMap<String, ChoiceValue<Z>[]> restrictions) {
+			HashMap<Y, ChoiceValue<Z>[]> restrictions) {
 		if (!restrictions.containsKey(alias)) {
 			return true;
 		} else {
@@ -1713,5 +1799,5 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		}
 
 	}
-
+	
 }

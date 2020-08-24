@@ -260,7 +260,7 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 			BigDecimal value,
 			String multiplier) {
 		BigDecimal multiplierforexport = parsemultiplierForExport(multiplier);
-		cell.setCellValue(value.multiply(multiplierforexport).doubleValue());
+		if (value!=null) cell.setCellValue(value.multiply(multiplierforexport).doubleValue());
 		if (multiplierforexport.equals(new BigDecimal("0.01"))) {
 			CellStyle percentagecellstyle = FlatFileExtractor.createBorderedStyle(cell.getSheet().getWorkbook());
 			percentagecellstyle.setDataFormat(cell.getSheet().getWorkbook().createDataFormat().getFormat("0.0%"));

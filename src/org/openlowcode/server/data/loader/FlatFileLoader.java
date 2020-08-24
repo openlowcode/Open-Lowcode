@@ -157,11 +157,13 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 			if (headline != null) {
 				// parses headers
 				for (int i = 0; i < headline.length; i++) {
+					
 					Object headlineobject = headline[i];
 					String headlineelement = FlatFileLoader.parseObject(headlineobject, "Parse Title for column " + i);
 					String alias = objectdefinition.getLoaderAlias(headlineelement);
-					if (alias != null)
-						headlineelement = alias;
+					
+					
+					
 					// column definition exists
 					if ((headlineelement.trim().length() > 0) && (!headlineelement.trim().equals("#DISCARDED#"))) {
 						String[] headlinesplit = StringParser.splitwithdoubleescape(headlineelement, '&');

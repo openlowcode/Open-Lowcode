@@ -117,5 +117,8 @@ public class EncryptedStringField
 	public String writePayloadFiller() {
 		return "Not yet implemented";
 	}
-
+	@Override
+	public String writeStringPrinter() {
+		return "(a)->(not yet implemented)";
+	}
 }
