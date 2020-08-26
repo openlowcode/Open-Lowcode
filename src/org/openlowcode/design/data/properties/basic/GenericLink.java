@@ -23,6 +23,7 @@ import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
+import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
 /**
@@ -36,13 +37,17 @@ import org.openlowcode.design.module.Module;
 public class GenericLink
 		extends
 		Property<GenericLink> {
+	private String description;
+
 	/**
 	 * creates a generic link property on the object
 	 * 
-	 * @param name unique name amongst generic links on this data object
+	 * @param name unique name amongst generic links on this data object (follows general constraints of naming objects)
+	 * @param description plain text description of the id.
 	 */
-	public GenericLink(String name) {
+	public GenericLink(String name,String description) {
 		super(name, "GENERICLINK");
+		this.description = description;
 
 	}
 
@@ -66,6 +71,7 @@ public class GenericLink
 		StoredElement objectid = new ObjectIdStoredElement(idname, null);
 		objectid.setGenericsName("ID");
 		this.addElement(objectid);
+		this.setExtraAttributes(",\""+StringFormatter.escapeforjavastring(this.description)+"\"");
 	}
 
 	@Override
@@ -104,4 +110,5 @@ public class GenericLink
 
 		return null;
 	}
+	
 }

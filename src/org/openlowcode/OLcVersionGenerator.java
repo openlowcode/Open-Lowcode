@@ -14,7 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import org.openlowcode.tools.file.SourceGenerator;
+import org.openlowcode.design.generation.SourceGenerator;
+
 
 /**
  * This generator produces the final version class that is put in the Open

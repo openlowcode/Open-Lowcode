@@ -77,7 +77,7 @@ public class GenericlinkQueryHelper {
 	 */
 	public <E extends DataObject<E>> QueryCondition getGenericIdQueryCondition(TableAlias alias,
 			DataObjectId<?> genericidvalue, DataObjectDefinition<E> parentdefinition) {
-		GenericlinkDefinition<E> genericlinkdefinition = new GenericlinkDefinition<E>(parentdefinition, name);
+		GenericlinkDefinition<E> genericlinkdefinition = new GenericlinkDefinition<E>(parentdefinition, name,name);
 
 		String fieldname = name.toUpperCase() + "ID";
 		@SuppressWarnings({ "unchecked", "rawtypes" })
