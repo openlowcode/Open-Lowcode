@@ -144,8 +144,10 @@ public class TimePeriodField extends HBox {
 	}
 
 	public TimePeriod getTimePeriod() {
+		
 		YearQualifier qualifier = (this.hasyearqualifier ? this.yearqualifier.getSelectionModel().getSelectedItem()
 				: new TimePeriod.YearQualifier(PeriodType.YEAR, true));
+		if (qualifier==null) return null;
 		int year = 0;
 		if (yearfield.getText() != null)
 			if (yearfield.getText().trim().length() > 0)
