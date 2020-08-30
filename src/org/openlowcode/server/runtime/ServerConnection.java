@@ -562,14 +562,14 @@ public class ServerConnection
 								long requestend = System.currentTimeMillis();
 								logger.info("executed inline action " + modulename + "." + actionname
 										+ ", execution time = " + (requestend - requeststart) + "ms");
-								reader.returnNextEndStructure("INLINEACTION");
+								
 								this.sendInlineData(inlineanswer, writer);
 								logger.info("sent inlinedata from page " + action.getName() + "to to ip = " + ip
 										+ ", for session of user " + userid.getId());
 							} catch (Throwable t) {
 								treatThrowable(t, actionname, userid, writer);
 							}
-
+							reader.returnNextEndStructure("INLINEACTION");
 						} else {
 							writer.sendMessageError(9999, "Not Authorized for the action " + action.getName());
 
