@@ -136,21 +136,21 @@ public abstract class MultichildValueHelper<
 	}
 
 	/**
-	 * gets the minimum values that have to exist for this field in the list of
+	 * gets the mandatory values that have to exist for this field in the list of
 	 * children
 	 * 
-	 * @return the minimum values required for this field
+	 * @return the mandatory values required for this field
 	 */
-	public abstract F[] getMinimumvalues();
+	public abstract F[] getMandatoryValues();
 
 	/**
-	 * gets the maximum values that have to exist for this field on the list of
+	 * gets the optional values that have to exist for this field on the list of
 	 * children. Users can choose which values would work
 	 * 
-	 * @return the maximum number of values required for this field
+	 * @return the optional number of values required for this field
 	 */
 
-	public abstract F[] getMaximumvalues();
+	public abstract F[] getOptionalValues();
 
 	/**
 	 * @return true if free values are allowed
@@ -180,21 +180,44 @@ public abstract class MultichildValueHelper<
 	 *         discarded
 	 */
 	public boolean replaceWithDefaultValue(E object) {
-		if (allowothervalues())
+		logger.severe(" ------------------ Replace With Default Value audit "+fieldname+" --------------------");
+		if (allowothervalues()) {
+			logger.severe("Allow other values");
 			return true;
-		if (allowUserValue())
+		}
+		if (allowUserValue()) {
+			logger.severe("Allow user values");
 			return true;
-		F[] maximumvalues = getMaximumvalues();
+		}
+		
+		F[] minimumvalues = this.getMandatoryValues();
+		if (minimumvalues != null)
+			for (int i = 0; i < minimumvalues.length; i++) {
+				logger.finest("      --> compare "+minimumvalues[i]+" and "+get(object));
+				if (StandardUtil.compareIncludesNull(minimumvalues[i], get(object))) {
+					logger.finest("					Match");
+					return true;
+				}
+					
+			}
+		
+		F[] maximumvalues = getOptionalValues();
 		if (maximumvalues != null)
 			for (int i = 0; i < maximumvalues.length; i++) {
-				if (!StandardUtil.compareIncludesNull(maximumvalues[i], get(object)))
+				logger.finest("      --> compare "+maximumvalues[i]+" and "+get(object));
+				if (StandardUtil.compareIncludesNull(maximumvalues[i], get(object))) {
+					logger.finest("					Match");
 					return true;
+				}
+					
 			}
 		F alternative = getDefaultValueForOtherData();
 		if (alternative != null) {
+			logger.severe("       ---> Found alternative "+alternative);
 			set(object, alternative);
 			return true;
 		}
+		logger.severe("No match found");
 		return false;
 	}
 

@@ -60,12 +60,12 @@ G extends DataObject<G> & UniqueidentifiedInterface<G>> extends MultichildValueH
 	
 
 	@Override
-	public F[] getMinimumvalues() {
+	public F[] getMandatoryValues() {
 		return minimumvalues;
 	}
 
 	@Override
-	public F[] getMaximumvalues() {
+	public F[] getOptionalValues() {
 		if (maximumvalues!=null) return maximumvalues;
 		return minimumvalues;
 	}

@@ -71,7 +71,8 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	 * @param selectedlocale   locale for CSV Loading
 	 * @param preferedencoding preferred encoding for CSV Loading
 	 */
-	public FlatFileLoader(DataObjectDefinition<E> objectdefinition,
+	public FlatFileLoader(
+			DataObjectDefinition<E> objectdefinition,
 			ChoiceValue<ApplocaleChoiceDefinition> selectedlocale,
 			ChoiceValue<PreferedfileencodingChoiceDefinition> preferedencoding) {
 		this.objectdefinition = objectdefinition;
@@ -91,7 +92,8 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	 * @param preferedencoding prefered encoding for CSV Loading
 	 * @param supplement       supplement to the loader
 	 */
-	public FlatFileLoader(DataObjectDefinition<E> objectdefinition,
+	public FlatFileLoader(
+			DataObjectDefinition<E> objectdefinition,
 			ChoiceValue<ApplocaleChoiceDefinition> selectedlocale,
 			ChoiceValue<PreferedfileencodingChoiceDefinition> preferedencoding,
 			FlatFileLoaderSupplement<E> supplement) {
@@ -125,7 +127,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	 * Returns the error message
 	 * 
 	 * @param t a throwable
-	 * @return a String with the clearest possible message 
+	 * @return a String with the clearest possible message
 	 */
 	public static String buildExceptionMessage(Throwable t) {
 		if (t == null)
@@ -133,7 +135,10 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 		return "Error: " + t.getClass().getName() + " - " + t.getMessage() + " @ " + t.getStackTrace()[0];
 	}
 
-	private FlatFileLoaderReport load(String filename, FileParser firstparser, FileParser secondparser,
+	private FlatFileLoaderReport load(
+			String filename,
+			FileParser firstparser,
+			FileParser secondparser,
 			FileParser thirdparser) {
 		logger.info(" ------------- starting loader for object '" + objectdefinition.getName() + "' ---- "
 				+ (supplement != null ? "supplement of class " + supplement.getClass().getName() + " is set"
@@ -149,7 +154,9 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 			Object[] headline = parser.parseOneLine();
 			ArrayList<FlatFileLoaderColumn<E>> loadercolumns = new ArrayList<FlatFileLoaderColumn<E>>();
 			// custom loader helpers sorted by classname.
-			HashMap<String, CustomloaderHelper<E>> activecustomloaderhelper = new HashMap<String, CustomloaderHelper<E>>();
+			HashMap<
+					String,
+					CustomloaderHelper<E>> activecustomloaderhelper = new HashMap<String, CustomloaderHelper<E>>();
 			// line preparator is the column used to define if insert or update. There can
 			// be zero or 1 column like that
 			int linepreparatorindex = -1;
@@ -157,16 +164,17 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 			if (headline != null) {
 				// parses headers
 				for (int i = 0; i < headline.length; i++) {
-					
+
 					Object headlineobject = headline[i];
 					String headlineelement = FlatFileLoader.parseObject(headlineobject, "Parse Title for column " + i);
 					String alias = objectdefinition.getLoaderAlias(headlineelement);
-					
-					
-					
+					logger.fine(" -- Found alias = " + alias + " for headline element = " + headlineelement);
+					if (alias == null)
+						alias = headlineelement;
+
 					// column definition exists
 					if ((headlineelement.trim().length() > 0) && (!headlineelement.trim().equals("#DISCARDED#"))) {
-						String[] headlinesplit = StringParser.splitwithdoubleescape(headlineelement, '&');
+						String[] headlinesplit = StringParser.splitwithdoubleescape(alias, '&');
 						FlatFileLoaderColumn<E> column = objectdefinition.getFlatFileLoaderColumn(transientproperties,
 								headlinesplit, selectedlocale);
 						CustomloaderHelper<E> relevanthelper = objectdefinition
@@ -212,7 +220,10 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 				if (!columnswithstaticprocessing.isEmpty()) {
 					logger.info(
 							"  --- starting static preprocessing for object '" + objectdefinition.getName() + "' - ");
-					ArrayList<HashMap<String, String>> uniquevaluesforstaticprocessing = new ArrayList<HashMap<String, String>>();
+					ArrayList<
+							HashMap<
+									String,
+									String>> uniquevaluesforstaticprocessing = new ArrayList<HashMap<String, String>>();
 					for (int i = 0; i < columnswithstaticprocessing.size(); i++)
 						uniquevaluesforstaticprocessing.add(new HashMap<String, String>());
 					Object[] data = parser.parseOneLine();
@@ -275,7 +286,10 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 							boolean thislineupdate = false;
 							boolean contentupdated = false;
 							// adds criteria for selection
-							ArrayList<FlatFileLoaderColumn.LinePreparationExtra<E>> linepreparatorextracriterias = new ArrayList<FlatFileLoaderColumn.LinePreparationExtra<E>>();
+							ArrayList<
+									FlatFileLoaderColumn.LinePreparationExtra<
+											E>> linepreparatorextracriterias = new ArrayList<
+													FlatFileLoaderColumn.LinePreparationExtra<E>>();
 							for (int i = 0; i < linepreparatorextraindex.size(); i++) {
 								FlatFileLoaderColumn<E> thiscolumn = loadercolumns.get(linepreparatorextraindex.get(i));
 								linepreparatorextracriterias.add(thiscolumn
@@ -793,7 +807,11 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	 * @param decimalparser a parser for the big decimal
 	 * @return the Big Decimal if could be parsed, else throws an exception
 	 */
-	public static BigDecimal parseDecimal(Object object, int precision, int scale, String context,
+	public static BigDecimal parseDecimal(
+			Object object,
+			int precision,
+			int scale,
+			String context,
 			DecimalParser decimalparser) {
 		if (object == null)
 			return null;
@@ -852,7 +870,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 				formatasstring = inputformat;
 		try {
 
-			logger.severe("Generating format for pattern " + formatasstring);
+			logger.fine("Generating format for pattern " + formatasstring);
 			DateTimeFormatter format = new DateTimeFormatterBuilder().appendPattern(formatasstring)
 					.parseDefaulting(ChronoField.HOUR_OF_DAY, 12).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
 					.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0).toFormatter();

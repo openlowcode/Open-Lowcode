@@ -81,8 +81,8 @@ public class MultidimensionchildHelper<
 	public String getKeyForConsolidation(E object, F parent) {
 		for (int i = 0; i < fullvaluehelpers.size(); i++) {
 			MultichildValueHelper<E, ?, F> currentvaluehelper = fullvaluehelpers.get(i);
-			boolean discard = currentvaluehelper.replaceWithDefaultValue(object);
-			if (discard)
+			boolean valid = currentvaluehelper.replaceWithDefaultValue(object);
+			if (!valid)
 				return null;
 		}
 		return generateKeyForObject(object);
@@ -113,7 +113,7 @@ public class MultidimensionchildHelper<
 
 		for (int i = 0; i < valuesbeforehelper.size(); i++) {
 			E object = valuesbeforehelper.get(i);
-			G[] values = valuehelper.getMinimumvalues();
+			G[] values = valuehelper.getMandatoryValues();
 			for (int j = 0; j < values.length; j++) {
 				E newobject = object.deepcopy();
 				valuehelper.set(newobject, values[j]);

@@ -194,6 +194,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	@SuppressWarnings("unchecked")
 	public Pair<String,String>[] getDynamicAliasForIndex(int index) {
 		ArrayList<Pair<String, String>> specificaliases = this.dynamicloaderinsertionorder.get(new  Integer(index));
+		if (specificaliases==null) return null;
 		return specificaliases.toArray(new Pair[0]);
 	}
 	
@@ -1773,31 +1774,6 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		return transientproperties;
 	}
 
-	/**
-	 * check if an alias is valid for the flat file loader
-	 * 
-	 * @param alias        the alias
-	 * @param filter       the value of a filter
-	 * @param restrictions some unauthorized values
-	 * @return
-	 */
-	public static <Y extends Object,Z extends FieldChoiceDefinition<Z>> boolean isAliasValid(
-			Y alias,
-			ChoiceValue<Z> filter,
-			HashMap<Y, ChoiceValue<Z>[]> restrictions) {
-		if (!restrictions.containsKey(alias)) {
-			return true;
-		} else {
-			if (filter == null)
-				return false;
-			ChoiceValue<Z>[] restrictionsforalias = restrictions.get(alias);
-			for (int i = 0; i < restrictionsforalias.length; i++) {
-				if (restrictionsforalias[i].getStorageCode().equals(filter.getStorageCode()))
-					return true;
-			}
-			return false;
-		}
-
-	}
+	
 	
 }

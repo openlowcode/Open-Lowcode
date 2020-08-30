@@ -99,12 +99,12 @@ public class DataObjectDefinitionFileActions {
 		String extraparameter = "";
 		if (hasextractorchoice) {
 			boolean processed = false;
-			if (linkedfromchildren.getChildObject().getAliasFilterOnParent() != null)
-				if (linkedfromchildren.getChildObject().getAliasFilterOnParent().getName().equals(name)) {
+			if (isObjectDynamicHelper(linkedfromchildren.getChildObject(),name)) {
 					sg.wl("		String[] specificalias = " + childclass
 							+ ".getDefinition().getSpecificAliasList(exporttype,parentid);");
 					processed = true;
 				}
+			
 			if (!processed) {
 				sg.wl("		String[] specificalias = " + childclass
 						+ ".getDefinition().getSpecificAliasList(exporttype);");
@@ -112,7 +112,7 @@ public class DataObjectDefinitionFileActions {
 			}
 			extraparameter = ",specificalias";
 		} else {
-			if (linkedfromchildren.getChildObject().getAliasFilterOnParent()!=null) if (linkedfromchildren.getChildObject().getAliasFilterOnParent().getName().equals(name)) {
+			if (isObjectDynamicHelper(linkedfromchildren.getChildObject(),name)) {
 				sg.wl("		String[] specificalias = " + childclass
 						+ ".getDefinition().getSpecificAliasList(parentid);");
 				extraparameter = ",specificalias";
@@ -137,6 +137,18 @@ public class DataObjectDefinitionFileActions {
 		sg.close();
 	}
 
+	/**
+	 * Check if the object has a filter on parent (for dynamic or normal aliases)
+	 * @param object
+	 * @param name
+	 * @return
+	 */
+	public static boolean isObjectDynamicHelper(DataObjectDefinition object,String name) {
+		if (object.getAliasFilterOnParent()!=null) if (object.getAliasFilterOnParent().getName().equals(name)) return true;
+		if (object.getDynamicAliasFilterOnParent()!=null) if (object.getDynamicAliasFilterOnParent().getName().equals(name)) return true;
+		return false;
+	}
+	
 	/**
 	 * generates the load children to file action code
 	 * 

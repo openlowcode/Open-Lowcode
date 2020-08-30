@@ -325,6 +325,17 @@ public class FlatFileExtractor<E extends DataObject<E>> {
 				columnmaxchar[i] = maxNumberCharacter(aliaslisttoconsider[i]);
 
 				String loaderdef = definition.getLoaderAlias(aliaslisttoconsider[i]);
+				boolean problem = false;
+				if (loaderdef==null) problem=true;
+				if (loaderdef!=null) if (loaderdef.length()==0) problem = true;
+				if (problem) {
+					logger.severe(" -------------------------------- Faulty alias audit --------------------------------");
+					for (int i2=0;i2<aliaslisttoconsider.length;i2++) {
+						if (i2==i) logger.severe("     <--- faulty below ---> ");
+						logger.severe(" "+i2+" - "+definition.getLoaderAlias(aliaslisttoconsider[i2])+" ( from '"+aliaslisttoconsider[i2]+"' )");
+					}
+					logger.severe(" ------------------------------------------------------------------------------------");
+				}
 				String[] headlinesplit = StringParser.splitwithdoubleescape(loaderdef, '&');
 				FlatFileLoaderColumn<E> column = definition.getFlatFileLoaderColumn(transientproperties, headlinesplit,
 						null);

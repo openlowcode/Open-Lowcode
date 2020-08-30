@@ -504,7 +504,7 @@ public class SystemModule
 		objectattachment.addProperty(new UniqueIdentified());
 		objectattachment.addProperty(new CreationLog());
 		objectattachment.addProperty(new UpdateLog());
-		objectattachment.addProperty(new GenericLink("OWNER"));
+		objectattachment.addProperty(new GenericLink("OWNER","Owner"));
 		objectattachment.addProperty(new LinkedToParent("CONTENT", binaryfile));
 		objectattachment.addField(new StringField("FILENAME", "File name",
 				"the name of the file as will be created in the file system", 255, StringField.INDEXTYPE_NONE));
@@ -770,7 +770,7 @@ public class SystemModule
 		this.addChoiceCategory(workflowlifecycle);
 		workflow.addProperty(new Lifecycle(workflowlifecycle, "Workflow Status"));
 		workflow.addProperty(new TargetDate());
-		workflow.addProperty(new GenericLink("WORKFLOWOBJECT"));
+		workflow.addProperty(new GenericLink("WORKFLOWOBJECT","Workflow Object"));
 
 		task = new DataObjectDefinition("TASK", "Task", this, true);
 		task.addProperty(new StoredObject());
@@ -780,7 +780,7 @@ public class SystemModule
 		task.addProperty(new CreationLog());
 		task.addProperty(new UpdateLog());
 		task.addProperty(new Iterated());
-		task.addProperty(new GenericLink("TASKOBJECT"));
+		task.addProperty(new GenericLink("TASKOBJECT","Task Object"));
 		task.addField(new StringField("DESCRIPTION", "Description", "description of actions to be conducted", 1000,
 				StringField.INDEXTYPE_NONE, 900, true));
 		task.addField(new StringField("COMMENT", "Assignee Comment", "comment of the person who validated", 2000,
@@ -1146,7 +1146,7 @@ public class SystemModule
 
 		triggervalue.addProperty(new CreationLog());
 		triggervalue.addProperty(new UpdateLog());
-		triggervalue.addProperty(new GenericLink("OWNER"));
+		triggervalue.addProperty(new GenericLink("OWNER","Owner"));
 		triggervalue.addField(new StringField("TRIGGERNAME", "Trigger Name", "The name of the trigger", 64,
 				StringField.INDEXTYPE_NONE));
 

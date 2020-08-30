@@ -71,6 +71,8 @@ import org.openlowcode.design.utility.MultiFieldConstraint;
 import org.openlowcode.tools.misc.Named;
 import org.openlowcode.tools.misc.NamedList;
 import org.openlowcode.tools.misc.Pair;
+
+
 import org.openlowcode.module.system.design.SystemModule;
 
 /**
@@ -105,6 +107,7 @@ public class DataObjectDefinition
 	private boolean forcehideobject = false;
 	private HashMap<String, String> loaderalias;
 	private HashMap<Pair<String, String>, Pair<String, String>> dynamicloaderalias;
+	private HashMap<Pair<String, String>, String> dynamicloadername;
 	private HashMap<Integer, ArrayList<Pair<String, String>>> dynamicloaderinsertionorder;
 	private HashMap<Pair<String, String>, ChoiceValue[]> restrictionfordynamicalias;
 	private ArrayList<String> aliaslist;
@@ -139,6 +142,8 @@ public class DataObjectDefinition
 	}
 
 	private ChoiceCategory categoryforextractor = null;
+
+	private DataObjectDefinition dynamicaliasfilteronparent;
 
 	/**
 	 * @return
@@ -184,6 +189,8 @@ public class DataObjectDefinition
 	 * </ul>
 	 * where the pattern is the same in the alias and path
 	 * 
+	 * @param name           A unique name for the object. This is used for the
+	 *                       helper
 	 * @param aliasbefore    the text of the alias before the variable pattern
 	 * @param aliasafter     the text of the alias after the variable patern
 	 * @param fullpathbefore the text of the path before the variable pattern
@@ -194,6 +201,7 @@ public class DataObjectDefinition
 	 * @since 1.11
 	 */
 	public void addDynamicLoaderAlias(
+			String name,
 			String aliasbefore,
 			String aliasafter,
 			String fullpathbefore,
@@ -217,6 +225,7 @@ public class DataObjectDefinition
 		if (onlyforvalue != null) {
 			this.restrictionfordynamicalias.put(alias, onlyforvalue);
 		}
+		this.dynamicloadername.put(alias, name);
 	}
 
 	/**
@@ -241,7 +250,7 @@ public class DataObjectDefinition
 	}
 
 	/**
-	 * allows to add an alias with condition on parent
+	 * allows to add an alias with condition on parent (this is for simple alias only)
 	 * 
 	 * @param parent
 	 */
@@ -252,6 +261,20 @@ public class DataObjectDefinition
 		this.aliasfilteronparent = parent;
 	}
 
+	/**
+	 * allows to add an alias with condition on parent for dynamic aliases
+	 * 
+	 * @param parent condition for dynamic alias
+	 * @since 1.11
+	 */
+	public void setDynamicAliasConditionOnParent(DataObjectDefinition parent) {
+		if (parent == null)
+			throw new RuntimeException(
+					"for object " + this.getName() + ", Parent needs to be defined to add alias with restriction");
+		this.dynamicaliasfilteronparent = parent;
+	}
+	
+	
 	/**
 	 * adds a flat file loader alias
 	 * 
@@ -547,6 +570,10 @@ public class DataObjectDefinition
 		return this.aliasfilteronparent;
 	}
 
+	public DataObjectDefinition getDynamicAliasFilterOnParent() {
+		return this.dynamicaliasfilteronparent;
+	}
+	
 	/**
 	 * get the field by name
 	 * 
@@ -659,7 +686,7 @@ public class DataObjectDefinition
 		this.restrictionfordynamicalias = new HashMap<Pair<String, String>, ChoiceValue[]>();
 		this.dynamicloaderinsertionorder = new HashMap<Integer, ArrayList<Pair<String, String>>>();
 		this.actionsonsearchpage = new ArrayList<StaticActionDefinition>();
-
+		this.dynamicloadername = new HashMap<Pair<String, String>, String>();
 	}
 
 	/**
@@ -3028,12 +3055,51 @@ public class DataObjectDefinition
 		sg.wl("import org.openlowcode.server.runtime.OLcServer;");
 		sg.wl("import org.openlowcode.server.data.storage.StoredFieldSchema;");
 		sg.wl("import org.openlowcode.server.data.properties.UniqueidentifiedInterface;");
+
+		if (this.dynamicloaderalias.size()>0) {
+			if (this.dynamicaliasfilteronparent!=null) {
+				sg.wl("import org.openlowcode.server.data.loader.FlatFileExtractorDynamicAliasParentFilter;");
+				
+			} else {
+				sg.wl("import org.openlowcode.server.data.loader.FlatFileExtractorDynamicAliasFilter;");
+			}
+			Iterator<Pair<String,String>> dynamicaliasiterator = this.dynamicloaderalias.keySet().iterator();
+			while (dynamicaliasiterator.hasNext()) {
+				Pair<String,String> thisdynamicalias = dynamicaliasiterator.next();
+				String name = this.dynamicloadername.get(thisdynamicalias).toLowerCase();
+				String nameclass = StringFormatter.formatForJavaClass(name);
+				String parent = (dynamicaliasfilteronparent!=null?"Parent":"");
+				sg.wl("import "+this.getOwnermodule().getPath()+".utility."+nameclass+"For"+classname+"DynamicAlias"+parent+"Filter;");
+			}
+			
+		}
+		
+		// imports for loaders --------------------------
+
 		if (this.aliasfilteronparent != null) {
 			sg.wl("import org.openlowcode.server.data.loader.FlatFileExtractorParentFilter;");
+
+			sg.wl("");
 			sg.wl("import " + module.getPath() + ".utility."
 					+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + "For" + classname
 					+ "AliasFilter;");
 		}
+
+		if (this.aliaslist.size() > 0) {
+			if (this.aliasfilteronparent != null)
+				sg.wl("import org.openlowcode.server.data.loader.ConditionalAliasListParentHelper;");
+			if (this.aliasfilteronparent == null)
+				sg.wl("import org.openlowcode.server.data.loader.ConditionalAliasListHelper;");
+		}
+		if (this.dynamicloaderalias.size()>0) {
+			if (this.dynamicaliasfilteronparent!=null)
+				sg.wl("import org.openlowcode.server.data.loader.ConditionalAliasListParentHelper;");
+			if (this.dynamicaliasfilteronparent==null)
+				sg.wl("import org.openlowcode.server.data.loader.ConditionalAliasListHelper;");
+		}
+		if (this.categoryforextractor == null)
+			if (this.aliasfilteronparent != null)
+				sg.wl("import org.openlowcode.module.system.data.choice.BooleanChoiceDefinition;");
 
 		if (this.categoryforextractor != null) {
 			sg.wl("import java.util.HashMap;");
@@ -3046,6 +3112,9 @@ public class DataObjectDefinition
 			if (this.aliasfilteronparent != null)
 				sg.wl("import java.util.ArrayList;");
 		}
+
+		// --------------- End of Filter import ------------------------
+
 		for (int i = 0; i < this.constraintsforobject.getSize(); i++) {
 			MultiFieldConstraint thisconstraint = this.constraintsforobject.get(i);
 			String constraintclass = StringFormatter.formatForJavaClass(thisconstraint.getName());
@@ -3088,26 +3157,27 @@ public class DataObjectDefinition
 		if (this.categoryforextractor != null) {
 			interfacestring = "\n		implements SpecificAliasList<"
 					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition> ";
-			if (this.aliasfilteronparent != null)
+			if (this.aliasfilteronparent != null) 
 				interfacestring += ",\n			SpecificAliasListWithParent<"
 						+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition,"
 						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";
+			if (this.dynamicaliasfilteronparent!=null) if (this.dynamicaliasfilteronparent!=this.aliasfilteronparent)
+				interfacestring += ",\n			SpecificAliasListWithParent<"
+						+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition,"
+						+ StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName()) + ">";
 		} else {
-			if (this.aliasfilteronparent != null)
+			if ((this.aliasfilteronparent != null) )
 				interfacestring += "\n		implements SpecificAliasListWithParentWithoutParameter<"
-
 						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";
+			if (this.dynamicaliasfilteronparent!=null) if (this.dynamicaliasfilteronparent!=this.aliasfilteronparent)
+				interfacestring += "\n		implements SpecificAliasListWithParentWithoutParameter<"
+						+ StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName()) + ">";
 		}
 
 		sg.wl("public class " + classname + "Definition extends DataObjectDefinition<" + classname + "> "
 				+ interfacestring + " {");
 		sg.wl("");
-		if (this.aliasfilteronparent != null) {
-			sg.wl("		// filter on parent");
-			String parentclass = StringFormatter.formatForJavaClass(this.aliasfilteronparent.getName());
-			sg.wl("	private FlatFileExtractorParentFilter<" + classname + "," + parentclass
-					+ "> parentaliasfilter = new " + parentclass + "For" + classname + "AliasFilter();");
-		}
+
 		sg.wl("		// all fields");
 		for (int i = 0; i < this.fieldlist.getSize(); i++) {
 			Field thisfield = this.fieldlist.get(i);
@@ -3201,6 +3271,36 @@ public class DataObjectDefinition
 				}
 			}
 		}
+
+		// -------------------------------------------- Generate the category extractor
+		// ---------------------------------
+
+		String choiceclass = (this.categoryforextractor != null
+				? StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition"
+				: "?");
+		String parentclassforfilter = (this.aliasfilteronparent != null
+				? StringFormatter.formatForJavaClass(this.aliasfilteronparent.getName())
+				: null);
+		
+		String parentclassfordynamicfilter = (this.dynamicaliasfilteronparent != null
+				? StringFormatter.formatForJavaClass(this.dynamicaliasfilteronparent.getName())
+				: null);
+		
+		
+
+
+		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent!=null)) {
+			String classfilter = parentclassforfilter;
+			if (classfilter==null) classfilter = parentclassfordynamicfilter;
+			if (classfilter==null) throw new RuntimeException("No class defined");
+			sg.wl("	private ConditionalAliasListParentHelper<");
+			sg.wl("			" + classname + ", " + choiceclass + ",");
+			sg.wl("			" + classfilter + "> aliaslisthelper;");
+		} else if (this.categoryforextractor != null) {
+			sg.wl("	private ConditionalAliasListHelper<");
+			sg.wl("			" + classname + ", " + choiceclass + "> aliaslisthelper;");
+		}
+
 		sg.wl("");
 		sg.wl("	public static " + classname + "Definition get" + classname + "Definition() {");
 		sg.wl("		return singleton;");
@@ -3294,7 +3394,6 @@ public class DataObjectDefinition
 		for (int i = 0; i < aliaslist.size(); i++) {
 			String alias = aliaslist.get(i);
 			String value = this.loaderalias.get(alias);
-			alias = StringFormatter.escapeforjavastring(alias);
 			sg.wl("		this.setAlias(\"" + StringFormatter.escapeforjavastring(alias) + "\", \""
 					+ StringFormatter.escapeforjavastring(value) + "\");");
 		}
@@ -3309,9 +3408,11 @@ public class DataObjectDefinition
 					Pair<String, String> thisdynamicpath = this.dynamicloaderalias.get(thisdynamicalias);
 					sg.wl("		this.setDynamicLoaderAlias(\""
 							+ StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject()) + "\",\""
-									+ StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject()) + "\",\""+
-							StringFormatter.escapeforjavastring(StringFormatter.escapeforjavastring(thisdynamicpath.getFirstobject()))+"\",\""
-							+StringFormatter.escapeforjavastring(thisdynamicpath.getSecondobject())+"\","+index.toString()+");");
+							+ StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject()) + "\",\""
+							+ StringFormatter.escapeforjavastring(
+									StringFormatter.escapeforjavastring(thisdynamicpath.getFirstobject()))
+							+ "\",\"" + StringFormatter.escapeforjavastring(thisdynamicpath.getSecondobject()) + "\","
+							+ index.toString() + ");");
 				}
 			}
 		}
@@ -3395,6 +3496,32 @@ public class DataObjectDefinition
 			Property<?> thisproperty = this.propertylistincludinglegacy.get(i);
 			thisproperty.writeAdditionalDefinition(sg);
 		}
+
+		// -------------------------------------------- Generate the category extractor
+		// ---------------------------------
+
+		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent!=null)) {
+			String consolidatedparentclass = parentclassforfilter;
+			if (consolidatedparentclass==null) consolidatedparentclass = parentclassfordynamicfilter;
+			sg.wl("		aliaslisthelper = new ConditionalAliasListParentHelper<");
+			sg.wl("					" + classname + ", "
+					+ (choiceclass.equals("?") ? "BooleanChoiceDefinition" : choiceclass) + ", " + consolidatedparentclass
+					+ ">(" + classname + ".getDefinition(),");
+			sg.wl("							" + consolidatedparentclass + ".getDefinition(), (a) -> ("
+					+ consolidatedparentclass + ".readone(a)),");
+			if (this.aliasfilteronparent != null) sg.wl("							new " + parentclassforfilter + "For" + classname + "AliasFilter());");
+			if (this.aliasfilteronparent == null) sg.wl("							null);");
+			sg.wl("");
+			sg.wl("");
+		} else if (this.categoryforextractor != null) {
+			sg.wl("	aliaslisthelper = new ConditionalAliasListHelper<");
+			sg.wl("					" + classname + ", "
+					+ (choiceclass.equals("?") ? "BooleanChoiceDefinition" : choiceclass) + ">(" + classname
+					+ ".getDefinition());");
+			sg.wl("");
+			sg.wl("");
+		}
+
 		if (this.categoryforextractor != null) {
 			sg.wl("		this.initConditionalAliasList();");
 		}
@@ -3759,116 +3886,90 @@ public class DataObjectDefinition
 			sg.wl("	}");
 
 		}
-	
+
 		if (this.categoryforextractor != null) {
-			sg.wl("");
-			sg.wl("	private HashMap<String,ChoiceValue<"
-					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-					+ "ChoiceDefinition>[]> conditionalaliaslist;");
-			sg.wl("");
-			sg.wl("	private HashMap<Pair<String,String>,ChoiceValue<"
-					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-					+ "ChoiceDefinition>[]> conditionaldynamicaliaslist;");
-			sg.wl("");
-		
-			sg.wl("	public void initConditionalAliasList()  {");
-			sg.wl("		conditionalaliaslist = new HashMap<String,ChoiceValue<"
-					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-					+ "ChoiceDefinition>[]>();");
-			sg.wl("		conditionaldynamicaliaslist = new HashMap<Pair<String,String>,ChoiceValue<"
-					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-					+ "ChoiceDefinition>[]>();");
-			
+			sg.wl("	public void initConditionalAliasList() {");
 			Iterator<Entry<String, ChoiceValue[]>> restrictionset = restrictionforalias.entrySet().iterator();
-			
+
 			// restrictions for simple alias
 			while (restrictionset.hasNext()) {
 				Entry<String, ChoiceValue[]> thisrestriction = restrictionset.next();
-				sg.wl("		conditionalaliaslist.put(\"" + StringFormatter.escapeforjavastring(thisrestriction.getKey())
-						+ "\",");
-				sg.wl("			new ChoiceValue[]{");
+				sg.wl("		aliaslisthelper.addConditionalAlias(\""
+						+ StringFormatter.escapeforjavastring(thisrestriction.getKey()) + "\",");
+				StringBuffer values = new StringBuffer();
 				for (int i = 0; i < thisrestriction.getValue().length; i++) {
 					ChoiceValue thisvalue = thisrestriction.getValue()[i];
-					sg.wl("				" + (i == 0 ? "" : ",")
-							+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-							+ "ChoiceDefinition.get()." + thisvalue.getName().toUpperCase());
+					values.append((i == 0 ? "" : ","));
+					values.append(choiceclass + ".get()." + thisvalue.getName().toUpperCase());
 				}
-				sg.wl("				});");
+				sg.wl("            new ChoiceValue[] {" + values + "});");
 			}
-			Iterator<Entry<Pair<String, String>,ChoiceValue[]>> restrictionfordynamicset = this.restrictionfordynamicalias.entrySet().iterator();
-			while (restrictionfordynamicset.hasNext()) {
-				Entry<Pair<String, String>,ChoiceValue[]> thisrestriction = restrictionfordynamicset.next();
-				sg.wl("		conditionaldynamicaliaslist.put(new Pair(\"" + StringFormatter.escapeforjavastring(thisrestriction.getKey().getFirstobject())+
-						"\",\""+StringFormatter.escapeforjavastring(thisrestriction.getKey().getSecondobject())+"\")"
-				+ ",");
-				sg.wl("			new ChoiceValue[]{");
-				for (int i = 0; i < thisrestriction.getValue().length; i++) {
-					ChoiceValue thisvalue = thisrestriction.getValue()[i];
-					sg.wl("				" + (i == 0 ? "" : ",")
-					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-					+ "ChoiceDefinition.get()." + thisvalue.getName().toUpperCase());
-		}
-		sg.wl("				});");
+			Iterator<Entry<Pair<String, String>, ChoiceValue[]>> dynamicrestrictionset = this.restrictionfordynamicalias
+					.entrySet().iterator();
+			while (dynamicrestrictionset.hasNext()) {
+				Entry<Pair<String, String>, ChoiceValue[]> thisdynamicrestriction = dynamicrestrictionset.next();
+				sg.wl("		aliaslisthelper.addConditionalDynamicAlias(\""
+						+ StringFormatter.escapeforjavastring(thisdynamicrestriction.getKey().getFirstobject())
+						+ "\",\""
+						+ StringFormatter.escapeforjavastring(thisdynamicrestriction.getKey().getSecondobject())
+						+ "\",");
+				StringBuffer values = new StringBuffer();
+				for (int i = 0; i < thisdynamicrestriction.getValue().length; i++) {
+					ChoiceValue thisvalue = thisdynamicrestriction.getValue()[i];
+					values.append((i == 0 ? "" : ","));
+					values.append(choiceclass + ".get()." + thisvalue.getName().toUpperCase());
+				}
+				sg.wl("            new ChoiceValue[] {" + values + "});");
 			}
-			
-			
-			sg.wl("		}");
-
 			sg.wl("");
+			Iterator<Pair<String, String>> dynamicaliasesiterator = this.dynamicloaderalias.keySet().iterator();
+			while (dynamicaliasesiterator.hasNext()) {
+				Pair<String,String> thisdynamicalias = dynamicaliasesiterator.next();
+				String name = this.dynamicloadername.get(thisdynamicalias).toLowerCase();
+				String nameclass = StringFormatter.formatForJavaClass(name);
+				if (this.dynamicaliasfilteronparent==null) {
+					sg.wl("		FlatFileExtractorDynamicAliasFilter<"+classname+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasFilter();");
+					sg.wl("		aliaslisthelper.addDynamicAliasHelper(\""+StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject())+"\",\""+StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject())+"\", "+name+"filter);");
+				} else {
+					sg.wl("		FlatFileExtractorDynamicAliasParentFilter<"+classname+","+StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName())+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasParentFilter();");
+					sg.wl("		aliaslisthelper.addDynamicAliasParentHelper(\""+StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject())+"\",\""+StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject())+"\", "+name+"filter);");
+					
+				}
+			
+			}
+			
+			sg.wl("	}");
+			sg.wl("");
+		}
+		if (this.categoryforextractor != null) {
 			sg.wl("	@Override");
-			sg.wl("	public String[] getSpecificAliasList(ChoiceValue<"
-					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-					+ "ChoiceDefinition> selectedvalue)  {");
-			sg.wl("		ArrayList<String> specificaliaslist = new ArrayList<String>();");
-			sg.wl("		for (int i=0;i<this.getAliasNumber();i++) {");
-			sg.wl("			String thisalias = this.getAliasat(i);");
-			sg.wl("			ChoiceValue<" + StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-					+ "ChoiceDefinition>[] conditionalforthisalias = conditionalaliaslist.get(thisalias);");
-			sg.wl("			if (conditionalforthisalias==null) {");
-			sg.wl("				specificaliaslist.add(thisalias);");
-			sg.wl("			} else {");
-			sg.wl("				boolean isvalid = this.isAliasValid(thisalias,selectedvalue,conditionalaliaslist);");
-			sg.wl("				if (isvalid) specificaliaslist.add(thisalias);");
-			sg.wl("			}");
-			sg.wl("		}");
-			sg.wl("		return specificaliaslist.toArray(new String[0]);");
-			sg.wl("	}			");
-
-			if (this.aliasfilteronparent != null) {
-
-				String parentclass = StringFormatter.formatForJavaClass(aliasfilteronparent.getName());
-
-				sg.wl("	@Override");
-				sg.wl("	public String[] getSpecificAliasList(ChoiceValue<"
-						+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
-						+ "ChoiceDefinition> selectedvalue,DataObjectId<" + parentclass + "> parentid)  {");
-				sg.wl("		String[] aliasforchoice = getSpecificAliasList(selectedvalue);");
-				sg.wl("		ArrayList<String> aliasfilteredforparent = new ArrayList<String>();");
-				sg.wl("		" + parentclass + " parent = " + parentclass + ".readone(parentid);");
-				sg.wl("		for (int i=0;i<aliasforchoice.length;i++) {");
-				sg.wl("			if (parentaliasfilter.isvalid(this,aliasforchoice[i],parent)) aliasfilteredforparent.add(aliasforchoice[i]);");
-				sg.wl("		}");
-				sg.wl("		return aliasfilteredforparent.toArray(new String[0]);");
-				sg.wl("	}	");
-
-			}
-
-		} else {
-			if (this.aliasfilteronparent != null) {
-				String parentclass = StringFormatter.formatForJavaClass(aliasfilteronparent.getName());
-
-				sg.wl("	@Override");
-				sg.wl("	public String[] getSpecificAliasList(DataObjectId<" + parentclass + "> parentid)  {");
-				sg.wl("		ArrayList<String> aliasfilteredforparent = new ArrayList<String>();");
-				sg.wl("		" + parentclass + " parent = " + parentclass + ".readone(parentid);");
-				sg.wl("		for (int i=0;i<this.getAliasNumber();i++) {");
-				sg.wl("			if (parentaliasfilter.isvalid(this,this.getAliasat(i),parent)) aliasfilteredforparent.add(this.getAliasat(i));");
-				sg.wl("		}");
-				sg.wl("		return aliasfilteredforparent.toArray(new String[0]);");
-				sg.wl("	}	");
-			}
+			sg.wl("	public String[] getSpecificAliasList(ChoiceValue<" + choiceclass + "> selectedvalue) {");
+			sg.wl("		return aliaslisthelper.getSpecificAliasList(selectedvalue);");
+			sg.wl("	}");
 		}
 
+		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent!=null)) {
+			String consolidatedparentclass = parentclassforfilter;
+			if (consolidatedparentclass==null) consolidatedparentclass = parentclassfordynamicfilter;
+			if (this.categoryforextractor != null) {
+
+				sg.wl("	@Override");
+				sg.wl("	public String[] getSpecificAliasList(");
+				sg.wl("			ChoiceValue<" + choiceclass + "> selectedvalue,");
+				sg.wl("			DataObjectId<" + consolidatedparentclass + "> parentid) {");
+				sg.wl("		return aliaslisthelper.getSpecificAliasList(selectedvalue,parentid);");
+				sg.wl("	}");
+				sg.wl("");
+			} else  {
+				sg.wl("	@Override");
+				sg.wl("	public String[] getSpecificAliasList(");
+				sg.wl("			DataObjectId<" + consolidatedparentclass + "> parentid) {");
+				sg.wl("		return aliaslisthelper.getSpecificAliasList(null,parentid);");
+				sg.wl("	}");
+				sg.wl("");
+
+			}
+		}
 		sg.wl("}");
 		sg.close();
 	}

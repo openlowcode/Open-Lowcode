@@ -12,12 +12,14 @@ package org.openlowcode.server.data.loader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.FieldChoiceDefinition;
 import org.openlowcode.tools.misc.Pair;
+
 
 
 /**
@@ -35,7 +37,7 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 	protected HashMap<Pair<String,String>,ChoiceValue<F>[]> conditionaldynamicaliaslist;
 	protected HashMap<Pair<String,String>,FlatFileExtractorDynamicAliasFilter<E>> dynamicaliaslisthelper;
 	protected DataObjectDefinition<E> objectdefinition;
-	
+	private static Logger logger = Logger.getLogger(ConditionalAliasListHelper.class.getName());
 	/**
 	 * @param objectdefinition
 	 */
@@ -76,13 +78,15 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 				ChoiceValue<F>[] conditionalforthisalias = conditionaldynamicaliaslist.get(thisdynamicalias);
 				boolean show=true;
 				if (conditionalforthisalias!=null)
-				show =  DataObjectDefinition.isAliasValid(thisdynamicalias,selectedvalue,conditionaldynamicaliaslist);
+				show =  isAliasValid(thisdynamicalias,selectedvalue,conditionaldynamicaliaslist);
 				if (show) {
-					String[] relevantdynamics = dynamicaliaslisthelper.get(thisdynamicalias).generateForExportWithoutContext(objectdefinition);
-					if (relevantdynamics!=null) for (int k=0;j<relevantdynamics.length;k++) {
+					FlatFileExtractorDynamicAliasFilter<E> helper = dynamicaliaslisthelper.get(thisdynamicalias);
+					if (helper==null) throw new RuntimeException("Dynamic Alias '"+thisdynamicalias.getFirstobject()+"' - ' "+thisdynamicalias.getSecondobject()+"' does not have an helper. Please check the definition ");
+					String[] relevantdynamics = helper.generateForExportWithoutContext(objectdefinition);
+					if (relevantdynamics!=null) for (int k=0;k<relevantdynamics.length;k++) {
 						String thisdynamicpart = relevantdynamics[k];
-						Pair<String, String> thisdynamiccolumn = objectdefinition.getColumnForDynamicAlias(thisdynamicalias);
-						String finalcolumn = thisdynamiccolumn.getFirstobject()+thisdynamicpart+thisdynamiccolumn.getSecondobject();
+						logger.fine("Building dynamic alias for simple specific alias list Alias = "+thisdynamicalias.getFirstobject()+"-"+thisdynamicalias.getSecondobject());
+						String finalcolumn = thisdynamicalias.getFirstobject()+thisdynamicpart+thisdynamicalias.getSecondobject();
 						specificaliaslist.add(finalcolumn);
 					}
 				}
@@ -92,7 +96,7 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 			if (conditionalforthisalias==null) {
 				specificaliaslist.add(thisalias);
 			} else {
-				boolean isvalid = DataObjectDefinition.isAliasValid(thisalias,selectedvalue,conditionalaliaslist);
+				boolean isvalid = isAliasValid(thisalias,selectedvalue,conditionalaliaslist);
 				if (isvalid) specificaliaslist.add(thisalias);
 			}
 		}
@@ -106,5 +110,32 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 	 */
 	public void addDynamicAliasHelper(String aliasbefore,String aliasafter,FlatFileExtractorDynamicAliasFilter<E> filter) {
 		this.dynamicaliaslisthelper.put(new Pair<String,String>(aliasbefore,aliasafter), filter);
+	}
+	
+	/**
+	 * check if an alias is valid for the flat file loader
+	 * 
+	 * @param alias        the alias
+	 * @param filter       the value of a filter
+	 * @param restrictions some unauthorized values
+	 * @return
+	 */
+	public static <Y extends Object,Z extends FieldChoiceDefinition<Z>> boolean isAliasValid(
+			Y alias,
+			ChoiceValue<Z> filter,
+			HashMap<Y, ChoiceValue<Z>[]> restrictions) {
+		if (!restrictions.containsKey(alias)) {
+			return true;
+		} else {
+			if (filter == null)
+				return false;
+			ChoiceValue<Z>[] restrictionsforalias = restrictions.get(alias);
+			for (int i = 0; i < restrictionsforalias.length; i++) {
+				if (restrictionsforalias[i].getStorageCode().equals(filter.getStorageCode()))
+					return true;
+			}
+			return false;
+		}
+
 	}
 }

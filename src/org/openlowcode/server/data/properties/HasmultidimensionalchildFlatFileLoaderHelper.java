@@ -26,13 +26,14 @@ import org.openlowcode.server.data.properties.multichild.MultichildValueHelper;
 import org.openlowcode.server.data.properties.multichild.MultidimensionchildHelper;
 
 /**
- * 
+ * A helper to manage the loading of objects with the Hasmultidimensionalchild property
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  *
  * @param <E> parent for the multi-child relationship
  * @param <F> child for the multi-child relationship
+ * @since 1.11
  */
 public class HasmultidimensionalchildFlatFileLoaderHelper<
 		E extends DataObject<E> & UniqueidentifiedInterface<E>,
@@ -69,7 +70,7 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 	}
 
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	@Override
 	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
 			DataObjectDefinition<E> objectdefinition,
@@ -112,7 +113,7 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 			loaderfieldlist.add(secondvaluehelper.getFieldName());
 		}
 
-		Object[] mainvalues = mainvaluehelper.getMinimumvalues();
+		Object[] mainvalues = mainvaluehelper.getMandatoryValues();
 		if (mainvalues != null)
 			for (int i = 0; i < mainvalues.length; i++) {
 				loaderfieldlist.add(mainvaluehelper.getFieldName() + "&" + mainvalues[i].toString());
