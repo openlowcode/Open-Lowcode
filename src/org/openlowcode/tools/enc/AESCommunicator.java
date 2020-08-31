@@ -115,7 +115,7 @@ public class AESCommunicator {
 	public static void main(String args[]) {
 		try {
 			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-			keyGen.init(256);
+			keyGen.init(128);
 			SecretKey secretKey = keyGen.generateKey();
 			AESCommunicator communicator = new AESCommunicator(secretKey);
 			for (int a = 0; a < 3; a++) {
