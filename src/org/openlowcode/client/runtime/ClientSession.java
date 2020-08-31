@@ -31,6 +31,7 @@ import org.openlowcode.tools.misc.NiceFormatters;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.event.Event;
@@ -115,7 +116,7 @@ public class ClientSession {
 		logger.warning("   --- ---- Starting setting title ");
 		Tab tab = this.tabpane.getTabs().get(activedisplayindex);
 		if (otpstatus.equals("NONE")) {
-			tab.setText((newtitle.length() > 20 ? newtitle.substring(0, 20) + "..." : newtitle));
+			tab.setText(newtitle);
 			tab.setTooltip(new Tooltip(newtitle));
 			return;
 		}
@@ -148,6 +149,7 @@ public class ClientSession {
 		BorderPane.setAlignment(dot, Pos.CENTER);
 		tab.setText("");
 		tab.setGraphic(borderpane);
+		tab.setTooltip(new Tooltip(newtitle));
 	}
 
 	/**
@@ -202,6 +204,24 @@ public class ClientSession {
 		// initiates the tabpane if called for the first time
 		if (this.tabpane == null) {
 			this.tabpane = new TabPane();
+			this.tabpane.getTabs().addListener(new ListChangeListener<Tab>() {
+
+				@Override
+				public void onChanged(@SuppressWarnings("rawtypes") Change change) {
+					TabPane localtabpane = tabpane;
+					double tabpanewidth = localtabpane.getWidth()*0.9f;
+					if (tabpanewidth<10) tabpanewidth=1000;
+					int tabnumber = localtabpane.getTabs().size();
+					if (tabnumber==0) tabnumber=1;
+					double maxtabwidth = tabpanewidth/tabnumber;
+					if (maxtabwidth<90) maxtabwidth=90;
+					localtabpane.setTabMaxWidth(maxtabwidth);
+							
+					
+				}
+				
+				
+			});
 			this.tabpane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 			this.tabpane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
 			this.tabpane.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {

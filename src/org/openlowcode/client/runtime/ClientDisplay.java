@@ -376,7 +376,7 @@ public class ClientDisplay {
 								ObservableValue<? extends Number> observable,
 								Number oldvalue,
 								Number newvalue) {
-							if (contentholderverticalscrollbar.isVisible()) {
+							if (contentholderverticalscrollbar!=null) if (contentholderverticalscrollbar.isVisible()) {
 								backgroundpane.setPrefWidth(
 										newvalue.doubleValue() - 2 - contentholderverticalscrollbar.getWidth());
 							} else {
@@ -394,7 +394,7 @@ public class ClientDisplay {
 								ObservableValue<? extends Number> observable,
 								Number oldvalue,
 								Number newvalue) {
-							if (contentholderhorizontalscrollbar.isVisible()) {
+							if (contentholderhorizontalscrollbar!=null) if (contentholderhorizontalscrollbar.isVisible()) {
 								backgroundpane.setPrefHeight(
 										newvalue.doubleValue() - 2 - contentholderhorizontalscrollbar.getHeight());
 
