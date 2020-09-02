@@ -76,7 +76,7 @@ public class Scheduledependency<E extends DataObject<E> & UniqueidentifiedInterf
 	public void postprocStoredobjectInsert(E object) {
 		DataObjectId<F> originobjectfornewlinkid = object.getLfid();
 		F parent = HasidQueryHelper.get().readone(originobjectfornewlinkid, taskobjectdefinition,
-				(UniqueidentifiedDefinition<F>) taskobjectdefinition.getProperty("UNIQUEIDENTIFIED"));
+				(HasidDefinition<F>) taskobjectdefinition.getProperty("HASID"));
 		parent.rescheduleafter();
 	}
 

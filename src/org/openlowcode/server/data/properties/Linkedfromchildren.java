@@ -76,7 +76,7 @@ public class Linkedfromchildren<E extends DataObject<E> & UniqueidentifiedInterf
 
 		return LinkedtoparentQueryHelper
 				.get(linkedfromchildrendefinition.getGenericsChildobjectforlinkProperty().getName())
-				.<F, E>getallchildren(uniqueidentified.getId(), additionalquerycondition, childrendefinition,
+				.<F, E>getallchildren(uniqueidentified.getRelatedHasid().getId(), additionalquerycondition, childrendefinition,
 						referenceobjectdefinition,
 						linkedfromchildrendefinition.getGenericsChildobjectforlinkProperty());
 	}
@@ -100,7 +100,7 @@ public class Linkedfromchildren<E extends DataObject<E> & UniqueidentifiedInterf
 				} else {
 					throw new RuntimeException(
 							"Not possible to delete an object that has " + children.length + " children of type "
-									+ childrendefinition.getName() + ", objectid =  " + uniqueidentified.getId());
+									+ childrendefinition.getName() + ", objectid =  " + uniqueidentified.getRelatedHasid().getId());
 				}
 			}
 

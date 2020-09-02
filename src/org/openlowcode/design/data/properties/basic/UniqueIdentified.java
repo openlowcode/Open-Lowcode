@@ -21,7 +21,6 @@ import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
-import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
@@ -131,14 +130,7 @@ public class UniqueIdentified
 		MethodAdditionalProcessing insertidgeneration = new MethodAdditionalProcessing(true,
 				storedobject.getDataAccessMethod("INSERT"));
 		this.addMethodAdditionalProcessing(insertidgeneration);
-		DataAccessMethod read = new DataAccessMethod("READONE", new ObjectArgument("OBJECT", parent), false);
-		read.addInputArgument(new MethodArgument("ID", new ObjectIdArgument("ID", parent)));
-		this.addDataAccessMethod(read);
 
-		DataAccessMethod readseveral = new DataAccessMethod("READSEVERAL",
-				new ArrayArgument(new ObjectArgument("OBJECT", parent)), false);
-		readseveral.addInputArgument(new MethodArgument("ID", new ArrayArgument(new ObjectIdArgument("ID", parent))));
-		this.addDataAccessMethod(readseveral);
 
 		// get Id
 

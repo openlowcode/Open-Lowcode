@@ -227,7 +227,7 @@ public class AutolinkObject<E extends DataObjectDefinition>
 
 		this.uniqueidentified = (UniqueIdentified) parent.getPropertyByName("UNIQUEIDENTIFIED");
 		this.addDependentProperty(uniqueidentified);
-		this.addPropertyGenerics(new PropertyGenerics("OBJECTFORLINK", objectforlink, new HasId()));
+		this.addPropertyGenerics(new PropertyGenerics("OBJECTFORLINK", objectforlink, new UniqueIdentified()));
 		this.addExternalObjectProperty(objectforlink,
 				new HasAutolink(this.getParent(), this, priorityfromleft, priorityfromright));
 

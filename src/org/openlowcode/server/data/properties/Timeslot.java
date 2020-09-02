@@ -93,8 +93,8 @@ public class Timeslot<E extends DataObject<E> & UniqueidentifiedInterface<E> & T
 	public void forcereschedule(E object, Date starttime, Date endtime) {
 		this.starttime.setPayload(starttime);
 		this.endtime.setPayload(endtime);
-		if (uniqueidentified.getId().getId() != null)
-			if (uniqueidentified.getId().getId().length() > 0)
+		if (uniqueidentified.getRelatedHasid().getId().getId() != null)
+			if (uniqueidentified.getRelatedHasid().getId().getId().length() > 0)
 				object.update();
 	}
 

@@ -53,7 +53,7 @@ public class Leftforlink<E extends DataObject<E> & UniqueidentifiedInterface<E>,
 	 * @param object object being deleted
 	 */
 	public void postprocUniqueidentifiedDelete(E object) {
-		F[] linksfromleft = LinkobjectQueryHelper.get().getalllinksfromleftid(uniqueidentified.getId(), null,
+		F[] linksfromleft = LinkobjectQueryHelper.get().getalllinksfromleftid(uniqueidentified.getRelatedHasid().getId(), null,
 				definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(), definition.getParentObject(),
 				definition.getLinkObjectPropertyDefinition().getRightObjectDefinition(),
 				definition.getLinkObjectPropertyDefinition());
@@ -83,7 +83,7 @@ public class Leftforlink<E extends DataObject<E> & UniqueidentifiedInterface<E>,
 	 */
 	public void preprocUniqueidentifiedUpdate(E object) {
 		TwoDataObjects<F, G>[] linkandrightobject = LinkobjectQueryHelper.get().getlinksandrightobject(
-				uniqueidentified.getId(), null, definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(),
+				uniqueidentified.getRelatedHasid().getId(), null, definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(),
 				definition.getParentObject(), definition.getLinkObjectPropertyDefinition().getRightObjectDefinition(),
 				definition.getLinkObjectPropertyDefinition());
 		logger.fine(" --- left for Link Control on Link ");

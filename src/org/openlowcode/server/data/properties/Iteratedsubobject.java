@@ -111,7 +111,7 @@ public class Iteratedsubobject<
 		DataObjectId<F> parentobjectid = linkedtoparent.getId();
 		F leftobject = HasidQueryHelper.get().readone(parentobjectid,
 				casteddefinition.getParentiteratedobjectdef(),
-				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition());
+				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition().getDependentDefinitionHasid());
 		leftobject.setupdatenote(generateUpdateNote(object, "Create"));
 		leftobject.update();
 		int newiteration = leftobject.getIteration();
@@ -130,11 +130,11 @@ public class Iteratedsubobject<
 		DataObjectId<F> parentobjectid = linkedtoparent.getId();
 		F leftobject = HasidQueryHelper.get().readone(parentobjectid,
 				casteddefinition.getParentiteratedobjectdef(),
-				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition());
+				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition().getDependentDefinitionHasid());
 		// get old iteration of link and close it;
 		DataObjectId<E> objectid = object.getId();
 		E oldobject = HasidQueryHelper.get().readone(objectid, definition,
-				casteddefinition.getLinkedtoparent().getUniqueidentifiedForThisObject());
+				casteddefinition.getLinkedtoparent().getUniqueidentifiedForThisObject().getDependentDefinitionHasid());
 		oldobject.archivethisiteration(leftobject.getIteration());
 		leftobject.setupdatenote(generateUpdateNote(object, updatetype));
 		leftobject.update();
@@ -241,13 +241,13 @@ public class Iteratedsubobject<
 		UniqueidentifiedDefinition<F> parentuidefinition = (UniqueidentifiedDefinition<F>) parentdefinition
 				.getProperty("UNIQUEIDENTIFIED");
 		F[] parentobjects = HasidQueryHelper.get().readseveral(leftobjectidarray, parentdefinition,
-				parentuidefinition);
+				parentuidefinition.getDependentDefinitionHasid());
 		// 1 - A put old parent iteration in the last iter
 		ArrayList<DataObjectId<E>> objectids = new ArrayList<DataObjectId<E>>();
 		DataObjectId<E>[] objectidarray = objectids.toArray(definition.generateIdArrayTemplate());
 		UniqueidentifiedDefinition<
 				E> uidefinition = (UniqueidentifiedDefinition<E>) definition.getProperty("UNIQUEIDENTIFIED");
-		E[] oldobjects = HasidQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
+		E[] oldobjects = HasidQueryHelper.get().readseveral(objectidarray, definition, uidefinition.getDependentDefinitionHasid());
 		DataObjectPayload[] oldpayloads = new DataObjectPayload[oldobjects.length];
 		for (int i = 0; i < oldobjects.length; i++) {
 			Iteratedsubobject<
@@ -305,7 +305,7 @@ public class Iteratedsubobject<
 		UniqueidentifiedDefinition<F> parentuidefinition = (UniqueidentifiedDefinition<F>) parentdefinition
 				.getProperty("UNIQUEIDENTIFIED");
 		F[] parentobjects = HasidQueryHelper.get().readseveral(leftobjectidarray, parentdefinition,
-				parentuidefinition);
+				parentuidefinition.getDependentDefinitionHasid());
 		// 2 - generate update note (with access on right object to massify
 		if (parentdefinition.hasProperty("ITERATED")) {
 			String[] updatenotes = Iteratedsubobject.generateMassiveUpdateNote(preprociteratedlinkbatch, objectbatch,

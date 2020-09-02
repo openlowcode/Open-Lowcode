@@ -44,10 +44,10 @@ import org.openlowcode.design.module.Module;
  *         SAS</a>
  *
  * @param <E> left object for link (must have property
- *        {@link org.openlowcode.design.data.properties.basic.HasId}
+ *        {@link org.openlowcode.design.data.properties.basic.UniqueIdentified}
  *        )
  * @param <F> right object for link (must have property
- *        {@link org.openlowcode.design.data.properties.basic.HasId}
+ *        {@link org.openlowcode.design.data.properties.basic.UniqueIdentified}
  *        )
  */
 public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefinition>
@@ -219,9 +219,9 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 			throw new RuntimeException("linkobject property needs the object to have property uniqueidentified");
 		this.addDependentProperty(uniqueidentified);
 
-		this.addPropertyGenerics(new PropertyGenerics("LEFTOBJECTFORLINK", leftobjectforlink, new HasId()));
+		this.addPropertyGenerics(new PropertyGenerics("LEFTOBJECTFORLINK", leftobjectforlink, new UniqueIdentified()));
 		this.addPropertyGenerics(
-				new PropertyGenerics("RIGHTOBJECTFORLINK", rightobjectforlink, new HasId()));
+				new PropertyGenerics("RIGHTOBJECTFORLINK", rightobjectforlink, new UniqueIdentified()));
 
 		if (parent == null)
 			throw new RuntimeException("parent is null for property with name = " + this.getName());

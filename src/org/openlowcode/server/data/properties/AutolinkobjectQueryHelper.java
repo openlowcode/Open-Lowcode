@@ -599,7 +599,7 @@ public class AutolinkobjectQueryHelper {
 		F[] result = StoredobjectQueryHelper.get().getallactive(
 				new QueryFilter(extendedcondition,
 						(additionalcondition != null ? additionalcondition.getAliases() : null)),
-				linkedobjectdefinition, autolinkobjectDefinition.getLinkedObjectUniqueIdentifiedDefinition()
+				linkedobjectdefinition, autolinkobjectDefinition.getLinkedObjectUniqueidentifiedDefinition()
 						.getDependentDefinitionStoredobject());
 		return result;
 	}

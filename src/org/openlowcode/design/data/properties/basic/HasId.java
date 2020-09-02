@@ -13,11 +13,16 @@ package org.openlowcode.design.data.properties.basic;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Index;
+import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.ObjectIdStoredElement;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.StoredElement;
+import org.openlowcode.design.data.argument.ArrayArgument;
+import org.openlowcode.design.data.argument.ObjectArgument;
+import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 
@@ -45,6 +50,15 @@ public class HasId
 		StoredElement id = new ObjectIdStoredElement("ID", parent);
 		this.addElement(id, "Id", "technical identification", Property.FIELDDISPLAY_NORMAL, -50, 25);
 		this.addIndex(new Index("ID", id, true));
+		
+		DataAccessMethod read = new DataAccessMethod("READONE", new ObjectArgument("OBJECT", parent), false);
+		read.addInputArgument(new MethodArgument("ID", new ObjectIdArgument("ID", parent)));
+		this.addDataAccessMethod(read);
+
+		DataAccessMethod readseveral = new DataAccessMethod("READSEVERAL",
+				new ArrayArgument(new ObjectArgument("OBJECT", parent)), false);
+		readseveral.addInputArgument(new MethodArgument("ID", new ArrayArgument(new ObjectIdArgument("ID", parent))));
+		this.addDataAccessMethod(readseveral);
 	}
 
 	@Override

@@ -46,7 +46,7 @@ public class Rightforlink<E extends DataObject<E> & UniqueidentifiedInterface<E>
 	 * @param object
 	 */
 	public void preprocUniqueidentifiedDelete(E object) {
-		F[] links = LinkobjectQueryHelper.get().getalllinksfromrightid(uniqueidentified.getId(), null,
+		F[] links = LinkobjectQueryHelper.get().getalllinksfromrightid(uniqueidentified.getRelatedHasid().getId(), null,
 				definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(),
 				definition.getLinkObjectPropertyDefinition().getLeftObjectDefinition(),
 				definition.getLinkObjectPropertyDefinition().getRightObjectDefinition(),
@@ -55,7 +55,7 @@ public class Rightforlink<E extends DataObject<E> & UniqueidentifiedInterface<E>
 			if (links.length > 0)
 				throw new RuntimeException("Cannot delete object because there are " + links.length
 						+ " link objects of type " + definition.getParentObject().getName() + " for object with id = "
-						+ uniqueidentified.getId());
+						+ uniqueidentified.getRelatedHasid().getId());
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class Rightforlink<E extends DataObject<E> & UniqueidentifiedInterface<E>
 	public void preprocUniqueidentifiedUpdate(E object) {
 
 		TwoDataObjects<G, F>[] linkandleftobject = LinkobjectQueryHelper.get().getlinksandleftobject(
-				uniqueidentified.getId(), null, definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(),
+				uniqueidentified.getRelatedHasid().getId(), null, definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(),
 				definition.getLinkObjectPropertyDefinition().getLeftObjectDefinition(), definition.getParentObject(),
 				definition.getLinkObjectPropertyDefinition());
 		logger.finer(" --- right for Link Control on Link ");

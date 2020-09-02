@@ -309,7 +309,7 @@ public class LinkedToParent<E extends DataObjectDefinition>
 			}
 		}
 		this.addPropertyGenerics(
-				new PropertyGenerics("PARENTOBJECTFORLINK", parentobjectforlink, new HasId()));
+				new PropertyGenerics("PARENTOBJECTFORLINK", parentobjectforlink, new UniqueIdentified()));
 		boolean deletechildren = false;
 		if (this.getBusinessRuleByName("DELETECHILDRENWHENPARENTDELETED") != null)
 			deletechildren = true;

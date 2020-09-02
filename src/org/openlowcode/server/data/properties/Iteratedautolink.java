@@ -81,7 +81,7 @@ public class Iteratedautolink<
 			DataObjectId<F> rightobjectid = autolinkobject.getRgid();
 			F rightobject = HasidQueryHelper.get().readone(rightobjectid,
 					casteddefinition.getAutolinkobject().getLinkedObjectDefinition(),
-					casteddefinition.getAutolinkobject().getLinkedObjectHasidDefinition());
+					casteddefinition.getAutolinkobject().getLinkedObjectUniqueidentifiedDefinition().getDependentDefinitionHasid());
 			if (rightobject == null) {
 				updatenote.append(" flat file loader with object not yet loaded");
 			} else {

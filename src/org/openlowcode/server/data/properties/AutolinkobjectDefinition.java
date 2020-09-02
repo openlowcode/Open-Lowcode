@@ -53,7 +53,7 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 	private boolean symetriclink;
 	private ArrayList<ConstraintOnAutolinkObject<F>> contrainstonautolinkobject;
 	private UniqueidentifiedDefinition<E> uniqueidentified;
-	private HasidDefinition<F> linkedobjecthasiddefinition;
+	private UniqueidentifiedDefinition<F> linkedobjectuniqueidentifieddefinition;
 	private DataObjectDefinition<E> linkobjectdefinition;
 
 	/**
@@ -366,18 +366,18 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 	 * @param linkedobjectuniqueidentifieddefinition definition of the hasid property of the data
 	 *                                               object referenced by the link
 	 */
-	public void setGenericsObjectforlinkProperty(HasidDefinition<F> linkedobjecthasiddefinition) {
-		this.linkedobjecthasiddefinition = linkedobjecthasiddefinition;
+	public void setGenericsObjectforlinkProperty(UniqueidentifiedDefinition<F> linkedobjectuniqueidentifieddefinition) {
+		this.linkedobjectuniqueidentifieddefinition = linkedobjectuniqueidentifieddefinition;
 
 	}
 
 	/**
-	 * gets the hasid property of the linked object
+	 * gets the unique identified property of the linked object
 	 * 
-	 * @return the hasid property of the linked object
+	 * @return the unique identified property of the linked object
 	 */
-	public HasidDefinition<F> getLinkedObjectHasidDefinition() {
-		return this.linkedobjecthasiddefinition;
+	public UniqueidentifiedDefinition<F> getLinkedObjectUniqueidentifiedDefinition() {
+		return this.linkedobjectuniqueidentifieddefinition;
 	}
 
 	@Override
