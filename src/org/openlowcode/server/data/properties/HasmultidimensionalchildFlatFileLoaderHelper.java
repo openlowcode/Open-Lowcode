@@ -186,7 +186,7 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 
 	public void initColumnsForObject(E currentobject) {
 		F[] children = hasmultidimensionalchilddefinition.getChildren(currentobject.getId());
-		logger.finest(" ---------------- Generating keys for "+currentobject.dropIdToString()+" ---------------------------");
+		logger.finest(" ---------------- Generating keys for "+currentobject.dropIdToString()+" - "+(children!=null?children.length:"NULL")+" child(ren)---------------------------");
 		childrenbykey = new HashMap<String, HashMap<String, F>>();
 		for (int i = 0; i < children.length; i++) {
 			F child = children[i];

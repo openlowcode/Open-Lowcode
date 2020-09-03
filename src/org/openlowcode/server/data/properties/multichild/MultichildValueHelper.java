@@ -330,6 +330,11 @@ public abstract class MultichildValueHelper<
 		}
 
 		@Override
+		public boolean processAfterLineInsertion() {
+			return true;
+		}
+
+		@Override
 		public boolean load(G object, Object value, PostUpdateProcessingStore<G> postupdateprocessingstore) {
 			helper.setContext(object);
 			String helpercontextkey = helper.getContextKey();
