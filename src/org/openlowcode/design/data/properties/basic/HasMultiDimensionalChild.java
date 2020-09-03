@@ -116,12 +116,13 @@ public class HasMultiDimensionalChild
 	public void writeAdditionalDefinition(SourceGenerator sg) throws IOException {
 		String parentclass = StringFormatter.formatForJavaClass(this.getParent().getName());
 		String childclass = StringFormatter.formatForJavaClass(this.childobjectforlink.getName());
-
+		// TODO change when adapting for multi-value payload
+		String valueclass = StringFormatter.formatForJavaClass(this.originobjectproperty.getPayloadValue()[0].getName());
 		sg.wl("		hasmultidimensionalchildfor" + StringFormatter.formatForAttribute(this.getInstancename())
 				+ ".setHelperGenerator(() -> {");
 		sg.wl("			MultidimensionchildHelper<" + childclass + "," + parentclass
 				+ "> helper = new  MultidimensionchildHelper<" + childclass + "," + parentclass + ">(");
-		sg.wl("				(a,b)->a.setValue(ReportTree.sumIfNotNull(a.getValue(),b.getValue())));");
+		sg.wl("				(a,b)->a.set"+valueclass+"(ReportTree.sumIfNotNull(a.get"+valueclass+"(),b.get"+valueclass+"())));");
 		this.writeHelperForValue(sg, this.originobjectproperty.getFirstAxisValue(), parentclass, childclass, true,
 				false);
 		Field[] secondaxisfields = this.originobjectproperty.getSecondAxisValue();
