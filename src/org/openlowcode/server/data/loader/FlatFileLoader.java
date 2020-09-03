@@ -173,7 +173,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 						alias = headlineelement;
 
 					// column definition exists
-					if ((headlineelement.trim().length() > 0) && (!headlineelement.trim().equals("#DISCARDED#"))) {
+					if ((alias.trim().length() > 0) && (!alias.trim().equals("#DISCARDED#"))) {
 						String[] headlinesplit = StringParser.splitwithdoubleescape(alias, '&');
 						FlatFileLoaderColumn<E> column = objectdefinition.getFlatFileLoaderColumn(transientproperties,
 								headlinesplit, selectedlocale);
