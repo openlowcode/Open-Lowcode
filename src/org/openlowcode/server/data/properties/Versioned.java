@@ -142,7 +142,7 @@ public class Versioned<E extends DataObject<E> & UniqueidentifiedInterface<E> & 
 					NamedInterface<E> newversionobjectnamed = (NamedInterface<E>) newobject;
 					newversionobjectnamed.setobjectname(objectnamed.getObjectname());
 				}
-				consumer.accept(newobject);
+				if (consumer!=null) consumer.accept(newobject);
 			}
 
 			E[] returnobjectarray = returnobjects
