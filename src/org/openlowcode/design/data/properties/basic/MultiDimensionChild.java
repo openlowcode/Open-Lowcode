@@ -25,6 +25,19 @@ import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 
 /**
+ * This property allows to automatically generate children according to a number
+ * of axis values. Currently, it supports only one paylaod value, despite the
+ * API allowing to define several.<br>
+ * <br>
+ * The property should be added to the child object for the relation. The
+ * property adds the following loaderaliases on the parent object:
+ * <ul><li>loader name: HASMULTIDIMENSIONALCHILDFOR<LinkedToParentName>FOR<ChildObjectName></li>
+ * <li>For axis values, first parameter = field name (axis values should come first)</li>
+ * <li>For axis values subsequent parameters: attributes of the field (same as field normal loader column</li>
+ * <li>For payload value, first parameter = main axis value</li>
+ * <li>For payload value, second parameter = payload value</li>
+ * <li>For payload value, subsequent parameters = attributes for paylaod loader (same as field)</li></ul>
+ * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  *
@@ -42,20 +55,24 @@ public class MultiDimensionChild<E extends DataObjectDefinition>
 	public Field getFirstAxisValue() {
 		return firstaxisvalue;
 	}
-	
+
 	public Field[] getSecondAxisValue() {
 		return this.secondaxisvalues;
 	}
-	
+
 	public Field[] getPayloadValue() {
 		return this.payloadvalues;
 	}
-	
+
 	public LinkedToParent<E> getLinkedToParent() {
 		return this.linkedtoparent;
 	}
-	
-	public MultiDimensionChild(LinkedToParent<E> linkedtoparent, Field firstaxisvalue, Field[] secondaxisvalues,Field[] payloadvalues) {
+
+	public MultiDimensionChild(
+			LinkedToParent<E> linkedtoparent,
+			Field firstaxisvalue,
+			Field[] secondaxisvalues,
+			Field[] payloadvalues) {
 		super("MULTIDIMENSIONCHILD");
 		this.linkedtoparent = linkedtoparent;
 		this.firstaxisvalue = firstaxisvalue;
@@ -77,20 +94,28 @@ public class MultiDimensionChild<E extends DataObjectDefinition>
 		this.addDependentProperty(linkedtoparent);
 		this.addPropertyGenerics(new PropertyGenerics("PARENTOBJECTFORLINK", linkedtoparent.getParentObjectForLink(),
 				new UniqueIdentified()));
-		this.addExternalObjectProperty(linkedtoparent.getParentObjectForLink(), new HasMultiDimensionalChild(this.linkedtoparent.getInstancename() + "for" + parent.getName().toLowerCase(),this.getParent(), this));
-		DataAccessMethod setparentwithoutupdate = new DataAccessMethod("SETMULTIDIMENSIONPARENTIDWITHOUTUPDATE", null, false);
+		this.addExternalObjectProperty(linkedtoparent.getParentObjectForLink(),
+				new HasMultiDimensionalChild(
+						this.linkedtoparent.getInstancename() + "for" + parent.getName().toLowerCase(),
+						this.getParent(), this));
+		DataAccessMethod setparentwithoutupdate = new DataAccessMethod("SETMULTIDIMENSIONPARENTIDWITHOUTUPDATE", null,
+				false);
 		setparentwithoutupdate
 				.addInputArgument(new MethodArgument("object", new ObjectArgument("object", this.parent)));
-		setparentwithoutupdate.addInputArgument(
-				new MethodArgument("parent", new ObjectIdArgument("parentobject", this.linkedtoparent.getParentObjectForLink())));
+		setparentwithoutupdate.addInputArgument(new MethodArgument("parent",
+				new ObjectIdArgument("parentobject", this.linkedtoparent.getParentObjectForLink())));
 		this.addDataAccessMethod(setparentwithoutupdate);
-		if (secondaxisvalues!=null) if (secondaxisvalues.length>0)
-			if (this.payloadvalues!=null) if (this.payloadvalues.length==1) {
-				String[] linecriteria = new String[secondaxisvalues.length];
-				for (int i=0;i<secondaxisvalues.length;i++) linecriteria[i] = secondaxisvalues[i].getName();
-				this.linkedtoparent.setReverseTreeGrid(this.firstaxisvalue.getName(),linecriteria,this.payloadvalues[0].getName(),new String[0],new String[0]);
-			
-		}
+		if (secondaxisvalues != null)
+			if (secondaxisvalues.length > 0)
+				if (this.payloadvalues != null)
+					if (this.payloadvalues.length == 1) {
+						String[] linecriteria = new String[secondaxisvalues.length];
+						for (int i = 0; i < secondaxisvalues.length; i++)
+							linecriteria[i] = secondaxisvalues[i].getName();
+						this.linkedtoparent.setReverseTreeGrid(this.firstaxisvalue.getName(), linecriteria,
+								this.payloadvalues[0].getName(), new String[0], new String[0]);
+
+					}
 	}
 
 	private void checkField(Field field) {
