@@ -3924,14 +3924,16 @@ public class DataObjectDefinition
 			sg.wl("");
 			Iterator<Pair<String, String>> dynamicaliasesiterator = this.dynamicloaderalias.keySet().iterator();
 			while (dynamicaliasesiterator.hasNext()) {
+				String loaderchoice = "BooleanChoiceDefinition";
+				if (this.categoryforextractor!=null) loaderchoice = StringFormatter.formatForJavaClass(categoryforextractor.getName())+"ChoiceDefinition";
 				Pair<String,String> thisdynamicalias = dynamicaliasesiterator.next();
 				String name = this.dynamicloadername.get(thisdynamicalias).toLowerCase();
 				String nameclass = StringFormatter.formatForJavaClass(name);
 				if (this.dynamicaliasfilteronparent==null) {
-					sg.wl("		FlatFileExtractorDynamicAliasFilter<"+classname+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasFilter();");
+					sg.wl("		FlatFileExtractorDynamicAliasFilter<"+classname+","+loaderchoice+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasFilter();");
 					sg.wl("		aliaslisthelper.addDynamicAliasHelper(\""+StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject())+"\",\""+StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject())+"\", "+name+"filter);");
 				} else {
-					sg.wl("		FlatFileExtractorDynamicAliasParentFilter<"+classname+","+StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName())+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasParentFilter();");
+					sg.wl("		FlatFileExtractorDynamicAliasParentFilter<"+classname+","+StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName())+","+loaderchoice+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasParentFilter();");
 					sg.wl("		aliaslisthelper.addDynamicAliasParentHelper(\""+StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject())+"\",\""+StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject())+"\", "+name+"filter);");
 					
 				}

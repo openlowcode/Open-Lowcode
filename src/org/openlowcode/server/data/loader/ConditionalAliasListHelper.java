@@ -35,7 +35,7 @@ import org.openlowcode.tools.misc.Pair;
 public class ConditionalAliasListHelper<E extends DataObject<E>, F extends FieldChoiceDefinition<F>> {
 	protected HashMap<String,ChoiceValue<F>[]> conditionalaliaslist;
 	protected HashMap<Pair<String,String>,ChoiceValue<F>[]> conditionaldynamicaliaslist;
-	protected HashMap<Pair<String,String>,FlatFileExtractorDynamicAliasFilter<E>> dynamicaliaslisthelper;
+	protected HashMap<Pair<String,String>,FlatFileExtractorDynamicAliasFilter<E,F>> dynamicaliaslisthelper;
 	protected DataObjectDefinition<E> objectdefinition;
 	private static Logger logger = Logger.getLogger(ConditionalAliasListHelper.class.getName());
 	/**
@@ -45,7 +45,7 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 		this.objectdefinition = objectdefinition;
 		this.conditionalaliaslist = new  HashMap<String,ChoiceValue<F>[]>();
 		this.conditionaldynamicaliaslist = new HashMap<Pair<String,String>,ChoiceValue<F>[]>();
-		this.dynamicaliaslisthelper = new HashMap<Pair<String,String>,FlatFileExtractorDynamicAliasFilter<E>>();
+		this.dynamicaliaslisthelper = new HashMap<Pair<String,String>,FlatFileExtractorDynamicAliasFilter<E,F>>();
 	}
 	
 	/**
@@ -80,9 +80,9 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 				if (conditionalforthisalias!=null)
 				show =  isAliasValid(thisdynamicalias,selectedvalue,conditionaldynamicaliaslist);
 				if (show) {
-					FlatFileExtractorDynamicAliasFilter<E> helper = dynamicaliaslisthelper.get(thisdynamicalias);
+					FlatFileExtractorDynamicAliasFilter<E,F> helper = dynamicaliaslisthelper.get(thisdynamicalias);
 					if (helper==null) throw new RuntimeException("Dynamic Alias '"+thisdynamicalias.getFirstobject()+"' - ' "+thisdynamicalias.getSecondobject()+"' does not have an helper. Please check the definition ");
-					String[] relevantdynamics = helper.generateForExportWithoutContext(objectdefinition);
+					String[] relevantdynamics = helper.generateForExportWithoutContext(objectdefinition,selectedvalue);
 					if (relevantdynamics!=null) for (int k=0;k<relevantdynamics.length;k++) {
 						String thisdynamicpart = relevantdynamics[k];
 						logger.fine("Building dynamic alias for simple specific alias list Alias = "+thisdynamicalias.getFirstobject()+"-"+thisdynamicalias.getSecondobject());
@@ -108,7 +108,7 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 	 * @param aliasafter
 	 * @param filter
 	 */
-	public void addDynamicAliasHelper(String aliasbefore,String aliasafter,FlatFileExtractorDynamicAliasFilter<E> filter) {
+	public void addDynamicAliasHelper(String aliasbefore,String aliasafter,FlatFileExtractorDynamicAliasFilter<E,F> filter) {
 		this.dynamicaliaslisthelper.put(new Pair<String,String>(aliasbefore,aliasafter), filter);
 	}
 	

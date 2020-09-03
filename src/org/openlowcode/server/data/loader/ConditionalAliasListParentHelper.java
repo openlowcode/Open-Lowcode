@@ -41,7 +41,7 @@ public class ConditionalAliasListParentHelper<
 		extends
 		ConditionalAliasListHelper<E, F> {
 	private static Logger logger = Logger.getLogger(ConditionalAliasListParentHelper.class.getName());
-	private HashMap<Pair<String, String>, FlatFileExtractorDynamicAliasParentFilter<E, G>> dynamicaliaslistparenthelper;
+	private HashMap<Pair<String, String>, FlatFileExtractorDynamicAliasParentFilter<E, G,F>> dynamicaliaslistparenthelper;
 	@SuppressWarnings("unused")
 	private DataObjectDefinition<G> parentdefinition;
 	private Function<DataObjectId<G>, G> parentextractor;
@@ -63,7 +63,7 @@ public class ConditionalAliasListParentHelper<
 		super(objectdefinition);
 		this.parentdefinition = parentdefinition;
 		dynamicaliaslistparenthelper = new HashMap<
-				Pair<String, String>, FlatFileExtractorDynamicAliasParentFilter<E, G>>();
+				Pair<String, String>, FlatFileExtractorDynamicAliasParentFilter<E, G,F>>();
 		this.parentextractor = parentextractor;
 		this.parentaliasfilter = parentaliasfilter;
 
@@ -79,7 +79,7 @@ public class ConditionalAliasListParentHelper<
 	public void addDynamicAliasParentHelper(
 			String aliasbefore,
 			String aliasafter,
-			FlatFileExtractorDynamicAliasParentFilter<E, G> aliasparentfilter) {
+			FlatFileExtractorDynamicAliasParentFilter<E, G,F> aliasparentfilter) {
 		this.addDynamicAliasHelper(aliasbefore, aliasafter, aliasparentfilter);
 		dynamicaliaslistparenthelper.put(new Pair<String, String>(aliasbefore, aliasafter), aliasparentfilter);
 		super.addDynamicAliasHelper(aliasbefore, aliasafter, aliasparentfilter);
@@ -108,12 +108,12 @@ public class ConditionalAliasListParentHelper<
 					if (conditionalforthisalias != null)
 						show = isAliasValid(thisdynamicalias, selectedvalue, conditionaldynamicaliaslist);
 					if (show) {
-						FlatFileExtractorDynamicAliasParentFilter<E,G> helper = this.dynamicaliaslistparenthelper.get(thisdynamicalias);
+						FlatFileExtractorDynamicAliasParentFilter<E,G,F> helper = this.dynamicaliaslistparenthelper.get(thisdynamicalias);
 						if (helper == null)
 							throw new RuntimeException("Dynamic Alias '" + thisdynamicalias.getFirstobject() + "' - ' "
 									+ thisdynamicalias.getSecondobject()
 									+ "' does not have an helper. Please check the definition ");
-						String[] relevantdynamics = helper.generateForExport(objectdefinition,parent);
+						String[] relevantdynamics = helper.generateForExport(objectdefinition,parent,selectedvalue);
 						if (relevantdynamics != null)
 							for (int k = 0; k < relevantdynamics.length; k++) {
 								String thisdynamicpart = relevantdynamics[k];
