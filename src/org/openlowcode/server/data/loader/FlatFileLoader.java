@@ -169,9 +169,10 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 					String headlineelement = FlatFileLoader.parseObject(headlineobject, "Parse Title for column " + i);
 					String alias = objectdefinition.getLoaderAlias(headlineelement);
 					logger.fine(" -- Found alias = " + alias + " for headline element = " + headlineelement);
-					if (alias == null)
+					if (alias == null) {
+						logger.fine("  -- Did not find alias for "+headlineelement+", continues with headline element");
 						alias = headlineelement;
-
+					}
 					// column definition exists
 					if ((alias.trim().length() > 0) && (!alias.trim().equals("#DISCARDED#"))) {
 						String[] headlinesplit = StringParser.splitwithdoubleescape(alias, '&');
@@ -182,9 +183,18 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 						//
 						if (relevanthelper != null)
 							activecustomloaderhelper.put(relevanthelper.getClass().getName(), relevanthelper);
-						if (column == null)
+						if (column == null) {
+							logger.severe(" ----------------------- Alias drop ------------------------------------ ");
+							for (int e=0;e<objectdefinition.getAliasNumber();e++) {
+								String thisalias = objectdefinition.getAliasat(e);
+								String aliassolved = objectdefinition.getLoaderAlias(thisalias);
+								logger.severe("      "+thisalias+" - "+aliassolved);
+							}
+							logger.severe("-------------------------------------------------------------------------");
+							
 							throw new RuntimeException("Did not find any element for column '" + headlineelement + "' "
-									+ (alias != null ? "(Alias '" + headline[i] + "')" : ""));
+									+ (alias != null ? "(Alias '" + alias + "')" : ""));
+						}
 						if (column.isLinePreparator()) {
 							if (linepreparatorindex != -1)
 								throw new RuntimeException("double line preparator defined : oldindex "
