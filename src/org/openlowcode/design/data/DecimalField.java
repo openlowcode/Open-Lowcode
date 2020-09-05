@@ -33,14 +33,14 @@ public class DecimalField
 		implements
 		FormulaDefinitionElement {
 	private int length;
-	private int precision;
+	private int scale;
 	private int indextype;
 	private ArrayList<CalculatedFieldTriggerPath> alltriggers;
 	private DecimalFormatter decimalformatter;
 	private StoredElement plainfield;
 
 	public int getPrecision() {
-		return this.precision;
+		return this.scale;
 	}
 
 	public static int INDEXTYPE_NONE = 0;
@@ -56,16 +56,16 @@ public class DecimalField
 	 * @param tooltip     roll-over tip
 	 * @param length      total number of digits of the number (e.g. 533.33 is 5
 	 *                    digits)
-	 * @param precision   (digits to the right of decimal point (e.g. 533.33 has
-	 *                    precision on 2)
+	 * @param scale       (digits to the right of decimal point (e.g. 533.33 has
+	 *                    scale on 2)
 	 */
-	public DecimalField(String name, String displayname, String tooltip, int length, int precision, int indextype) {
+	public DecimalField(String name, String displayname, String tooltip, int length, int scale, int indextype) {
 
 		super(name, displayname, tooltip);
 		this.length = length;
-		this.precision = precision;
+		this.scale = scale;
 		this.indextype = indextype;
-		plainfield = new DecimalStoredElement("", length, precision);
+		plainfield = new DecimalStoredElement("", length, scale);
 		if (this.indextype == StringField.INDEXTYPE_RAWINDEX) {
 			this.addIndex(new Index("RAWSEARCH", plainfield, false));
 		}
@@ -81,7 +81,7 @@ public class DecimalField
 	 * @param tooltip         roll-over tip
 	 * @param length          total number of digits of the number (e.g. 533.33 is 5
 	 *                        digits)
-	 * @param precision       (digits to the right of decimal point (e.g. 533.33 has
+	 * @param scale           (digits to the right of decimal point (e.g. 533.33 has
 	 *                        precision on 2)
 	 * @param indextype       type of index (one of the static int of this class
 	 * @param displaypriority a number strictly between -1000 and 1000
@@ -91,10 +91,10 @@ public class DecimalField
 			String displayname,
 			String tooltip,
 			int length,
-			int precision,
+			int scale,
 			int indextype,
 			int displaypriority) {
-		this(name, displayname, tooltip, length, precision, indextype);
+		this(name, displayname, tooltip, length, scale, indextype);
 		this.setDisplayPriority(displaypriority);
 	}
 
@@ -108,8 +108,8 @@ public class DecimalField
 	 * @param tooltip          roll-over tip
 	 * @param length           total number of digits of the number (e.g. 533.33 is
 	 *                         5 digits)
-	 * @param precision        (digits to the right of decimal point (e.g. 533.33
-	 *                         has precision on 2)
+	 * @param scale            (digits to the right of decimal point (e.g. 533.33
+	 *                         has scale on 2)
 	 * @param indextype        type of index (one of the static int of this class
 	 * @param displaypriority  a number strictly between -1000 and 1000
 	 * @param decimalformatter
@@ -119,11 +119,11 @@ public class DecimalField
 			String displayname,
 			String tooltip,
 			int length,
-			int precision,
+			int scale,
 			int indextype,
 			int displaypriority,
 			DecimalFormatter decimalformatter) {
-		this(name, displayname, tooltip, length, precision, indextype);
+		this(name, displayname, tooltip, length, scale, indextype);
 		this.setDisplayPriority(displaypriority);
 		this.decimalformatter = decimalformatter;
 	}
@@ -137,7 +137,7 @@ public class DecimalField
 	@Override
 	public String getDataObjectConstructorAttributes() {
 		return "\"" + this.getName() + "\",\"" + this.getDisplayname() + "\",\"" + this.getTooltip() + "\","
-				+ this.length + "," + this.precision + "," + this.isNoUserEdition() + ",false,false,"
+				+ this.length + "," + this.scale + "," + this.isNoUserEdition() + ",false,false,"
 				+ (decimalformatter != null ? decimalformatter.generateDefinition()
 						: "null" + "," + this.getDisplayPriority());
 	}
@@ -197,20 +197,21 @@ public class DecimalField
 	@Override
 	public Field copy(String newname, String newdisplaylabel) {
 		return new DecimalField((newname != null ? newname : this.getName()),
-				(newdisplaylabel != null ? newdisplaylabel : this.getDisplayname()), this.getTooltip(), length,
-				precision, indextype, this.getDisplayPriority(), this.decimalformatter);
+				(newdisplaylabel != null ? newdisplaylabel : this.getDisplayname()), this.getTooltip(), length, scale,
+				indextype, this.getDisplayPriority(), this.decimalformatter);
 	}
-	
+
 	@Override
 	public String writeCellExtractor() {
-		return "(a,b)->(DecimalDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a,"+length+","+precision+" ,b, 0,null))";
+		return "(a,b)->(DecimalDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a," + scale + "," + length
+				+ " ,b, 0,null))";
 	}
 
 	@Override
 	public String writeCellFiller() {
 		return "(a,b)->DecimalDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,b,null)";
 	}
-	
+
 	@Override
 	public String writePayloadFiller() {
 		return "Not yet implemented";

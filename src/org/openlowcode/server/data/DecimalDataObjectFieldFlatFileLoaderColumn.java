@@ -62,10 +62,10 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 		/**
 		 * creates a decimal parser
 		 * 
-		 * @param scale     total number of digits of the number (e.g. 533.33 is 5
-		 *                  digits)
-		 * @param precision (digits to the right of decimal point (e.g. 533.33 has
+		 * @param scale     digits to the right of decimal point (e.g. 533.33 has
 		 *                  precision on 2)
+		 * @param precision total number of digits of the number (e.g. 533.33 is 5
+		 *                  digits)
 		 * @param locale    locale if CSV import
 		 */
 		public DecimalParser(
@@ -260,7 +260,8 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 			BigDecimal value,
 			String multiplier) {
 		BigDecimal multiplierforexport = parsemultiplierForExport(multiplier);
-		if (value!=null) cell.setCellValue(value.multiply(multiplierforexport).doubleValue());
+		if (value != null)
+			cell.setCellValue(value.multiply(multiplierforexport).doubleValue());
 		if (multiplierforexport.equals(new BigDecimal("0.01"))) {
 			CellStyle percentagecellstyle = FlatFileExtractor.createBorderedStyle(cell.getSheet().getWorkbook());
 			percentagecellstyle.setDataFormat(cell.getSheet().getWorkbook().createDataFormat().getFormat("0.0%"));
@@ -274,8 +275,10 @@ public class DecimalDataObjectFieldFlatFileLoaderColumn<E extends DataObject<E>>
 	 * gets a BigDecimal from cell
 	 * 
 	 * @param value           value to parse
-	 * @param scale           scale
-	 * @param precision       precision
+	 * @param scale           number of digits right of the decimal point (e.g.
+	 *                        533.33 is 2 digits
+	 * @param precision       total number of digits of the number (e.g. 533.33 is 5
+	 *                        digits)
 	 * @param locale          locale for import from text (comma or dot as decimal)
 	 * @param modifier        String modifier in the sense of
 	 *                        DecimalDataObjectFieldFlatFileLoader
