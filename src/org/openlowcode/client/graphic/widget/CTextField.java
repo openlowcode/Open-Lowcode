@@ -12,6 +12,7 @@ package org.openlowcode.client.graphic.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,7 +25,9 @@ import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
 import org.openlowcode.client.graphic.widget.table.LargeTextTableCell;
+import org.openlowcode.client.graphic.widget.table.ObjectDataElementKeyExtractor;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
+import org.openlowcode.client.graphic.widget.tools.CChoiceFieldValue;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.ArrayDataEltType;
@@ -93,7 +96,7 @@ import javafx.util.StringConverter;
  */
 public class CTextField
 		extends
-		CBusinessField<TextDataElt> {
+		CBusinessField<TextDataElt> implements ObjectDataElementKeyExtractor<ObjectDataElt,String>{
 	private static final Logger LOGGER = Logger.getLogger(CTextField.class.getName());
 	private static final int MAXROWWIDTH = 250;
 	private String label;
@@ -1102,5 +1105,24 @@ public class CTextField
 					suggestions.getName(), suggestions));
 		
 		
+	}
+
+	@Override
+	public Function<ObjectDataElt, String> fieldExtractor() {
+		return (t) -> {
+			SimpleDataElt field = t.lookupEltByName(CTextField.this.datafieldname);
+			return field.defaultTextRepresentation();
+		};
+		
+	}
+
+	@Override
+	public Function<String, String> keyExtractor() {
+		return (t)->(t);
+	}
+
+	@Override
+	public Function<String, String> labelExtractor() {
+		return (t) -> (t);	
 	}
 }

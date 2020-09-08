@@ -321,8 +321,7 @@ public class SGrid<E extends DataObject<E>>
 		}
 		objectarray.writeReferenceToCML(writer);
 		writer.startStructure("ATTRS");
-		// TODO potential optimization: sends only required fields + ID.
-		objectmodel.writeFieldDefinition(writer, input, buffer);
+		objectmodel.writeFieldDefinition(writer, null, null,-1000,input, buffer);
 		writer.endStructure("ATTRS");
 		if (this.inlineupdateaction == null) {
 			writer.addBooleanField("INLUPD", false);
