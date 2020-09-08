@@ -37,11 +37,22 @@ public abstract class Element
 
 	/**
 	 * provides the generic name of the variable for properties that can be
-	 * instanciated multiple times
+	 * instanciated multiple times. THis is especially the name of the getter
+	 * in the property class
 	 * 
 	 * @return
 	 */
 	public String getGenericNameForProperty() {
+		return this.genericsname;
+	}
+	
+	/**
+	 * provides the element name inside the property. Especially, for properties
+	 * that can be instanciated multiple time, this may be typically property instance name + suffix
+	 * 
+	 * @return
+	 */
+	public String getNameElementForProperty() {
 		return this.genericsname;
 	}
 

@@ -3693,7 +3693,7 @@ public class DataObjectDefinition
 					sg.wl("	public DataObjectFieldMarker<" + classname + "> get"
 							+ StringFormatter.formatForJavaClass(element.getName()) + "FieldMarker()  {");
 					sg.wl("		return this.getPropertyFieldMarker(\"" + thisproperty.getName() + "\",\""
-							+ element.getGenericNameForProperty().toUpperCase() + "\");");
+							+ element.getNameElementForProperty().toUpperCase() + "\");");
 					sg.wl("	}");
 				}
 			}

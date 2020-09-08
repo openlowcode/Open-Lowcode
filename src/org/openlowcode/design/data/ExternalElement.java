@@ -29,7 +29,7 @@ public class ExternalElement
 	@SuppressWarnings("unused")
 	private Property<?> referencedproperty;
 	private StoredElement referencedpropertyelement;
-
+	private String namelementforproperty;
 	public StoredElement getReferencedPropertyElement() {
 		return this.referencedpropertyelement;
 	}
@@ -92,12 +92,20 @@ public class ExternalElement
 			genericsname = genericsname + namesuffix;
 		genericsname = genericsname + StringFormatter.formatForJavaClass(this.referencedpropertyelement.getName());
 		this.setGenericsName(genericsname);
-
+		namelementforproperty = localproperty.getName();
+		if (namesuffix != null)
+			namelementforproperty = namelementforproperty+namesuffix;
+		namelementforproperty = namelementforproperty+ StringFormatter.formatForJavaClass(this.referencedpropertyelement.getName());
 	}
 
 	@Override
 	public String getJavaFieldName() {
 		return referencedpropertyelement.getJavaFieldName();
+	}
+
+	@Override
+	public String getNameElementForProperty() {
+		return this.namelementforproperty;
 	}
 
 }

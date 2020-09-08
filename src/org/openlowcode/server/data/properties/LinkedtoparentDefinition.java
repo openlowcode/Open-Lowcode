@@ -164,7 +164,7 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 						.generateJoinQueryDefinition(this.parentobject.getTableschema(), id, "UNIQUEIDENTIFIED", "ID",
 								this.getName(), new QueryOperatorEqual<String>());
 				ExternalFieldSchema<?> externalfield = referenceobjectdefinition.generateExternalField(
-						this.getName() + "NAME", "Parent " + this.referenceobjectdefinition.getLabel(),
+						this.getName() + "OBJECTNAME", "Parent " + this.referenceobjectdefinition.getLabel(),
 						"Indicates the field the notes has been put in", "NAMED", "OBJECTNAME", joincondition,
 						this.displayprofilehideparentfields, -50, 40);
 				externalfieldlist.add(externalfield);

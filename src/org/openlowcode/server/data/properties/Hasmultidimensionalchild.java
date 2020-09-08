@@ -104,7 +104,7 @@ public class Hasmultidimensionalchild<
 	public void postprocStoredobjectInsert(E object) {
 		MultidimensionchildHelper<F, E> multidimensionalchildhelper = this.casteddefinition.getHelper();
 		multidimensionalchildhelper.setContext(object);
-
+		logger.fine(" ---------------- start treating object for insert "+object.dropIdToString()+" ---------------- ");
 		// if versioned, get previous version children if it exists
 		F[] previouschildren = null;
 		if (object instanceof VersionedInterface<?>) {
@@ -113,15 +113,20 @@ public class Hasmultidimensionalchild<
 			E previousversion = versionedproperty.getpreviousversion();
 			if (previousversion != null)
 				previouschildren = this.casteddefinition.getChildren(previousversion.getId());
+			logger.fine("      got "+(previouschildren!=null?previouschildren.length:"null")+" children from previous version");
 		}
 		// get the blank objects
-
+		
 		ArrayList<F> blankobjects = multidimensionalchildhelper.generateObjectsForAllValueHelpers(object,
 				childobjectdefinition);
+		logger.fine("      blank objects created = "+blankobjects.size());
 		HashMap<String, F> objectsperkey = new HashMap<String, F>();
-		for (int i = 0; i < blankobjects.size(); i++)
-			objectsperkey.put(multidimensionalchildhelper.generateKeyForObject(blankobjects.get(i)),
-					blankobjects.get(i));
+		for (int i = 0; i < blankobjects.size(); i++) {
+			F thisobject = blankobjects.get(i);
+			String key =  multidimensionalchildhelper.generateKeyForObject(thisobject);
+			logger.finest("                  "+key);
+			objectsperkey.put(key,thisobject);
+		}
 
 		if (previouschildren != null) {
 			// replace children that are part of the list of blank objects
@@ -132,6 +137,7 @@ public class Hasmultidimensionalchild<
 				if (objectsperkey.get(childkey) != null) {
 					F newchild = oldchild.deepcopy();
 					objectsperkey.put(childkey, newchild);
+					logger.finest("              Replace key "+childkey+" with previous version");
 				}
 			}
 
@@ -143,21 +149,21 @@ public class Hasmultidimensionalchild<
 
 				if (objectsperkey.get(childkey) == null) {
 					F potentialnewchild = oldchild.deepcopy();
-					logger.severe(" -- Managing child in previous version key = "+childkey);
+					logger.finer(" -- Managing child in previous version key = "+childkey);
 					String value = multidimensionalchildhelper.getKeyForConsolidation(potentialnewchild, object);
-					logger.severe("          -> found new key for consolidation = "+value);
+					logger.finer("          -> found new key for consolidation = "+value);
 					if (value != null)
 						if (objectsperkey.get(value) != null) {
 							F childtoconsolidateinto = objectsperkey.get(value);
 							multidimensionalchildhelper.getConsolidator().accept(childtoconsolidateinto,
 									potentialnewchild);
-							logger.severe("          -> found object to consolidate into ");
+							logger.finer("          -> found object to consolidate into ");
 						} else {
 							objectsperkey.put(value, potentialnewchild);
-							logger.severe("          -> adds value directly to consolidation");
+							logger.finer("          -> adds value directly to consolidation");
 						}
 					if (value == null)
-						logger.severe ("              -> Discarding old data with key " + childkey);
+						logger.finer ("              -> Discarding old data with key " + childkey);
 				}
 			}
 
@@ -171,7 +177,10 @@ public class Hasmultidimensionalchild<
 			allobjectstoinsert.add(nextobject);
 
 		}
+		
 		F[] objectstoinsert = allobjectstoinsert.toArray(childobjectdefinition.generateArrayTemplate());
+		logger.finer("   inserting "+(objectstoinsert!=null?objectstoinsert.length:"null")+" objects");
+		if (objectstoinsert!=null) for (int i=0;i<objectstoinsert.length;i++) logger.finest("             "+multidimensionalchildhelper.generateKeyForObject(objectstoinsert[i]));
 		if (objectstoinsert != null)
 			if (objectstoinsert.length > 0) {
 				objectstoinsert[0].getMassiveInsert().insert(objectstoinsert);

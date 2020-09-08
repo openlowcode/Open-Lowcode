@@ -61,12 +61,12 @@ public class Linkedtoparent<E extends DataObject<E> & UniqueidentifiedInterface<
 		pridfield = (StoredField<String>) this.field.lookupOnName(this.getName() + "ID");
 
 		if (parentdefinition.hasProperty("NAMED")) {
-			prname = (ExternalField<String>) this.field.lookupOnName(this.getName() + "NAME");
+			prname = (ExternalField<String>) this.field.lookupOnName(this.getName() + "OBJECTNAME");
 		}
 		if (parentdefinition.hasProperty("NUMBERED")) {
 			prnumber = (ExternalField<String>) this.field.lookupOnName(this.getName() + "NR");
 		}
-		if (parentdefinition.hasProperty("Located")) {
+		if (parentdefinition.hasProperty("LOCATED")) {
 			prlocation = (ExternalField<String>) this.field.lookupOnName(this.getName() + "LOCATIONDOMAINID");
 		}
 
@@ -230,7 +230,7 @@ public class Linkedtoparent<E extends DataObject<E> & UniqueidentifiedInterface<
 		if (parentdefinition.hasProperty("NAMEDPROPERTY")) {
 
 			for (int i = 0; i < this.field.getSize(); i++)
-				logger.info("field = " + this.field.get(i).getName());
+				logger.finer("field = " + this.field.get(i).getName());
 		}
 		if (prname == null)
 			return "#Name not present#";
