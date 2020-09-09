@@ -222,6 +222,9 @@ public class OLcClient
 				case "TRE":
 					answer = new CTimeRangeEntry(reader,path);
 					break;
+				case "WDP":
+					answer = new  CWidthProtector(reader,path);
+					break;
 				default:
 					throw new RuntimeException(String.format(
 							"no valid component found for CSP Node parsing, node = '" + structure + "' %s ",
