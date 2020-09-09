@@ -28,6 +28,7 @@ import com.sun.javafx.scene.control.skin.TreeTableViewSkin;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -487,7 +488,32 @@ public class EditableTreeTable<E extends Object> {
 				}
 			}
 		});
+		
+		ObservableList<TreeTableColumn<EditableTreeTableLineItem<Wrapper<E>>, ?>> columns = treetableview.getColumns();
+		int totalwidth = 0;
+		for (int i=0;i<columns.size();i++) {
+			columns.get(i).widthProperty().addListener(new  ChangeListener<Number>() {
 
+				@Override
+				public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+					int totalwidth = 0;
+					for (int j=0;j<columns.size();j++) {
+						logger.severe("      column "+j+" width = "+columns.get(j).getWidth());
+						totalwidth+= columns.get(j).getWidth();
+					}
+					totalwidth+=14;
+					logger.severe("       ---------------------------> Total width setup to "+totalwidth+" points");
+					treetableview.setMinWidth(totalwidth);
+					treetableview.setPrefWidth(totalwidth);
+				}
+				
+			});
+			
+		}
+		
+		
+		
+		
 	}
 
 	private void expandall(TreeItem<EditableTreeTableLineItem<Wrapper<E>>> thisitem, int circuitbreaker) {
