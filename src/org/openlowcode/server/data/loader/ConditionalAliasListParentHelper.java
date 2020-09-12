@@ -99,6 +99,7 @@ public class ConditionalAliasListParentHelper<
 		for (int i=0;i<objectdefinition.getAliasNumber();i++) {
 			String staticalias = objectdefinition.getAliasat(i);
 			Pair<String, String>[] dynamicaliases = objectdefinition.getDynamicAliasForIndex(i);
+			// ----------------------- Treat dynamic Alias ------------------------------
 			if (dynamicaliases != null) {
 				logger.severe(" starting processing alias " + i + "   -  " + staticalias);
 				for (int j = 0; j < dynamicaliases.length; j++) {
@@ -127,6 +128,7 @@ public class ConditionalAliasListParentHelper<
 					}
 				}
 			}
+			// ----------------------------------------------------------------------
 			if (parentaliasfilter == null) {
 				boolean isvalid = isAliasValid(staticalias, selectedvalue, conditionalaliaslist);
 				if (isvalid) {
@@ -137,8 +139,12 @@ public class ConditionalAliasListParentHelper<
 			}
 			if (parentaliasfilter != null)
 				if (parentaliasfilter.isvalid(objectdefinition, staticalias, parent)) {
-					aliasfilteredforparent.add(staticalias);
-					logger.severe(" - add simple alias "+staticalias);
+					boolean isvalid = isAliasValid(staticalias, selectedvalue, conditionalaliaslist);
+					if (isvalid) {
+						aliasfilteredforparent.add(staticalias);
+						logger.severe(" - add simple alias "+staticalias);
+					}
+					
 				}
 					
 		}
