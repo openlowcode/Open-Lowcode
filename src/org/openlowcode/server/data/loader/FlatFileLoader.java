@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.openlowcode.module.system.data.Csvloadererror;
 import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
 import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;
@@ -620,6 +621,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	public ExcelReader generateExcelParser(SFile file, String preferedtab) {
 		ByteArrayInputStream batch = new ByteArrayInputStream(file.getContent());
 		try {
+			ZipSecureFile.setMinInflateRatio(0.001);
 			ExcelReader parser = new ExcelReader(batch);
 			if (preferedtab != null)
 				parser.GoToSheet(preferedtab);
