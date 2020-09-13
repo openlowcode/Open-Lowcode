@@ -89,5 +89,9 @@ G extends DataObject<G> & UniqueidentifiedInterface<G>> extends MultichildValueH
 	public void setContext(G parent) {
 		// do nothing
 	}
+	@Override
+	public boolean filterForPayloadTotal(F value) {
+		return true;
+	}
 
 }

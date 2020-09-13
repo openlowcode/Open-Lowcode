@@ -49,12 +49,25 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 
 	private HashMap<String, HashMap<String, F>> childrenbykey;
 
+	/**
+	 * @param payloadhelper
+	 */
 	public void setPayloadHelper(MultichildValueHelper<F, ?, E> payloadhelper) {
 		this.payloadhelper = payloadhelper;
 	}
 
+	/**
+	 * @return
+	 */
 	public MultichildValueHelper<F, ?, E> getPayloadHelper() {
 		return this.payloadhelper;
+	}
+	
+	/**
+	 * @return
+	 */
+	public MultichildValueHelper<F,?,E> getMainValueHelper() {
+		return this.mainvaluehelper;
 	}
 
 	/**
