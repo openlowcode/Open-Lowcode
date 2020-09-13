@@ -158,7 +158,7 @@ public class HasMultiDimensionalChild
 		sg.wl("					(a)->a.get" + attributeclass + "(),");
 		sg.wl("					" + field.writeCellFiller() + ",");
 		sg.wl("					" + field.writeCellExtractor() + ",");
-		sg.wl("					"+field.writeStringPrinter()+");");
+		sg.wl("					"+field.writeStringPrinterAndConsolidator()+");");
 		if (!payload)
 			sg.wl("			helper.setChildHelper(" + attributefield + "fieldchildhelper" + (main ? ",true" : "")+");");
 		if (payload)

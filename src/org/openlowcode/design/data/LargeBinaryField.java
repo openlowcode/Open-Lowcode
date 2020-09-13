@@ -108,7 +108,7 @@ public class LargeBinaryField
 	}
 	
 	@Override
-	public String writeStringPrinter() {
+	public String writeStringPrinterAndConsolidator() {
 		return "(a)->(not yet implemented)";
 	}
 }

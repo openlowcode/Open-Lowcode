@@ -11,7 +11,6 @@
 package org.openlowcode.server.data.properties.multichild;
 
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -20,6 +19,8 @@ import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.properties.MultidimensionchildInterface;
 import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
+import org.openlowcode.tools.misc.TriConsumer;
+import org.openlowcode.tools.misc.TriFunction;
 
 /**
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
@@ -41,16 +42,16 @@ G extends DataObject<G> & UniqueidentifiedInterface<G>> extends MultichildValueH
 	private boolean allowothervalues;
 	private F defaultforotherdata;
 	
-	public ConstantMultiChildValueHelper(String fieldname,F[] minimumvalues,BiConsumer<E, F> setter, Function<E, F> getter,BiConsumer<Cell, F> cellfiller,
-			BiFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>, F> payloadparser,Function<F, String> printer) {
+	public ConstantMultiChildValueHelper(String fieldname,F[] minimumvalues,BiConsumer<E, F> setter, Function<E, F> getter,TriConsumer<Cell,String[], F> cellfiller,
+			TriFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>,String[], F> payloadparser,Function<F, String> printer) {
 		super(fieldname,setter, getter,cellfiller,payloadparser,printer);
 		this.minimumvalues=minimumvalues;
 		this.maximumvalues=null;
 		this.allowothervalues=true;
 		this.defaultforotherdata=null;
 	}
-	public ConstantMultiChildValueHelper(String fieldname,F[] minimumvalues,F defaultforotherdata,BiConsumer<E, F> setter, Function<E, F> getter,BiConsumer<Cell, F> cellfiller,
-			BiFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>, F> payloadparser,Function<F, String> printer) {
+	public ConstantMultiChildValueHelper(String fieldname,F[] minimumvalues,F defaultforotherdata,BiConsumer<E, F> setter, Function<E, F> getter,TriConsumer<Cell,String[], F> cellfiller,
+			TriFunction<Object,ChoiceValue<ApplocaleChoiceDefinition>,String[], F> payloadparser,Function<F, String> printer) {
 		super(fieldname,setter, getter,cellfiller,payloadparser,printer);
 		this.minimumvalues=minimumvalues;
 		this.maximumvalues=null;

@@ -271,7 +271,7 @@ public class StringField
 		return "Not yet implemented";
 	}
 	@Override
-	public String writeStringPrinter() {
+	public String writeStringPrinterAndConsolidator() {
 		return "(a)->(a)";
 	}
 }

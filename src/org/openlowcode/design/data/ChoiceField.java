@@ -164,12 +164,12 @@ public class ChoiceField
 
 	@Override
 	public String writeCellExtractor() {
-		return "(a,b)->(ChoiceDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a, "+StringFormatter.formatForJavaClass(choice.getName())+"ChoiceDefinition.get(), null, false,\"MultiChildLoader\"))";
+		return "(a,b,c)->(ChoiceDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a, "+StringFormatter.formatForJavaClass(choice.getName())+"ChoiceDefinition.get(), null, false,\"MultiChildLoader\"))";
 	}
 
 	@Override
 	public String writeCellFiller() {
-		return "(a,b)->ChoiceDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,b)";
+		return "(a,b,c)->ChoiceDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,c)";
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class ChoiceField
 	}
 
 	@Override
-	public String writeStringPrinter() {
+	public String writeStringPrinterAndConsolidator() {
 		return "(a)->(ChoiceValue.print(a))";
 	}
 

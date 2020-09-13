@@ -27,7 +27,6 @@ import org.openlowcode.client.graphic.widget.table.CObjectGridLine;
 import org.openlowcode.client.graphic.widget.table.LargeTextTableCell;
 import org.openlowcode.client.graphic.widget.table.ObjectDataElementKeyExtractor;
 import org.openlowcode.client.graphic.widget.table.ObjectTableRow;
-import org.openlowcode.client.graphic.widget.tools.CChoiceFieldValue;
 import org.openlowcode.client.runtime.PageActionManager;
 import org.openlowcode.tools.structure.ArrayDataElt;
 import org.openlowcode.tools.structure.ArrayDataEltType;

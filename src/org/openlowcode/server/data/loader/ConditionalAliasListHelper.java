@@ -125,14 +125,21 @@ public class ConditionalAliasListHelper<E extends DataObject<E>, F extends Field
 			ChoiceValue<Z> filter,
 			HashMap<Y, ChoiceValue<Z>[]> restrictions) {
 		if (!restrictions.containsKey(alias)) {
+			logger.severe("    >>> No restriction for dynamic alias "+alias+" for selection "+filter);
 			return true;
 		} else {
-			if (filter == null)
+			if (filter == null) {
+				logger.severe("    >>> dynamic alias "+alias+" discarded  "+filter);
 				return false;
+			}
 			ChoiceValue<Z>[] restrictionsforalias = restrictions.get(alias);
 			for (int i = 0; i < restrictionsforalias.length; i++) {
-				if (restrictionsforalias[i].getStorageCode().equals(filter.getStorageCode()))
+				if (restrictionsforalias[i].getStorageCode().equals(filter.getStorageCode())) {
+					logger.severe("    >>> dynamic alias "+alias+" valid for selected choice"+filter);
 					return true;
+				} else {
+					logger.severe("     >>> dynamic alias "+alias+" selected choice "+restrictionsforalias[i]+" is not valid, user asked for "+filter);
+				}
 			}
 			return false;
 		}

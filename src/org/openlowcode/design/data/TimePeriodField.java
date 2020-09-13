@@ -137,12 +137,12 @@ public class TimePeriodField
 	
 	@Override
 	public String writeCellExtractor() {
-		return "(a,b)->(TimePeriod.generateFromObject(a))";
+		return "(a,b,c)->(TimePeriod.generateFromObject(a))";
 	}
 
 	@Override
 	public String writeCellFiller() {
-		return "(a,b)->TimePeriodDataObjectFieldFlatFileLoader.putContentInCell(a,b)";
+		return "(a,b,c)->TimePeriodDataObjectFieldFlatFileLoader.putContentInCell(a,c)";
 	}
 	
 	@Override
@@ -150,7 +150,7 @@ public class TimePeriodField
 		return "Not yet implemented";
 	}
 	@Override
-	public String writeStringPrinter() {
+	public String writeStringPrinterAndConsolidator() {
 		return "(a)->(TimePeriod.encode(a))";
 	}
 

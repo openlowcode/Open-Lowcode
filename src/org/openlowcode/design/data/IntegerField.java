@@ -104,7 +104,7 @@ public class IntegerField
 		return "Not yet implemented";
 	}
 	@Override
-	public String writeStringPrinter() {
+	public String writeStringPrinterAndConsolidator() {
 		return "(a)->(not yet implemented)";
 	}
 }

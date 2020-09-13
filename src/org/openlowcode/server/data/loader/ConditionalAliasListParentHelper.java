@@ -104,10 +104,7 @@ public class ConditionalAliasListParentHelper<
 				logger.severe(" starting processing alias " + i + "   -  " + staticalias);
 				for (int j = 0; j < dynamicaliases.length; j++) {
 					Pair<String, String> thisdynamicalias = dynamicaliases[j];
-					ChoiceValue<F>[] conditionalforthisalias = conditionaldynamicaliaslist.get(thisdynamicalias);
-					boolean show = true;
-					if (conditionalforthisalias != null)
-						show = isAliasValid(thisdynamicalias, selectedvalue, conditionaldynamicaliaslist);
+					boolean show =  isAliasValid(thisdynamicalias, selectedvalue, conditionaldynamicaliaslist);
 					if (show) {
 						FlatFileExtractorDynamicAliasParentFilter<E,G,F> helper = this.dynamicaliaslistparenthelper.get(thisdynamicalias);
 						if (helper == null)
@@ -115,6 +112,8 @@ public class ConditionalAliasListParentHelper<
 									+ thisdynamicalias.getSecondobject()
 									+ "' does not have an helper. Please check the definition ");
 						String[] relevantdynamics = helper.generateForExport(objectdefinition,parent,selectedvalue);
+					
+						
 						if (relevantdynamics != null)
 							for (int k = 0; k < relevantdynamics.length; k++) {
 								String thisdynamicpart = relevantdynamics[k];

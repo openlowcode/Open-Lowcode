@@ -95,9 +95,23 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 		if (columnattributes.length >= 2) {
 			if (maincolumnattribute.equals(this.mainvaluehelper.getFieldName())) {
 				String maincolumnvalue = columnattributes[1];
+				String[] extraattributes =null;
+				if (columnattributes.length>2) {
+					extraattributes = new String[columnattributes.length-2];
+					for (int i=0;i<columnattributes.length-2;i++) extraattributes[i] = columnattributes[i+2];
+				}
 				
-				return mainvaluehelper.new MainValueFlatFileLoader(this, locale, maincolumnvalue,payloadhelper);
+				return mainvaluehelper.new MainValueFlatFileLoader(this, locale, maincolumnvalue,payloadhelper,extraattributes);
 			}
+		}
+		if (maincolumnattribute.equals("#TOTAL#")) {
+			logger.finest("  >>> get total flat file loader");
+			String[] extraattributes =null;
+			if (columnattributes.length>1) {
+				extraattributes = new String[columnattributes.length-1];
+				for (int i=0;i<columnattributes.length-1;i++) extraattributes[i] = columnattributes[i+1];
+			}
+			return this.payloadhelper.new MainValueTotalFlatFileLoader(this,locale,payloadhelper,extraattributes);
 		}
 		potentialattributes.append(',');
 		potentialattributes.append(mainvaluehelper.getFieldName());
@@ -158,6 +172,14 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 		}
 		return droplinekey.toString();
 		
+		
+	}
+	
+	public ArrayList<F> getChildrenForLine(String linekey) {
+		Iterator<F> values = childrenbykey.get(linekey).values().iterator();
+		ArrayList<F> valueslist = new ArrayList<F>();
+		while (values.hasNext()) valueslist.add(values.next());
+		return valueslist;
 		
 	}
 	

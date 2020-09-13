@@ -164,6 +164,7 @@ public class DecimalField
 		sg.wl("import org.openlowcode.server.data.formula.SumOnLinkRightObject;");
 		sg.wl("import org.openlowcode.server.data.formula.SumProductOnLinkRightObject;");
 		sg.wl("import org.openlowcode.server.data.formula.LinkToLeftReverseNavigator;");
+		sg.wl("import org.openlowcode.server.data.helpers.ReportTree;");
 	}
 
 	@Override
@@ -203,13 +204,12 @@ public class DecimalField
 
 	@Override
 	public String writeCellExtractor() {
-		return "(a,b)->(DecimalDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a," + scale + "," + length
-				+ " ,b, 0,null))";
+		return "(a,b,c)->(DecimalDataObjectFieldFlatFileLoaderColumn.getContentFromCell( a,2,12 ,b, (c!=null?(c.length>0?DecimalDataObjectFieldFlatFileLoaderColumn.parseMultiplierForImport(c[0]):0):0),null))";
 	}
 
 	@Override
 	public String writeCellFiller() {
-		return "(a,b)->DecimalDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,b,null)";
+		return "(a,b,c)->DecimalDataObjectFieldFlatFileLoaderColumn.putContentInCell(a,c,(b!=null?(b.length>0?b[0]:null):null))";
 	}
 
 	@Override
@@ -218,7 +218,7 @@ public class DecimalField
 	}
 
 	@Override
-	public String writeStringPrinter() {
-		return "(a)->(DecimalDataObjectField.printDecimal(a))";
+	public String writeStringPrinterAndConsolidator() {
+		return "(a)->(DecimalDataObjectField.printDecimal(a)),(a,b)->(ReportTree.sumIfNotNull(a, b))";
 	}
 }

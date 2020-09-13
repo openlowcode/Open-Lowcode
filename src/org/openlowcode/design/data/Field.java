@@ -212,10 +212,10 @@ public abstract class Field
 	public abstract String writePayloadFiller();
 
 	/**
-	 * write a printer for the type of object managed in the dielf
+	 * write a printer for the type of object managed in the field and consolidator if applicable
 	 * 
 	 * @return the function source code
 	 * @since 1.11
 	 */
-	public abstract String writeStringPrinter();
+	public abstract String writeStringPrinterAndConsolidator();
 }

@@ -172,7 +172,7 @@ public class TimestampField
 		return "Not yet implemented";
 	}
 	@Override
-	public String writeStringPrinter() {
+	public String writeStringPrinterAndConsolidator() {
 		return "Not yet implemented";
 	}
 }
