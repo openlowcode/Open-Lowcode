@@ -128,7 +128,9 @@ public class CGrid
 	private Tooltip tooltip;
 	private boolean reversetree;
 	private EditableTreeTable<ObjectDataElt> treetable;
-
+	private ArrayList<String> menuactionlabels;
+	private ArrayList<CPageAction> menuactions;
+	private ArrayList<MenuItem> additionalmenuitems;
 	/**
 	 * create a grid component
 	 * 
@@ -140,6 +142,8 @@ public class CGrid
 	 */
 	public CGrid(MessageReader reader, CPageSignifPath parentpath) throws OLcRemoteException, IOException {
 		super(reader, parentpath);
+		menuactionlabels = new ArrayList<String>();
+		menuactions = new ArrayList<CPageAction>();
 		payloadlist = new ArrayList<CBusinessField<?>>();
 		this.name = reader.returnNextStringField("NAME");
 		this.linefield = reader.returnNextStringField("LNF");
@@ -216,6 +220,13 @@ public class CGrid
 				reader.returnNextEndStructure("INFFLD");
 			}
 		}
+		reader.startStructureArray("MENACT");
+		while (reader.structureArrayHasNextElement("MENACT")) {
+			this.menuactionlabels.add(reader.returnNextStringField("MENLBL"));
+			reader.returnNextStartStructure("ACTION");
+			this.menuactions.add(new CPageAction(reader));
+			reader.returnNextEndStructure("MENACT");
+		}
 		reader.returnNextEndStructure("GRD");
 	}
 
@@ -245,7 +256,7 @@ public class CGrid
 		@Override
 		public void handle(MouseEvent event) {
 			MouseButton button = event.getButton();
-
+			logger.severe("Audit of mouse click on menu "+event.getSource().getClass());
 			if (button == MouseButton.PRIMARY) {
 				if (event.getClickCount() == 1 && (event.isShiftDown())) {
 
@@ -679,7 +690,7 @@ public class CGrid
 
 			startupdate = new MenuItem("Start Update");
 			commitupdate = new MenuItem("Store Update");
-
+			
 			copydata = new MenuItem("Copy Data");
 			contextmenu.getItems().add(startupdate);
 			contextmenu.getItems().add(commitupdate);
@@ -841,15 +852,33 @@ public class CGrid
 			commitupdate = new MenuItem("Store Update");
 			contextmenu.getItems().add(startupdate);
 			contextmenu.getItems().add(commitupdate);
-
+			additionalmenuitems = new ArrayList<MenuItem>();
+			for (int i=0;i<this.menuactions.size();i++) {
+				MenuItem thismenuitem = new MenuItem(this.menuactionlabels.get(i));
+				contextmenu.getItems().add(thismenuitem);
+				this.additionalmenuitems.add(thismenuitem);
+				thismenuitem.setDisable(false);
+				actionmanager.registerEvent(thismenuitem, this.menuactions.get(i));
+				thismenuitem.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent event) {
+						actionmanager.handle(event);
+					}
+				}) ;
+			}
+			
+			
 			if ((this.isinlineupdate)) {
 				startupdate.setDisable(false);
 				commitupdate.setDisable(true);
+				
 			} else {
 				startupdate.setDisable(true);
 				commitupdate.setDisable(true);
 			}
 
+			
+			
 			startupdate.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent arg0) {
@@ -881,6 +910,8 @@ public class CGrid
 				}
 
 			});
+			
+		
 			if (this.cellaction != null)
 				treetable.setDoubleClickReadOnlyEventHandler(actionmanager.getMouseHandler(), true);
 			Node treetablenode = treetable.getNode();

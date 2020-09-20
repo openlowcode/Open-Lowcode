@@ -61,6 +61,8 @@ public class SGrid<E extends DataObject<E>>
 	private ArrayList<DataObjectFieldMarker<E>> valuefield;
 	private ArrayList<DataObjectFieldMarker<E>> infofieldsforreversetree;
 	private ArrayDataElt<TObjectDataElt<E>> objectarray;
+	private ArrayList<SActionRef> menuactions;
+	private ArrayList<String> menuactionslabel;
 	private DataObjectDefinition<E> objectmodel;
 	private SInlineActionRef inlineupdateaction;
 	private ArrayList<DataObjectFieldMarker<E>> updateactionfields;
@@ -112,6 +114,17 @@ public class SGrid<E extends DataObject<E>>
 		addUpdateAction(inlineupdateaction, relevantattributes, inlineupdateactionoutputdata, false);
 	}
 
+	/**
+	 * adds a menu action in the grid. This is only active in reverse display
+	 * 
+	 * @param action
+	 * @since 1.12
+	 */
+	public void addMenuAction(String label,SActionRef action) {
+		this.menuactions.add(action);
+		this.menuactionslabel.add(label);
+	}
+	
 	/**
 	 * adds an inline update action
 	 * 
@@ -173,6 +186,8 @@ public class SGrid<E extends DataObject<E>>
 		this.objectmodel = objectmodel;
 		this.unsaveddatawarning = false;
 		this.updatenote = false;
+		menuactions = new ArrayList<SActionRef> ();
+		menuactionslabel = new ArrayList<String>();
 	}
 
 	/**
@@ -286,7 +301,8 @@ public class SGrid<E extends DataObject<E>>
 		this.objectmodel = objectmodel;
 		this.unsaveddatawarning = false;
 		this.updatenote = false;
-
+		menuactions = new ArrayList<SActionRef> ();
+		menuactionslabel = new ArrayList<String>();
 	}
 
 	@Override
@@ -377,6 +393,14 @@ public class SGrid<E extends DataObject<E>>
 			}
 			writer.endStructure("INFFLDS");
 		}
+		writer.startStructure("MENACTS");
+		for (int i=0;i<this.menuactions.size();i++) {
+			writer.startStructure("MENACT");
+			writer.addStringField("MENLBL",this.menuactionslabel.get(i));
+			this.menuactions.get(i).writeToCML(writer);
+			writer.endStructure("MENACT");
+		}
+		writer.endStructure("MENACTS");
 	}
 
 	@Override
