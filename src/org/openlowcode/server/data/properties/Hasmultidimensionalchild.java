@@ -213,7 +213,10 @@ public class Hasmultidimensionalchild<
 			}
 		}
 
-		// insert missing elements
+		// insert missing elements -- first 
+		for (int i = 0; i < allobjectstoinsert.size(); i++)
+			allobjectstoinsert.get(i).setmultidimensionparentidwithoutupdate(object.getId());
+
 		F[] objectstoinsert = allobjectstoinsert.toArray(childobjectdefinition.generateArrayTemplate());
 		logger.finer("   inserting " + (objectstoinsert != null ? objectstoinsert.length : "null") + " objects");
 		if (objectstoinsert != null)
