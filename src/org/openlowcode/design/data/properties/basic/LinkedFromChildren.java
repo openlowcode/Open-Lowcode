@@ -67,6 +67,7 @@ public class LinkedFromChildren
 	private WidgetDisplayPriority linkedfromchildrenwidgetdisplaypriority;
 	private String specifictitleforchildrentable = null;
 	private String[] infofieldforreverseshow;
+
 	private boolean reversetree;
 	private String[] exceptionsforinfofieldconsolidation;
 	private String[] freecolumnsdisplayforgrid;
@@ -128,6 +129,13 @@ public class LinkedFromChildren
 			importstatements.add("import org.openlowcode.server.graphic.widget.SPopupButton;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SCollapsibleBand;");
 			importstatements.add("import org.openlowcode.server.data.DataObjectFieldMarker;");
+			
+			if (linkedfromchildren.getOriginObjectProperty().getMultiDimensionChild()!=null) {
+				importstatements.add("import "+linkedfromchildren.getParent().getOwnermodule().getPath()+".action.generated.AbsRepair"+linkedfromchildren.getParent().getName().toLowerCase()+"for"+linkedfromchildren.getInstancename().toLowerCase()+"Action;");
+				importstatements.add("import "+linkedfromchildren.getParent().getOwnermodule().getPath()+".action.generated.AtgRepair"+linkedfromchildren.getParent().getName().toLowerCase()+"for"+linkedfromchildren.getInstancename().toLowerCase()+"Action;");
+				
+			}
+			
 			if (linkedfromchildren.getChildObject().getCategoryForExtractor() != null) {
 				ChoiceCategory categoryforextractor = linkedfromchildren.getChildObject().getCategoryForExtractor();
 				importstatements.add("import " + categoryforextractor.getParentModule().getPath() + ".data.choice."
@@ -497,7 +505,9 @@ public class LinkedFromChildren
 						+ " as GRID-, reverse = " + LinkedFromChildren.this.reversetree);
 				sg.wl("		// ------------------------------------------------------------------------------------------");
 				sg.wl("");
-
+				boolean hasmultidimensionchild = false;
+				if (LinkedFromChildren.this.getRelatedLinkedToParent().getMultiDimensionChild() != null)
+					hasmultidimensionchild = true;
 				String label = "Related " + linkedfromchildren.getChildObject().getLabel();
 				if (specifictitleforchildrentable != null)
 					label = specifictitleforchildrentable;
@@ -521,6 +531,7 @@ public class LinkedFromChildren
 								+ StringFormatter.formatForJavaClass(linkedfromchildren.cellfieldsforgrid[i])
 								+ "FieldMarker());");
 				}
+
 				sg.wl("		SGrid<" + childclassname + "> " + linknameattribute + "grid = new SGrid<" + childclassname
 						+ ">(\"TESTGRID\",");
 				sg.wl("				this,");
@@ -529,15 +540,17 @@ public class LinkedFromChildren
 				sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
 						+ StringFormatter.formatForJavaClass(linkedfromchildren.linedisplayforgrid) + "FieldMarker(),");
 				sg.wl("					new DataObjectFieldMarker[]{");
-				for (int i=0;i<linkedfromchildren.freecolumnsdisplayforgrid.length;i++) {
+				for (int i = 0; i < linkedfromchildren.freecolumnsdisplayforgrid.length; i++) {
 					String currentcolumn = linkedfromchildren.freecolumnsdisplayforgrid[i];
-					if (currentcolumn==null) {
-						String errormessage = "Error, current column is null for "+linkedfromchildren.getName()+" and index = "+i;
+					if (currentcolumn == null) {
+						String errormessage = "Error, current column is null for " + linkedfromchildren.getName()
+								+ " and index = " + i;
 						throw new RuntimeException(errormessage);
 					}
 					sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
 							+ StringFormatter.formatForJavaClass(linkedfromchildren.freecolumnsdisplayforgrid[i])
-							+ "FieldMarker()"+(i<linkedfromchildren.freecolumnsdisplayforgrid.length-1?",":""));
+							+ "FieldMarker()"
+							+ (i < linkedfromchildren.freecolumnsdisplayforgrid.length - 1 ? "," : ""));
 				}
 				sg.wl("					},");
 
@@ -601,6 +614,18 @@ public class LinkedFromChildren
 						+ childclassname + ".getIdMarker())); ");
 				sg.wl("		" + linknameattribute + "grid.setDefaultAction(show" + linknameattribute + "detail);");
 				sg.wl("		" + locationname + ".addElement(" + linknameattribute + "grid);");
+
+				if (hasmultidimensionchild) {
+
+					sg.wl("		AtgRepair" + objectvariable + "for" + linkedfromchildren.getInstancename().toLowerCase()
+							+ "Action.ActionRef repair" + linkedfromchildren.getInstancename().toLowerCase() + " = AbsRepair"
+							+ objectvariable + "for" + linkedfromchildren.getInstancename().toLowerCase()
+							+ "Action.get().getActionRef();");
+					sg.wl("		repair" + linkedfromchildren.getInstancename().toLowerCase() + ".set" + objectclass
+							+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+					sg.wl("		" + linknameattribute + "grid.addMenuAction(\"Repair\", repair"
+							+ linkedfromchildren.getInstancename().toLowerCase() + ");");
+				}
 
 			}
 		}
@@ -701,7 +726,7 @@ public class LinkedFromChildren
 		this.linkedfromchildrenwidgetdisplaypriority = linkedfromchildrenwidgetdisplaypriority;
 		this.displaychildrenasgrid = true;
 		this.linedisplayforgrid = linedisplayforgrid;
-		this.freecolumnsdisplayforgrid= new String[2];
+		this.freecolumnsdisplayforgrid = new String[2];
 		this.freecolumnsdisplayforgrid[0] = columndisplayforgrid;
 		this.freecolumnsdisplayforgrid[1] = secondarycolumndisplayforgrid;
 		this.cellfieldsforgrid = cellfieldsforgrid;
@@ -739,9 +764,9 @@ public class LinkedFromChildren
 					+ ", childobject is null");
 		this.displaychildrenasgrid = true;
 		this.linedisplayforgrid = linedisplayforgrid;
-		this.freecolumnsdisplayforgrid= new String[1];
-		if (secondarycolumndisplayforgrid!=null) {
-			this.freecolumnsdisplayforgrid= new String[2];
+		this.freecolumnsdisplayforgrid = new String[1];
+		if (secondarycolumndisplayforgrid != null) {
+			this.freecolumnsdisplayforgrid = new String[2];
 			this.freecolumnsdisplayforgrid[1] = secondarycolumndisplayforgrid;
 		}
 		this.freecolumnsdisplayforgrid[0] = columndisplayforgrid;
@@ -782,15 +807,16 @@ public class LinkedFromChildren
 					+ ", childobject is null");
 		this.displaychildrenasgrid = true;
 		this.linedisplayforgrid = linedisplayforgrid;
-		this.cellfieldsforgrid = new String[] {cellfieldsforgrid};
+		this.cellfieldsforgrid = new String[] { cellfieldsforgrid };
 		this.infofieldforreverseshow = infofieldforreverseshow;
 		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
 		this.reversetree = true;
 		this.freecolumnsdisplayforgrid = columndisplayforgrid;
 	}
-	
+
 	/**
 	 * Specifies display as reverse grid
+	 * 
 	 * @param linedisplayforgrid
 	 * @param columndisplayforgrid
 	 * @param cellfieldsforgrid
@@ -798,14 +824,15 @@ public class LinkedFromChildren
 	 * @param exceptionsforinfofieldconsolidation
 	 * @since 1.11
 	 */
-	public void setReverseTreeGrid(String linedisplayforgrid,
+	public void setReverseTreeGrid(
+			String linedisplayforgrid,
 			String[] columndisplayforgrid,
 			String cellfieldsforgrid,
 			String[] infofieldforreverseshow,
 			String[] exceptionsforinfofieldconsolidation) {
 		this.displaychildrenasgrid = true;
 		this.linedisplayforgrid = linedisplayforgrid;
-		this.cellfieldsforgrid = new String[] {cellfieldsforgrid};
+		this.cellfieldsforgrid = new String[] { cellfieldsforgrid };
 		this.infofieldforreverseshow = infofieldforreverseshow;
 		this.exceptionsforinfofieldconsolidation = exceptionsforinfofieldconsolidation;
 		this.reversetree = true;

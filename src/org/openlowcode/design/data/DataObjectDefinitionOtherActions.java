@@ -17,6 +17,7 @@ import java.util.HashMap;
 import org.openlowcode.design.data.properties.basic.AutolinkObject;
 import org.openlowcode.design.data.properties.basic.ConstraintOnLinkObjectSameChoiceFieldValue;
 import org.openlowcode.design.data.properties.basic.HasAutolink;
+import org.openlowcode.design.data.properties.basic.HasMultiDimensionalChild;
 import org.openlowcode.design.data.properties.basic.ImageContent;
 import org.openlowcode.design.data.properties.basic.LeftForLink;
 import org.openlowcode.design.data.properties.basic.Lifecycle;
@@ -28,7 +29,6 @@ import org.openlowcode.design.data.properties.basic.PrintOut;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
-
 
 /**
  * This class gathers automatically generated actions for a data object.
@@ -528,6 +528,61 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("}");
 
 		sg.close();
+	}
+
+	public static void generateRepairMultiDimensionChildrenToFile(
+			DataObjectDefinition parent,
+			SourceGenerator sg,
+			Module module,
+			HasMultiDimensionalChild hasmultidimensionchild) throws IOException {
+		String parentclass = StringFormatter.formatForJavaClass(parent.getName());
+		String parentvariable = StringFormatter.formatForAttribute(parent.getName());
+		String path = module.getPath();
+
+		sg.wl("package " + path + ".action.generated;");
+		sg.wl("");
+		sg.wl("import java.util.function.Function;");
+		sg.wl("");
+		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+		sg.wl("import org.openlowcode.server.graphic.SPage;");
+		sg.wl("import org.openlowcode.server.runtime.SModule;");
+		sg.wl("");;
+		sg.wl("import " + path + ".action.generated.AtgShow" + parentvariable + "Action;");
+		sg.wl("import " + path + ".data." + parentclass + ";");
+		sg.wl("");
+		sg.wl("public class AtgRepair" + parentvariable + "for" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "Action");
+		sg.wl("		extends");
+		sg.wl("		AbsRepair" + parentvariable + "for" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "Action {");
+		sg.wl("");
+		sg.wl("	public AtgRepair" + parentvariable + "for" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "Action(SModule parent) {");
+		sg.wl("		super(parent);");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public ActionOutputData executeActionLogic(");
+		sg.wl("			DataObjectId<" + parentclass + "> " + parentvariable + "id,");
+		sg.wl("			Function<TableAlias, QueryFilter> datafilter) {");
+		sg.wl("		" + parentclass + " " + parentvariable + " = " + parentclass + ".readone(" + parentvariable
+				+ "id);");
+		sg.wl("		" + parentvariable + ".repairforactbudforallocatedbudget(null);");
+		sg.wl("		return new ActionOutputData(" + parentvariable + "id);");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("	@Override");
+		sg.wl("	public SPage choosePage(ActionOutputData logicoutput) {");
+		sg.wl("		return AtgShow" + parentvariable + "Action.get().executeAndShowPage(logicoutput.get" + parentclass
+				+ "id_thru());");
+		sg.wl("	}");
+		sg.wl("");
+		sg.wl("}");
+
+		sg.close();
+
 	}
 
 	/**
@@ -1055,11 +1110,15 @@ public class DataObjectDefinitionOtherActions {
 			DataObjectDefinition dataobject,
 			SourceGenerator sg,
 			Module module) throws IOException {
-		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
-		String leftobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
+		LinkObjectToMaster<
+				?,
+				?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
+		String leftobjectclassname = StringFormatter
+				.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
 		String leftobjectattributename = StringFormatter
 				.formatForAttribute(linkobjecttomaster.getLeftobjectforlink().getName());
-		String rightobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getRightobjectforlink().getName());
+		String rightobjectclassname = StringFormatter
+				.formatForJavaClass(linkobjecttomaster.getRightobjectforlink().getName());
 		String rightobjectattributename = StringFormatter
 				.formatForAttribute(linkobjecttomaster.getRightobjectforlink().getName());
 		String linkclassname = StringFormatter.formatForJavaClass(dataobject.getName());
@@ -1125,9 +1184,7 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.close();
 	}
-	
-	
-	
+
 	/**
 	 * generates the code for create link action (and show left object)
 	 * 
@@ -1294,7 +1351,7 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.close();
 	}
-	
+
 	/**
 	 * generates the code for create link action (and show right object)
 	 * 
@@ -1307,11 +1364,15 @@ public class DataObjectDefinitionOtherActions {
 			DataObjectDefinition dataobject,
 			SourceGenerator sg,
 			Module module) throws IOException {
-		LinkObjectToMaster<?, ?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
-		String leftobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
+		LinkObjectToMaster<
+				?,
+				?> linkobjecttomaster = (LinkObjectToMaster<?, ?>) dataobject.getPropertyByName("LINKOBJECTTOMASTER");
+		String leftobjectclassname = StringFormatter
+				.formatForJavaClass(linkobjecttomaster.getLeftobjectforlink().getName());
 		String leftobjectattributename = StringFormatter
 				.formatForAttribute(linkobjecttomaster.getLeftobjectforlink().getName());
-		String rightobjectclassname = StringFormatter.formatForJavaClass(linkobjecttomaster.getRightobjectforlink().getName());
+		String rightobjectclassname = StringFormatter
+				.formatForJavaClass(linkobjecttomaster.getRightobjectforlink().getName());
 		String rightobjectattributename = StringFormatter
 				.formatForAttribute(linkobjecttomaster.getRightobjectforlink().getName());
 		String linkclassname = StringFormatter.formatForJavaClass(dataobject.getName());
@@ -1355,7 +1416,8 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("			" + linkclassname + " " + linkattributename + ",");
 		sg.wl("			DataObjectId<" + rightobjectclassname + "> rightobject" + rightobjectattributename
 				+ ",Function<TableAlias,QueryFilter> datafilter)  {");
-		sg.wl("		DataObjectMasterId<"+rightobjectclassname+"> rightobjectmsid = "+rightobjectclassname+".readone(rightobject" + rightobjectattributename+").getMasterid();");
+		sg.wl("		DataObjectMasterId<" + rightobjectclassname + "> rightobjectmsid = " + rightobjectclassname
+				+ ".readone(rightobject" + rightobjectattributename + ").getMasterid();");
 		sg.wl("		DataObjectId<" + linkclassname + ">[] answerid = new DataObjectId[leftobject"
 				+ leftobjectattributename + ".length];");
 		sg.wl("		for (int i=0;i< leftobject" + leftobjectattributename + ".length;i++) {");
@@ -1380,8 +1442,6 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.close();
 	}
-	
-	
 
 	/**
 	 * generates the code for the standard create action
@@ -1446,22 +1506,24 @@ public class DataObjectDefinitionOtherActions {
 					}
 				}
 		}
-		// ------------------------ Attributes for field suggestions ---------------------
-		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+		// ------------------------ Attributes for field suggestions
+		// ---------------------
+		for (int i = 0; i < dataobject.fieldlist.getSize(); i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
-				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				StringField stringfield = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
-	
+
 					if (extraattributesfilling.length() > 0)
 						extraattributesfilling.append(" , ");
 					extraattributesfilling.append(" suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
 					if (extraattributestopage.length() > 0)
 						extraattributestopage.append(" , ");
-					extraattributestopage.append("logicoutput.getSuggestionsforfield" + stringfield.getName().toLowerCase()+ "()");
+					extraattributestopage
+							.append("logicoutput.getSuggestionsforfield" + stringfield.getName().toLowerCase() + "()");
 				}
 			}
 		}
-		
+
 		String objectimport = "import " + dataobject.getOwnermodule().getPath() + ".data." + objectclass + ";";
 		importdeclaration.put(objectimport, objectimport);
 
@@ -1490,19 +1552,22 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("	@Override");
 
 		String output = "ActionOutputData";
-		if (extraattributesfilling.length()>0) extraattributesfilling.append(',');
-		if (extraattributestopage.length()>0) extraattributestopage.append(',');
-	
+		if (extraattributesfilling.length() > 0)
+			extraattributesfilling.append(',');
+		if (extraattributestopage.length() > 0)
+			extraattributestopage.append(',');
 
 		sg.wl("	public " + output + " executeActionLogic(" + extraattributesdeclaration.toString()
 				+ (extraattributesdeclaration.length() > 0 ? "," : "")
 				+ "Function<TableAlias,QueryFilter> datafilter)");
 		sg.wl("			 {");
-		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+		for (int i = 0; i < dataobject.fieldlist.getSize(); i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
-				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				StringField stringfield = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
-					sg.wl("		String[] suggestionsforfield"+stringfield.getName().toLowerCase()+" = "+objectclass+".getValuesForField"+StringFormatter.formatForJavaClass(stringfield.getName().toLowerCase())+"(null);");
+					sg.wl("		String[] suggestionsforfield" + stringfield.getName().toLowerCase() + " = "
+							+ objectclass + ".getValuesForField"
+							+ StringFormatter.formatForJavaClass(stringfield.getName().toLowerCase()) + "(null);");
 				}
 			}
 		}
@@ -1720,7 +1785,7 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.close();
 	}
-	
+
 	/**
 	 * generates the code for force version as latest
 	 * 
@@ -1729,7 +1794,10 @@ public class DataObjectDefinitionOtherActions {
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens during the generation
 	 */
-	public static void generateForceAsLatestVersionToFile(DataObjectDefinition dataobject,SourceGenerator sg, Module module) throws IOException {
+	public static void generateForceAsLatestVersionToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
 
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
@@ -1770,7 +1838,7 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("}");
 		sg.close();
 	}
-	
+
 	/**
 	 * generates new version action to file
 	 * 
@@ -1779,8 +1847,11 @@ public class DataObjectDefinitionOtherActions {
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens during the generation
 	 */
-	
-	public static void generateNewVersionActionToFile(DataObjectDefinition dataobject,SourceGenerator sg, Module module) throws IOException {
+
+	public static void generateNewVersionActionToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 
@@ -1821,7 +1892,7 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.close();
 	}
-	
+
 	/**
 	 * generates renumber action to file
 	 * 
@@ -1830,7 +1901,8 @@ public class DataObjectDefinitionOtherActions {
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens during the generation
 	 */
-	public static void  generateRenumberActionToFile(DataObjectDefinition dataobject,SourceGenerator sg, Module module) throws IOException {
+	public static void generateRenumberActionToFile(DataObjectDefinition dataobject, SourceGenerator sg, Module module)
+			throws IOException {
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 
@@ -1876,5 +1948,5 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.close();
 	}
-	
+
 }

@@ -302,6 +302,7 @@ public class LinkedToParent<E extends DataObjectDefinition>
 	}
 
 	private LinkedFromChildren linkedfromchildren;
+	private MultiDimensionChild<E> multiDimensionchild;
 
 	/**
 	 * @return the related linked from children property on the parent object
@@ -667,6 +668,15 @@ public class LinkedToParent<E extends DataObjectDefinition>
 		ArrayList<DataObjectDefinition> dependencies = new ArrayList<DataObjectDefinition>();
 		dependencies.add(parentobjectforlink);
 		return dependencies;
+	}
+
+	public MultiDimensionChild<E> getMultiDimensionChild() {
+		return this.multiDimensionchild;
+	}
+	
+	public void setMultiDimensionChild(MultiDimensionChild<E> multiDimensionchild) {
+		this.multiDimensionchild = multiDimensionchild;
+		
 	}
 
 }

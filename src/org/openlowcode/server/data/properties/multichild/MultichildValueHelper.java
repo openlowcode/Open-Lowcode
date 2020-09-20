@@ -11,6 +11,8 @@
 package org.openlowcode.server.data.properties.multichild;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -38,6 +40,7 @@ import org.openlowcode.tools.misc.TriFunction;
  * @param <E> type of child object
  * @param <F> payload of the field
  * @param <G> type of the parent object (or any other object to be used)
+ * @since 1.11
  */
 public abstract class MultichildValueHelper<
 		E extends DataObject<E> & UniqueidentifiedInterface<E> & MultidimensionchildInterface<E, G>,
@@ -57,6 +60,16 @@ public abstract class MultichildValueHelper<
 
 	private Function<F, String> printer;
 
+	/**
+	 * Creates a value helper for multi-child
+	 * 
+	 * @param fieldname     name of the field
+	 * @param setter        function to set the value on the object
+	 * @param getter        function to get the value on the object
+	 * @param cellfiller    a function to fill a spreadsheet cell
+	 * @param payloadparser a function to parse payload
+	 * @param printer       a function to print the payload for object keys
+	 */
 	public MultichildValueHelper(
 			String fieldname,
 			BiConsumer<E, F> setter,
@@ -74,6 +87,18 @@ public abstract class MultichildValueHelper<
 		this.valueconsolidator = null;
 	}
 
+	/**
+	 * Creates a value helper for multi-child
+	 * 
+	 * @param fieldname         name of the field
+	 * @param setter            function to set the value on the object
+	 * @param getter            function to get the value on the object
+	 * @param cellfiller        a function to fill a spreadsheet cell
+	 * @param payloadparser     a function to parse payload
+	 * @param printer           a function to print the payload for object keys
+	 * @param valueconsolidator a function to consolidate values (typically performs
+	 *                          a sum if object is numeric)
+	 */
 	public MultichildValueHelper(
 			String fieldname,
 			BiConsumer<E, F> setter,
@@ -92,6 +117,17 @@ public abstract class MultichildValueHelper<
 		this.valueconsolidator = valueconsolidator;
 	}
 
+	/**
+	 * Creates a value helper for multi-child
+	 * 
+	 * @param fieldname     name of the field
+	 * @param setter        function to set the value on the object
+	 * @param getter        function to get the value on the object
+	 * @param cellfiller    a function to fill a spreadsheet cell
+	 * @param payloadparser a function to parse payload
+	 * @param printer       a function to print the payload for object keys
+	 * @param restrictions
+	 */
 	public MultichildValueHelper(
 			String fieldname,
 			BiConsumer<E, F> setter,
@@ -110,6 +146,19 @@ public abstract class MultichildValueHelper<
 		this.valueconsolidator = null;
 	}
 
+	/**
+	 * Creates a value helper for multi-child
+	 * 
+	 * @param fieldname         name of the field
+	 * @param setter            function to set the value on the object
+	 * @param getter            function to get the value on the object
+	 * @param cellfiller        a function to fill a spreadsheet cell
+	 * @param payloadparser     a function to parse payload
+	 * @param printer           a function to print the payload for object keys
+	 * @param restrictions
+	 * @param valueconsolidator a function to consolidate values (typically performs
+	 *                          a sum if object is numeric)
+	 */
 	public MultichildValueHelper(
 			String fieldname,
 			BiConsumer<E, F> setter,
@@ -506,6 +555,60 @@ public abstract class MultichildValueHelper<
 			return true;
 		}
 
+	}
+
+	/**
+	 * checks if the element is valid
+	 * 
+	 * @param optionalorinvalid
+	 * @return true if the element is valid for this criteria
+	 * @since 1.12
+	 */
+	public boolean isValid(E optionalorinvalid) {
+		F value = getter.apply(optionalorinvalid);
+		F[] mandatoryvalues = this.getMandatoryValues();
+		F[] optionalvalues = this.getOptionalValues();
+		for (int i = 0; i < mandatoryvalues.length; i++)
+			if (value.equals(mandatoryvalues[i]))
+				return true;
+		for (int i = 0; i < optionalvalues.length; i++)
+			if (value.equals(optionalvalues[i]))
+				return true;
+		return false;
+	}
+
+	/**
+	 * @param thisoptional
+	 * @param childrenbykey
+	 * @param multidimensionhelper
+	 * @param payloadhelper
+	 * @return
+	 */
+	public ArrayList<E> getMissingElementsForKey(
+			E thisoptional,
+			HashMap<String, E> childrenbykey,
+			MultidimensionchildHelper<E, G> multidimensionhelper,
+			MultichildValueHelper<E, ?, G> payloadhelper) {
+		HashMap<String, F> valuesbykey = new HashMap<String, F>();
+		Iterator<String> childrenkeyiterator = childrenbykey.keySet().iterator();
+		while (childrenkeyiterator.hasNext()) {
+			E element = childrenbykey.get(childrenkeyiterator.next());
+			F value = getter.apply(element);
+			valuesbykey.put(this.print(value), value);
+		}
+		Iterator<F> existingvalues = valuesbykey.values().iterator();
+		ArrayList<E> missingvalues = new ArrayList<E>();
+		while (existingvalues.hasNext()) {
+			F value = existingvalues.next();
+			E newoptional = thisoptional.deepcopy();
+			payloadhelper.set(newoptional,null);
+			this.setter.accept(newoptional, value);
+			String keyforobject = multidimensionhelper.generateKeyForObject(newoptional);
+			if (!childrenbykey.containsKey(keyforobject))
+				missingvalues.add(newoptional);
+
+		}
+		return missingvalues;
 	}
 
 }

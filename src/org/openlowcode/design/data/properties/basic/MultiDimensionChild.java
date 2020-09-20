@@ -78,6 +78,7 @@ public class MultiDimensionChild<E extends DataObjectDefinition>
 		this.firstaxisvalue = firstaxisvalue;
 		this.secondaxisvalues = secondaxisvalues;
 		this.payloadvalues = payloadvalues;
+		this.linkedtoparent.setMultiDimensionChild(this);
 	}
 
 	@Override

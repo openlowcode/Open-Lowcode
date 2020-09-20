@@ -41,6 +41,7 @@ import org.openlowcode.design.data.properties.basic.ConstraintOnLinkObjectSamePa
 import org.openlowcode.design.data.properties.basic.DataControl;
 import org.openlowcode.design.data.properties.basic.FileContent;
 import org.openlowcode.design.data.properties.basic.HasAutolink;
+import org.openlowcode.design.data.properties.basic.HasMultiDimensionalChild;
 import org.openlowcode.design.data.properties.basic.ImageContent;
 import org.openlowcode.design.data.properties.basic.LeftForLink;
 import org.openlowcode.design.data.properties.basic.LeftForLinkToMaster;
@@ -2204,6 +2205,17 @@ public class DataObjectDefinition
 
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> thisproperty = this.propertylist.get(i);
+			
+			
+			if (thisproperty instanceof HasMultiDimensionalChild) {
+				HasMultiDimensionalChild hasmultidimensionchild = (HasMultiDimensionalChild) thisproperty;
+				String actionname = "REPAIR"+this.getName().toUpperCase()+"FOR"+hasmultidimensionchild.getInstancename().toUpperCase();
+				DynamicActionDefinition repairchildren = new DynamicActionDefinition(actionname,true);
+				repairchildren.addInputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
+				repairchildren.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
+				module.addAction(repairchildren);
+			}
+			
 			if (thisproperty instanceof LinkedFromChildren) {
 				LinkedFromChildren linkedfromchildren = (LinkedFromChildren) thisproperty;
 				String loadchildrenactioname = "LOADCHILDREN" + linkedfromchildren.getInstancename() + "FOR"

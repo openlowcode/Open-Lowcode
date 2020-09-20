@@ -13,14 +13,19 @@ package org.openlowcode.design.data.properties.basic;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Field;
 import org.openlowcode.design.data.MethodAdditionalProcessing;
+import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.PropertyGenerics;
+import org.openlowcode.design.data.argument.ChoiceArgument;
+import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.module.system.design.SystemModule;
 
 /**
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
@@ -51,6 +56,10 @@ public class HasMultiDimensionalChild
 		this.addDependentProperty(originobjectproperty.getLinkedToParent().getLinkedFromChildren());
 		this.addMethodAdditionalProcessing(new MethodAdditionalProcessing(false,
 				this.getParent().getPropertyByName("STOREDOBJECT").getDataAccessMethod("INSERT")));
+		DataAccessMethod repair = new DataAccessMethod("REPAIR", null, false);
+		repair.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
+		repair.addInputArgument(new MethodArgument("DELETEIFINVALID",new ChoiceArgument("DELETEIFINVALID", SystemModule.getSystemModule().getBooleanChoice())));
+		this.addDataAccessMethod(repair);
 	}
 
 	@Override
@@ -94,6 +103,7 @@ public class HasMultiDimensionalChild
 		sg.wl("import org.openlowcode.server.data.properties.multichild.MultidimensionchildHelper;");
 		sg.wl("import org.openlowcode.server.data.properties.multichild.MultichildValueHelper;");
 		sg.wl("import org.openlowcode.server.data.helpers.ReportTree;");
+		sg.wl("import org.openlowcode.module.system.data.choice.BooleanChoiceDefinition;");
 		this.originobjectproperty.getFirstAxisValue().writeDependentClass(sg, module);
 		writeImportForFieldHelper(sg, module, this.originobjectproperty.getFirstAxisValue());
 		Field[] secondaxisfields = this.originobjectproperty.getSecondAxisValue();

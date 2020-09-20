@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import org.openlowcode.module.system.data.choice.BooleanChoiceDefinition;
+import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.DataObjectPayload;
@@ -96,6 +98,153 @@ public class Hasmultidimensionalchild<
 	}
 
 	/**
+	 * This method will check all the children of the object, and
+	 * <ul>
+	 * <li>add missing mandatory values</li>
+	 * <li>add missing primary values for any combination of secondary</li>
+	 * <li>if some invalid combinations are present, and a consolidation possibility
+	 * exists, consolidate the value</li>
+	 * <li>If some invalid combination is present, and no consolidation possibility
+	 * exists, either</li>
+	 * <ul>
+	 * <li>blows an error at the end (but do the possible consolidation)</li>
+	 * <li>deletes the illegal value</li>
+	 * </ul>
+	 * </ul>
+	 * 
+	 * @param object
+	 */
+	public void repair(E object, ChoiceValue<BooleanChoiceDefinition> deleteifinvalid) {
+		// checks if blows or delete for unexpected data
+		boolean blowsnotdelete = true;
+		if (deleteifinvalid != null)
+			if (BooleanChoiceDefinition.get().YES.equals(deleteifinvalid))
+				blowsnotdelete = false;
+		// gets previous children
+		F[] previouschildren = this.casteddefinition.getChildren(object.getId());
+		HashMap<String, F> childrenbykey = new HashMap<String, F>();
+
+		// get MultiDimensionHelper
+		MultidimensionchildHelper<F, E> multidimensionalchildhelper = this.casteddefinition.getHelper();
+		multidimensionalchildhelper.setContext(object);
+		for (int i = 0; i < previouschildren.length; i++) {
+			F thischild = previouschildren[i];
+			String key = multidimensionalchildhelper.generateKeyForObject(thischild);
+			childrenbykey.put(key, thischild);
+		}
+
+		// check missing mandatory
+
+		ArrayList<F> blankobjects = multidimensionalchildhelper.generateObjectsForAllValueHelpers(object,
+				childobjectdefinition);
+		ArrayList<F> allobjectstoinsert = new ArrayList<F>();
+		ArrayList<F> allobjectstodelete = new ArrayList<F>();
+		HashMap<String, F> compulsorychildren = new HashMap<String, F>();
+		logger.fine("      blank objects created = " + blankobjects.size());
+		for (int i = 0; i < blankobjects.size(); i++) {
+			F thisobject = blankobjects.get(i);
+			String key = multidimensionalchildhelper.generateKeyForObject(thisobject);
+			if (!childrenbykey.containsKey(key)) {
+				childrenbykey.put(key, thisobject);
+				allobjectstoinsert.add(thisobject);
+			}
+			compulsorychildren.put(key, thisobject);
+		}
+
+		// detects optionals and invalids
+
+		ArrayList<F> optionalsandinvalids = new ArrayList<F>();
+		ArrayList<F> optionals = new ArrayList<F>();
+		ArrayList<F> invalids = new ArrayList<F>();
+
+		for (int i = 0; i < previouschildren.length; i++) {
+			F thischild = previouschildren[i];
+			String key = multidimensionalchildhelper.generateKeyForObject(thischild);
+			if (!compulsorychildren.containsKey(key))
+				optionalsandinvalids.add(thischild);
+		}
+
+		// process optionals and invalid
+
+		for (int i = 0; i < optionalsandinvalids.size(); i++) {
+			F optionalorinvalid = optionalsandinvalids.get(i);
+			boolean invalid = multidimensionalchildhelper.isInvalid(optionalorinvalid);
+			if (invalid)
+				invalids.add(optionalorinvalid);
+			if (!invalid)
+				optionals.add(optionalorinvalid);
+
+		}
+
+		// process invalids
+		ArrayList<F> unconsolidatedinvalids = new ArrayList<F>();
+		for (int i = 0; i < invalids.size(); i++) {
+			F invalid = invalids.get(i);
+			F potentialnewchild = invalid.deepcopy();
+			String value = multidimensionalchildhelper.getKeyForConsolidation(potentialnewchild, object);
+			if (value != null) {
+				if (childrenbykey.get(value) != null) {
+					F childtoconsolidateinto = childrenbykey.get(value);
+					multidimensionalchildhelper.getConsolidator().accept(childtoconsolidateinto, potentialnewchild);
+					logger.finer("          -> found object to consolidate into ");
+				} else {
+					allobjectstoinsert.add(potentialnewchild);
+					childrenbykey.put(value, potentialnewchild);
+					logger.finer("          -> adds value directly to consolidation");
+				}
+				// this invalid should be deleted
+				allobjectstodelete.add(invalid);
+			} else {
+				// no consolidation
+				unconsolidatedinvalids.add(invalid);
+			}
+		}
+		// Complete optionals with missing primary values
+
+		for (int i = 0; i < optionals.size(); i++) {
+			F thisoptional = optionals.get(i);
+			ArrayList<F> missingforthisoptional = multidimensionalchildhelper.getOtherPrimaryelements(thisoptional,
+					childrenbykey);
+			for (int j = 0; j < missingforthisoptional.size(); j++) {
+				F thismissing = missingforthisoptional.get(j);
+				allobjectstoinsert.add(thismissing);
+				childrenbykey.put(multidimensionalchildhelper.generateKeyForObject(thismissing), thismissing);
+
+			}
+		}
+
+		// insert missing elements
+		F[] objectstoinsert = allobjectstoinsert.toArray(childobjectdefinition.generateArrayTemplate());
+		logger.finer("   inserting " + (objectstoinsert != null ? objectstoinsert.length : "null") + " objects");
+		if (objectstoinsert != null)
+			for (int i = 0; i < objectstoinsert.length; i++)
+				logger.finest("             " + multidimensionalchildhelper.generateKeyForObject(objectstoinsert[i]));
+		if (objectstoinsert != null)
+			if (objectstoinsert.length > 0) {
+				objectstoinsert[0].getMassiveInsert().insert(objectstoinsert);
+			}
+		if (!blowsnotdelete) {
+			F[] objectstodelete = allobjectstodelete.toArray(childobjectdefinition.generateArrayTemplate());
+			if (objectstodelete != null)
+				if (objectstodelete.length > 0) {
+					objectstodelete[0].getMassiveDelete().delete(objectstodelete);
+				}
+		} else {
+			if (allobjectstodelete.size() > 0) {
+				StringBuffer error = new StringBuffer();
+				error.append("While cleaning object " + object + " got invalid children :");
+				for (int j = 0; j < allobjectstodelete.size(); j++) {
+					if (j > 0)
+						error.append(" ");
+					error.append("Key=" + multidimensionalchildhelper.generateKeyForObject(allobjectstodelete.get(j)));
+
+				}
+				throw new RuntimeException(error.toString());
+			}
+		}
+	}
+
+	/**
 	 * post processing when an object is inserted. Creates the required children. If
 	 * needed, get data from a previous version
 	 * 
@@ -104,7 +253,8 @@ public class Hasmultidimensionalchild<
 	public void postprocStoredobjectInsert(E object) {
 		MultidimensionchildHelper<F, E> multidimensionalchildhelper = this.casteddefinition.getHelper();
 		multidimensionalchildhelper.setContext(object);
-		logger.fine(" ---------------- start treating object for insert "+object.dropIdToString()+" ---------------- ");
+		logger.fine(
+				" ---------------- start treating object for insert " + object.dropIdToString() + " ---------------- ");
 		// if versioned, get previous version children if it exists
 		F[] previouschildren = null;
 		if (object instanceof VersionedInterface<?>) {
@@ -113,19 +263,20 @@ public class Hasmultidimensionalchild<
 			E previousversion = versionedproperty.getpreviousversion();
 			if (previousversion != null)
 				previouschildren = this.casteddefinition.getChildren(previousversion.getId());
-			logger.fine("      got "+(previouschildren!=null?previouschildren.length:"null")+" children from previous version");
+			logger.fine("      got " + (previouschildren != null ? previouschildren.length : "null")
+					+ " children from previous version");
 		}
 		// get the blank objects
-		
+
 		ArrayList<F> blankobjects = multidimensionalchildhelper.generateObjectsForAllValueHelpers(object,
 				childobjectdefinition);
-		logger.fine("      blank objects created = "+blankobjects.size());
+		logger.fine("      blank objects created = " + blankobjects.size());
 		HashMap<String, F> objectsperkey = new HashMap<String, F>();
 		for (int i = 0; i < blankobjects.size(); i++) {
 			F thisobject = blankobjects.get(i);
-			String key =  multidimensionalchildhelper.generateKeyForObject(thisobject);
-			logger.finest("                  "+key);
-			objectsperkey.put(key,thisobject);
+			String key = multidimensionalchildhelper.generateKeyForObject(thisobject);
+			logger.finest("                  " + key);
+			objectsperkey.put(key, thisobject);
 		}
 
 		if (previouschildren != null) {
@@ -137,7 +288,7 @@ public class Hasmultidimensionalchild<
 				if (objectsperkey.get(childkey) != null) {
 					F newchild = oldchild.deepcopy();
 					objectsperkey.put(childkey, newchild);
-					logger.finest("              Replace key "+childkey+" with previous version");
+					logger.finest("              Replace key " + childkey + " with previous version");
 				}
 			}
 
@@ -149,9 +300,9 @@ public class Hasmultidimensionalchild<
 
 				if (objectsperkey.get(childkey) == null) {
 					F potentialnewchild = oldchild.deepcopy();
-					logger.finer(" -- Managing child in previous version key = "+childkey);
+					logger.finer(" -- Managing child in previous version key = " + childkey);
 					String value = multidimensionalchildhelper.getKeyForConsolidation(potentialnewchild, object);
-					logger.finer("          -> found new key for consolidation = "+value);
+					logger.finer("          -> found new key for consolidation = " + value);
 					if (value != null)
 						if (objectsperkey.get(value) != null) {
 							F childtoconsolidateinto = objectsperkey.get(value);
@@ -163,7 +314,7 @@ public class Hasmultidimensionalchild<
 							logger.finer("          -> adds value directly to consolidation");
 						}
 					if (value == null)
-						logger.finer ("              -> Discarding old data with key " + childkey);
+						logger.finer("              -> Discarding old data with key " + childkey);
 				}
 			}
 
@@ -177,10 +328,12 @@ public class Hasmultidimensionalchild<
 			allobjectstoinsert.add(nextobject);
 
 		}
-		
+
 		F[] objectstoinsert = allobjectstoinsert.toArray(childobjectdefinition.generateArrayTemplate());
-		logger.finer("   inserting "+(objectstoinsert!=null?objectstoinsert.length:"null")+" objects");
-		if (objectstoinsert!=null) for (int i=0;i<objectstoinsert.length;i++) logger.finest("             "+multidimensionalchildhelper.generateKeyForObject(objectstoinsert[i]));
+		logger.finer("   inserting " + (objectstoinsert != null ? objectstoinsert.length : "null") + " objects");
+		if (objectstoinsert != null)
+			for (int i = 0; i < objectstoinsert.length; i++)
+				logger.finest("             " + multidimensionalchildhelper.generateKeyForObject(objectstoinsert[i]));
 		if (objectstoinsert != null)
 			if (objectstoinsert.length > 0) {
 				objectstoinsert[0].getMassiveInsert().insert(objectstoinsert);
