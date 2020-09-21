@@ -58,7 +58,7 @@ public class Hasmultidimensionalchild<
 	 * Creates the property
 	 * 
 	 * @param definition    definition of the property
-	 * @param parentpayload pâyload of the parent object
+	 * @param parentpayload payload of the parent object
 	 */
 	public Hasmultidimensionalchild(
 			HasmultidimensionalchildDefinition<E, F> definition,

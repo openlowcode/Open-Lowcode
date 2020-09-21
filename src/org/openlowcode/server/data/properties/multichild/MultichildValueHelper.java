@@ -232,6 +232,22 @@ public abstract class MultichildValueHelper<
 
 	/**
 	 * @param cell
+	 * @param parsedvalue
+	 * @param locale
+	 * @param extraattributes
+	 * @since 1.12
+	 */
+	public void fillWithValue(
+			E object,
+			String parsedvalue,
+			ChoiceValue<ApplocaleChoiceDefinition> locale,
+			String[] extraattributes) {
+		F payload = this.payloadparser.apply(parsedvalue, locale, extraattributes);
+		this.setter.accept(object, payload);
+	}
+
+	/**
+	 * @param cell
 	 * @param value
 	 */
 	public void fillCellWithValue(Cell cell, F value, String[] extraattributes) {
@@ -531,8 +547,16 @@ public abstract class MultichildValueHelper<
 			E relevantchild = helper.getChildForLineAndColumnKey(helpercontextkey,
 					MultichildValueHelper.this.print(mainvalue));
 			if (relevantchild == null) {
-				throw new RuntimeException("Did not find existing child for key, debug = " + helper
-						.getDebugForLineAndColumnKey(helpercontextkey, MultichildValueHelper.this.print(mainvalue)));
+
+				boolean valid = helper.generateNewRowForContext(object, applocale, extraattributes);
+				if (valid) {
+					relevantchild = helper.getChildForLineAndColumnKey(helpercontextkey,
+							MultichildValueHelper.this.print(mainvalue));
+				} else
+
+					throw new RuntimeException(
+							"Did not find existing child for key, debug = " + helper.getDebugForLineAndColumnKey(
+									helpercontextkey, MultichildValueHelper.this.print(mainvalue)));
 			}
 			return this.payloadhelper.LoadIfDifferent(relevantchild, value, applocale, extraattributes);
 
@@ -565,6 +589,8 @@ public abstract class MultichildValueHelper<
 	 * @since 1.12
 	 */
 	public boolean isValid(E optionalorinvalid) {
+		if (this.allowothervalues())
+			return true;
 		F value = getter.apply(optionalorinvalid);
 		F[] mandatoryvalues = this.getMandatoryValues();
 		F[] optionalvalues = this.getOptionalValues();
@@ -575,6 +601,41 @@ public abstract class MultichildValueHelper<
 			if (value.equals(optionalvalues[i]))
 				return true;
 		return false;
+	}
+
+	public boolean isTextValid(
+			String text,
+			ChoiceValue<ApplocaleChoiceDefinition> applocale,
+			String[] extraattributes) {
+		F payload = payloadparser.apply(text, applocale, extraattributes);
+		if (this.allowothervalues())
+			return true;
+		F[] mandatoryvalues = this.getMandatoryValues();
+		F[] optionalvalues = this.getOptionalValues();
+		for (int i = 0; i < mandatoryvalues.length; i++)
+			if (payload.equals(mandatoryvalues[i]))
+				return true;
+		for (int i = 0; i < optionalvalues.length; i++)
+			if (payload.equals(optionalvalues[i]))
+				return true;
+		return false;
+	}
+
+	/**
+	 * @param thisoptional
+	 * @return
+	 * @since 1.12
+	 */
+	public ArrayList<E> generateElementsForAllMandatory(E thisoptional, G thisparent) {
+		ArrayList<E> returnelements = new ArrayList<E>();
+		this.setContext(thisparent);
+		F[] allmandatories = this.getMandatoryValues();
+		for (int i = 0; i < allmandatories.length; i++) {
+			E thischild = thisoptional.deepcopy();
+			setter.accept(thischild, allmandatories[i]);
+			returnelements.add(thischild);
+		}
+		return returnelements;
 	}
 
 	/**
@@ -601,7 +662,7 @@ public abstract class MultichildValueHelper<
 		while (existingvalues.hasNext()) {
 			F value = existingvalues.next();
 			E newoptional = thisoptional.deepcopy();
-			payloadhelper.set(newoptional,null);
+			payloadhelper.set(newoptional, null);
 			this.setter.accept(newoptional, value);
 			String keyforobject = multidimensionhelper.generateKeyForObject(newoptional);
 			if (!childrenbykey.containsKey(keyforobject))

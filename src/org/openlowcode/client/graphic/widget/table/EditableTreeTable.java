@@ -490,7 +490,6 @@ public class EditableTreeTable<E extends Object> {
 		});
 		
 		ObservableList<TreeTableColumn<EditableTreeTableLineItem<Wrapper<E>>, ?>> columns = treetableview.getColumns();
-		int totalwidth = 0;
 		for (int i=0;i<columns.size();i++) {
 			columns.get(i).widthProperty().addListener(new  ChangeListener<Number>() {
 

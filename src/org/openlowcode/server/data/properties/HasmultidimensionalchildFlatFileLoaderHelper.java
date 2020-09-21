@@ -26,7 +26,8 @@ import org.openlowcode.server.data.properties.multichild.MultichildValueHelper;
 import org.openlowcode.server.data.properties.multichild.MultidimensionchildHelper;
 
 /**
- * A helper to manage the loading of objects with the Hasmultidimensionalchild property
+ * A helper to manage the loading of objects with the Hasmultidimensionalchild
+ * property
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
@@ -62,11 +63,11 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 	public MultichildValueHelper<F, ?, E> getPayloadHelper() {
 		return this.payloadhelper;
 	}
-	
+
 	/**
 	 * @return
 	 */
-	public MultichildValueHelper<F,?,E> getMainValueHelper() {
+	public MultichildValueHelper<F, ?, E> getMainValueHelper() {
 		return this.mainvaluehelper;
 	}
 
@@ -81,8 +82,6 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 		secondvaluehelpers = helper.getSecondaryValueHelpers();
 		payloadhelper = helper.getPayloadValueHelper();
 	}
-
-	
 
 	@Override
 	public FlatFileLoaderColumn<E> getFlatFileLoaderColumn(
@@ -108,23 +107,26 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 		if (columnattributes.length >= 2) {
 			if (maincolumnattribute.equals(this.mainvaluehelper.getFieldName())) {
 				String maincolumnvalue = columnattributes[1];
-				String[] extraattributes =null;
-				if (columnattributes.length>2) {
-					extraattributes = new String[columnattributes.length-2];
-					for (int i=0;i<columnattributes.length-2;i++) extraattributes[i] = columnattributes[i+2];
+				String[] extraattributes = null;
+				if (columnattributes.length > 2) {
+					extraattributes = new String[columnattributes.length - 2];
+					for (int i = 0; i < columnattributes.length - 2; i++)
+						extraattributes[i] = columnattributes[i + 2];
 				}
-				
-				return mainvaluehelper.new MainValueFlatFileLoader(this, locale, maincolumnvalue,payloadhelper,extraattributes);
+
+				return mainvaluehelper.new MainValueFlatFileLoader(this, locale, maincolumnvalue, payloadhelper,
+						extraattributes);
 			}
 		}
 		if (maincolumnattribute.equals("#TOTAL#")) {
 			logger.finest("  >>> get total flat file loader");
-			String[] extraattributes =null;
-			if (columnattributes.length>1) {
-				extraattributes = new String[columnattributes.length-1];
-				for (int i=0;i<columnattributes.length-1;i++) extraattributes[i] = columnattributes[i+1];
+			String[] extraattributes = null;
+			if (columnattributes.length > 1) {
+				extraattributes = new String[columnattributes.length - 1];
+				for (int i = 0; i < columnattributes.length - 1; i++)
+					extraattributes[i] = columnattributes[i + 1];
 			}
-			return this.payloadhelper.new MainValueTotalFlatFileLoader(this,locale,payloadhelper,extraattributes);
+			return this.payloadhelper.new MainValueTotalFlatFileLoader(this, locale, payloadhelper, extraattributes);
 		}
 		potentialattributes.append(',');
 		potentialattributes.append(mainvaluehelper.getFieldName());
@@ -160,8 +162,8 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 
 	}
 
-	public String getDebugForLineAndColumnKey(String linekey,String columnkey) {
-		if (childrenbykey.get(linekey)==null) {
+	public String getDebugForLineAndColumnKey(String linekey, String columnkey) {
+		if (childrenbykey.get(linekey) == null) {
 			StringBuffer droplinekey = new StringBuffer(" Line key not existing, given value = ");
 			droplinekey.append(linekey);
 			droplinekey.append(", valid keys = ");
@@ -184,18 +186,18 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 			droplinekey.append(' ');
 		}
 		return droplinekey.toString();
-		
-		
+
 	}
-	
+
 	public ArrayList<F> getChildrenForLine(String linekey) {
 		Iterator<F> values = childrenbykey.get(linekey).values().iterator();
 		ArrayList<F> valueslist = new ArrayList<F>();
-		while (values.hasNext()) valueslist.add(values.next());
+		while (values.hasNext())
+			valueslist.add(values.next());
 		return valueslist;
-		
+
 	}
-	
+
 	public F getChildForLineAndColumnKey(String linekey, String columnkey) {
 		if (childrenbykey == null) {
 			StringBuffer error = new StringBuffer("Children list not initiated for linekey = " + linekey
@@ -219,48 +221,55 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 		return childrenbykey.get(key).values().iterator().next();
 	}
 
+	private void putChildInKeyMap(E currentobject,F child) {
+		String keyforchild = this.helper.generateKeyForObject(child, true);
+
+		HashMap<String, F> currentobjectsforkey = childrenbykey.get(keyforchild);
+		if (currentobjectsforkey == null) {
+			currentobjectsforkey = new HashMap<String, F>();
+			childrenbykey.put(keyforchild, currentobjectsforkey);
+			logger.finest("--- adding child map for key " + keyforchild);
+		}
+		String mainvalue = this.helper.getMainValueHelper().getAndPrint(child);
+		F current = currentobjectsforkey.get(mainvalue);
+		if (current != null)
+			logger.warning("  -- Duplicate child for secondary key = " + keyforchild + " for main value "
+					+ mainvalue + " for object = " + currentobject.dropIdToString());
+		if (current == null) {
+			currentobjectsforkey.put(mainvalue, child);
+			logger.finest("      adding element for primary " + keyforchild + " secondary " + mainvalue + " for id "
+					+ child.dropIdToString());
+		}
+	}
+	
 	public void initColumnsForObject(E currentobject) {
 		F[] children = hasmultidimensionalchilddefinition.getChildren(currentobject.getId());
-		logger.finest(" ---------------- Generating keys for "+currentobject.dropIdToString()+" - "+(children!=null?children.length:"NULL")+" child(ren)---------------------------");
+		logger.finest(" ---------------- Generating keys for " + currentobject.dropIdToString() + " - "
+				+ (children != null ? children.length : "NULL") + " child(ren)---------------------------");
 		childrenbykey = new HashMap<String, HashMap<String, F>>();
 		for (int i = 0; i < children.length; i++) {
 			F child = children[i];
-			String keyforchild = this.helper.generateKeyForObject(child, true);
-
-			HashMap<String, F> currentobjectsforkey = childrenbykey.get(keyforchild);
-			if (currentobjectsforkey == null) {
-				currentobjectsforkey = new HashMap<String, F>();
-				childrenbykey.put(keyforchild, currentobjectsforkey);
-				logger.finest("--- adding child map for key "+keyforchild);
-			}
-			String mainvalue = this.helper.getMainValueHelper().getAndPrint(child);
-			F current = currentobjectsforkey.get(mainvalue);
-			if (current != null)
-				logger.warning("  -- Duplicate child for secondary key = " + keyforchild + " for main value "
-						+ mainvalue + " for object = " + currentobject.dropIdToString());
-			if (current == null) {
-				currentobjectsforkey.put(mainvalue, child);
-				logger.finest("      adding element for primary "+keyforchild+" secondary "+mainvalue+" for id "+child.dropIdToString());
-			}
+			this.putChildInKeyMap(currentobject, child);
 		}
 
 	}
 
 	public String[] generateKeyAndLoadExistingData(E currentobject) {
-		
+
 		// Find why two logics with children in initColumn and method below
 		initColumnsForObject(currentobject);
 		F[] children = hasmultidimensionalchilddefinition.getChildren(currentobject.getId());
-		HashMap<String,String> classificationkeys = new HashMap<String,String>();
+		HashMap<String, String> classificationkeys = new HashMap<String, String>();
 		for (int i = 0; i < children.length; i++) {
 			F child = children[i];
 			String keyforchild = this.helper.generateKeyForObject(child, true);
-			classificationkeys.put(keyforchild,keyforchild);
+			classificationkeys.put(keyforchild, keyforchild);
 		}
 		Set<String> keys = classificationkeys.keySet();
 		Iterator<String> keyiterator = keys.iterator();
 		logger.finest(" ---------------- key drop -------------------");
-		while (keyiterator.hasNext()) logger.finest("         key "+keyiterator.next());
+		while (keyiterator.hasNext())
+			logger.finest("         key " + keyiterator.next());
 		logger.finest(" ----------------------------------------");
 		return keys.toArray(new String[0]);
 
@@ -268,8 +277,7 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 
 	private ArrayList<String> secondaryvalues = new ArrayList<String>();
 	private E contextobject = null;
-	
-	
+
 	public void setSecondaryValueForLoading(int index, String string) {
 		if (secondaryvalues.size() <= index)
 			for (int i = secondaryvalues.size(); i < index + 1; i++)
@@ -287,17 +295,66 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 	}
 
 	public void setContext(E object) {
-		boolean same=false;
-		if (contextobject!=null) {
+		boolean same = false;
+		if (contextobject != null) {
 			if (object.getId().equals(contextobject.getId())) {
-				same=true;
+				same = true;
 			}
 		}
 		if (!same) {
-			contextobject=object;
+			contextobject = object;
 			this.initColumnsForObject(contextobject);
 		}
-		
+
+	}
+
+	/**
+	 * generates a new row of objects for the given context, and inserts them.
+	 * 
+	 * @param parent          parent object for generating new row
+	 * @param extraattributes
+	 * @param applocale
+	 * @return true if the new row for context could be generated, false else
+	 */
+	public boolean generateNewRowForContext(
+			E parent,
+			ChoiceValue<ApplocaleChoiceDefinition> applocale,
+			String[] extraattributes) {
+		boolean iscontextvalid = true;
+		logger.fine("---------------------- generate new row for context ----------------");
+		for (int i = 0; i < secondaryvalues.size(); i++) {
+			String value = secondaryvalues.get(i);
+			logger.fine("   > Evaluating value "+value);
+			MultichildValueHelper<F, ?, E> helper = secondvaluehelpers.get(i);
+			boolean valid = helper.isTextValid(value, applocale, extraattributes);
+			if (!valid) {
+				logger.fine("      !!! INVALID !!! ");
+				iscontextvalid = false;
+			}
+		}
+		if (!iscontextvalid)
+			return false;
+		DataObjectDefinition<F> childdefinition = this.hasmultidimensionalchilddefinition
+				.getRelatedDefinitionLinkedFromChildren().getChildObjectDefinition();
+		F firstblank = childdefinition.generateBlank();
+		for (int i = 0; i < secondaryvalues.size(); i++) {
+			String value = secondaryvalues.get(i);
+			MultichildValueHelper<F, ?, E> helper = secondvaluehelpers.get(i);
+			helper.fillWithValue(firstblank, value, applocale, extraattributes);
+		}
+		logger.fine(" -> First blank = "+firstblank.dropToString());
+		ArrayList<F> newobjects = mainvaluehelper.generateElementsForAllMandatory(firstblank,parent);
+		logger.fine("Generating elements number = "+(newobjects==null?"null":newobjects.size()));
+		if (newobjects!=null) if (newobjects.size()>0) {
+			for (int i=0;i<newobjects.size();i++) {
+				F newobject = newobjects.get(i);
+				newobject.setmultidimensionparentidwithoutupdate(parent.getId());
+				putChildInKeyMap(parent,newobject);
+			}
+			newobjects.get(0).getMassiveInsert().insert(newobjects.toArray(childdefinition.generateArrayTemplate()));
+			
+		}
+		return true;
 	}
 
 }
