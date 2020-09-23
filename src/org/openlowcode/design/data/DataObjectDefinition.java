@@ -2214,6 +2214,7 @@ public class DataObjectDefinition
 				repairchildren.addInputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
 				repairchildren.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
 				module.addAction(repairchildren);
+				hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().addActionToModifyGroup(repairchildren);
 			}
 			
 			if (thisproperty instanceof LinkedFromChildren) {

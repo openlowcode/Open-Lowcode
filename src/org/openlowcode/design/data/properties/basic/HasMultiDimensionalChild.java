@@ -40,6 +40,10 @@ public class HasMultiDimensionalChild
 	private DataObjectDefinition childobjectforlink;
 	private MultiDimensionChild<?> originobjectproperty;
 
+	public MultiDimensionChild<?> getOriginMultiDimensionChildProperty() {
+		return this.originobjectproperty;
+	}
+	
 	public HasMultiDimensionalChild(
 			String name,
 			DataObjectDefinition childobjectforlink,
