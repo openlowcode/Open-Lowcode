@@ -21,6 +21,8 @@ import org.openlowcode.server.graphic.widget.SActionDataLoc;
 import org.openlowcode.server.graphic.widget.SObjectDisplay;
 import org.openlowcode.server.runtime.OLcServer;
 import org.openlowcode.server.runtime.SModule;
+import org.openlowcode.server.security.ActionSecurityManager;
+import org.openlowcode.server.security.SecurityBuffer;
 import org.openlowcode.tools.messages.MessageWriter;
 import org.openlowcode.tools.misc.Named;
 import org.openlowcode.tools.misc.NamedList;
@@ -270,5 +272,27 @@ public class SActionRef extends Named {
 	 */
 	public SActionDataLoc<?> getActionData(String name) {
 		return actiondata.lookupOnName(name);
+	}
+	/**
+	 * @return true if the action is authorized, false if not
+	 * @since 1.12
+	 */
+	public boolean isAuthorized(String context,SPageData input, SecurityBuffer buffer) {
+		ActionSecurityManager[] securitymanagers = getAction().getActionSecurityManager();
+		if (securitymanagers == null) {
+			logger.info(" no security manager, hide = true");
+			return false;
+		}
+		if (buffer == null)
+			return true;
+		for (int i = 0; i < securitymanagers.length; i++) {
+			ActionSecurityManager thismanager = securitymanagers[i];
+			SActionData actiondata = this.generatePotentialActionDataForSecurity(input);
+			if (thismanager.isAuthorizedForCurrentUser(context, actiondata, buffer)) {
+				logger.info(" found security manager with authorization for user " + thismanager.toString());
+				return true;
+			}
+		}
+		return false;
 	}
 }

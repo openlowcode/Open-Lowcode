@@ -395,10 +395,14 @@ public class SGrid<E extends DataObject<E>>
 		}
 		writer.startStructure("MENACTS");
 		for (int i=0;i<this.menuactions.size();i++) {
+			// checks that the action is visible
+			SActionRef thisaction = menuactions.get(i);						
+			if (thisaction.isAuthorized("Menu for SGrid "+this.name, input, buffer)) {
 			writer.startStructure("MENACT");
 			writer.addStringField("MENLBL",this.menuactionslabel.get(i));
-			this.menuactions.get(i).writeToCML(writer);
+			thisaction.writeToCML(writer);
 			writer.endStructure("MENACT");
+			}
 		}
 		writer.endStructure("MENACTS");
 	}
