@@ -98,6 +98,53 @@ public class Hasmultidimensionalchild<
 	}
 
 	/**
+	 * This method add all children objects. It will create all line objects for the
+	 * given template objects
+	 * 
+	 * @param object   parent object
+	 * @param newlines template objects providing secondary values to be used. For
+	 *                 each template object provided, all objects corresponding to
+	 *                 all columns will be created
+	 */
+	public void addlines(E object, F[] newlines) {
+		MultidimensionchildHelper<F, E> helper = this.casteddefinition.getHelper();
+
+		// get existing children
+		F[] previouschildren = this.casteddefinition.getChildren(object.getId());
+		// check if new line templates collide with existing, delete the ones that exist
+		HashMap<String, F> childrenbykey = new HashMap<String, F>();
+		for (int i = 0; i < previouschildren.length; i++) {
+			F thischild = previouschildren[i];
+			String key = helper.generateKeyForObject(thischild);
+			childrenbykey.put(key, thischild);
+		}
+		ArrayList<F> allobjectstoinsert = new ArrayList<F>();
+		for (int i = 0; i < newlines.length; i++) {
+			ArrayList<F> missingforthisoptional = helper.getOtherPrimaryelements(newlines[i], childrenbykey);
+			for (int j = 0; j < missingforthisoptional.size(); j++) {
+				F thismissing = missingforthisoptional.get(j);
+				allobjectstoinsert.add(thismissing);
+				childrenbykey.put(helper.generateKeyForObject(thismissing), thismissing);
+
+			}
+		}
+
+		for (int i = 0; i < allobjectstoinsert.size(); i++)
+			allobjectstoinsert.get(i).setmultidimensionparentidwithoutupdate(object.getId());
+
+		F[] objectstoinsert = allobjectstoinsert.toArray(childobjectdefinition.generateArrayTemplate());
+		logger.finer("   inserting " + (objectstoinsert != null ? objectstoinsert.length : "null") + " objects");
+		if (objectstoinsert != null)
+			for (int i = 0; i < objectstoinsert.length; i++)
+				logger.finest("             " + helper.generateKeyForObject(objectstoinsert[i]));
+		if (objectstoinsert != null)
+			if (objectstoinsert.length > 0) {
+				objectstoinsert[0].getMassiveInsert().insert(objectstoinsert);
+			}
+
+	}
+
+	/**
 	 * This method will check all the children of the object, and
 	 * <ul>
 	 * <li>add missing mandatory values</li>
@@ -213,7 +260,7 @@ public class Hasmultidimensionalchild<
 			}
 		}
 
-		// insert missing elements -- first 
+		// insert missing elements -- first
 		for (int i = 0; i < allobjectstoinsert.size(); i++)
 			allobjectstoinsert.get(i).setmultidimensionparentidwithoutupdate(object.getId());
 

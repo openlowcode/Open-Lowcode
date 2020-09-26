@@ -1331,12 +1331,35 @@ public class Module
 				}
 				if (thisproperty instanceof HasMultiDimensionalChild) {
 					HasMultiDimensionalChild hasmultidimensionchild = (HasMultiDimensionalChild) thisproperty;
-					String repairaction = "REPAIR" + currentobject.getName() + "FOR" + thisproperty.getInstancename();
+					String repairaction = "REPAIRLINESFOR" + thisproperty.getInstancename();
 					String fullfilepath = srcautoactionfolder + "Atg" + StringFormatter.formatForJavaClass(repairaction)
 							+ "Action.java";
 					logger.info("generating file " + fullfilepath);
 					DataObjectDefinitionOtherActions.generateRepairMultiDimensionChildrenToFile(currentobject,
 							new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this,
+							hasmultidimensionchild);
+					
+					String addlinesaction = "ADDLINESFOR" + thisproperty.getInstancename();
+					String addlinesactionfullfilepath = srcautoactionfolder + "Atg" + StringFormatter.formatForJavaClass(addlinesaction)
+							+ "Action.java";
+					logger.info("generating file " + addlinesactionfullfilepath);
+					DataObjectDefinitionOtherActions.generateAddLinesActionToFile(currentobject,
+							new SourceGenerator(new File(addlinesactionfullfilepath), this.getAuthor(), this.getVersionid()), this,
+							hasmultidimensionchild);
+					
+					String addlinespagefullfilepath = srcautopagefolder + "Atg" + StringFormatter.formatForJavaClass(addlinesaction)
+					+ "Page.java";
+					logger.info("generating file " + addlinespagefullfilepath);
+					DataObjectDefinitionOtherActions.generateAddLinesPageToFile(currentobject,
+							new SourceGenerator(new File(addlinespagefullfilepath), this.getAuthor(), this.getVersionid()), this,
+							hasmultidimensionchild);
+					
+					String prepareaddlinesaction = "PREPAREADDLINESFOR" + thisproperty.getInstancename();
+					String prepareaddlinesactionfilepath = srcautoactionfolder + "Atg" + StringFormatter.formatForJavaClass(prepareaddlinesaction)
+					+ "Action.java";
+					logger.info("generating file " + prepareaddlinesactionfilepath);
+					DataObjectDefinitionOtherActions.generatePrepareAddLinesActionToFile(currentobject,
+							new SourceGenerator(new File(prepareaddlinesactionfilepath), this.getAuthor(), this.getVersionid()), this,
 							hasmultidimensionchild);
 				}
 				if (thisproperty instanceof ImageContent) {

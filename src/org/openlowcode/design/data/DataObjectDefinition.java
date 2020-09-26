@@ -2209,12 +2209,36 @@ public class DataObjectDefinition
 			
 			if (thisproperty instanceof HasMultiDimensionalChild) {
 				HasMultiDimensionalChild hasmultidimensionchild = (HasMultiDimensionalChild) thisproperty;
-				String actionname = "REPAIR"+this.getName().toUpperCase()+"FOR"+hasmultidimensionchild.getInstancename().toUpperCase();
+				String actionname = "REPAIRLINESFOR"+hasmultidimensionchild.getInstancename().toUpperCase();
 				DynamicActionDefinition repairchildren = new DynamicActionDefinition(actionname,true);
-				repairchildren.addInputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
+				repairchildren.addInputArgumentAsAccessCriteria(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
 				repairchildren.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
 				module.addAction(repairchildren);
-				hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().addActionToModifyGroup(repairchildren);
+				this.addActionToModifyGroup(repairchildren);
+				
+				String prepareaddchildname = "PREPAREADDLINESFOR"+hasmultidimensionchild.getInstancename().toUpperCase();
+				DynamicActionDefinition prepareaddchild = new DynamicActionDefinition(prepareaddchildname,true);
+				prepareaddchild.addInputArgumentAsAccessCriteria(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
+				prepareaddchild.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
+				prepareaddchild.addOutputArgument(new ArrayArgument(new ObjectArgument("NEWBLANKS", hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
+				prepareaddchild.addOutputArgument(new ArrayArgument(new ObjectArgument("EXISTINGCHILDREN", hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
+				prepareaddchild.addOutputArgument(new StringArgument("CONTEXT", 256));
+				module.addAction(prepareaddchild);
+				this.addActionToModifyGroup(prepareaddchild);
+				
+				String addchildname = "ADDLINESFOR"+hasmultidimensionchild.getInstancename().toUpperCase();
+				
+				
+				DynamicPageDefinition addchildpage = new DynamicPageDefinition(addchildname);
+				addchildpage.linkPageToAction(prepareaddchild);
+				module.AddPage(addchildpage);
+				
+				DynamicActionDefinition addchild = new DynamicActionDefinition(addchildname,true);
+				addchild.addInputArgumentAsAccessCriteria(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
+				addchild.addInputArgument(new ArrayArgument(new ObjectArgument("NEWBLANKS", hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
+				addchild.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
+				module.addAction(addchild);
+				this.addActionToModifyGroup(addchild);
 			}
 			
 			if (thisproperty instanceof LinkedFromChildren) {

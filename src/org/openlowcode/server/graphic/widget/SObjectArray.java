@@ -155,6 +155,14 @@ public class SObjectArray<E extends DataObject<E>>
 	}
 
 	/**
+	 * sets the table to be in update mode by default
+	 * @since 1.12
+	 */
+	public void setUpdateByDefault() {
+		this.defaultupdatemode=true;
+	}
+	
+	/**
 	 * sets a default action that will be triggered in read-only mode when double
 	 * clicking on a line
 	 * 

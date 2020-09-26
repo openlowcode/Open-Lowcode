@@ -129,13 +129,22 @@ public class LinkedFromChildren
 			importstatements.add("import org.openlowcode.server.graphic.widget.SPopupButton;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SCollapsibleBand;");
 			importstatements.add("import org.openlowcode.server.data.DataObjectFieldMarker;");
-			
-			if (linkedfromchildren.getOriginObjectProperty().getMultiDimensionChild()!=null) {
-				importstatements.add("import "+linkedfromchildren.getParent().getOwnermodule().getPath()+".action.generated.AbsRepair"+linkedfromchildren.getParent().getName().toLowerCase()+"for"+linkedfromchildren.getInstancename().toLowerCase()+"Action;");
-				importstatements.add("import "+linkedfromchildren.getParent().getOwnermodule().getPath()+".action.generated.AtgRepair"+linkedfromchildren.getParent().getName().toLowerCase()+"for"+linkedfromchildren.getInstancename().toLowerCase()+"Action;");
-				
+
+			if (linkedfromchildren.getOriginObjectProperty().getMultiDimensionChild() != null) {
+				importstatements.add("import " + linkedfromchildren.getParent().getOwnermodule().getPath()
+						+ ".action.generated.AbsRepairlinesfor"
+						+ linkedfromchildren.getInstancename().toLowerCase() + "Action;");
+				importstatements.add("import " + linkedfromchildren.getParent().getOwnermodule().getPath()
+						+ ".action.generated.AtgRepairlinesfor"
+						+ linkedfromchildren.getInstancename().toLowerCase() + "Action;");
+				importstatements.add("import " + linkedfromchildren.getParent().getOwnermodule().getPath()
+						+ ".action.generated.AbsPrepareaddlinesfor"
+						+ linkedfromchildren.getInstancename().toLowerCase() + "Action;");
+				importstatements.add("import " + linkedfromchildren.getParent().getOwnermodule().getPath()
+						+ ".action.generated.AtgPrepareaddlinesfor"
+						+ linkedfromchildren.getInstancename().toLowerCase() + "Action;");
 			}
-			
+
 			if (linkedfromchildren.getChildObject().getCategoryForExtractor() != null) {
 				ChoiceCategory categoryforextractor = linkedfromchildren.getChildObject().getCategoryForExtractor();
 				importstatements.add("import " + categoryforextractor.getParentModule().getPath() + ".data.choice."
@@ -498,6 +507,7 @@ public class LinkedFromChildren
 
 				}
 			} else {
+
 				// display grid
 				sg.wl("");
 				sg.wl("		// ------------------------------------------------------------------------------------------");
@@ -522,79 +532,8 @@ public class LinkedFromChildren
 						+ "detail = AtgShow" + childclassattribute + "Action.get().getActionRef();");
 				sg.wl("");
 				sg.wl("");
-				if (linkedfromchildren.cellfieldsforgrid.length > 1) {
-					sg.wl("		ArrayList<DataObjectFieldMarker<" + childclassname + ">> " + linknameattribute
-							+ "values = new ArrayList<DataObjectFieldMarker<" + childclassname + ">>();");
-					for (int i = 0; i < linkedfromchildren.cellfieldsforgrid.length; i++)
-						sg.wl("		values.add(" + childclassname + "Definition.get" + childclassname
-								+ "Definition().get"
-								+ StringFormatter.formatForJavaClass(linkedfromchildren.cellfieldsforgrid[i])
-								+ "FieldMarker());");
-				}
-
-				sg.wl("		SGrid<" + childclassname + "> " + linknameattribute + "grid = new SGrid<" + childclassname
-						+ ">(\"TESTGRID\",");
-				sg.wl("				this,");
-				sg.wl("				this.get" + linknameclass + "(),");
-
-				sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
-						+ StringFormatter.formatForJavaClass(linkedfromchildren.linedisplayforgrid) + "FieldMarker(),");
-				sg.wl("					new DataObjectFieldMarker[]{");
-				for (int i = 0; i < linkedfromchildren.freecolumnsdisplayforgrid.length; i++) {
-					String currentcolumn = linkedfromchildren.freecolumnsdisplayforgrid[i];
-					if (currentcolumn == null) {
-						String errormessage = "Error, current column is null for " + linkedfromchildren.getName()
-								+ " and index = " + i;
-						throw new RuntimeException(errormessage);
-					}
-					sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
-							+ StringFormatter.formatForJavaClass(linkedfromchildren.freecolumnsdisplayforgrid[i])
-							+ "FieldMarker()"
-							+ (i < linkedfromchildren.freecolumnsdisplayforgrid.length - 1 ? "," : ""));
-				}
-				sg.wl("					},");
-
-				if (linkedfromchildren.cellfieldsforgrid.length == 1) {
-					sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
-							+ StringFormatter.formatForJavaClass(linkedfromchildren.cellfieldsforgrid[0])
-							+ "FieldMarker(),");
-				} else {
-					sg.wl("				" + linknameattribute + "values,");
-				}
-				sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition());");
-
-				// ------------------- Reverse tree display
-
-				if (LinkedFromChildren.this.reversetree) {
-					StringBuffer readonlyfields = new StringBuffer();
-					for (int i = 0; i < LinkedFromChildren.this.infofieldforreverseshow.length; i++) {
-						String field = LinkedFromChildren.this.infofieldforreverseshow[i];
-						if (i > 0)
-							readonlyfields.append(',');
-						readonlyfields.append(
-								childclassname + ".get" + StringFormatter.formatForJavaClass(field) + "FieldMarker()");
-
-					}
-					StringBuffer readonlyfieldsexceptions = new StringBuffer();
-					if (LinkedFromChildren.this.exceptionsforinfofieldconsolidation != null)
-						for (int i = 0; i < LinkedFromChildren.this.exceptionsforinfofieldconsolidation.length; i++) {
-							String exception = LinkedFromChildren.this.exceptionsforinfofieldconsolidation[i];
-							if (i > 0)
-								readonlyfieldsexceptions.append(',');
-							if (exception == null) {
-								readonlyfieldsexceptions.append("null");
-							} else {
-								readonlyfieldsexceptions.append("\"");
-								readonlyfieldsexceptions.append(StringFormatter.escapeforjavastring(exception));
-								readonlyfieldsexceptions.append("\"");
-							}
-						}
-					sg.wl("		" + linknameattribute + "grid.setReverseTree((DataObjectFieldMarker<" + childclassname
-							+ ">[])");
-					sg.wl("				(new DataObjectFieldMarker<?>[] {" + readonlyfields + "}),new String[]{"
-							+ readonlyfieldsexceptions.toString() + "});");
-
-				}
+				LinkedFromChildren.this.writeGrid(sg, "GRIDFOR" + linkedfromchildren.getInstancename().toUpperCase(),
+						linknameattribute + "grid", linknameclass);
 
 				sg.w("		" + linknameattribute + "grid.setWarningForUnsavedEdition();");
 				sg.wl("");
@@ -617,14 +556,24 @@ public class LinkedFromChildren
 
 				if (hasmultidimensionchild) {
 
-					sg.wl("		AtgRepair" + objectvariable + "for" + linkedfromchildren.getInstancename().toLowerCase()
-							+ "Action.ActionRef repair" + linkedfromchildren.getInstancename().toLowerCase() + " = AbsRepair"
-							+ objectvariable + "for" + linkedfromchildren.getInstancename().toLowerCase()
+					sg.wl("		AtgRepairlinesfor" + linkedfromchildren.getInstancename().toLowerCase()
+							+ "Action.ActionRef repair" + linkedfromchildren.getInstancename().toLowerCase()
+							+ " = AbsRepairlinesfor" + linkedfromchildren.getInstancename().toLowerCase()
 							+ "Action.get().getActionRef();");
 					sg.wl("		repair" + linkedfromchildren.getInstancename().toLowerCase() + ".set" + objectclass
 							+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
 					sg.wl("		" + linknameattribute + "grid.addMenuAction(\"Repair\", repair"
 							+ linkedfromchildren.getInstancename().toLowerCase() + ");");
+					
+					sg.wl("		AtgPrepareaddlinesfor" + linkedfromchildren.getInstancename().toLowerCase()
+							+ "Action.ActionRef addlinesfor" + linkedfromchildren.getInstancename().toLowerCase()
+							+ " = AbsPrepareaddlinesfor" + linkedfromchildren.getInstancename().toLowerCase()
+							+ "Action.get().getActionRef();");
+					sg.wl("		addlinesfor" + linkedfromchildren.getInstancename().toLowerCase() + ".set" + objectclass
+							+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+					sg.wl("		" + linknameattribute + "grid.addMenuAction(\"Add lines\", addlinesfor"
+							+ linkedfromchildren.getInstancename().toLowerCase() + ");");
+					
 				}
 
 			}
@@ -1010,6 +959,73 @@ public class LinkedFromChildren
 		ArrayList<DataObjectDefinition> dependencies = new ArrayList<DataObjectDefinition>();
 		dependencies.add(childobject);
 		return dependencies;
+	}
+
+	public void writeGrid(SourceGenerator sg, String gridname, String gridvariablename, String origindatavariable)
+			throws IOException {
+
+		String childclassname = StringFormatter.formatForJavaClass(getChildObject().getName());
+		String linknameattribute = StringFormatter.formatForAttribute(getName());
+
+		sg.wl("		SGrid<" + childclassname + "> " + gridvariablename + " = new SGrid<" + childclassname + ">(\""
+				+ gridname.toUpperCase() + "\",");
+		sg.wl("				this,");
+		sg.wl("				this.get" + StringFormatter.formatForJavaClass(origindatavariable) + "(),");
+
+		sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
+				+ StringFormatter.formatForJavaClass(linedisplayforgrid) + "FieldMarker(),");
+		sg.wl("					new DataObjectFieldMarker[]{");
+		for (int i = 0; i < freecolumnsdisplayforgrid.length; i++) {
+			String currentcolumn = freecolumnsdisplayforgrid[i];
+			if (currentcolumn == null) {
+				String errormessage = "Error, current column is null for " + getName() + " and index = " + i;
+				throw new RuntimeException(errormessage);
+			}
+			sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
+					+ StringFormatter.formatForJavaClass(freecolumnsdisplayforgrid[i]) + "FieldMarker()"
+					+ (i < freecolumnsdisplayforgrid.length - 1 ? "," : ""));
+		}
+		sg.wl("					},");
+
+		if (cellfieldsforgrid.length == 1) {
+			sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition().get"
+					+ StringFormatter.formatForJavaClass(cellfieldsforgrid[0]) + "FieldMarker(),");
+		} else {
+			sg.wl("				" + linknameattribute + "values,");
+		}
+		sg.wl("				" + childclassname + "Definition.get" + childclassname + "Definition());");
+
+		// ------------------- Reverse tree display
+
+		if (LinkedFromChildren.this.reversetree) {
+			StringBuffer readonlyfields = new StringBuffer();
+			for (int i = 0; i < LinkedFromChildren.this.infofieldforreverseshow.length; i++) {
+				String field = LinkedFromChildren.this.infofieldforreverseshow[i];
+				if (i > 0)
+					readonlyfields.append(',');
+				readonlyfields
+						.append(childclassname + ".get" + StringFormatter.formatForJavaClass(field) + "FieldMarker()");
+
+			}
+			StringBuffer readonlyfieldsexceptions = new StringBuffer();
+			if (LinkedFromChildren.this.exceptionsforinfofieldconsolidation != null)
+				for (int i = 0; i < LinkedFromChildren.this.exceptionsforinfofieldconsolidation.length; i++) {
+					String exception = LinkedFromChildren.this.exceptionsforinfofieldconsolidation[i];
+					if (i > 0)
+						readonlyfieldsexceptions.append(',');
+					if (exception == null) {
+						readonlyfieldsexceptions.append("null");
+					} else {
+						readonlyfieldsexceptions.append("\"");
+						readonlyfieldsexceptions.append(StringFormatter.escapeforjavastring(exception));
+						readonlyfieldsexceptions.append("\"");
+					}
+				}
+			sg.wl("		" + gridvariablename + ".setReverseTree((DataObjectFieldMarker<" + childclassname + ">[])");
+			sg.wl("				(new DataObjectFieldMarker<?>[] {" + readonlyfields + "}),new String[]{"
+					+ readonlyfieldsexceptions.toString() + "});");
+
+		}
 	}
 
 }

@@ -20,6 +20,7 @@ import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.PropertyGenerics;
+import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.ChoiceArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.generation.SourceGenerator;
@@ -64,6 +65,11 @@ public class HasMultiDimensionalChild
 		repair.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
 		repair.addInputArgument(new MethodArgument("DELETEIFINVALID",new ChoiceArgument("DELETEIFINVALID", SystemModule.getSystemModule().getBooleanChoice())));
 		this.addDataAccessMethod(repair);
+		
+		DataAccessMethod addlines = new DataAccessMethod("ADDLINES",null,false);
+		addlines.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
+		addlines.addInputArgument(new MethodArgument("NEWLINES",new ArrayArgument(new ObjectArgument("NEWLINES", childobjectforlink))));
+		this.addDataAccessMethod(addlines);
 	}
 
 	@Override
