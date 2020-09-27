@@ -1210,6 +1210,7 @@ public class Paragraph {
 										+ splitstring.getNumberOfSections() + " --- ");
 								for (int i = 0; i < splitstring.getNumberOfSections(); i++)
 									logger.finest("                 |" + splitstring.getTransitionAt(i) + "| "
+											 + splitstring.getBulletAt(i) + "| "
 											+ splitstring.getSplitStringAt(i));
 								logger.finest(" ---------------------------------------------------------------");
 								if (splitstring.getNumberOfSections() > 1) {

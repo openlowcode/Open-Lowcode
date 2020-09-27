@@ -22,9 +22,14 @@ import java.util.ArrayList;
  *         SAS</a>
  *
  */
+/**
+ * @author demau
+ *
+ */
 public class SplitString {
 	private ArrayList<String> stringsplit;
 	private ArrayList<Boolean> transitions;
+	private ArrayList<Boolean> hasbullet;
 
 	/**
 	 * @return the number of sections of this string
@@ -54,18 +59,30 @@ public class SplitString {
 	}
 
 	/**
+	 * provides information if the current section is a bullet
+	 * 
+	 * @param index index of the section
+	 * @return true if the section is a bullet, false else
+	 * @since 1.12
+	 */
+	public boolean getBulletAt(int index) {
+		return hasbullet.get(index).booleanValue();
+	}
+
+	/**
 	 * create a Split chain, parsing the string for new lines only (\n or \r\n)
-	 * (carriage returns are kept in sections), or for all
+	 * (carriage returns are kept in sections), or for all. Also manages bullet
+	 * points in the text
 	 * 
 	 * @param chaintosplit the string to split
 	 * @param onlymajor    if true, only new lines are considered, if false, new
 	 *                     lines and carriage returns are considered
-	 *                     @since 1.5
+	 * @since 1.5
 	 */
 	public SplitString(String chaintosplit, boolean onlymajor) {
 		stringsplit = new ArrayList<String>();
 		transitions = new ArrayList<Boolean>();
-
+		hasbullet = new ArrayList<Boolean>();
 		boolean lastsplitismajor = true;
 		StringBuffer currentstring = new StringBuffer();
 		int parseindex = 0;
@@ -78,18 +95,20 @@ public class SplitString {
 			}
 			if (currentchar == 10) { // \n
 				specialcharacter = true;
-				
+
 				if (lastisbackslashr) {
 					// treats \r\n as a maj carriage return ()
 					stringsplit.add(currentstring.toString());
+					hasbullet.add(hasBullet(currentstring.toString()));
 					transitions.add(new Boolean(lastsplitismajor));
 					lastsplitismajor = true;
 					currentstring = new StringBuffer();
-					
+
 				} else {
 					// treats \n as minor carriage return (print as \n)
 					if (!onlymajor) {
 						stringsplit.add(currentstring.toString());
+						hasbullet.add(hasBullet(currentstring.toString()));
 						transitions.add(new Boolean(lastsplitismajor));
 						lastsplitismajor = false;
 						currentstring = new StringBuffer();
@@ -104,15 +123,15 @@ public class SplitString {
 					// treats \r\n as a maj carriage return ()
 					specialcharacter = true;
 					stringsplit.add(currentstring.toString());
+					hasbullet.add(hasBullet(currentstring.toString()));
 					transitions.add(new Boolean(lastsplitismajor));
 					lastsplitismajor = true;
 					lastisbackslashr = false;
 					currentstring = new StringBuffer();
-			
-					
-				} 
+
+				}
 				currentstring.append((char) currentchar);
-				
+
 			}
 			if (currentchar == 13)
 				lastisbackslashr = true;
@@ -120,6 +139,22 @@ public class SplitString {
 		}
 		stringsplit.add(currentstring.toString());
 		transitions.add(new Boolean(lastsplitismajor));
+		hasbullet.add(hasBullet(currentstring.toString()));
+	}
+
+	/**
+	 * 
+	 * @param string a String
+	 * @return true if a bullet is detected, false else
+	 * @since 1.12
+	 */
+	public static boolean hasBullet(String string) {
+
+		if (string.indexOf('\u25CF') >= 0)
+			return true;
+		if (string.indexOf('\u2022') >= 0)
+			return true;
+		return false;
 	}
 
 	/**

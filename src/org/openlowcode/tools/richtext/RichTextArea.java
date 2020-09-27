@@ -335,7 +335,7 @@ public class RichTextArea {
 	}
 	
 	/**
-	 * insert a multi-line split string at the current carret. Only works with SplitString with several sections
+	 * insert a multi-line split string at the current carret. Only works with SplitString with several sections. Also manages the fact text may contain bullets.
 	 * @param templatetext a FormattedText that has the target format for the inserted text
 	 * 
 	 * @param splistring a splitstring with 
@@ -347,16 +347,25 @@ public class RichTextArea {
 		// split section at current carret
 		Paragraph newprevious = activeparagraph.generateParagraphBeforeCarret();
 		Paragraph newnext = activeparagraph.generateParagraphAfterCarret();
-		
+		boolean firsthasbullet = splitstring.getBulletAt(0);
 		// add text before first carriage return to before section
-		newprevious.addTextAtEnd(splitstring.getSplitStringAt(0));
+		if (!firsthasbullet) newprevious.addTextAtEnd(splitstring.getSplitStringAt(0));
 		logger.finest("added text in new previous "+splitstring.getSplitStringAt(0));
 		// if intermediate,add each intermediate at standaalone with previous section formatting
 		ArrayList<Paragraph> middleparagraphestoadd = new ArrayList<Paragraph>();
-		for (int i=1;i<splitstring.getNumberOfSections()-1;i++) {
+		int startindex = (firsthasbullet?0:1);
+		for (int i=startindex;i<splitstring.getNumberOfSections()-1;i++) {
+			
 			Paragraph paragraph = new Paragraph(this.richtext,this.editable, this);
+			boolean bullet = splitstring.getBulletAt(i);
+			String textstring = splitstring.getSplitStringAt(i);
+			if (bullet) {
+				paragraph.setBulletParagraph();
+				textstring=textstring.replace('\u25CF',' ').replace('\u2022',' ').trim();
+			}
 			FormattedText formattedtext = new FormattedText(templatetext,paragraph);
-			formattedtext.refreshText(splitstring.getSplitStringAt(i));
+			
+			formattedtext.refreshText(textstring);
 			paragraph.addText(formattedtext);
 			middleparagraphestoadd.add(paragraph);
 		}
