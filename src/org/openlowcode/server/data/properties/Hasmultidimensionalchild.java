@@ -108,7 +108,7 @@ public class Hasmultidimensionalchild<
 	 */
 	public void addlines(E object, F[] newlines) {
 		MultidimensionchildHelper<F, E> helper = this.casteddefinition.getHelper();
-
+		helper.setContext(object);
 		// get existing children
 		F[] previouschildren = this.casteddefinition.getChildren(object.getId());
 		// check if new line templates collide with existing, delete the ones that exist
@@ -120,12 +120,16 @@ public class Hasmultidimensionalchild<
 		}
 		ArrayList<F> allobjectstoinsert = new ArrayList<F>();
 		for (int i = 0; i < newlines.length; i++) {
-			ArrayList<F> missingforthisoptional = helper.getOtherPrimaryelements(newlines[i], childrenbykey);
+			F thisline = newlines[i];
+			boolean invalid = helper.isInvalid(thisline);
+			if (!invalid) {
+ 			ArrayList<F> missingforthisoptional = helper.getOtherPrimaryelements(thisline, childrenbykey);
 			for (int j = 0; j < missingforthisoptional.size(); j++) {
 				F thismissing = missingforthisoptional.get(j);
 				allobjectstoinsert.add(thismissing);
 				childrenbykey.put(helper.generateKeyForObject(thismissing), thismissing);
 
+			}
 			}
 		}
 

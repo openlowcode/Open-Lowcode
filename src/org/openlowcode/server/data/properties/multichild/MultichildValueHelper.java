@@ -592,12 +592,13 @@ public abstract class MultichildValueHelper<
 		if (this.allowothervalues())
 			return true;
 		F value = getter.apply(optionalorinvalid);
+		if (value==null) return false;
 		F[] mandatoryvalues = this.getMandatoryValues();
 		F[] optionalvalues = this.getOptionalValues();
-		for (int i = 0; i < mandatoryvalues.length; i++)
+		if (mandatoryvalues!=null) for (int i = 0; i < mandatoryvalues.length; i++)
 			if (value.equals(mandatoryvalues[i]))
 				return true;
-		for (int i = 0; i < optionalvalues.length; i++)
+		if (optionalvalues!=null) for (int i = 0; i < optionalvalues.length; i++)
 			if (value.equals(optionalvalues[i]))
 				return true;
 		return false;
@@ -612,10 +613,10 @@ public abstract class MultichildValueHelper<
 			return true;
 		F[] mandatoryvalues = this.getMandatoryValues();
 		F[] optionalvalues = this.getOptionalValues();
-		for (int i = 0; i < mandatoryvalues.length; i++)
+		if (mandatoryvalues!=null) for (int i = 0; i < mandatoryvalues.length; i++)
 			if (payload.equals(mandatoryvalues[i]))
 				return true;
-		for (int i = 0; i < optionalvalues.length; i++)
+		if (optionalvalues!=null) for (int i = 0; i < optionalvalues.length; i++)
 			if (payload.equals(optionalvalues[i]))
 				return true;
 		return false;
