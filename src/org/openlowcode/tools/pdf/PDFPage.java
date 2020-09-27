@@ -1428,7 +1428,7 @@ public class PDFPage
 			ArrayList<String> paragraphlines = new ArrayList<String>();
 			int lastspace = -1;
 			// in this version, tab is treated as any other space
-			paragraphtext = paragraphtext.replace('\u0009', ' ').replace('\u0003', ' ');
+			paragraphtext = paragraphtext.replace('\u0009', ' ').replace('\u0003', ' ').replace('\u25CF','\u2022');
 			while (paragraphtext.length() > 0) {
 				int spaceIndex = paragraphtext.indexOf(' ', lastspace + 1);
 				if (spaceIndex < 0)
