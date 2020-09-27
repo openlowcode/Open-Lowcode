@@ -232,7 +232,7 @@ public class CTimePeriodField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int preferedrowheight,
-			String actionkeyforupdate) {
+			String actionkeyforupdate,boolean forcefieldupdatable) {
 		TableColumn<
 				ObjectTableRow, TimePeriod> thiscolumn = new TableColumn<ObjectTableRow, TimePeriod>(this.getLabel());
 		if (actionkeyforupdate != null) {

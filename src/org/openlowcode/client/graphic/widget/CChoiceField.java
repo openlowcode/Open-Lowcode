@@ -735,12 +735,12 @@ public class CChoiceField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int rowheight,
-			String actionkeyforupdate) {
+			String actionkeyforupdate,boolean forcefieldupdatable) {
 
 		TableColumn<
 				ObjectTableRow,
 				CChoiceFieldValue> thiscolumn = new TableColumn<ObjectTableRow, CChoiceFieldValue>(this.getLabel());
-		if ((actionkeyforupdate != null) && (this.isEditable()))  {
+		if (((actionkeyforupdate != null) && (this.isEditable())) || (actionkeyforupdate!=null && forcefieldupdatable))  {
 			thiscolumn.setEditable(true);
 			thiscolumn.setOnEditCommit(new TableColumnOnEditCommit(this));
 		} else {

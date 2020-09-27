@@ -148,21 +148,24 @@ public abstract class CBusinessField<E extends SimpleDataElt>
 	/**
 	 * get the column representing this field for display in an object array table
 	 * 
-	 * @param pageactionmanager  page action manager
-	 * @param largedisplay       true if large display
-	 * @param preferedrowheight  the prefered row height, in number of rows
-	 * @param actionkeyforupdate if this field has a specific action key for update.
-	 *                           This is is case several actions can be triggered
-	 *                           from data changed in the object (not fully
-	 *                           operational)
+	 * @param pageactionmanager   page action manager
+	 * @param largedisplay        true if large display
+	 * @param preferedrowheight   the prefered row height, in number of rows
+	 * @param actionkeyforupdate  if this field has a specific action key for
+	 *                            update. This is is case several actions can be
+	 *                            triggered from data changed in the object (not
+	 *                            fully operational)
+	 * @param forcefieldupdatable will force the column as read-write if it has an
+	 *                            action key for update and is read-only on the
+	 *                            object definition
 	 * @return the table column
 	 */
 	public abstract TableColumn<ObjectTableRow, ?> getTableColumn(
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int preferedrowheight,
-			String actionkeyforupdate);
-
+			String actionkeyforupdate,
+			boolean forcefieldupdatable);
 
 	/**
 	 * @param pageactionmanager    action manager

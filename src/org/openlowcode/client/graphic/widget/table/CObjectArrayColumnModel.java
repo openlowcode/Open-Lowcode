@@ -44,6 +44,7 @@ public class CObjectArrayColumnModel {
 	private HashMap<String, String> updateactionfields;
 	private int finalheightinpixel = 12 + 15;
 	private UpdateMouseHandler updatemousehandler;
+	private boolean forcefieldsupdatable;
 
 	/**
 	 * create a column model for the given business fields
@@ -60,16 +61,21 @@ public class CObjectArrayColumnModel {
 	/**
 	 * creates a column model
 	 * 
-	 * @param arraycolumns       a list of busines fields
-	 * @param updateactionfields list of fields that should trigger an unique action
-	 * @param uniqueupdatekey    key of the update inline action and action
-	 * @param updatemousehandler mouse handler for update
+	 * @param arraycolumns         a list of busines fields
+	 * @param updateactionfields   list of fields that should trigger an unique
+	 *                             action
+	 * @param uniqueupdatekey      key of the update inline action and action
+	 * @param updatemousehandler   mouse handler for update
+	 * @param forcefieldsupdatable will force all fields with an update action to
+	 *                             become read-write, even if normally read-only in
+	 *                             object definition
 	 */
 	public CObjectArrayColumnModel(
 			ArrayList<CBusinessField<?>> arraycolumns,
 			ArrayList<String> updateactionfields,
 			String uniqueupdatekey,
-			UpdateMouseHandler updatemousehandler) {
+			UpdateMouseHandler updatemousehandler,
+			boolean forcefieldsupdatable) {
 		this.arraycolumns = arraycolumns;
 		this.columnstoshowintooltip = new ArrayList<CBusinessField<?>>();
 		this.updateactionfields = new HashMap<String, String>();
@@ -79,6 +85,7 @@ public class CObjectArrayColumnModel {
 
 		}
 		this.updatemousehandler = updatemousehandler;
+		this.forcefieldsupdatable = forcefieldsupdatable;
 	}
 
 	/**
@@ -189,7 +196,7 @@ public class CObjectArrayColumnModel {
 			if (!thisfield.isShowinbottomnotes()) {
 				String actionkeyforupdate = updateactionfields.get(thisfield.getFieldname());
 				TableColumn<ObjectTableRow, ?> thiscolumn = thisfield.getTableColumn(actionmanager,
-						(finalpreferedrowheight > 1 ? true : false), finalpreferedrowheight, actionkeyforupdate);
+						(finalpreferedrowheight > 1 ? true : false), finalpreferedrowheight, actionkeyforupdate,this.forcefieldsupdatable);
 				totalwidth += thiscolumn.getMinWidth();
 				returntable.getColumns().add(thiscolumn);
 				thiscolumn.widthProperty().addListener(new ChangeListener<Number>() {

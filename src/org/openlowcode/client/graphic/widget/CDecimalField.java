@@ -451,12 +451,12 @@ public class CDecimalField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int rowheight,
-			String actionkeyforupdate) {
+			String actionkeyforupdate, boolean forcefieldupdatable) {
 		TableColumn<
 				ObjectTableRow,
 				LockableBigDecimal> thiscolumn = new TableColumn<ObjectTableRow, LockableBigDecimal>(this.getLabel());
 		thiscolumn.setStyle("-fx-alignment: TOP-RIGHT;");
-		if ((actionkeyforupdate != null) && (this.isEditable()))  {
+		if (((actionkeyforupdate != null) && (this.isEditable())) || (actionkeyforupdate!=null && forcefieldupdatable))   {
 			thiscolumn.setEditable(true);
 			CDecimalField thisdecimalfield = this;
 			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<ObjectTableRow, LockableBigDecimal>>() {

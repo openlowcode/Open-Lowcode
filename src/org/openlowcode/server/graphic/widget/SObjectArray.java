@@ -105,6 +105,7 @@ public class SObjectArray<E extends DataObject<E>>
 	private String unsavedwarningstopmessage;
 	private boolean updatenote;
 	private int rowstodisplay = 0;
+	private boolean forcefieldsupdatable=false;
 
 	/**
 	 * this method allows to create an array initiated with data from the action
@@ -361,6 +362,7 @@ public class SObjectArray<E extends DataObject<E>>
 		this.updateactionfields = relevantattributes;
 		this.inlineupdateactionoutputdata = inlineupdateactionoutputdata;
 		this.defaultupdatemode = defaultupdatemode;
+		this.forcefieldsupdatable=true;
 	}
 
 	/**
@@ -421,6 +423,7 @@ public class SObjectArray<E extends DataObject<E>>
 			this.defaultupdatemode = defaultupdatemode;
 			if (!this.updatenote)
 				this.updatenote = updatenote;
+			
 			return;
 		}
 		if (relevantattributes.size() == 0)
@@ -430,6 +433,7 @@ public class SObjectArray<E extends DataObject<E>>
 		this.defaultupdatemode = defaultupdatemode;
 		if (!this.updatenote)
 			this.updatenote = updatenote;
+		this.forcefieldsupdatable=true;
 	}
 
 	/**
@@ -518,6 +522,7 @@ public class SObjectArray<E extends DataObject<E>>
 			writer.addBooleanField("INLUPD", true);
 			writer.startStructure("INLUPD");
 			writer.addBooleanField("DUM", this.defaultupdatemode);
+			writer.addBooleanField("FFU", this.forcefieldsupdatable);
 
 			inlineupdateaction.writeToCML(writer);
 
@@ -544,7 +549,7 @@ public class SObjectArray<E extends DataObject<E>>
 			writer.addBooleanField("UPD", true);
 			writer.startStructure("UPD");
 			writer.addBooleanField("DUM", this.defaultupdatemode);
-
+			writer.addBooleanField("FFU", this.forcefieldsupdatable);
 			updateaction.writeToCML(writer);
 			writer.startStructure("FIELDS");
 

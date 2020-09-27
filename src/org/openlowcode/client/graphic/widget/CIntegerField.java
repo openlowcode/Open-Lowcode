@@ -220,9 +220,9 @@ public class CIntegerField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int preferedrowheight,
-			String actionkeyforupdate) {
+			String actionkeyforupdate,boolean forcefieldupdatable) {
 		TableColumn<ObjectTableRow, Integer> thiscolumn = new TableColumn<ObjectTableRow, Integer>(this.getLabel());
-		if (actionkeyforupdate != null) {
+		if (((actionkeyforupdate != null) && (this.isEditable())) || (actionkeyforupdate!=null && forcefieldupdatable))  {
 			thiscolumn.setEditable(true);
 		} else {
 			thiscolumn.setEditable(false);

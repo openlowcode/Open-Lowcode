@@ -831,11 +831,11 @@ public class CTextField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int rowheight,
-			String actionkeyforupdate) {
+			String actionkeyforupdate,boolean forcefieldupdatable) {
 		TableColumn<
 				ObjectTableRow,
 				OrderableString> thiscolumn = new TableColumn<ObjectTableRow, OrderableString>(this.getLabel());
-		if ((actionkeyforupdate != null) && (this.isEditable()))  {
+		if (((actionkeyforupdate != null) && (this.isEditable())) || (actionkeyforupdate!=null && forcefieldupdatable))  {
 			thiscolumn.setEditable(true);
 			CTextField thistextfield = this;
 			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<ObjectTableRow, OrderableString>>() {

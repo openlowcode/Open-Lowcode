@@ -136,6 +136,7 @@ public class CObjectArray
 	private String updatewarningstop;
 	private boolean updatenote = false;
 	private int rowstodisplay;
+	private boolean forcefieldsupdatable;
 
 	/**
 	 * launch an update on the table after client finished entering data in thetable
@@ -200,6 +201,7 @@ public class CObjectArray
 	 */
 	public CObjectArray(MessageReader reader, CPageSignifPath parentpath) throws OLcRemoteException, IOException {
 		super(reader, parentpath);
+		this.forcefieldsupdatable = false;
 		this.name = reader.returnNextStringField("NAME");
 		this.allowmultipleselect = reader.returnNextBooleanField("AMS");
 		this.allowdataclear = reader.returnNextBooleanField("ADC");
@@ -258,6 +260,7 @@ public class CObjectArray
 
 			reader.returnNextStartStructure("INLUPD");
 			this.updatemodeactive = reader.returnNextBooleanField("DUM");
+			this.forcefieldsupdatable = reader.returnNextBooleanField("FFU");
 			reader.returnNextStartStructure("INLINEACTION");
 			this.updateinlineaction = new CPageInlineAction(reader);
 
@@ -286,6 +289,7 @@ public class CObjectArray
 			this.updateactionfields = new ArrayList<String>();
 			reader.returnNextStartStructure("UPD");
 			this.updatemodeactive = reader.returnNextBooleanField("DUM");
+			this.forcefieldsupdatable = reader.returnNextBooleanField("FFU");
 			reader.returnNextStartStructure("ACTION");
 			this.updateaction = new CPageAction(reader);
 			reader.startStructureArray("FIELD");
@@ -621,7 +625,7 @@ public class CObjectArray
 		CObjectArrayColumnModel tablemodel = new CObjectArrayColumnModel(payloadlist, this.updateactionfields,
 				(this.updateinlineaction != null ? this.updateinlineaction.key()
 						: (this.updateaction != null ? this.updateaction.key() : null)),
-				updatemousehandler);
+				updatemousehandler,this.forcefieldsupdatable);
 		// generates table with title
 		logger.fine("Generate model with forced row height = " + forcedrowheight);
 		this.thistable = tablemodel.generateTableViewModel(actionmanager, this.forcedrowheight);

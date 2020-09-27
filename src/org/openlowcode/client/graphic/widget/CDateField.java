@@ -423,12 +423,12 @@ public class CDateField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int rowheight,
-			String actionkeyforupdate) {
+			String actionkeyforupdate,boolean forcefieldupdatable) {
 		TableColumn<
 				ObjectTableRow,
 				LockableDate> thiscolumn = new TableColumn<ObjectTableRow, LockableDate>(this.getLabel());
 
-		if ((actionkeyforupdate != null) && (this.isEditable()))  {
+		if (((actionkeyforupdate != null) && (this.isEditable())) || (actionkeyforupdate!=null && forcefieldupdatable))   {
 			thiscolumn.setEditable(true);
 			CDateField thisdatefield = this;
 			thiscolumn.setOnEditCommit(new EventHandler<CellEditEvent<ObjectTableRow, LockableDate>>() {

@@ -243,7 +243,7 @@ public class CMultipleChoiceField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int preferedrowheight,
-			String actionkeyforupdate) {
+			String actionkeyforupdate,boolean forcefieldupdatable) {
 		TableColumn<ObjectTableRow, String> thiscolumn = new TableColumn<ObjectTableRow, String>(this.getLabel());
 		thiscolumn.setEditable(false);
 		int length = (this.maxcharlength * 7);
