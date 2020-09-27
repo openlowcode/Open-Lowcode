@@ -536,10 +536,10 @@ public class DataObjectDefinitionOtherActions {
 			Module module,
 			HasMultiDimensionalChild hasmultidimensionchild) throws IOException {
 		String parentclass = StringFormatter.formatForJavaClass(parent.getName());
-		String childclass = StringFormatter.formatForJavaClass(hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().getName());
+		String childclass = StringFormatter.formatForJavaClass(
+				hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().getName());
 
-
-		sg.wl("package "+module.getPath()+".action.generated;");
+		sg.wl("package " + module.getPath() + ".action.generated;");
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("");
@@ -549,33 +549,38 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("");
-		sg.wl("import "+module.getPath()+".data."+parentclass+";");
-		sg.wl("import "+module.getPath()+".data."+childclass+";");
-		sg.wl("import "+module.getPath()+".page.generated.AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Page;");
+		sg.wl("import " + module.getPath() + ".data." + parentclass + ";");
+		sg.wl("import " + module.getPath() + ".data." + childclass + ";");
+		sg.wl("import " + module.getPath() + ".page.generated.AtgAddlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Page;");
 		sg.wl("");
 		sg.wl("");
-		sg.wl("public class AtgPrepareaddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action");
+		sg.wl("public class AtgPrepareaddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Action");
 		sg.wl("		extends");
-		sg.wl("		AbsPrepareaddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action {");
+		sg.wl("		AbsPrepareaddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Action {");
 		sg.wl("");
-		sg.wl("	public AtgPrepareaddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action(SModule parent) {");
+		sg.wl("	public AtgPrepareaddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "Action(SModule parent) {");
 		sg.wl("		super(parent);");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public ActionOutputData executeActionLogic(");
-		sg.wl("			DataObjectId<"+parentclass+"> activityid,");
+		sg.wl("			DataObjectId<" + parentclass + "> activityid,");
 		sg.wl("			Function<TableAlias, QueryFilter> datafilter) {");
-		sg.wl("		"+parentclass+" activity = "+parentclass+".readone(activityid);");
-		sg.wl("		"+childclass+"[] children = activity.getallchildrenfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"(null);");
-		sg.wl("		"+childclass+"[] blanks = new "+childclass+"[10];");
-		sg.wl("		for (int i=0;i<blanks.length;i++) blanks[i] = new "+childclass+"();");
+		sg.wl("		" + parentclass + " activity = " + parentclass + ".readone(activityid);");
+		sg.wl("		" + childclass + "[] children = activity.getallchildrenfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "(null);");
+		sg.wl("		" + childclass + "[] blanks = new " + childclass + "[10];");
+		sg.wl("		for (int i=0;i<blanks.length;i++) blanks[i] = new " + childclass + "();");
 		sg.wl("		return new ActionOutputData(activityid, blanks, children, activity.dropIdToString());");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public SPage choosePage(ActionOutputData logicoutput) {");
-		sg.wl("		return new AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Page(logicoutput.get"+parentclass+"id_thru(),logicoutput.getNewblanks(), logicoutput.getExistingchildren(),logicoutput.getContext());");
+		sg.wl("		return new AtgAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "Page(logicoutput.get" + parentclass
+				+ "id_thru(),logicoutput.getNewblanks(), logicoutput.getExistingchildren(),logicoutput.getContext());");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("}");
@@ -590,9 +595,10 @@ public class DataObjectDefinitionOtherActions {
 			HasMultiDimensionalChild hasmultidimensionchild) throws IOException {
 		String parentclass = StringFormatter.formatForJavaClass(parent.getName());
 		String parentvariable = StringFormatter.formatForAttribute(parent.getName());
-		String childclass = StringFormatter.formatForJavaClass(hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().getName());
-	
-		sg.wl("package "+module.getPath()+".action.generated;");
+		String childclass = StringFormatter.formatForJavaClass(
+				hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().getName());
+
+		sg.wl("package " + module.getPath() + ".action.generated;");
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("");
@@ -602,32 +608,33 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("");
-		sg.wl("import "+module.getPath()+".data."+parentclass+";");
-		sg.wl("import "+module.getPath()+".data."+childclass+";");
+		sg.wl("import " + module.getPath() + ".data." + parentclass + ";");
+		sg.wl("import " + module.getPath() + ".data." + childclass + ";");
 		sg.wl("");
 		sg.wl("");
-		sg.wl("public class AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action");
+		sg.wl("public class AtgAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Action");
 		sg.wl("		extends");
-		sg.wl("		AbsAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action {");
+		sg.wl("		AbsAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Action {");
 		sg.wl("");
-		sg.wl("	public AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action(SModule parent) {");
+		sg.wl("	public AtgAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "Action(SModule parent) {");
 		sg.wl("		super(parent);");
 		sg.wl("");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
-		sg.wl("	public DataObjectId<"+parentclass+"> executeActionLogic(");
-		sg.wl("			DataObjectId<"+parentclass+"> activityid,");
-		sg.wl("			"+childclass+"[] newblanks,");
+		sg.wl("	public DataObjectId<" + parentclass + "> executeActionLogic(");
+		sg.wl("			DataObjectId<" + parentclass + "> activityid,");
+		sg.wl("			" + childclass + "[] newblanks,");
 		sg.wl("			Function<TableAlias, QueryFilter> datafilter) {");
-		sg.wl("		"+parentclass+" activity = "+parentclass+".readone(activityid);");
-		sg.wl("		activity.addlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"(newblanks);");
+		sg.wl("		" + parentclass + " activity = " + parentclass + ".readone(activityid);");
+		sg.wl("		activity.addlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "(newblanks);");
 		sg.wl("		return activityid;");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
-		sg.wl("	public SPage choosePage(DataObjectId<"+parentclass+"> activityid_thru) {");
-		sg.wl("		return AtgShow"+parentvariable+"Action.get().executeAndShowPage(activityid_thru);");
+		sg.wl("	public SPage choosePage(DataObjectId<" + parentclass + "> activityid_thru) {");
+		sg.wl("		return AtgShow" + parentvariable + "Action.get().executeAndShowPage(activityid_thru);");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("}");
@@ -642,10 +649,14 @@ public class DataObjectDefinitionOtherActions {
 			HasMultiDimensionalChild hasmultidimensionchild) throws IOException {
 		String parentclass = StringFormatter.formatForJavaClass(parent.getName());
 		String parentvariable = StringFormatter.formatForAttribute(parent.getName());
-		String childclass = StringFormatter.formatForJavaClass(hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().getName());
-	
-		sg.wl("package "+module.getPath()+".page.generated;");
+		String childclass = StringFormatter.formatForJavaClass(
+				hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent().getName());
+
+		sg.wl("package " + module.getPath() + ".page.generated;");
 		sg.wl("");
+		sg.wl("import java.util.ArrayList;");
+		sg.wl("");
+		
 		sg.wl("import org.openlowcode.server.data.DataObjectFieldMarker;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPageNode;");
@@ -656,33 +667,35 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectIdStorage;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPageText;");
 		sg.wl("");
-		sg.wl("import "+module.getPath()+".action.generated.AbsAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action;");
-		sg.wl("import "+module.getPath()+".action.generated.AbsShow"+parentvariable+"Action;");
-		sg.wl("import "+module.getPath()+".action.generated.AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action;");
-		sg.wl("import "+module.getPath()+".action.generated.AtgShow"+parentvariable+"Action;");
-		sg.wl("import "+module.getPath()+".data."+parentclass+";");
-		sg.wl("import "+module.getPath()+".data."+childclass+";");
-		sg.wl("import "+module.getPath()+".data."+childclass+"Definition;");
+		sg.wl("import " + module.getPath() + ".action.generated.AbsAddlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action;");
+		sg.wl("import " + module.getPath() + ".action.generated.AbsShow" + parentvariable + "Action;");
+		sg.wl("import " + module.getPath() + ".action.generated.AtgAddlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action;");
+		sg.wl("import " + module.getPath() + ".action.generated.AtgShow" + parentvariable + "Action;");
+		sg.wl("import " + module.getPath() + ".data." + parentclass + ";");
+		sg.wl("import " + module.getPath() + ".data." + childclass + ";");
+		sg.wl("import " + module.getPath() + ".data." + childclass + "Definition;");
 		sg.wl("");
 		sg.wl("");
-		sg.wl("public class AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Page");
+		sg.wl("public class AtgAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Page");
 		sg.wl("		extends");
-		sg.wl("		AbsAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Page {");
+		sg.wl("		AbsAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Page {");
 		sg.wl("");
-		sg.wl("	public AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Page(");
-		sg.wl("			DataObjectId<"+parentclass+"> "+parentvariable+"id_thru,");
-		sg.wl("			"+childclass+"[] newblanks,");
-		sg.wl("			"+childclass+"[] existingchildren,");
+		sg.wl("	public AtgAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Page(");
+		sg.wl("			DataObjectId<" + parentclass + "> " + parentvariable + "id_thru,");
+		sg.wl("			" + childclass + "[] newblanks,");
+		sg.wl("			" + childclass + "[] existingchildren,");
 		sg.wl("			String context) {");
-		sg.wl("		super("+parentvariable+"id_thru, newblanks, existingchildren, context);");
+		sg.wl("		super(" + parentvariable + "id_thru, newblanks, existingchildren, context);");
 		sg.wl("");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public String generateTitle(");
-		sg.wl("			DataObjectId<"+parentclass+"> "+parentvariable+"id_thru,");
-		sg.wl("			"+childclass+"[] newblanks,");
-		sg.wl("			"+childclass+"[] existingchildren,");
+		sg.wl("			DataObjectId<" + parentclass + "> " + parentvariable + "id_thru,");
+		sg.wl("			" + childclass + "[] newblanks,");
+		sg.wl("			" + childclass + "[] existingchildren,");
 		sg.wl("			String context) {");
 		sg.wl("");
 		sg.wl("		return \"Add lines\";");
@@ -694,38 +707,55 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("		mainband.addElement(new SPageText(\"Add lines\", SPageText.TYPE_TITLE, this));");
 		sg.wl("		mainband.addElement(new SPageText(this.getContext(), SPageText.TYPE_NORMAL, this));");
 		sg.wl("		");
-		sg.wl("		SObjectIdStorage<"+parentclass+"> "+parentvariable+"idstorage = new SObjectIdStorage<"+parentclass+">(\"ACTIVITYIDSTORAGE\",this,this.get"+parentclass+"id_thru());");
-		sg.wl("		mainband.addElement("+parentvariable+"idstorage);");
-		sg.wl("		SObjectArray<"+childclass+"> blankarray = new SObjectArray<"+childclass+">(\"BLANKARRAY\", this.getNewblanks(),");
-		sg.wl("				"+childclass+".getDefinition(), this);");
+		sg.wl("		SObjectIdStorage<" + parentclass + "> " + parentvariable + "idstorage = new SObjectIdStorage<"
+				+ parentclass + ">(\"ACTIVITYIDSTORAGE\",this,this.get" + parentclass + "id_thru());");
+		sg.wl("		mainband.addElement(" + parentvariable + "idstorage);");
+		sg.wl("		SObjectArray<" + childclass + "> blankarray = new SObjectArray<" + childclass
+				+ ">(\"BLANKARRAY\", this.getNewblanks(),");
+		sg.wl("				" + childclass + ".getDefinition(), this);");
 		sg.wl("		blankarray.setRowsToDisplay(10);");
 		Field[] payload = hasmultidimensionchild.getOriginMultiDimensionChildProperty().getPayloadValue();
 		Field firstaxisvalue = hasmultidimensionchild.getOriginMultiDimensionChildProperty().getFirstAxisValue();
-		for (int i=0;i<payload.length;i++) sg.wl("		blankarray.hideAttribute("+childclass+".get"+StringFormatter.formatForJavaClass(payload[i].getName())+"FieldMarker());");
-		sg.wl("		blankarray.hideAttribute("+childclass+".get"+StringFormatter.formatForJavaClass(firstaxisvalue.getName())+"FieldMarker());");
-		if (parent.getPropertyByName("LIFECYCLE")!=null)
-		sg.wl("		blankarray.hideAttribute("+childclass+".getStateFieldMarker());");
-		sg.wl("		blankarray.setUpdateByDefault();");
+		for (int i = 0; i < payload.length; i++)
+			sg.wl("		blankarray.hideAttribute(" + childclass + ".get"
+					+ StringFormatter.formatForJavaClass(payload[i].getName()) + "FieldMarker());");
+		sg.wl("		blankarray.hideAttribute(" + childclass + ".get"
+				+ StringFormatter.formatForJavaClass(firstaxisvalue.getName()) + "FieldMarker());");
+		if (parent.getPropertyByName("LIFECYCLE") != null)
+			sg.wl("		blankarray.hideAttribute(" + childclass + ".getStateFieldMarker());");
 		sg.wl("		blankarray.setMinFieldPriority(0);");
 		sg.wl("		mainband.addElement(blankarray);");
 		sg.wl("");
-		sg.wl("		AbsAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action.ActionRef addchildrenaction = AtgAddlinesfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"Action.get().getActionRef();");
-		sg.wl("		addchildrenaction.set"+parentclass+"id("+parentvariable+"idstorage.getObjectIdInput());");
+		sg.wl("		AbsAddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "Action.ActionRef addchildrenaction = AtgAddlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action.get().getActionRef();");
+		sg.wl("		addchildrenaction.set" + parentclass + "id(" + parentvariable + "idstorage.getObjectIdInput());");
 		sg.wl("		addchildrenaction.setNewblanks(blankarray.getActiveObjectArray());");
-		sg.wl("		blankarray.addUpdateAction(addchildrenaction, null, true);");
+
+		sg.wl("		ArrayList<DataObjectFieldMarker<" + childclass
+				+ ">> editionfields = new ArrayList<DataObjectFieldMarker<" + childclass + ">>();");
+		Field[] secondaryaxis = hasmultidimensionchild.getOriginMultiDimensionChildProperty().getSecondAxisValue();
+		for (int i = 0; i < secondaryaxis.length; i++)
+			sg.wl("		editionfields.add(" + childclass + ".get"
+					+ StringFormatter.formatForJavaClass(secondaryaxis[i].getName()) + "FieldMarker());");
+
+		sg.wl("		blankarray.addUpdateAction(addchildrenaction, editionfields, true,false);");
+
 		sg.wl("");
 		sg.wl("		SComponentBand buttonband = new SComponentBand(SComponentBand.DIRECTION_RIGHT,this);");
 		sg.wl("");
-		sg.wl("		AbsShow"+parentvariable+"Action.ActionRef backtoparent = AtgShow"+parentvariable+"Action.get().getActionRef();");
-		sg.wl("		backtoparent.setId("+parentvariable+"idstorage.getObjectIdInput());");
+		sg.wl("		AbsShow" + parentvariable + "Action.ActionRef backtoparent = AtgShow" + parentvariable
+				+ "Action.get().getActionRef();");
+		sg.wl("		backtoparent.setId(" + parentvariable + "idstorage.getObjectIdInput());");
 		sg.wl("");
 		sg.wl("		buttonband.addElement(new SActionButton(\"Back\", backtoparent,this));");
 		sg.wl("		buttonband.addElement(new SActionButton(\"Create new\",addchildrenaction,this));");
 		sg.wl("		mainband.addElement(buttonband);");
 		sg.wl("		mainband.addElement(new SPageText(\"Existing Elements below\", SPageText.TYPE_TITLE, this));");
 		sg.wl("");
-		
-		hasmultidimensionchild.getOriginMultiDimensionChildProperty().getLinkedToParent().getLinkedFromChildren().writeGrid(sg, "EXISTING", "existing", "existingchildren");
+
+		hasmultidimensionchild.getOriginMultiDimensionChildProperty().getLinkedToParent().getLinkedFromChildren()
+				.writeGrid(sg, "EXISTING", "existing", "existingchildren");
 
 		sg.wl("		mainband.addElement(existing);");
 		sg.wl("		return mainband;");
@@ -759,11 +789,9 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import " + path + ".action.generated.AtgShow" + parentvariable + "Action;");
 		sg.wl("import " + path + ".data." + parentclass + ";");
 		sg.wl("");
-		sg.wl("public class AtgRepairlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase()
-				+ "Action");
+		sg.wl("public class AtgRepairlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Action");
 		sg.wl("		extends");
-		sg.wl("		AbsRepairlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase()
-				+ "Action {");
+		sg.wl("		AbsRepairlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Action {");
 		sg.wl("");
 		sg.wl("	public AtgRepairlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase()
 				+ "Action(SModule parent) {");
@@ -776,7 +804,8 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("			Function<TableAlias, QueryFilter> datafilter) {");
 		sg.wl("		" + parentclass + " " + parentvariable + " = " + parentclass + ".readone(" + parentvariable
 				+ "id);");
-		sg.wl("		" + parentvariable + ".repairfor"+hasmultidimensionchild.getInstancename().toLowerCase()+"(null);");
+		sg.wl("		" + parentvariable + ".repairfor" + hasmultidimensionchild.getInstancename().toLowerCase()
+				+ "(null);");
 		sg.wl("		return new ActionOutputData(" + parentvariable + "id);");
 		sg.wl("	}");
 		sg.wl("");
