@@ -538,8 +538,19 @@ public class Paragraph {
 								textflow.getChildren().add(caretpath);
 								textflow.requestLayout();
 								textflow.requestFocus();
-								if (parent.getPageActionManager() != null)
-									parent.getPageActionManager().getClientDisplay().ensureNodeVisible(caretpath);
+								// if (parent.getPageActionManager() != null)
+								// parent.getPageActionManager().getClientDisplay().ensureNodeVisible(caretpath);
+								
+								Platform.runLater(new Runnable() {
+
+									@Override
+									public void run() {
+										parent.ensureNodeVisible(caretpath);
+										
+									}
+									
+								});
+								
 
 								break;
 							}
@@ -1210,8 +1221,7 @@ public class Paragraph {
 										+ splitstring.getNumberOfSections() + " --- ");
 								for (int i = 0; i < splitstring.getNumberOfSections(); i++)
 									logger.finest("                 |" + splitstring.getTransitionAt(i) + "| "
-											 + splitstring.getBulletAt(i) + "| "
-											+ splitstring.getSplitStringAt(i));
+											+ splitstring.getBulletAt(i) + "| " + splitstring.getSplitStringAt(i));
 								logger.finest(" ---------------------------------------------------------------");
 								if (splitstring.getNumberOfSections() > 1) {
 									parent.insertSplitStringAtCarret(splitstring, thistext);

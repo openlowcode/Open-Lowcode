@@ -24,6 +24,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.shape.Path;
 import javafx.scene.paint.Color;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.layout.VBox;
@@ -38,11 +39,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.input.MouseButton;
@@ -82,7 +87,7 @@ public class RichTextArea {
 	 * @return a rich text area that is neither rich text nor editable
 	 */
 	public static RichTextArea getReadOnlyTextArea(PageActionManager actionmanager, String inputvalue, int width) {
-		RichTextArea richtextarea = new RichTextArea(actionmanager, false, false, 400);
+		RichTextArea richtextarea = new RichTextArea(actionmanager, false, false, 400, -1);
 		richtextarea.setTextInput(inputvalue);
 		return richtextarea;
 	}
@@ -99,12 +104,14 @@ public class RichTextArea {
 			return document.get(0).dropText();
 		} else {
 			StringBuffer answer = new StringBuffer();
-			Paragraph previousparagraph=null;
+			Paragraph previousparagraph = null;
 			for (int i = 0; i < document.size(); i++) {
 				Paragraph currentparagraph = document.get(i);
-				if (previousparagraph!=null) if (previousparagraph.isNormal()) if (currentparagraph.isNormal()) {
-					answer.append("\r\n");
-				}
+				if (previousparagraph != null)
+					if (previousparagraph.isNormal())
+						if (currentparagraph.isNormal()) {
+							answer.append("\r\n");
+						}
 				answer.append(currentparagraph.dropText());
 				previousparagraph = currentparagraph;
 			}
@@ -254,6 +261,8 @@ public class RichTextArea {
 	private double paragraphwidth = 400 - LEFT_MARGIN - RIGHT_MARGIN;
 	private PageActionManager pageactionmanager;
 	private ContextMenu contextmenu;
+	private float maxheight;
+	private ScrollPane scrollpane;
 
 	/**
 	 * @return the page action manager
@@ -296,82 +305,98 @@ public class RichTextArea {
 	 * @param richtext      true if rich text
 	 * @param editable      true if editable
 	 * @param width         width of the widget in pixels
+	 * @param maxheight     maximum height of the widget before a vertical scrollbar
+	 *                      is shown (or -1 if vertical scrollbar should never show)
 	 */
+
 	public RichTextArea(
 			PageActionManager actionmanager,
 			String content,
 			boolean richtext,
 			boolean editable,
-			float width) {
-		this(actionmanager, richtext, editable, width);
+			float width,
+			float maxheight) {
+		this(actionmanager, richtext, editable, width, maxheight);
 		this.setTextInput(content);
 	}
 
-	
 	/**
-	 * merge the current Paragraph with the previous one.<ul>
-	 * <li>if previous paragraph is not a normal paragraph, will simplify the paragraph for black</li>
-	 * <li>if previous paragraph is a normal paragraph, just merge the sections</li></ul>
+	 * merge the current Paragraph with the previous one.
+	 * <ul>
+	 * <li>if previous paragraph is not a normal paragraph, will simplify the
+	 * paragraph for black</li>
+	 * <li>if previous paragraph is a normal paragraph, just merge the sections</li>
+	 * </ul>
+	 * 
 	 * @since 1.5
 	 */
 	void mergeCurrentParagraphWithPrevious() {
 		int activeparagraphindex = getActiveParagraphIndex();
-		if (activeparagraphindex>0) {
+		if (activeparagraphindex > 0) {
 			// only do something if not first pargraph
-			Paragraph previousparagraph = document.get(activeparagraphindex-1);
+			Paragraph previousparagraph = document.get(activeparagraphindex - 1);
 			int previousparagraphsize = previousparagraph.getCharNb();
-			
+
 			Paragraph paragraphtomerge = document.get(activeparagraphindex);
-			
+
 			previousparagraph.mergeWith(paragraphtomerge);
 
 			document.remove(activeparagraphindex);
 			paragraphbox.getChildren().remove(activeparagraphindex);
 			activeparagraph = previousparagraph;
-			
+
 			previousparagraph.moveCaretTo(previousparagraphsize);
-			logger.finest("    merge with previous, size = ("+previousparagraphsize+"/"+previousparagraph.getCharNb()+")");
-		} 
+			logger.finest("    merge with previous, size = (" + previousparagraphsize + "/"
+					+ previousparagraph.getCharNb() + ")");
+		}
 	}
-	
+
 	/**
-	 * insert a multi-line split string at the current carret. Only works with SplitString with several sections. Also manages the fact text may contain bullets.
-	 * @param templatetext a FormattedText that has the target format for the inserted text
+	 * insert a multi-line split string at the current carret. Only works with
+	 * SplitString with several sections. Also manages the fact text may contain
+	 * bullets.
 	 * 
-	 * @param splistring a splitstring with 
+	 * @param templatetext a FormattedText that has the target format for the
+	 *                     inserted text
+	 * 
+	 * @param splistring   a splitstring with
 	 * @since 1.5
 	 */
 	void insertSplitStringAtCarret(SplitString splitstring, FormattedText templatetext) {
-		logger.finest("starting multiple split string insert, number of sections to insert = "+splitstring.getNumberOfSections()+", number of paragraphes before = "+this.document.size());
-		if (splitstring.getNumberOfSections()<2) throw new RuntimeException("Can only be used with splitstring with several sections");
+		logger.finest("starting multiple split string insert, number of sections to insert = "
+				+ splitstring.getNumberOfSections() + ", number of paragraphes before = " + this.document.size());
+		if (splitstring.getNumberOfSections() < 2)
+			throw new RuntimeException("Can only be used with splitstring with several sections");
 		// split section at current carret
 		Paragraph newprevious = activeparagraph.generateParagraphBeforeCarret();
 		Paragraph newnext = activeparagraph.generateParagraphAfterCarret();
 		boolean firsthasbullet = splitstring.getBulletAt(0);
 		// add text before first carriage return to before section
-		if (!firsthasbullet) newprevious.addTextAtEnd(splitstring.getSplitStringAt(0));
-		logger.finest("added text in new previous "+splitstring.getSplitStringAt(0));
-		// if intermediate,add each intermediate at standaalone with previous section formatting
+		if (!firsthasbullet)
+			newprevious.addTextAtEnd(splitstring.getSplitStringAt(0));
+		logger.finest("added text in new previous " + splitstring.getSplitStringAt(0));
+		// if intermediate,add each intermediate at standaalone with previous section
+		// formatting
 		ArrayList<Paragraph> middleparagraphestoadd = new ArrayList<Paragraph>();
-		int startindex = (firsthasbullet?0:1);
-		for (int i=startindex;i<splitstring.getNumberOfSections()-1;i++) {
-			
-			Paragraph paragraph = new Paragraph(this.richtext,this.editable, this);
+		int startindex = (firsthasbullet ? 0 : 1);
+		for (int i = startindex; i < splitstring.getNumberOfSections() - 1; i++) {
+
+			Paragraph paragraph = new Paragraph(this.richtext, this.editable, this);
 			boolean bullet = splitstring.getBulletAt(i);
 			String textstring = splitstring.getSplitStringAt(i);
 			if (bullet) {
 				paragraph.setBulletParagraph();
-				textstring=textstring.replace('\u25CF',' ').replace('\u2022',' ').trim();
+				textstring = textstring.replace('\u25CF', ' ').replace('\u2022', ' ').trim();
 			}
-			FormattedText formattedtext = new FormattedText(templatetext,paragraph);
-			
+			FormattedText formattedtext = new FormattedText(templatetext, paragraph);
+
 			formattedtext.refreshText(textstring);
 			paragraph.addText(formattedtext);
 			middleparagraphestoadd.add(paragraph);
 		}
 		// add last text to the section after caret
-		newnext.addTextAtStart(splitstring.getSplitStringAt(splitstring.getNumberOfSections()-1));
-		logger.finest("added text in new next "+splitstring.getSplitStringAt(splitstring.getNumberOfSections()-1));
+		newnext.addTextAtStart(splitstring.getSplitStringAt(splitstring.getNumberOfSections() - 1));
+		logger.finest("added text in new next " + splitstring.getSplitStringAt(splitstring.getNumberOfSections() - 1));
 		// remove old paragraph
 		int activeparagraphindex = getActiveParagraphIndex();
 		document.remove(activeparagraphindex);
@@ -379,53 +404,52 @@ public class RichTextArea {
 		// insert all new paragraphes
 		document.add(activeparagraphindex, newprevious);
 		paragraphbox.getChildren().add(activeparagraphindex, newprevious.getNode());
-		logger.finest("Adding previous, size="+document.size());
-		for (int i=0;i<middleparagraphestoadd.size();i++) {
-			document.add(activeparagraphindex+i+1, middleparagraphestoadd.get(i));
-			paragraphbox.getChildren().add(activeparagraphindex+i+1, middleparagraphestoadd.get(i).getNode());
-			logger.finest("Adding middleparagraph, size = "+document.size());
+		logger.finest("Adding previous, size=" + document.size());
+		for (int i = 0; i < middleparagraphestoadd.size(); i++) {
+			document.add(activeparagraphindex + i + 1, middleparagraphestoadd.get(i));
+			paragraphbox.getChildren().add(activeparagraphindex + i + 1, middleparagraphestoadd.get(i).getNode());
+			logger.finest("Adding middleparagraph, size = " + document.size());
 		}
-		document.add(activeparagraphindex+middleparagraphestoadd.size()+1, newnext);
-		paragraphbox.getChildren().add(activeparagraphindex+middleparagraphestoadd.size()+1, newnext.getNode());
-		logger.finest("Adding next, size="+document.size());
-		
+		document.add(activeparagraphindex + middleparagraphestoadd.size() + 1, newnext);
+		paragraphbox.getChildren().add(activeparagraphindex + middleparagraphestoadd.size() + 1, newnext.getNode());
+		logger.finest("Adding next, size=" + document.size());
+
 		// set the newnext at active and display caret
 		activeparagraph = newnext;
 		this.redrawActiveParagraph();
-		newnext.displayCaretAt(splitstring.getSplitStringAt(splitstring.getNumberOfSections()-1).length());
-		
+		newnext.displayCaretAt(splitstring.getSplitStringAt(splitstring.getNumberOfSections() - 1).length());
+
 		this.paragraphbox.layout();
-		logger.finest("ending multiple string insert, number of paragraphes after = "+this.document.size());
-		
+		logger.finest("ending multiple string insert, number of paragraphes after = " + this.document.size());
+
 	}
-	
+
 	/**
 	 * this method will introduce a paragraph split at the current character.
+	 * 
 	 * @since 1.5
 	 */
 	void splitparagraphatcurrentchar() {
 		Paragraph newprevious = activeparagraph.generateParagraphBeforeCarret();
 		Paragraph newnext = activeparagraph.generateParagraphAfterCarret();
-		logger.finest("        >>> split current paragraph length/caret ("+activeparagraph.getCharNb()+"/"+activeparagraph.getSelectionInTextFlow()+")");
-		logger.finest("        >>> split firstparagraph = "+newprevious.getCharNb()+", secondparagraph = "+newnext.getCharNb());
+		logger.finest("        >>> split current paragraph length/caret (" + activeparagraph.getCharNb() + "/"
+				+ activeparagraph.getSelectionInTextFlow() + ")");
+		logger.finest("        >>> split firstparagraph = " + newprevious.getCharNb() + ", secondparagraph = "
+				+ newnext.getCharNb());
 		int activeparagraphindex = getActiveParagraphIndex();
 		document.remove(activeparagraphindex);
 		paragraphbox.getChildren().remove(activeparagraphindex);
-		
+
 		document.add(activeparagraphindex, newprevious);
 		paragraphbox.getChildren().add(activeparagraphindex, newprevious.getNode());
-		
-		document.add(activeparagraphindex+1, newnext);
-		paragraphbox.getChildren().add(activeparagraphindex+1, newnext.getNode());
+
+		document.add(activeparagraphindex + 1, newnext);
+		paragraphbox.getChildren().add(activeparagraphindex + 1, newnext.getNode());
 		activeparagraph = newnext;
 		newnext.setCarretAtFirst();
-				
-		
+
 	}
 
-	
-	
-	
 	/**
 	 * this method will analyse current paragraph, and find, in the active text the
 	 * previous "break" (either carriage return or change of formatting) and the
@@ -492,17 +516,25 @@ public class RichTextArea {
 	 * a control that allows to display and edit a text, potentially with specific
 	 * rich-text file. It always displays the full size of the text
 	 * 
-	 * @param richtext true if rich text
-	 * @param editable true if editable
-	 * @param width    area width in points
+	 * @param richtext  true if rich text
+	 * @param editable  true if editable
+	 * @param width     area width in points
+	 * @param maxheight maximum height of the widget before a vertical scrollbar is
+	 *                  shown (or -1 if vertical scrollbar should never show)
 	 */
-	public RichTextArea(PageActionManager pageactionmanager, boolean richtext, boolean editable, float width) {
+	public RichTextArea(
+			PageActionManager pageactionmanager,
+			boolean richtext,
+			boolean editable,
+			float width,
+			float maxheight) {
 		this.paragraphwidth = width - LEFT_MARGIN - RIGHT_MARGIN;
 		this.pageactionmanager = pageactionmanager;
 		this.richtext = richtext;
 		this.editable = editable;
 		document = new ArrayList<Paragraph>();
 		this.textcontent = null;
+		this.maxheight = maxheight;
 		area = new BorderPane();
 		if (!editable) {
 
@@ -705,9 +737,10 @@ public class RichTextArea {
 						logger.warning("Error while executing clear " + e.getMessage());
 						for (int i = 0; i < e.getStackTrace().length; i++)
 							logger.warning("  " + e.getStackTrace()[i]);
-						
-						if (pageactionmanager!=null)pageactionmanager.getClientSession().getActiveClientDisplay()
-								.updateStatusBar("Error while executing clear " + e.getMessage(), true);
+
+						if (pageactionmanager != null)
+							pageactionmanager.getClientSession().getActiveClientDisplay()
+									.updateStatusBar("Error while executing clear " + e.getMessage(), true);
 					}
 				}
 
@@ -724,24 +757,24 @@ public class RichTextArea {
 						final ClipboardContent content = new ClipboardContent();
 						content.putString(source);
 						Clipboard.getSystemClipboard().setContent(content);
-						if (pageactionmanager!=null) pageactionmanager.getClientSession().getActiveClientDisplay()
-								.updateStatusBar("text source copied to clipboard, size = " + source.length() + "ch");
+						if (pageactionmanager != null)
+							pageactionmanager.getClientSession().getActiveClientDisplay().updateStatusBar(
+									"text source copied to clipboard, size = " + source.length() + "ch");
 					} catch (Exception e) {
 						logger.warning("Error while executing export source " + e.getMessage());
 						for (int i = 0; i < e.getStackTrace().length; i++)
 							logger.warning("  " + e.getStackTrace()[i]);
 						;
-						if (pageactionmanager!=null) pageactionmanager.getClientSession().getActiveClientDisplay()
-								.updateStatusBar("Error while executing export source " + e.getMessage(), true);
+						if (pageactionmanager != null)
+							pageactionmanager.getClientSession().getActiveClientDisplay()
+									.updateStatusBar("Error while executing export source " + e.getMessage(), true);
 					}
 
 				}
 
 			});
 			contextmenu.getItems().add(exportsource);
-			
-			
-			
+
 			MenuItem exportsourceescape = new MenuItem("Export Source (Dev)");
 			exportsourceescape.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -778,13 +811,16 @@ public class RichTextArea {
 				public void handle(ActionEvent arg0) {
 					try {
 						StringBuffer exportcontent = new StringBuffer();
-						for (int i=0;i<RichTextArea.this.document.size();i++) {
+						for (int i = 0; i < RichTextArea.this.document.size(); i++) {
 							Paragraph currentparagraph = RichTextArea.this.document.get(i);
-							exportcontent.append(">>> >>> PARAGRAPH "+i+", title = "+currentparagraph.isTitle()+", bullet = "+currentparagraph.isBulletPoint()+"\n");
-							for (int j=0;j<currentparagraph.getTextNumber();j++) {
+							exportcontent.append(">>> >>> PARAGRAPH " + i + ", title = " + currentparagraph.isTitle()
+									+ ", bullet = " + currentparagraph.isBulletPoint() + "\n");
+							for (int j = 0; j < currentparagraph.getTextNumber(); j++) {
 								FormattedText thistext = currentparagraph.getFormattedText(j);
-								exportcontent.append("   --- Formatted Text bold = "+thistext.isBold()+", italic = "+thistext.isItalic()+", color = "+thistext.getSpecialcolor()+"\n");
-								exportcontent.append("        |"+RichTextArea.escapeforjavasource(thistext.getTextPayload())+"\n");
+								exportcontent.append("   --- Formatted Text bold = " + thistext.isBold() + ", italic = "
+										+ thistext.isItalic() + ", color = " + thistext.getSpecialcolor() + "\n");
+								exportcontent.append("        |"
+										+ RichTextArea.escapeforjavasource(thistext.getTextPayload()) + "\n");
 							}
 						}
 						final ClipboardContent content = new ClipboardContent();
@@ -800,10 +836,10 @@ public class RichTextArea {
 									.updateStatusBar("Error while executing export source " + e.getMessage(), true);
 					}
 				}
-				
+
 			});
 			contextmenu.getItems().add(exportparagraphescape);
-			
+
 			area.setTop(toolbar);
 
 		}
@@ -824,8 +860,30 @@ public class RichTextArea {
 
 		paragraphbox.setMaxWidth(paragraphwidth + this.RIGHT_MARGIN + this.LEFT_MARGIN);
 		paragraphbox.setPrefWidth(paragraphwidth + this.RIGHT_MARGIN + this.LEFT_MARGIN);
-
-		area.setCenter(paragraphbox);
+		
+		if (this.maxheight>0) {
+			scrollpane = new ScrollPane(paragraphbox);
+			scrollpane.setHbarPolicy(ScrollBarPolicy.NEVER);
+			scrollpane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+			scrollpane.setMaxHeight(maxheight);
+			scrollpane.setBorder(Border.EMPTY);
+			scrollpane.setStyle("-fx-background: rgb(255,255,255);");
+			area.setCenter(scrollpane);
+			area.setOnScroll(new EventHandler<ScrollEvent>() {
+				@Override
+				public void handle(ScrollEvent event) {
+					double deltaY = event.getDeltaY() * 8;
+					double width = scrollpane.getContent().getBoundsInLocal().getWidth();
+					double vvalue = scrollpane.getVvalue();
+					scrollpane.setVvalue(vvalue + -deltaY / width); 
+				}
+			});
+			
+		} else {
+			area.setCenter(paragraphbox);
+		}
+		
+		
 		area.setMinWidth(paragraphwidth + this.RIGHT_MARGIN + this.LEFT_MARGIN);
 		area.setMaxWidth(paragraphwidth + this.RIGHT_MARGIN + this.LEFT_MARGIN);
 		area.setPrefWidth(paragraphwidth + this.RIGHT_MARGIN + this.LEFT_MARGIN);
@@ -1028,6 +1086,42 @@ public class RichTextArea {
 		return returnstring.toString();
 	}
 
+	public void ensureNodeVisible(Node node) {
+		ensureNodeVisible(this.scrollpane,node);
+		if (getPageActionManager() != null)
+			getPageActionManager().getClientDisplay().ensureNodeVisible(this.scrollpane);
+	}
+	
+	public static void ensureNodeVisible(ScrollPane contentholder,Node node) {
+		if (contentholder != null) {
+			Bounds viewport = contentholder.getViewportBounds();
+			double contentHeight = contentholder.getContent()
+					.localToScene(contentholder.getContent().getBoundsInLocal()).getHeight();
+			double nodeMinY = node.localToScene(node.getBoundsInLocal()).getMinY();
+			double nodeMaxY = node.localToScene(node.getBoundsInLocal()).getMaxY();
+			double scrollpaneMinY = contentholder.localToScene(contentholder.getBoundsInLocal()).getMinY();
+			double scrollpaneMaxY = contentholder.localToScene(contentholder.getBoundsInLocal()).getMaxY();
+			double vValueDelta = 0;
+			double vValueCurrent = contentholder.getVvalue();
+			logger.finest("nodeMinY=" + nodeMinY + ", nodeMaxY=" + nodeMaxY + ", vValueCurrent=" + vValueCurrent
+					+ ", contentHeight=" + contentHeight);
+			logger.finest("scrollpaneMinY=" + scrollpaneMinY + ", scrollpaneMaxY=" + scrollpaneMaxY);
 
+			logger.finest("viewport.height=" + viewport.getHeight() + ", viewport.minY=" + viewport.getMinY()
+					+ ", viewport.maxY=" + viewport.getMaxY());
+			if (nodeMinY < scrollpaneMinY) {
+				logger.finest(" --- **** out UP");
+				// currently located above (remember, top left is (0,0))
+				vValueDelta = (nodeMinY - scrollpaneMinY) / (contentHeight - viewport.getHeight());
+
+			} else if (nodeMaxY > scrollpaneMaxY) {
+				logger.finest(" --- **** out DOWN");
+				vValueDelta = (nodeMaxY - scrollpaneMaxY) / (contentHeight - viewport.getHeight());
+
+			}
+			contentholder.setVvalue(vValueCurrent + vValueDelta);
+		}
+		
+	}
 
 }

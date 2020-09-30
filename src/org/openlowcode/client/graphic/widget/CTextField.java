@@ -368,10 +368,10 @@ public class CTextField
 						multiselectioncombobox.setMinimumWidgetWidth(400);
 				} else {
 					if (!this.richtextedit) {
-						richtextarea = new RichTextArea(actionmanager, false, true, 400);
+						richtextarea = new RichTextArea(actionmanager, false, true, 400,550);
 
 					} else {
-						richtextarea = new RichTextArea(actionmanager, true, true, 400);
+						richtextarea = new RichTextArea(actionmanager, true, true, 400,550);
 
 					}
 				}
@@ -429,12 +429,12 @@ public class CTextField
 		if (readonly) {
 			LOGGER.fine("setting up text for label " + label);
 			if (!this.richtextedit) {
-				richtextarea = new RichTextArea(actionmanager, false, false, 400);
+				richtextarea = new RichTextArea(actionmanager, false, false, 400,-1);
 				richtextarea.setTextInput(inputvalue);
 
 				thispane.getChildren().add(richtextarea.getNode());
 			} else {
-				richtextarea = new RichTextArea(actionmanager, true, false, 400);
+				richtextarea = new RichTextArea(actionmanager, true, false, 400,-1);
 				richtextarea.setTextInput(inputvalue);
 
 				thispane.getChildren().add(richtextarea.getNode());

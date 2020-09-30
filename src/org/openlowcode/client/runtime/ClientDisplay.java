@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 import org.openlowcode.client.action.CPageAction;
 import org.openlowcode.client.graphic.CPage;
 import org.openlowcode.client.runtime.PageActionManager.ActionSourceTransformer;
+import org.openlowcode.tools.richtext.RichTextArea;
+
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.event.EventHandler;
@@ -29,7 +31,6 @@ import javafx.scene.layout.HBox;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -96,34 +97,7 @@ public class ClientDisplay {
 	 * @param node a node displayed
 	 */
 	public void ensureNodeVisible(Node node) {
-		if (contentholder != null) {
-			Bounds viewport = contentholder.getViewportBounds();
-			double contentHeight = contentholder.getContent()
-					.localToScene(contentholder.getContent().getBoundsInLocal()).getHeight();
-			double nodeMinY = node.localToScene(node.getBoundsInLocal()).getMinY();
-			double nodeMaxY = node.localToScene(node.getBoundsInLocal()).getMaxY();
-			double scrollpaneMinY = contentholder.localToScene(contentholder.getBoundsInLocal()).getMinY();
-			double scrollpaneMaxY = contentholder.localToScene(contentholder.getBoundsInLocal()).getMaxY();
-			double vValueDelta = 0;
-			double vValueCurrent = contentholder.getVvalue();
-			logger.finest("nodeMinY=" + nodeMinY + ", nodeMaxY=" + nodeMaxY + ", vValueCurrent=" + vValueCurrent
-					+ ", contentHeight=" + contentHeight);
-			logger.finest("scrollpaneMinY=" + scrollpaneMinY + ", scrollpaneMaxY=" + scrollpaneMaxY);
-
-			logger.finest("viewport.height=" + viewport.getHeight() + ", viewport.minY=" + viewport.getMinY()
-					+ ", viewport.maxY=" + viewport.getMaxY());
-			if (nodeMinY < scrollpaneMinY) {
-				logger.finest(" --- **** out UP");
-				// currently located above (remember, top left is (0,0))
-				vValueDelta = (nodeMinY - scrollpaneMinY) / (contentHeight - viewport.getHeight());
-
-			} else if (nodeMaxY > scrollpaneMaxY) {
-				logger.finest(" --- **** out DOWN");
-				vValueDelta = (nodeMaxY - scrollpaneMaxY) / (contentHeight - viewport.getHeight());
-
-			}
-			contentholder.setVvalue(vValueCurrent + vValueDelta);
-		}
+		RichTextArea.ensureNodeVisible(contentholder, node);
 	}
 
 	/**
