@@ -18,13 +18,11 @@ import java.util.logging.Logger;
 
 import org.openlowcode.tools.misc.SplitString;
 
-import javafx.concurrent.Task;
 import com.sun.javafx.scene.text.GlyphList;
 import com.sun.javafx.scene.text.HitInfo;
 import com.sun.javafx.scene.text.TextLayout;
 import com.sun.javafx.text.PrismTextLayout;
 import com.sun.javafx.text.TextLine;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -107,6 +105,7 @@ public class Paragraph {
 
 	private boolean bulletpoint;
 	private boolean title;
+	private Path thistextflowcaretpath;
 
 	/**
 	 * @return the number of FormattedText sections in this paragraph
@@ -188,11 +187,8 @@ public class Paragraph {
 	 */
 	void setCarretAtFirst() {
 		textflow.requestFocus();
-		selectionintextflow = 0;
+		this.moveCaretTo(0);
 
-		this.displayCaretAt(selectionintextflow);
-		logger.finest("requested set Carret at First for paragraph with bulletpoint=" + bulletpoint + " and title = "
-				+ title);
 	}
 
 	/**
@@ -286,7 +282,14 @@ public class Paragraph {
 		this.title = false;
 		this.textflow = new TextFlow();
 		textflow.setLineSpacing(1);
+		textflow.heightProperty().addListener(new ChangeListener<Number>() {
 
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				parent.ensureNodeVisible(textflow);
+			}
+
+		});
 		textlist = new ArrayList<FormattedText>();
 		this.parent = parent;
 		if (editable)
@@ -428,148 +431,139 @@ public class Paragraph {
 	public void displayCaretAt(int selectionintextflow) {
 		this.parent.makeGlow();
 		logger.finest(" --------------- Starting Display Caret at " + selectionintextflow + " -------------------");
+
 		Paragraph thisparagraph = this;
+		/*
+		 * Task<Void> sleeper = new Task<Void>() {
+		 * 
+		 * @Override protected Void call() throws Exception { try { Thread.sleep(5); }
+		 * catch (InterruptedException e) { } return null; } };
+		 * sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+		 * 
+		 * @Override public void handle(WorkerStateEvent event) {
+		 * 
+		 * Platform.runLater(new Runnable() {
+		 * 
+		 * @Override public void run() {
+		 */
+		TextLayout textlayout = (TextLayout) invoke(getTextLayout, textflow);
 
-		Task<Void> sleeper = new Task<Void>() {
-			@Override
-			protected Void call() throws Exception {
-				try {
-					Thread.sleep(5);
-				} catch (InterruptedException e) {
+		GlyphList[] glyphlist = textlayout.getRuns();
+		logger.finest("glyphlist found " + glyphlist.length + " for textflow " + textflow + " for paragraph "
+				+ Paragraph.this);
+		int partialselection = selectionintextflow;
+		boolean nullglyphcount = false;
+		for (int i = 0; i < glyphlist.length; i++) {
+			GlyphList thisglyphlist = glyphlist[i];
+			int glyphcount = thisglyphlist.getGlyphCount();
+			if (glyphcount == 0) {
+				glyphcount = 1; // this is for return carriage
+				nullglyphcount = true;
+			} else {
+				nullglyphcount = false;
+			}
+
+			logger.finest("glyphlist " + thisglyphlist.getGlyphCount());
+			if (thisglyphlist.getGlyphCount() >= partialselection) {
+
+				if (!nullglyphcount)
+					logger.finest("found hit (" + thisglyphlist.getPosX(partialselection) + ","
+							+ thisglyphlist.getPosY(partialselection) + ","
+							+ thisglyphlist.getCharOffset(partialselection) + ")");
+				if (nullglyphcount)
+					logger.finest("found hit on null glyphlist (0,0)");
+				logger.finest("setting margin for paragraph layout");
+
+				PathElement[] caret;
+				caret = textlayout.getCaretShape(selectionintextflow, true, 0.0f, 0.0f);
+
+				if (!nullglyphcount) {
+
+					logger.finest(" --- *** displaying CaretShape with index = " + selectionintextflow + " *** ---");
+
+				} else {
+					logger.finest(" *** --- for null glyphcount - Getting PosX for " + thisglyphlist.toString());
+
 				}
-				return null;
-			}
-		};
-		sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-			@Override
-			public void handle(WorkerStateEvent event) {
 
-				Platform.runLater(new Runnable() {
-
-					@Override
-					public void run() {
-
-						TextLayout textlayout = (TextLayout) invoke(getTextLayout, textflow);
-
-						GlyphList[] glyphlist = textlayout.getRuns();
-						logger.finest("glyphlist found " + glyphlist.length);
-						int partialselection = selectionintextflow;
-						boolean nullglyphcount = false;
-						for (int i = 0; i < glyphlist.length; i++) {
-							GlyphList thisglyphlist = glyphlist[i];
-							int glyphcount = thisglyphlist.getGlyphCount();
-							if (glyphcount == 0) {
-								glyphcount = 1; // this is for return carriage
-								nullglyphcount = true;
-							} else {
-								nullglyphcount = false;
-							}
-
-							logger.finest("glyphlist " + thisglyphlist.getGlyphCount());
-							if (thisglyphlist.getGlyphCount() >= partialselection) {
-
-								if (!nullglyphcount)
-									logger.finest("found hit (" + thisglyphlist.getPosX(partialselection) + ","
-											+ thisglyphlist.getPosY(partialselection) + ","
-											+ thisglyphlist.getCharOffset(partialselection) + ")");
-								if (nullglyphcount)
-									logger.finest("found hit on null glyphlist (0,0)");
-								logger.finest("setting margin for paragraph layout");
-
-								PathElement[] caret;
-								caret = textlayout.getCaretShape(selectionintextflow, true, 0.0f, 0.0f);
-
-								if (!nullglyphcount) {
-
-									logger.finest(" --- *** displaying CaretShape with index = " + selectionintextflow
-											+ " *** ---");
-
-								} else {
-									logger.finest(" *** --- for null glyphcount - Getting PosX for "
-											+ thisglyphlist.toString());
-
-								}
-
-								logger.finest(" hit additional info " + thisglyphlist.getLocation().x + " -"
-										+ thisglyphlist.getLocation().y);
-								logger.finest("found caret = " + caret.length);
-
-								Path caretpath = new Path(caret);
-
-								double left = textflow.insetsProperty().getValue().getLeft();
-								logger.finest("binding X to left = " + left + ", Insets binding left = "
-										+ textflow.insetsProperty().getValue().getLeft());
-								caretpath.layoutXProperty().bind(new DoubleBinding() {
-									{
-										super.bind(textflow.insetsProperty());
-									}
-
-									@Override
-									protected double computeValue() {
-										logger.finest("computing left in insets binding = "
-												+ textflow.insetsProperty().getValue().getLeft());
-										return textflow.insetsProperty().getValue().getLeft();
-									}
-
-								});
-
-								caretpath.layoutYProperty().bind(new DoubleBinding() {
-									{
-										super.bind(textflow.insetsProperty());
-									}
-
-									@Override
-									protected double computeValue() {
-										return textflow.insetsProperty().getValue().getTop();
-									}
-
-								});
-
-								caretpath.getStyleClass().add("caret");
-								caretpath.setStrokeWidth(1);
-								caretpath.setStroke(Color.BLACK);
-								caretpath.setManaged(false);
-								if (parent.caretpath != null) {
-									parent.caretpath.setVisible(false);
-
-								}
-								parent.caretpath = caretpath;
-								parent.activeparagraph = thisparagraph;
-								textflow.getChildren().add(caretpath);
-								textflow.requestLayout();
-								textflow.requestFocus();
-								// if (parent.getPageActionManager() != null)
-								// parent.getPageActionManager().getClientDisplay().ensureNodeVisible(caretpath);
-								
-								Platform.runLater(new Runnable() {
-
-									@Override
-									public void run() {
-										parent.ensureNodeVisible(caretpath);
-										
-									}
-									
-								});
-								
-
-								break;
-							}
-							partialselection -= glyphcount;
-
+				logger.finest(
+						" hit additional info " + thisglyphlist.getLocation().x + " -" + thisglyphlist.getLocation().y);
+				logger.finest("found caret = " + caret.length);
+				if (Paragraph.this.thistextflowcaretpath == null) {
+					Paragraph.this.thistextflowcaretpath = new Path(caret);
+					logger.severe("    >>> creating textflow caret " + thistextflowcaretpath);
+					double left = textflow.insetsProperty().getValue().getLeft();
+					logger.finest("binding X to left = " + left + ", Insets binding left = "
+							+ textflow.insetsProperty().getValue().getLeft());
+					thistextflowcaretpath.layoutXProperty().bind(new DoubleBinding() {
+						{
+							super.bind(textflow.insetsProperty());
 						}
-						// detect text layout
 
-						FormattedText selectedtext = getTextAtCaret().selectedtext;
-						parent.setSelection(selectedtext.isBold(), selectedtext.isItalic(),
-								selectedtext.getSpecialcolor(), title, bulletpoint);
+						@Override
+						protected double computeValue() {
+							logger.finest("computing left in insets binding = "
+									+ textflow.insetsProperty().getValue().getLeft());
+							return textflow.insetsProperty().getValue().getLeft();
+						}
 
-					}
+					});
 
-				});
+					thistextflowcaretpath.layoutYProperty().bind(new DoubleBinding() {
+						{
+							super.bind(textflow.insetsProperty());
+						}
+
+						@Override
+						protected double computeValue() {
+							return textflow.insetsProperty().getValue().getTop();
+						}
+
+					});
+
+					thistextflowcaretpath.getStyleClass().add("caret");
+					thistextflowcaretpath.setStrokeWidth(1);
+					thistextflowcaretpath.setStroke(Color.BLACK);
+					thistextflowcaretpath.setManaged(false);
+					textflow.getChildren().add(thistextflowcaretpath);
+				} else {
+					thistextflowcaretpath.getElements().setAll(caret);
+					if (!thistextflowcaretpath.isVisible())
+						thistextflowcaretpath.setVisible(true);
+				}
+				logger.severe("   >>> parent caretpath " + parent.caretpath + " thistexflowcaretpath = "
+						+ thistextflowcaretpath);
+
+				if (parent.caretpath != thistextflowcaretpath) {
+					logger.severe(
+							"--->    replacing parent caret path " + parent.caretpath + " by " + thistextflowcaretpath);
+					if (parent.caretpath != null)
+						parent.caretpath.setVisible(false);
+					parent.caretpath = thistextflowcaretpath;
+
+				}
+				parent.activeparagraph = thisparagraph;
+
+				textflow.requestLayout();
+				textflow.requestFocus();
+				// if (parent.getPageActionManager() != null)
+				// parent.getPageActionManager().getClientDisplay().ensureNodeVisible(caretpath);
+
+				break;
 			}
-		});
-		new Thread(sleeper).start();
+			partialselection -= glyphcount;
 
+		}
+		// detect text layout
+
+		FormattedText selectedtext = getTextAtCaret().selectedtext;
+		parent.setSelection(selectedtext.isBold(), selectedtext.isItalic(), selectedtext.getSpecialcolor(), title,
+				bulletpoint);
+		/*
+		 * }
+		 * 
+		 * }); } }); new Thread(sleeper).start();
+		 */
 	}
 
 	private class QualifiedCaretPosition {
@@ -724,8 +718,9 @@ public class Paragraph {
 		for (int i = 0; i < glyphlist.length; i++) {
 			GlyphList thisglyphlist = glyphlist[i];
 			int glyphcount = thisglyphlist.getGlyphCount();
-			if (glyphcount == 0)
-				glyphcount = 1;
+			if (i < glyphlist.length - 1)
+				if (glyphcount == 0)
+					glyphcount = 1;
 			if (lasty != thisglyphlist.getLocation().y) {
 				lasty = thisglyphlist.getLocation().y;
 				currentline++;
@@ -1034,8 +1029,9 @@ public class Paragraph {
 								// normal paragraph and real carriage return: create new paragraph
 								if (richtext)
 									if (parent.okToAdd(4)) {
+										logger.finest(" ----> Adding new paragraph");
 										parent.splitparagraphatcurrentchar();
-										parent.redrawActiveParagraph();
+
 										istreated = true;
 									}
 
@@ -1044,7 +1040,7 @@ public class Paragraph {
 						if (!istreated) {
 							String character = keyevent.getCharacter();
 							if ((iscarriagereturn) && (keyevent.isShiftDown())) {
-								logger.finest("Adding backslash n");
+								logger.finest(" ----> Adding backslash n");
 								character = "\n";
 							}
 
@@ -1067,7 +1063,10 @@ public class Paragraph {
 										if (caretposition.localcaretindex <= thistext.getTextPayload().length())
 											after = thistext.getTextPayload().substring(caretposition.localcaretindex);
 								thistext.setString(before + character + after);
-								selectionintextflow++;
+								selectionintextflow += character.length();
+								logger.finest("text increase " + selectionintextflow + " >> char '" + character
+										+ "', before ='" + before + "', after = '" + after + "'");
+
 								displayCaretAt(selectionintextflow);
 							}
 						}
@@ -1470,6 +1469,7 @@ public class Paragraph {
 			this.displayCaretAt(selectionintextflow);
 		}
 		if (this.selectionintextflow == -1) {
+			logger.severe(" --->>>--->>> Displaying caret with selection = -1 ");
 			this.selectionintextflow = 0;
 			this.textflow.requestFocus();
 			this.displayCaretAt(selectionintextflow);

@@ -87,7 +87,7 @@ public class RichTextArea {
 	 * @return a rich text area that is neither rich text nor editable
 	 */
 	public static RichTextArea getReadOnlyTextArea(PageActionManager actionmanager, String inputvalue, int width) {
-		RichTextArea richtextarea = new RichTextArea(actionmanager, false, false, 400, -1);
+		RichTextArea richtextarea = new RichTextArea(actionmanager, false, false, 500, -1);
 		richtextarea.setTextInput(inputvalue);
 		return richtextarea;
 	}
@@ -135,6 +135,7 @@ public class RichTextArea {
 	 * @param bullet
 	 */
 	void moveTextToNext(String text, boolean bullet) {
+		logger.finest("Move to next "+text+" bullet = "+bullet);
 		if (bullet) {
 			// create new bullet
 			int activeparagraphindex = getActiveParagraphIndex();
@@ -208,15 +209,17 @@ public class RichTextArea {
 	 * @return the index of the active paragraph
 	 */
 	public int getActiveParagraphIndex() {
-		int activeparagraphindex = -1;
 		for (int i = 0; i < document.size(); i++) {
 			// logger.finest(" - comparing paragraphs "+document.get(i)+"("+i+") with
 			// "+activeparagraph);
-			if (document.get(i) == activeparagraph)
-				activeparagraphindex = i;
-			logger.finest("    got active paragraph index = " + activeparagraphindex);
+			if (document.get(i) == activeparagraph) {
+				logger.finest("    got active paragraph index = " + i);
+				return i;
+			    
+			}
 		}
-		return activeparagraphindex;
+		logger.warning("Calling active paragraph index while active paragraph not set");
+		return -1;
 	}
 
 	/**
@@ -416,10 +419,8 @@ public class RichTextArea {
 
 		// set the newnext at active and display caret
 		activeparagraph = newnext;
-		this.redrawActiveParagraph();
-		newnext.displayCaretAt(splitstring.getSplitStringAt(splitstring.getNumberOfSections() - 1).length());
-
-		this.paragraphbox.layout();
+		this.paragraphbox.requestLayout();
+		newnext.moveCaretTo(splitstring.getSplitStringAt(splitstring.getNumberOfSections() - 1).length()-1);
 		logger.finest("ending multiple string insert, number of paragraphes after = " + this.document.size());
 
 	}
@@ -437,6 +438,14 @@ public class RichTextArea {
 		logger.finest("        >>> split firstparagraph = " + newprevious.getCharNb() + ", secondparagraph = "
 				+ newnext.getCharNb());
 		int activeparagraphindex = getActiveParagraphIndex();
+		if (activeparagraphindex==-1) {
+			logger.severe(" ------------- Detected no active paragraph, does not manage split ");
+			logger.severe("        >>> split current paragraph length/caret (" + activeparagraph.getCharNb() + "/"
+					+ activeparagraph.getSelectionInTextFlow() + ")");
+			logger.severe("        >>> split firstparagraph = " + newprevious.getCharNb() + ", secondparagraph = "
+					+ newnext.getCharNb());
+			return;
+		}
 		document.remove(activeparagraphindex);
 		paragraphbox.getChildren().remove(activeparagraphindex);
 
@@ -446,6 +455,9 @@ public class RichTextArea {
 		document.add(activeparagraphindex + 1, newnext);
 		paragraphbox.getChildren().add(activeparagraphindex + 1, newnext.getNode());
 		activeparagraph = newnext;
+		logger.finest("Redrawing active paragraph and set caret at first");
+		paragraphbox.requestLayout();
+		//redrawActiveParagraph();
 		newnext.setCarretAtFirst();
 
 	}
@@ -1089,11 +1101,13 @@ public class RichTextArea {
 	public void ensureNodeVisible(Node node) {
 		ensureNodeVisible(this.scrollpane,node);
 		if (getPageActionManager() != null)
-			getPageActionManager().getClientDisplay().ensureNodeVisible(this.scrollpane);
+			getPageActionManager().getClientDisplay().ensureNodeVisible(this.area);
 	}
 	
 	public static void ensureNodeVisible(ScrollPane contentholder,Node node) {
+		logger.finest(" ----------------- Start ensures node visible for "+(node!=null?node.getClass():null)+" ------------- ");
 		if (contentholder != null) {
+			logger.finest("   >>>> Node situation  >> "+node.getBoundsInLocal().getMinY()+"-"+node.getBoundsInLocal().getMaxY()+" << ");
 			Bounds viewport = contentholder.getViewportBounds();
 			double contentHeight = contentholder.getContent()
 					.localToScene(contentholder.getContent().getBoundsInLocal()).getHeight();
