@@ -211,9 +211,9 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 	}
 
 	/**
-	 * gets the unique identified property for the parent object
+	 * gets the hasid property for the parent object
 	 * 
-	 * @return unique identified property for the parent object
+	 * @return hasid property for the parent object
 	 */
 	public UniqueidentifiedDefinition<F> getGenericsParentobjectforlinkProperty() {
 		return this.uniqueidentifiedforparentobjectforlink;

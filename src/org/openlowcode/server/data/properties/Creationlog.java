@@ -103,9 +103,9 @@ public class Creationlog<E extends DataObject<E>> extends DataObjectProperty<E> 
 			} else {
 				// admin = null, this only happens when creating admin
 				@SuppressWarnings("unchecked")
-				Uniqueidentified<Appuser> uniqueidentified = (Uniqueidentified<Appuser>) this.parentpayload
-						.lookupPropertyOnName("UNIQUEIDENTIFIED");
-				this.SetCreateuserid(uniqueidentified.getId().getId());
+				Hasid<Appuser> hasid = (Hasid<Appuser>) this.parentpayload
+						.lookupPropertyOnName("HASID");
+				this.SetCreateuserid(hasid.getId().getId());
 			}
 		}
 	}

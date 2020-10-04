@@ -37,7 +37,7 @@ import org.openlowcode.tools.trace.ExceptionLogger;
  * @param <E> object that is linked through the autolink
  * @param <F> autolink object
  */
-public class HasautolinkDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & AutolinkobjectInterface<F, E>>
+public class HasautolinkDefinition<E extends DataObject<E> & HasidInterface<E>, F extends DataObject<F> & AutolinkobjectInterface<F, E>>
 		extends DataObjectPropertyDefinition<E> {
 	private DataObjectDefinition<F> autolinkobjectdefinition;
 	@SuppressWarnings("unused")

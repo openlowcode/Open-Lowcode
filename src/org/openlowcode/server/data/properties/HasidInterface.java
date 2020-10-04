@@ -11,19 +11,17 @@
 package org.openlowcode.server.data.properties;
 
 import org.openlowcode.server.data.DataObject;
-import org.openlowcode.server.data.SimpleFieldChoiceDefinition;
 
 /**
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
  *
- * @param <E>
- * @param <F>
- * @param <G>
+ * @param <E> parent data object
+ * @since 2.0
  */
-public interface SubtypecompanionInterface<
-E extends DataObject<E> & StoredobjectInterface<E>,
-G extends DataObject<G> & SubtypeInterface<G, F>,
-F extends SimpleFieldChoiceDefinition<F>> extends StoredobjectInterface<E> {
-
+public interface HasidInterface<E extends DataObject<E>> {
+	/**
+	 * @return the unique id of the object
+	 */
+	public DataObjectId<E> getId();
 }

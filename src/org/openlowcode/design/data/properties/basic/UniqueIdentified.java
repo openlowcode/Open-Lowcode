@@ -18,13 +18,9 @@ import org.openlowcode.design.action.DynamicActionDefinition;
 import org.openlowcode.design.data.ArgumentContent;
 import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
-import org.openlowcode.design.data.Index;
 import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.MethodArgument;
-import org.openlowcode.design.data.ObjectIdStoredElement;
 import org.openlowcode.design.data.Property;
-import org.openlowcode.design.data.StoredElement;
-import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
@@ -53,6 +49,7 @@ public class UniqueIdentified
 	private HashMap<String, ArrayList<DynamicActionDefinition>> actionsonspecificmenu;
 	private ArrayList<String> specificmenus;
 	private StoredObject storedobject;
+	private HasId hasid;
 
 	public ArrayList<String> getSpecificMenuList() {
 		return this.specificmenus;
@@ -113,21 +110,27 @@ public class UniqueIdentified
 
 	@Override
 	public void controlAfterParentDefinition() {
+		// Manage StoredObject
 		this.storedobject = (StoredObject) parent.getPropertyByName("STOREDOBJECT");
-		if (this.storedobject == null)
-			throw new RuntimeException("UniqueIdentified is dependent on storedobject");
+		if (this.storedobject == null) {
+			this.storedobject = new StoredObject();
+			this.addPropertyOnSameObject(storedobject);
+		}
+			
 		this.addDependentProperty(storedobject);
+		// Manage HasId
+		this.hasid = (HasId) parent.getPropertyByName("HASID");
+		if (this.hasid == null) {
+			this.hasid = new HasId();
+			this.addPropertyOnSameObject(hasid);
+		}
+			
+		this.addDependentProperty(hasid);
+		
 		MethodAdditionalProcessing insertidgeneration = new MethodAdditionalProcessing(true,
 				storedobject.getDataAccessMethod("INSERT"));
 		this.addMethodAdditionalProcessing(insertidgeneration);
-		DataAccessMethod read = new DataAccessMethod("READONE", new ObjectArgument("OBJECT", parent), false);
-		read.addInputArgument(new MethodArgument("ID", new ObjectIdArgument("ID", parent)));
-		this.addDataAccessMethod(read);
 
-		DataAccessMethod readseveral = new DataAccessMethod("READSEVERAL",
-				new ArrayArgument(new ObjectArgument("OBJECT", parent)), false);
-		readseveral.addInputArgument(new MethodArgument("ID", new ArrayArgument(new ObjectIdArgument("ID", parent))));
-		this.addDataAccessMethod(readseveral);
 
 		// get Id
 
@@ -148,9 +151,7 @@ public class UniqueIdentified
 
 		// Field
 
-		StoredElement id = new ObjectIdStoredElement("ID", parent);
-		this.addElement(id, "Id", "technical identification", Property.FIELDDISPLAY_NORMAL, -50, 25);
-		this.addIndex(new Index("ID", id, true));
+
 	}
 
 	@Override

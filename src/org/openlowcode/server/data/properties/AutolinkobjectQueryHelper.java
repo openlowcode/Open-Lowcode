@@ -88,7 +88,7 @@ public class AutolinkobjectQueryHelper {
 	 */
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <E extends DataObject<E> & AutolinkobjectInterface<E, F> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>> QueryCondition getLeftidQueryCondition(
+	public <E extends DataObject<E> & AutolinkobjectInterface<E, F> & UniqueidentifiedInterface<E>, F extends DataObject<F> & HasidInterface<F>> QueryCondition getLeftidQueryCondition(
 			TableAlias alias, DataObjectId<F> idvalue, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition) {
 		AutolinkobjectDefinition<E, F> definition = new AutolinkobjectDefinition(parentobjectdefinition,
@@ -112,7 +112,7 @@ public class AutolinkobjectQueryHelper {
 	 *         link
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <E extends DataObject<E> & AutolinkobjectInterface<E, F> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>> QueryCondition getRightidQueryCondition(
+	public <E extends DataObject<E> & AutolinkobjectInterface<E, F> & UniqueidentifiedInterface<E>, F extends DataObject<F> & HasidInterface<F>> QueryCondition getRightidQueryCondition(
 			TableAlias alias, DataObjectId<F> idvalue, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition) {
 		AutolinkobjectDefinition<E, F> definition = new AutolinkobjectDefinition(parentobjectdefinition,
@@ -135,7 +135,7 @@ public class AutolinkobjectQueryHelper {
 	 * @param autolinkobjectDefinition auto link object property
 	 * @return the links corresponding to the conditions
 	 */
-	public <E extends DataObject<E> & AutolinkobjectInterface<E, F> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getalllinksfromleftid(
+	public <E extends DataObject<E> & AutolinkobjectInterface<E, F> & UniqueidentifiedInterface<E>, F extends DataObject<F> & HasidInterface<F>> E[] getalllinksfromleftid(
 			DataObjectId<F> leftid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
 
@@ -195,7 +195,7 @@ public class AutolinkobjectQueryHelper {
 	 * @param autolinkobjectDefinition auto link object property
 	 * @return the links corresponding to the conditions
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getalllinksfromleftid(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> E[] getalllinksfromleftid(
 			DataObjectId<F>[] leftid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
 		ArrayList<E> results = new ArrayList<E>();
@@ -311,7 +311,7 @@ public class AutolinkobjectQueryHelper {
 	 * @param autolinkobjectDefinition auto link object property
 	 * @return the links corresponding to the conditions
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getalllinksfromrightid(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> E[] getalllinksfromrightid(
 			DataObjectId<F> rightid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
 		if (autolinkobjectDefinition.isSymetricLink())
@@ -354,7 +354,7 @@ public class AutolinkobjectQueryHelper {
 	 * @param autolinkobjectDefinition auto link object property
 	 * @return the links corresponding to the conditions
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getalllinksfromrightid(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> E[] getalllinksfromrightid(
 			DataObjectId<F>[] rightid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
 		logger.severe("start infernal method");
@@ -427,7 +427,7 @@ public class AutolinkobjectQueryHelper {
 	 * @param autolinkobjectDefinition auto link object property
 	 * @return the links corresponding to the conditions
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> E[] getalllinksfromleftandrightid(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> E[] getalllinksfromleftandrightid(
 			DataObjectId<F> leftid, DataObjectId<F> rightid, QueryFilter additionalcondition,
 			DataObjectDefinition<E> parentobjectdefinition, DataObjectDefinition<F> linkedobjectdefinition,
 			AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
@@ -479,7 +479,7 @@ public class AutolinkobjectQueryHelper {
 	 * @return the links and both objects corresponding to the provided conditions
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> ThreeDataObjects<F, E, F>[] getlinksandbothobjects(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> ThreeDataObjects<F, E, F>[] getlinksandbothobjects(
 			QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
 
@@ -571,7 +571,7 @@ public class AutolinkobjectQueryHelper {
 	 * @param autolinkobjectDefinition definition of the autolink property
 	 * @return the potential right object
 	 */
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> F[] getpotentialrightobject(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> F[] getpotentialrightobject(
 			DataObjectId<F> leftobjectid, QueryFilter additionalcondition, DataObjectDefinition<E> definition,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
 		QueryCondition extendedcondition = null;
@@ -599,7 +599,7 @@ public class AutolinkobjectQueryHelper {
 		F[] result = StoredobjectQueryHelper.get().getallactive(
 				new QueryFilter(extendedcondition,
 						(additionalcondition != null ? additionalcondition.getAliases() : null)),
-				linkedobjectdefinition, autolinkobjectDefinition.getLinkedObjectUniqueIdentifiedDefinition()
+				linkedobjectdefinition, autolinkobjectDefinition.getLinkedObjectUniqueidentifiedDefinition()
 						.getDependentDefinitionStoredobject());
 		return result;
 	}
@@ -615,7 +615,7 @@ public class AutolinkobjectQueryHelper {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> TwoDataObjects<E, F>[] getlinksandrightobject(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> TwoDataObjects<E, F>[] getlinksandrightobject(
 			DataObjectId<F> leftid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobject,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> propertydefinition) {
 		TableAlias linkalias = parentobject.getAlias("SINGLEOBJECT");
@@ -678,7 +678,7 @@ public class AutolinkobjectQueryHelper {
 	 * @return the corresponding links and left objects
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & UniqueidentifiedInterface<F>> TwoDataObjects<F, E>[] getlinksandleftobject(
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E> & AutolinkobjectInterface<E, F>, F extends DataObject<F> & HasidInterface<F>> TwoDataObjects<F, E>[] getlinksandleftobject(
 			DataObjectId<F> rightid, QueryFilter additionalcondition, DataObjectDefinition<E> parentobjectdefinition,
 			DataObjectDefinition<F> linkedobjectdefinition, AutolinkobjectDefinition<E, F> autolinkobjectDefinition) {
 

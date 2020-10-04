@@ -82,7 +82,7 @@ public class Linkedfromchildrenforlocation<
 		Uniqueidentified<E> uniqueidentified = dependentpropertylinkedfromchildren.getUniqueIdentified();
 		F[] queryresult = LinkedtoparentQueryHelper
 				.get(linkedfromchildren.getGenericsChildobjectforlinkProperty().getName())
-				.<F, E>getallchildren(uniqueidentified.getId(), null, parseddefinition.getChildObjectDefinition(),
+				.<F, E>getallchildren(uniqueidentified.getRelatedHasid().getId(), null, parseddefinition.getChildObjectDefinition(),
 						parseddefinition.getParentObject(), linkedfromchildren.getGenericsChildobjectforlinkProperty());
 		for (int i = 0; i < queryresult.length; i++) {
 			queryresult[i].setlocation(domainid);

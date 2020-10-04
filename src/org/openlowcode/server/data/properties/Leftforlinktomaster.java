@@ -53,7 +53,7 @@ this.definition = definition;
 * @param object object being deleted
 */
 public void postprocUniqueidentifiedDelete(E object) {
-F[] linksfromleft = LinkobjecttomasterQueryHelper.get().getalllinksfromleftid(uniqueidentified.getId(), null,
+F[] linksfromleft = LinkobjecttomasterQueryHelper.get().getalllinksfromleftid(uniqueidentified.getRelatedHasid().getId(), null,
 		definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(), definition.getParentObject(),
 		definition.getLinkObjectPropertyDefinition().getRightObjectDefinition(),
 		definition.getLinkObjectPropertyDefinition());
@@ -83,7 +83,7 @@ this.uniqueidentified = uniqueidentified;
 */
 public void preprocUniqueidentifiedUpdate(E object) {
 TwoDataObjects<F, G>[] linkandrightobject = LinkobjecttomasterQueryHelper.get().getlinksandrightobject(
-		uniqueidentified.getId(), null, definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(),
+		uniqueidentified.getRelatedHasid().getId(), null, definition.getLinkObjectPropertyDefinition().getLinkObjectDefinition(),
 		definition.getParentObject(), definition.getLinkObjectPropertyDefinition().getRightObjectDefinition(),
 		definition.getLinkObjectPropertyDefinition());
 logger.fine(" --- left for Link Control on Link ");

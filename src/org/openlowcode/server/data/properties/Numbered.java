@@ -66,9 +66,9 @@ public class Numbered<E extends DataObject<E> & UniqueidentifiedInterface<E> & N
 
 	public void setobjectnumber(E object, String nr) {
 		this.setNr(nr, object);
-		if (uniqueidentified.getId() != null)
-			if (uniqueidentified.getId().getId() != null)
-				if (uniqueidentified.getId().getId().length() > 0)
+		if (uniqueidentified.getRelatedHasid().getId() != null)
+			if (uniqueidentified.getRelatedHasid().getId().getId() != null)
+				if (uniqueidentified.getRelatedHasid().getId().getId().length() > 0)
 					object.update();
 	}
 

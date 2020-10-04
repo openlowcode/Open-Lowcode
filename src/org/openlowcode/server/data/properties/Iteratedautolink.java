@@ -79,9 +79,9 @@ public class Iteratedautolink<
 		if ((this.casteddefinition.getAutolinkobject().getLinkedObjectDefinition().hasProperty("NUMBERED"))
 				|| (this.casteddefinition.getAutolinkobject().getLinkedObjectDefinition().hasProperty("NAMED"))) {
 			DataObjectId<F> rightobjectid = autolinkobject.getRgid();
-			F rightobject = UniqueidentifiedQueryHelper.get().readone(rightobjectid,
+			F rightobject = HasidQueryHelper.get().readone(rightobjectid,
 					casteddefinition.getAutolinkobject().getLinkedObjectDefinition(),
-					casteddefinition.getAutolinkobject().getLinkedObjectUniqueIdentifiedDefinition());
+					casteddefinition.getAutolinkobject().getLinkedObjectUniqueidentifiedDefinition().getDependentDefinitionHasid());
 			if (rightobject == null) {
 				updatenote.append(" flat file loader with object not yet loaded");
 			} else {
@@ -130,10 +130,9 @@ public class Iteratedautolink<
 					F> rightobjectdefinition = preprociteratedlinkbatch[0].casteddefinition.getLeftiteratedobjectdef();
 			DataObjectId<F>[] rightobjectidarray = rightobjectids
 					.toArray(rightobjectdefinition.generateIdArrayTemplate());
-			UniqueidentifiedDefinition<F> rightuidefinition = (UniqueidentifiedDefinition<F>) rightobjectdefinition
-					.getProperty("UNIQUEIDENTIFIED");
-			F[] rightobjects = UniqueidentifiedQueryHelper.get().readseveral(rightobjectidarray, rightobjectdefinition,
-					rightuidefinition);
+			HasidDefinition<F> righthasiddefinition = (HasidDefinition<F>) rightobjectdefinition.getProperty("HASID");
+			F[] rightobjects = HasidQueryHelper.get().readseveral(rightobjectidarray, rightobjectdefinition,
+					righthasiddefinition);
 			for (int i = 0; i < rightobjects.length; i++) {
 				F rightobject = rightobjects[i];
 				StringBuffer updatenote = updatenotes.get(i);
@@ -166,9 +165,8 @@ public class Iteratedautolink<
 	 */
 	public void preprocStoredobjectInsert(E object) {
 		DataObjectId<F> leftobjectid = object.getLfid();
-		F leftobject = UniqueidentifiedQueryHelper.get().readone(leftobjectid,
-				casteddefinition.getLeftiteratedobjectdef(),
-				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition());
+		F leftobject = HasidQueryHelper.get().readone(leftobjectid, casteddefinition.getLeftiteratedobjectdef(),
+				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition().getDependentDefinitionHasid());
 		if (leftobject.getDefinitionFromObject().hasProperty("ITERATED")) {
 			IteratedInterface<?> iteratedleft = (IteratedInterface<?>) leftobject;
 			iteratedleft.setupdatenote(generateUpdateNote("Create"));
@@ -189,13 +187,12 @@ public class Iteratedautolink<
 	 */
 	public void commonpreprocForDeleteAndUpdate(DataObjectDefinition<E> definition, E object, String updatenote) {
 		DataObjectId<F> leftobjectid = object.getLfid();
-		F leftobject = UniqueidentifiedQueryHelper.get().readone(leftobjectid,
-				casteddefinition.getLeftiteratedobjectdef(),
-				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition());
+		F leftobject = HasidQueryHelper.get().readone(leftobjectid, casteddefinition.getLeftiteratedobjectdef(),
+				casteddefinition.getIterateddefinition().getUniqueIdentifiedDefinition().getDependentDefinitionHasid());
 		// get old iteration of link and close it;
 		DataObjectId<E> objectid = object.getId();
-		E oldobject = UniqueidentifiedQueryHelper.get().readone(objectid, definition,
-				casteddefinition.getAutolinkobject().getUniqueidentifiedDefinitionForLinkObject());
+		E oldobject = HasidQueryHelper.get().readone(objectid, definition, casteddefinition.getAutolinkobject()
+				.getUniqueidentifiedDefinitionForLinkObject().getDependentDefinitionHasid());
 		oldobject.archivethisiteration(leftobject.getIteration());
 		if (leftobject.getDefinitionFromObject().hasProperty("ITERATED")) {
 			IteratedInterface<?> iteratedleft = (IteratedInterface<?>) leftobject;
@@ -282,16 +279,14 @@ public class Iteratedautolink<
 		DataObjectDefinition<
 				F> leftobjectdefinition = preprociteratedlinkbatch[0].casteddefinition.getLeftiteratedobjectdef();
 		DataObjectId<F>[] leftobjectidarray = leftobjectids.toArray(leftobjectdefinition.generateIdArrayTemplate());
-		UniqueidentifiedDefinition<F> leftuidefinition = (UniqueidentifiedDefinition<F>) leftobjectdefinition
-				.getProperty("UNIQUEIDENTIFIED");
-		F[] leftobjects = UniqueidentifiedQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
-				leftuidefinition);
+		HasidDefinition<F> linkedobjecthasiddefinition = (HasidDefinition<F>) leftobjectdefinition.getProperty("HASID");
+		F[] leftobjects = HasidQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
+				linkedobjecthasiddefinition);
 		// 1 - A put old parent iteration in the last iter
 		ArrayList<DataObjectId<E>> objectids = new ArrayList<DataObjectId<E>>();
 		DataObjectId<E>[] objectidarray = objectids.toArray(definition.generateIdArrayTemplate());
-		UniqueidentifiedDefinition<
-				E> uidefinition = (UniqueidentifiedDefinition<E>) definition.getProperty("UNIQUEIDENTIFIED");
-		E[] oldobjects = UniqueidentifiedQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
+		HasidDefinition<E> hasiddefinition = (HasidDefinition<E>) definition.getProperty("HASID");
+		E[] oldobjects = HasidQueryHelper.get().readseveral(objectidarray, definition, hasiddefinition);
 		DataObjectPayload[] oldpayloads = new DataObjectPayload[oldobjects.length];
 		for (int i = 0; i < oldobjects.length; i++) {
 			Iteratedautolink<E, F> iteratedlinkforold = oldobjects[i].getPropertyForObject(preprociteratedlinkbatch[0]);
@@ -343,16 +338,14 @@ public class Iteratedautolink<
 		DataObjectDefinition<
 				F> leftobjectdefinition = preprociteratedlinkbatch[0].casteddefinition.getLeftiteratedobjectdef();
 		DataObjectId<F>[] leftobjectidarray = leftobjectids.toArray(leftobjectdefinition.generateIdArrayTemplate());
-		UniqueidentifiedDefinition<F> leftuidefinition = (UniqueidentifiedDefinition<F>) leftobjectdefinition
-				.getProperty("UNIQUEIDENTIFIED");
-		F[] leftobjects = UniqueidentifiedQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
-				leftuidefinition);
+		HasidDefinition<F> lefthasiddefinition = (HasidDefinition<F>) leftobjectdefinition.getProperty("HASID");
+		F[] leftobjects = HasidQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
+				lefthasiddefinition);
 		// 1 - A put old parent iteration in the last iter
 		ArrayList<DataObjectId<E>> objectids = new ArrayList<DataObjectId<E>>();
 		DataObjectId<E>[] objectidarray = objectids.toArray(definition.generateIdArrayTemplate());
-		UniqueidentifiedDefinition<
-				E> uidefinition = (UniqueidentifiedDefinition<E>) definition.getProperty("UNIQUEIDENTIFIED");
-		E[] oldobjects = UniqueidentifiedQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
+		HasidDefinition<E> hasiddefinition = (HasidDefinition<E>) definition.getProperty("HASID");
+		E[] oldobjects = HasidQueryHelper.get().readseveral(objectidarray, definition, hasiddefinition);
 		DataObjectPayload[] oldpayloads = new DataObjectPayload[oldobjects.length];
 		for (int i = 0; i < oldobjects.length; i++) {
 			Iteratedautolink<E, F> iteratedlinkforold = oldobjects[i].getPropertyForObject(preprociteratedlinkbatch[0]);
@@ -405,10 +398,9 @@ public class Iteratedautolink<
 		DataObjectDefinition<
 				F> leftobjectdefinition = preprociteratedlinkbatch[0].casteddefinition.getLeftiteratedobjectdef();
 		DataObjectId<F>[] leftobjectidarray = leftobjectids.toArray(leftobjectdefinition.generateIdArrayTemplate());
-		UniqueidentifiedDefinition<F> leftuidefinition = (UniqueidentifiedDefinition<F>) leftobjectdefinition
-				.getProperty("UNIQUEIDENTIFIED");
-		F[] leftobjects = UniqueidentifiedQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition,
-				leftuidefinition);
+		HasidDefinition<F> lefthasiddefinition = (HasidDefinition<F>) leftobjectdefinition
+				.getProperty("HASIDD");
+		F[] leftobjects = HasidQueryHelper.get().readseveral(leftobjectidarray, leftobjectdefinition, lefthasiddefinition);
 		// 2 - generate update note (with access on right object to massify
 		if (leftobjectdefinition.hasProperty("ITERATED")) {
 			String[] updatenotes = Iteratedautolink.generateMassiveUpdateNote(preprociteratedlinkbatch, objectbatch,

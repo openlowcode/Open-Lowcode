@@ -195,7 +195,7 @@ public class Timeslotwithsessions<E extends DataObject<E> & UniqueidentifiedInte
 		LinkedtoparentDefinition<F, E> linkedtoparentdefinitionforsession = parseddefinition
 				.getChildrenSessionDefinition().getLinkedToParentDefinition();
 		return LinkedtoparentQueryHelper.get(linkedtoparentdefinitionforsession.getName()).getallchildren(
-				uniqueidentified.getId(), additionalquerycondition,
+				uniqueidentified.getRelatedHasid().getId(), additionalquerycondition,
 				parseddefinition.getChildrenSessionDefinition().getParentObject(), parseddefinition.getParentObject(),
 				linkedtoparentdefinitionforsession);
 	}

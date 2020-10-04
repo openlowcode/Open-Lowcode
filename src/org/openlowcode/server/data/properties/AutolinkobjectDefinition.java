@@ -41,7 +41,7 @@ import org.openlowcode.server.data.storage.StringStoredField;
  * @param <E> the data object used as autolink
  * @param <F> the data object being referenced by the autolink
  */
-public class AutolinkobjectDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F>>
+public class AutolinkobjectDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & HasidInterface<F>>
 		extends DataObjectPropertyDefinition<E> {
 	private static Logger logger = Logger.getLogger(AutolinkobjectDefinition.class.getName());
 	private DataObjectDefinition<F> linkedobjectdefinition;
@@ -363,8 +363,7 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 	 * sets the unique identified definition of the object being referenced by the
 	 * link
 	 * 
-	 * @param linkedobjectuniqueidentifieddefinition definition of the unique
-	 *                                               identified property of the data
+	 * @param linkedobjectuniqueidentifieddefinition definition of the hasid property of the data
 	 *                                               object referenced by the link
 	 */
 	public void setGenericsObjectforlinkProperty(UniqueidentifiedDefinition<F> linkedobjectuniqueidentifieddefinition) {
@@ -377,7 +376,7 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 	 * 
 	 * @return the unique identified property of the linked object
 	 */
-	public UniqueidentifiedDefinition<F> getLinkedObjectUniqueIdentifiedDefinition() {
+	public UniqueidentifiedDefinition<F> getLinkedObjectUniqueidentifiedDefinition() {
 		return this.linkedobjectuniqueidentifieddefinition;
 	}
 

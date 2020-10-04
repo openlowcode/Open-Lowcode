@@ -71,9 +71,9 @@ public class Targetdate<E extends DataObject<E> & UniqueidentifiedInterface<E> &
 
 		this.targetdate.setPayload(targetdate);
 		Uniqueidentified<E> uniqueidentified = lifecycle.getUniqueidentified();
-		if (uniqueidentified.getId() != null)
-			if (uniqueidentified.getId().getId() != null)
-				if (uniqueidentified.getId().getId().length() > 0)
+		if (uniqueidentified.getRelatedHasid().getId() != null)
+			if (uniqueidentified.getRelatedHasid().getId().getId() != null)
+				if (uniqueidentified.getRelatedHasid().getId().getId().length() > 0)
 					object.update();
 
 	}

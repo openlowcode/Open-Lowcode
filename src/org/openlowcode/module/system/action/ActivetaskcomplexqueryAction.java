@@ -27,7 +27,7 @@ import org.openlowcode.server.data.properties.DataObjectId;
 import org.openlowcode.server.data.properties.GenericlinkQueryHelper;
 import org.openlowcode.server.data.properties.LifecycleQueryHelper;
 import org.openlowcode.server.data.properties.LinkobjectQueryHelper;
-import org.openlowcode.server.data.properties.UniqueidentifiedQueryHelper;
+import org.openlowcode.server.data.properties.HasidQueryHelper;
 import org.openlowcode.server.data.storage.AndQueryCondition;
 import org.openlowcode.server.data.storage.QueryCondition;
 import org.openlowcode.server.data.storage.TableAlias;
@@ -79,7 +79,7 @@ public class ActivetaskcomplexqueryAction extends AbsActivetaskcomplexqueryActio
 				selectedchoices.toArray(new ChoiceValue[0]),
 				Task.getDefinition());
 		
-		QueryCondition usercondition = UniqueidentifiedQueryHelper.getIdQueryCondition(
+		QueryCondition usercondition = HasidQueryHelper.getIdQueryCondition(
 				new TableAlias(Appuser.getDefinition().getTableschema(),LinkobjectQueryHelper.LINKSANDBOTHOBJECTS_RIGHTOBJECTALIAS),
 				userid.getId(), Appuser.getDefinition());
 		

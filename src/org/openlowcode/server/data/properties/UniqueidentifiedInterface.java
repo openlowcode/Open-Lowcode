@@ -21,11 +21,8 @@ import org.openlowcode.server.data.DataObject;
  *
  * @param <E> parent data object
  */
-public interface UniqueidentifiedInterface<E extends DataObject<E>> extends StoredobjectInterface<E> {
-	/**
-	 * @return the unique id of the object
-	 */
-	public DataObjectId<E> getId();
+public interface UniqueidentifiedInterface<E extends DataObject<E>> extends StoredobjectInterface<E>,HasidInterface<E> {
+
 
 	/**
 	 * persists the data of this object

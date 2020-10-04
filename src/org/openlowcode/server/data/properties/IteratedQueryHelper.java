@@ -82,7 +82,7 @@ public class IteratedQueryHelper {
 		aliaslist.add(alias);
 		QueryCondition objectuniversalcondition = definition.getUniversalQueryCondition(iteratedDefinition,
 				"SINGLEOBJECT");
-		QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(alias, id.getId(),
+		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(alias, id.getId(),
 				definition);
 		QueryCondition finalcondition = uniqueidcondition;
 		if (objectuniversalcondition != null) {
@@ -117,7 +117,7 @@ public class IteratedQueryHelper {
 		aliaslist.add(alias);
 		QueryCondition objectuniversalcondition = definition.getUniversalQueryCondition(iteratedDefinition,
 				"SINGLEOBJECT");
-		QueryCondition uniqueidcondition = UniqueidentifiedQueryHelper.getIdQueryCondition(alias, id.getId(),
+		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(alias, id.getId(),
 				definition);
 		QueryCondition finalcondition = uniqueidcondition;
 		if (objectuniversalcondition != null) {

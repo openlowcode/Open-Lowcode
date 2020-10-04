@@ -21,7 +21,7 @@ import org.openlowcode.server.data.DataObject;
  */
 public interface AutolinkobjectInterface<
 		E extends DataObject<E> & UniqueidentifiedInterface<E>,
-		F extends DataObject<F> & UniqueidentifiedInterface<F>>
+		F extends DataObject<F> & HasidInterface<F>>
 		extends
 		UniqueidentifiedInterface<E> {
 	/**

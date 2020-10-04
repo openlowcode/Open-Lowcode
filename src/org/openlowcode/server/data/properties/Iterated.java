@@ -123,15 +123,15 @@ public class Iterated<E extends DataObject<E> & UniqueidentifiedInterface<E> & I
 	 * @param object object to proceess
 	 */
 	public void preprocUniqueidentifiedUpdate(DataObjectDefinition<E> definition, E object) {
-		DataObjectId<E> objectid = uniqueidentified.getId();
-		E oldobject = UniqueidentifiedQueryHelper.get().readone(objectid, definition, uniqueidentified.getDefinition());
+		DataObjectId<E> objectid = uniqueidentified.getRelatedHasid().getId();
+		E oldobject = HasidQueryHelper.get().readone(objectid, definition, uniqueidentified.getRelatedHasid().getDefinition());
 		logger.finer("drop all fields old object " + oldobject.dropToString());
 		int nextiteration = (int) oldobject.archivethisiteration();
 
 		latest.setPayload("Y");
 		iteration.setPayload(new Integer(nextiteration));
 		;
-		logger.info("updated iteration to " + nextiteration + " for object id = " + uniqueidentified.getId().getId());
+		logger.info("updated iteration to " + nextiteration + " for object id = " + uniqueidentified.getRelatedHasid().getId().getId());
 
 	}
 
@@ -156,9 +156,9 @@ public class Iterated<E extends DataObject<E> & UniqueidentifiedInterface<E> & I
 			objectids.add(objectbatch[i].getId());
 		}
 		DataObjectId<E>[] objectidarray = objectids.toArray(definition.generateIdArrayTemplate());
-		UniqueidentifiedDefinition<E> uidefinition = (UniqueidentifiedDefinition<E>) definition
-				.getProperty("UNIQUEIDENTIFIED");
-		E[] oldobjects = UniqueidentifiedQueryHelper.get().readseveral(objectidarray, definition, uidefinition);
+		HasidDefinition<E> hasiddefinition = (HasidDefinition<E>) definition
+				.getProperty("HASID");
+		E[] oldobjects = HasidQueryHelper.get().readseveral(objectidarray, definition, hasiddefinition);
 		ArrayList<Iterated<E>> oldobjectsiterated = new ArrayList<Iterated<E>>();
 		int[] newiterations = new int[iteratedbatch.length];
 		for (int i = 0; i < oldobjects.length; i++) {
@@ -185,7 +185,7 @@ public class Iterated<E extends DataObject<E> & UniqueidentifiedInterface<E> & I
 		logger.finer("parentpayload before insert" + parentpayload);
 		parentpayload.insert();
 		logger.info("Archived iteration " + iteration.getPayload() + " for object id = "
-				+ uniqueidentified.getId().getId());
+				+ uniqueidentified.getRelatedHasid().getId().getId());
 		return new Integer(iteration.getPayload().intValue() + 1);
 	}
 

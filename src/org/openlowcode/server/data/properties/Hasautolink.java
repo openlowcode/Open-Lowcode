@@ -30,10 +30,10 @@ import org.openlowcode.server.data.storage.QueryFilter;
  * @param <E> parent data object (the object being the subject of the autolink)
  * @param <F> autolinkobject the object used as autolink
  */
-public class Hasautolink<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F> & AutolinkobjectInterface<F, E>>
+public class Hasautolink<E extends DataObject<E> & HasidInterface<E>, F extends DataObject<F> & HasidInterface<F> & AutolinkobjectInterface<F, E>>
 		extends DataObjectProperty<E> {
 	private HasautolinkDefinition<E, F> definition;
-	private Uniqueidentified<E> uniqueidentified;
+	private Hasid<E> hasid;
 	private static Logger logger = Logger.getLogger(Hasautolink.class.getName());
 
 	/**
@@ -67,13 +67,13 @@ public class Hasautolink<E extends DataObject<E> & UniqueidentifiedInterface<E>,
 		if (definition.getAutolinkobjectPropertyDefinition().isSymetricLink()) {
 			// do nothing, one can always delete object with autolink
 		} else {
-			F[] linksfromright = AutolinkobjectQueryHelper.get().getalllinksfromrightid(uniqueidentified.getId(), null,
+			F[] linksfromright = AutolinkobjectQueryHelper.get().getalllinksfromrightid(hasid.getId(), null,
 					definition.getAutolinkobjectPropertyDefinition().getLinkObjectDefinition(), definition.getParent(),
 					definition.getAutolinkobjectPropertyDefinition());
 			if (linksfromright != null)
 				if (linksfromright.length > 0)
 					throw new RuntimeException(" cannot delete object " + definition.getParent().getName() + "with id "
-							+ uniqueidentified.getId() + "");
+							+ hasid.getId() + "");
 		}
 	}
 
@@ -86,7 +86,7 @@ public class Hasautolink<E extends DataObject<E> & UniqueidentifiedInterface<E>,
 	public void postprocUniqueidentifiedDelete(E object) {
 		// this works without condition on autolink as in case of autolink, will provide
 		// both links from left and right.
-		F[] linksfromleft = AutolinkobjectQueryHelper.get().getalllinksfromleftid(uniqueidentified.getId(), null,
+		F[] linksfromleft = AutolinkobjectQueryHelper.get().getalllinksfromleftid(hasid.getId(), null,
 				definition.getAutolinkobjectPropertyDefinition().getLinkObjectDefinition(), definition.getParent(),
 				definition.getAutolinkobjectPropertyDefinition());
 		if (linksfromleft != null)
@@ -102,8 +102,8 @@ public class Hasautolink<E extends DataObject<E> & UniqueidentifiedInterface<E>,
 	 * 
 	 * @param uniqueidentified dependent property unique identified
 	 */
-	public void setDependentPropertyUniqueidentified(Uniqueidentified<E> uniqueidentified) {
-		this.uniqueidentified = uniqueidentified;
+	public void setDependentPropertyHasid(Hasid<E> hasid) {
+		this.hasid = hasid;
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class Hasautolink<E extends DataObject<E> & UniqueidentifiedInterface<E>,
 
 		// first search rightobjects (upstream for the link)
 		TwoDataObjects<F, E>[] linkandrightobject = AutolinkobjectQueryHelper.get().getlinksandrightobject(
-				uniqueidentified.getId(), null,
+				hasid.getId(), null,
 				definition.getAutolinkobjectPropertyDefinition().getLinkObjectDefinition(),
 				definition.getParentObject(), definition.getAutolinkobjectPropertyDefinition());
 		logger.severe(" --- autolink control for objects upstream, checking  " + linkandrightobject.length);
@@ -149,7 +149,7 @@ public class Hasautolink<E extends DataObject<E> & UniqueidentifiedInterface<E>,
 
 		// then search left objects (downstream from the link)
 		TwoDataObjects<E, F>[] linkandleftobject = AutolinkobjectQueryHelper.get().getlinksandleftobject(
-				uniqueidentified.getId(), null,
+				hasid.getId(), null,
 				definition.getAutolinkobjectPropertyDefinition().getLinkObjectDefinition(),
 				definition.getParentObject(), definition.getAutolinkobjectPropertyDefinition());
 		logger.fine(" --- autolink control for objects downstream, checking  " + linkandleftobject.length);
