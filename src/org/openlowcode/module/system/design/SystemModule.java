@@ -541,7 +541,7 @@ public class SystemModule
 		LinkedToParent sessionuserlinkedtoparent = new LinkedToParent("sessionuser", appuser);
 		usersession.addProperty(sessionuserlinkedtoparent);
 
-		this.moduleusage = new DataObjectDefinition("MODULEUSAGE", "Module Usage", this);
+		this.moduleusage = new DataObjectDefinition("MODULEUSAGE", "Module Usage", this,true);
 		moduleusage.addProperty(new StoredObject());
 		moduleusage.addProperty(new UniqueIdentified());
 		TimestampField dayformoduleusage = new TimestampField("DAY", "Day", "Day of the usage",
@@ -1288,7 +1288,7 @@ public class SystemModule
 
 		StaticActionDefinition showmodules = new StaticActionDefinition("SHOWMODULESTAT");
 		showmodules.addOutputArgument(new ArrayArgument(new ObjectArgument("MODULEREPORT", modulereport)));
-		showmodules.setButtonlabel("Modules Stat");
+		showmodules.setButtonlabel("Server Usage");
 		this.addasMenuAction(showmodules);
 		DynamicPageDefinition showmodulespage = new DynamicPageDefinition("SHOWMODULESTAT");
 		showmodulespage.linkPageToAction(showmodules);
@@ -1407,7 +1407,7 @@ public class SystemModule
 		launchsessioncleaning.addOutputArgument(new IntegerArgument("OLDESTLOG"));
 
 		launchsessioncleaning.setButtonlabel("Session Cleaning");
-		this.addasMenuAction(launchsessioncleaning);
+		this.addAction(launchsessioncleaning);
 
 		DynamicPageDefinition launchsessioncleaningpage = new DynamicPageDefinition("SESSIONCLEANING");
 		launchsessioncleaningpage.linkPageToAction(launchsessioncleaning);
