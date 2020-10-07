@@ -69,7 +69,7 @@ public class StoredObject
 	@Override
 	public void controlAfterParentDefinition() {
 		if (this.getParent().getPropertyByName("STORED")==null) {
-			this.getParent().addProperty(new Stored());
+			this.addPropertyOnSameObject(new Stored());
 		}
 		DataAccessMethod insert = new DataAccessMethod("INSERT", null, false, true);
 		insert.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
