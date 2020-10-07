@@ -1152,7 +1152,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	 * 
 	 */
 	public void updatePersistenceStorage() {
-		if (this.hasProperty("STOREDOBJECT")) {
+		if (this.hasProperty("STORED")) {
 			PersistentStorage storage = PersistenceGateway.getStorage();
 			if (!storage.DoesObjectExist(tableschema)) {
 				// object does not exist, create

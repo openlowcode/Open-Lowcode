@@ -26,7 +26,7 @@ import org.openlowcode.design.module.Module;
 import org.openlowcode.tools.misc.NamedList;
 
 /**
- * This property will allow persistence of the object in the database. Most data
+ * This property will allow persistence of the object in the database as an independent entity. Most data
  * objects, except reports, should add this property
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
@@ -68,6 +68,9 @@ public class StoredObject
 
 	@Override
 	public void controlAfterParentDefinition() {
+		if (this.getParent().getPropertyByName("STORED")==null) {
+			this.getParent().addProperty(new Stored());
+		}
 		DataAccessMethod insert = new DataAccessMethod("INSERT", null, false, true);
 		insert.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
 		this.addDataAccessMethod(insert);
