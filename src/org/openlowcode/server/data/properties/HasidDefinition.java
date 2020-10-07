@@ -45,7 +45,7 @@ public class HasidDefinition<E extends DataObject<E>>
 	 * @param parentobject parent object definition for the property
 	 */
 	public HasidDefinition(DataObjectDefinition<E> parentobject) {
-		super(parentobject, "UNIQUEIDENTIFIED");
+		super(parentobject, "HASID");
 		id = new StringStoredField("ID", null, 200);
 		this.addFieldSchema(id);
 		StoredTableIndex idindex = new StoredTableIndex("ID");

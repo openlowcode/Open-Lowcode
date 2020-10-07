@@ -79,11 +79,9 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	private String modulecode;
 	private HashMap<String, String> loaderalias;
 	private ArrayList<String> aliasesorderedlist;
-	private HashMap<Pair<String,String>,Pair<String,String>> dynamicloaderalias;
-	private HashMap<Integer,ArrayList<Pair<String,String>>> dynamicloaderinsertionorder;
+	private HashMap<Pair<String, String>, Pair<String, String>> dynamicloaderalias;
+	private HashMap<Integer, ArrayList<Pair<String, String>>> dynamicloaderinsertionorder;
 
-	
-	
 	private String preferedspreadsheettabname = null;
 
 	/**
@@ -107,16 +105,19 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	public String getLoaderAlias(String alias) {
 		// checks simple alias
 		String simplealias = loaderalias.get(alias);
-		if (simplealias!=null) return simplealias;
+		if (simplealias != null)
+			return simplealias;
 		// check dynamic alias
-		Iterator<Pair<String,String>> dynamicaliasesiterator = this.dynamicloaderalias.keySet().iterator();
+		Iterator<Pair<String, String>> dynamicaliasesiterator = this.dynamicloaderalias.keySet().iterator();
 		while (dynamicaliasesiterator.hasNext()) {
-			Pair<String,String> dynamicalias = dynamicaliasesiterator.next();
-			if (alias.startsWith(dynamicalias.getFirstobject())) if (alias.endsWith(dynamicalias.getSecondobject())) {
-				String middle = alias.substring(dynamicalias.getFirstobject().length(),alias.length()-dynamicalias.getSecondobject().length());
-				Pair<String,String> dynamicloadingcolumn = this.dynamicloaderalias.get(dynamicalias);
-				return dynamicloadingcolumn.getFirstobject()+middle+dynamicloadingcolumn.getSecondobject();
-			}
+			Pair<String, String> dynamicalias = dynamicaliasesiterator.next();
+			if (alias.startsWith(dynamicalias.getFirstobject()))
+				if (alias.endsWith(dynamicalias.getSecondobject())) {
+					String middle = alias.substring(dynamicalias.getFirstobject().length(),
+							alias.length() - dynamicalias.getSecondobject().length());
+					Pair<String, String> dynamicloadingcolumn = this.dynamicloaderalias.get(dynamicalias);
+					return dynamicloadingcolumn.getFirstobject() + middle + dynamicloadingcolumn.getSecondobject();
+				}
 		}
 		return null;
 	}
@@ -129,6 +130,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		loaderalias.put(alias, fullpath);
 		aliasesorderedlist.add(alias);
 	}
+
 	/**
 	 * adds a dynamic alias in the loading file. The alias is the column name in the
 	 * loading file, and it maps to the Open Lowcode syntax column name. In this
@@ -150,25 +152,26 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 			String aliasbefore,
 			String aliasafter,
 			String fullpathbefore,
-			String fullpathafter,int insertafter) {
-		Pair<String,String> alias = new Pair<String,String>(aliasbefore,aliasafter);
-		Pair<String,String> fullpath = new Pair<String,String>(fullpathbefore,fullpathafter);
-		Pair<String,String> existingpathforalias = this.dynamicloaderalias.get(alias);
-		if (existingpathforalias!=null)
-		throw new RuntimeException("Duplicate alias " + alias + " for object " + this.getName() + ", oldfullpath="
-				+ existingpathforalias + ", new full path =" + fullpath);
-		this.dynamicloaderalias.put(alias,fullpath);
+			String fullpathafter,
+			int insertafter) {
+		Pair<String, String> alias = new Pair<String, String>(aliasbefore, aliasafter);
+		Pair<String, String> fullpath = new Pair<String, String>(fullpathbefore, fullpathafter);
+		Pair<String, String> existingpathforalias = this.dynamicloaderalias.get(alias);
+		if (existingpathforalias != null)
+			throw new RuntimeException("Duplicate alias " + alias + " for object " + this.getName() + ", oldfullpath="
+					+ existingpathforalias + ", new full path =" + fullpath);
+		this.dynamicloaderalias.put(alias, fullpath);
 		Integer currentindex = insertafter;
-		ArrayList<Pair<String,String>> existingdynamicaliasforindex = this.dynamicloaderinsertionorder.get(currentindex);
-		if (existingdynamicaliasforindex==null) {
-			existingdynamicaliasforindex = new ArrayList<Pair<String,String>>();
+		ArrayList<
+				Pair<String, String>> existingdynamicaliasforindex = this.dynamicloaderinsertionorder.get(currentindex);
+		if (existingdynamicaliasforindex == null) {
+			existingdynamicaliasforindex = new ArrayList<Pair<String, String>>();
 			this.dynamicloaderinsertionorder.put(currentindex, existingdynamicaliasforindex);
 		}
 		existingdynamicaliasforindex.add(alias);
-		
+
 	}
-	
-	
+
 	/**
 	 * @return the number of loader aliases declared
 	 */
@@ -183,33 +186,36 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 	public String getAliasat(int index) {
 		return aliasesorderedlist.get(index);
 	}
-	
+
 	/**
-	 * get the dynamic alias to insert before the static alias at the following index
+	 * get the dynamic alias to insert before the static alias at the following
+	 * index
 	 * 
 	 * @param index index for next normal alias
-	 * @return the list of specific aliases if relevant, or null if no specific alias
+	 * @return the list of specific aliases if relevant, or null if no specific
+	 *         alias
 	 * @since 1.11
 	 */
 	@SuppressWarnings("unchecked")
-	public Pair<String,String>[] getDynamicAliasForIndex(int index) {
-		ArrayList<Pair<String, String>> specificaliases = this.dynamicloaderinsertionorder.get(new  Integer(index));
-		if (specificaliases==null) return null;
+	public Pair<String, String>[] getDynamicAliasForIndex(int index) {
+		ArrayList<Pair<String, String>> specificaliases = this.dynamicloaderinsertionorder.get(new Integer(index));
+		if (specificaliases == null)
+			return null;
 		return specificaliases.toArray(new Pair[0]);
 	}
-	
-	
-	
+
 	/**
 	 * Gets the dynamic column for the provided dynamic alias
 	 * 
 	 * @param dynamicalias the dynamic alias
-	 * @return the corresponding loader column value or null if the alias pair is unknown
+	 * @return the corresponding loader column value or null if the alias pair is
+	 *         unknown
 	 * @since 1.11
 	 */
-	public Pair<String,String> getColumnForDynamicAlias(Pair<String,String> dynamicalias) {
+	public Pair<String, String> getColumnForDynamicAlias(Pair<String, String> dynamicalias) {
 		return this.dynamicloaderalias.get(dynamicalias);
 	}
+
 	/**
 	 * @param preferedspreadsheettabname
 	 */
@@ -411,8 +417,9 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 					+ propertydeflist.dropNameList());
 		FieldSchema<?> field = propertydefinition.getFieldSchemaByName(propertyfield);
 		if (field == null)
-			throw new RuntimeException("did not find field with name '" + propertyfield + ", , available list = "
-					+ propertydefinition.dropfieldnamelist());
+			throw new RuntimeException("did not find field with name '" + propertyfield + "' for property "
+					+ propertydefinition.getName() + " for object '" + propertydefinition.getParentObject().getName()
+					+ "' , available list = " + propertydefinition.dropfieldnamelist());
 		if (!(field instanceof StoredFieldSchema))
 			throw new RuntimeException("definition of externalfield joinquerycondition " + maintablefield.getName()
 					+ " is referencing another external field : " + field);
@@ -718,7 +725,7 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 					+ propertydeflist.dropNameList());
 		FieldSchema<?> field = propertydefinition.getFieldSchemaByName(propertyfield);
 		if (field == null)
-			throw new RuntimeException("did not find field with name '" + propertyfield + ", , available list = "
+			throw new RuntimeException("did not find field with name '" + propertyfield + "' for property '"+propertydefinition.getName()+"', , available list = "
 					+ propertydefinition.dropfieldnamelist());
 		if (!(field instanceof StoredFieldSchema))
 			throw new RuntimeException("definition of externalfield " + externalfieldname
@@ -956,8 +963,8 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		fieldconstraints = new NamedList<SMultiFieldConstraint>();
 		loaderalias = new HashMap<String, String>();
 		aliasesorderedlist = new ArrayList<String>();
-		dynamicloaderalias = new HashMap<Pair<String,String>,Pair<String,String>> ();
-		dynamicloaderinsertionorder = new HashMap<Integer,ArrayList<Pair<String,String>>> ();
+		dynamicloaderalias = new HashMap<Pair<String, String>, Pair<String, String>>();
+		dynamicloaderinsertionorder = new HashMap<Integer, ArrayList<Pair<String, String>>>();
 	}
 
 	/**
@@ -1134,8 +1141,6 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		return thispayload;
 	}
 
-	
-	
 	/**
 	 * @param alias the alias in a query
 	 * @return an alias for this object to be used in a query
@@ -1776,6 +1781,4 @@ public abstract class DataObjectDefinition<E extends DataObject<E>>
 		return transientproperties;
 	}
 
-	
-	
 }

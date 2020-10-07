@@ -81,7 +81,7 @@ public class CreationlogDefinition<E extends DataObject<E>> extends DataObjectPr
 		AppuserDefinition referenceobjectdefinition = AppuserDefinition.getAppuserDefinition();
 
 		JoinQueryConditionDefinition<String> joincondition = AppuserDefinition.getAppuserDefinition()
-				.generateJoinQueryDefinition(this.parentobject.getTableschema(), createuserid, "UNIQUEIDENTIFIED", "ID",
+				.generateJoinQueryDefinition(this.parentobject.getTableschema(), createuserid, "HASID", "ID",
 						this.getName(), new QueryOperatorEqual<String>());
 
 		ExternalFieldSchema<?> externalfield = referenceobjectdefinition.generateExternalFieldFromTitle(

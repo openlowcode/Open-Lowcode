@@ -75,7 +75,7 @@ public class LocatedDefinition<E extends DataObject<E> & LocatedInterface<E> & U
 	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema() {
 		ArrayList<ExternalFieldSchema<?>> externalfieldlist = new ArrayList<ExternalFieldSchema<?>>();
 		JoinQueryConditionDefinition<String> joincondition = domaindefinition.generateJoinQueryDefinition(
-				domaindefinition.getTableschema(), locationdomainid, "UNIQUEIDENTIFIED", "ID", this.getName(),
+				domaindefinition.getTableschema(), locationdomainid, "HASID", "ID", this.getName(),
 				new QueryOperatorEqual<String>());
 
 		ExternalFieldSchema<?> externalfield = domaindefinition.generateExternalField(this.getName() + "NUMBER",

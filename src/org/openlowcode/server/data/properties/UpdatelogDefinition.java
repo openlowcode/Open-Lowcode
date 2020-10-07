@@ -92,7 +92,7 @@ public class UpdatelogDefinition<E extends DataObject<E>>
 		AppuserDefinition referenceobjectdefinition = AppuserDefinition.getAppuserDefinition();
 
 		JoinQueryConditionDefinition<String> joincondition = AppuserDefinition.getAppuserDefinition()
-				.generateJoinQueryDefinition(this.parentobject.getTableschema(), updateuserid, "UNIQUEIDENTIFIED", "ID",
+				.generateJoinQueryDefinition(this.parentobject.getTableschema(), updateuserid, "HASID", "ID",
 						this.getName(), new QueryOperatorEqual<String>());
 
 		ExternalFieldSchema<

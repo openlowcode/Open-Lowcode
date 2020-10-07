@@ -131,7 +131,7 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 
 		// adds an external field is the target object is named
 		JoinQueryConditionDefinition<String> leftjoincondition = linkedobjectdefinition.generateJoinQueryDefinition(
-				this.parentobject.getTableschema(), leftid, "UNIQUEIDENTIFIED", "ID", this.getName() + "_LEFT",
+				this.parentobject.getTableschema(), leftid, "HASID", "ID", this.getName() + "_LEFT",
 				new QueryOperatorEqual<String>());
 
 		// get named property for left object
@@ -193,7 +193,7 @@ public class AutolinkobjectDefinition<E extends DataObject<E> & Uniqueidentified
 		}
 
 		JoinQueryConditionDefinition<String> rightjoincondition = linkedobjectdefinition.generateJoinQueryDefinition(
-				this.parentobject.getTableschema(), rightid, "UNIQUEIDENTIFIED", "ID", this.getName() + "_RIGHT",
+				this.parentobject.getTableschema(), rightid, "HASID", "ID", this.getName() + "_RIGHT",
 				new QueryOperatorEqual<String>());
 
 		// get named property for right object

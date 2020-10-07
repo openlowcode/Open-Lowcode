@@ -372,9 +372,9 @@ Property<LinkObjectToMaster<E, F>> {
 		// as anytime the link is queried, relevant right object is queried also, there will be a convenience external element showing the id
 		// of the relevant (latest) right object
 		
-		UniqueIdentified rightuniqueidentified = (UniqueIdentified) rightobjectforlink.getPropertyByName("UNIQUEIDENTIFIED");
-		ExternalElement rightid= new ExternalElement(this, rightobjectforlink, rightuniqueidentified, false,
-				(StoredElement) rightuniqueidentified.getElements()[0], "RIGHT");
+		HasId righthasid = (HasId) rightobjectforlink.getPropertyByName("HASID");
+		ExternalElement rightid= new ExternalElement(this, rightobjectforlink, righthasid, false,
+				(StoredElement) righthasid.getElements()[0], "RIGHT");
 		this.addElement(rightid);
 		
 		

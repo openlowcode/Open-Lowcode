@@ -161,7 +161,7 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 				// adds an external field is the target object is named
 
 				JoinQueryConditionDefinition<String> joincondition = referenceobjectdefinition
-						.generateJoinQueryDefinition(this.parentobject.getTableschema(), id, "UNIQUEIDENTIFIED", "ID",
+						.generateJoinQueryDefinition(this.parentobject.getTableschema(), id, "HASID", "ID",
 								this.getName(), new QueryOperatorEqual<String>());
 				ExternalFieldSchema<?> externalfield = referenceobjectdefinition.generateExternalField(
 						this.getName() + "OBJECTNAME", "Parent " + this.referenceobjectdefinition.getLabel(),
@@ -173,7 +173,7 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 				// adds an external field is the target object is named
 
 				JoinQueryConditionDefinition<String> joincondition = referenceobjectdefinition
-						.generateJoinQueryDefinition(this.parentobject.getTableschema(), id, "UNIQUEIDENTIFIED", "ID",
+						.generateJoinQueryDefinition(this.parentobject.getTableschema(), id, "HASID", "ID",
 								this.getName(), new QueryOperatorEqual<String>());
 				ExternalFieldSchema<?> externalfield = referenceobjectdefinition.generateExternalField(
 						this.getName() + "NR", "Parent " + this.referenceobjectdefinition.getLabel() + " Number",
@@ -185,7 +185,7 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 				// adds an external field is the target object is named
 
 				JoinQueryConditionDefinition<String> joincondition = referenceobjectdefinition
-						.generateJoinQueryDefinition(this.parentobject.getTableschema(), id, "UNIQUEIDENTIFIED", "ID",
+						.generateJoinQueryDefinition(this.parentobject.getTableschema(), id, "HASID", "ID",
 								this.getName(), new QueryOperatorEqual<String>());
 				ExternalFieldSchema<?> externalfield = referenceobjectdefinition.generateExternalFieldInBottomNotes(
 						this.getName() + "LOCATIONDOMAINID",

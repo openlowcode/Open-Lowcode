@@ -334,7 +334,7 @@ public class LinkobjecttomasterDefinition<
 
 // adds an external field is the target object is named
 		JoinQueryConditionDefinition<String> leftjoincondition = leftobjectdefinition.generateJoinQueryDefinition(
-				this.parentobject.getTableschema(), leftid, "UNIQUEIDENTIFIED", "ID", this.getName() + "_LEFT",
+				this.parentobject.getTableschema(), leftid, "HASID", "ID", this.getName() + "_LEFT",
 				new QueryOperatorEqual<String>());
 
 // get named property for left object
@@ -488,7 +488,7 @@ public class LinkobjecttomasterDefinition<
 			}
 		}
 		ExternalFieldSchema<?> rightid = rightobjectdefinition.generateExternalField(this.getName() + "RIGHTID",
-				"Right object Id", "", "UNIQUEIDENTIFIED", "ID", rightjoincondition,
+				"Right object Id", "", "HASID", "ID", rightjoincondition,
 				this.displayprofilehiderightobjectfields, -990, 16);
 		externalfieldlist.add(rightid);
 		return externalfieldlist;

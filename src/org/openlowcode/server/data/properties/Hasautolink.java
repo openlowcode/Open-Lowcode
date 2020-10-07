@@ -30,10 +30,11 @@ import org.openlowcode.server.data.storage.QueryFilter;
  * @param <E> parent data object (the object being the subject of the autolink)
  * @param <F> autolinkobject the object used as autolink
  */
-public class Hasautolink<E extends DataObject<E> & HasidInterface<E>, F extends DataObject<F> & HasidInterface<F> & AutolinkobjectInterface<F, E>>
+public class Hasautolink<E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & UniqueidentifiedInterface<F> & AutolinkobjectInterface<F, E>>
 		extends DataObjectProperty<E> {
 	private HasautolinkDefinition<E, F> definition;
 	private Hasid<E> hasid;
+	public Uniqueidentified<E> uniqueidentified;
 	private static Logger logger = Logger.getLogger(Hasautolink.class.getName());
 
 	/**
@@ -102,8 +103,10 @@ public class Hasautolink<E extends DataObject<E> & HasidInterface<E>, F extends 
 	 * 
 	 * @param uniqueidentified dependent property unique identified
 	 */
-	public void setDependentPropertyHasid(Hasid<E> hasid) {
-		this.hasid = hasid;
+	public void setDependentPropertyUniqueidentified(Uniqueidentified<E> uniqueidentified) {
+		this.uniqueidentified = uniqueidentified;
+		this.hasid = uniqueidentified.getRelatedHasid();
+		
 	}
 
 	/**
