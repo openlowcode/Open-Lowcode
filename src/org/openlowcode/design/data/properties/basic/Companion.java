@@ -15,63 +15,56 @@ import java.util.ArrayList;
 
 import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
-import org.openlowcode.design.data.IntegerStoredElement;
 import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
-import org.openlowcode.design.data.StoredElement;
-import org.openlowcode.design.data.argument.IntegerArgument;
+import org.openlowcode.design.data.PropertyGenerics;
 import org.openlowcode.design.data.argument.ObjectArgument;
+import org.openlowcode.design.data.argument.ObjectIdArgument;
+import org.openlowcode.design.data.argument.TwoObjectsArgument;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 
 /**
- * An iterated companion is a data object belonging to a main object. This
- * includes:
- * <ul>
- * <li>Link objets that belong to the left objet</li>
- * <li>Companion objects for sub-types</li>
- * </ul>
- * The property stores the iterations from the main object for which the
- * companion is valid. <br>
- * Dependent property :
- * {@link org.openlowcode.design.data.properties.basic.HasId}
+ * A Companion is a secondary data object linked to a main data object. It
+ * provides extra data for some types of the main data object.
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>
+ * @since 1.13
  */
-public class IteratedCompanion
+public class Companion
 		extends
-		Property<Iterated> {
+		Property<Companion> {
 
-	/**
-	 * A property for an object with history managed with iteration of another
-	 * 'master' object.
-	 * 
-	 * @since 1.13
-	 */
-	public IteratedCompanion() {
-		super("ITERATEDCOMPANION");
+	private DataObjectDefinition maintypedobject;
+
+	public Companion(DataObjectDefinition maintypedobject) {
+		super("COMPANION");
+		this.maintypedobject = maintypedobject;
 
 	}
 
 	@Override
 	public void controlAfterParentDefinition() {
-		StoredElement leftfirstiter = new IntegerStoredElement( "MNFIRSTITER");
-		this.addElement(leftfirstiter, "Created on Iteration",
-				"First iteration of main object where this data is valid", FIELDDISPLAY_NORMAL, -50, 5);
-		StoredElement leftlastiter = new IntegerStoredElement( "MNLASTITER");
-		this.addElement(leftlastiter, "Removed on Iteration",
-				"Last iteration of main object where this data is valid", FIELDDISPLAY_NORMAL, -50, 5);
-		DataAccessMethod archivecurrentiteration = new DataAccessMethod("ARCHIVETHISITERATION", null, false);
-		archivecurrentiteration
-				.addInputArgument(new MethodArgument("OBJECTTOARCHIVE", new ObjectArgument("OBJECTTOARCHIVE", parent)));
-		archivecurrentiteration.addInputArgument(
-				new MethodArgument("OBJECTOLDITER", new IntegerArgument("OBJECTOLDITER")));
-		this.addDataAccessMethod(archivecurrentiteration);
+		// READ THE TYPED OBJECTS
+		DataAccessMethod readtyped = new DataAccessMethod("READTYPED", new TwoObjectsArgument("TYPED",
+				new ObjectArgument("MAIN", maintypedobject), new ObjectArgument("COMPANION", this.getParent())), false,
+				true);
+		readtyped.addInputArgument(new MethodArgument("OBJECTID", new ObjectIdArgument("OBJECT", this.getParent())));
+		this.addDataAccessMethod(readtyped);
+		// UPDATE THE TYPED OBJECT
+		DataAccessMethod updatetyped = new DataAccessMethod("UPDATETYPED",null,false,true);
+		updatetyped.addInputArgument(new MethodArgument("TYPEDOBJECT", new TwoObjectsArgument("TYPED",
+				new ObjectArgument("MAIN", maintypedobject), new ObjectArgument("COMPANION", this.getParent()))));
+		this.addDataAccessMethod(updatetyped);
+		// put the main typed object as related to this property
+		this.addPropertyGenerics(new PropertyGenerics("MAINTYPEDOBJECT",maintypedobject, maintypedobject.getPropertyByName("TYPED")));
+		this.addDependentProperty(this.getParent().getPropertyByName("HASID"));
 	}
 
 	@Override
 	public String[] getPropertyInitMethod() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -110,4 +103,5 @@ public class IteratedCompanion
 		// TODO Auto-generated method stub
 
 	}
+
 }

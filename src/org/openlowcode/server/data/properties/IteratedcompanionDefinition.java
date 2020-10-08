@@ -41,26 +41,22 @@ import org.openlowcode.server.data.storage.TableAlias;
  * @param <E>
  * @since 1.13
  */
-public class IteratedcompanionDefinition<E extends DataObject<E>>
+public class IteratedcompanionDefinition<E extends DataObject<E> & HasidInterface<E>>
 		extends
 		DataObjectPropertyDefinition<E> {
 	public static final int INFINITY = 999999999;
-	private IntegerStoredField firstiter;
-	private IntegerStoredField lastiter;
+	private IntegerStoredField mnfirstiter;
+	private IntegerStoredField mnlastiter;
 
-	public IteratedcompanionDefinition(DataObjectDefinition<E> parentobject, String name, String prefix) {
+	public IteratedcompanionDefinition(DataObjectDefinition<E> parentobject, String name) {
 		super(parentobject, name);
-		this.firstiter = new IntegerStoredField(prefix + "FIRSTITER", null, new Integer(1));
-		this.addFieldSchema(this.firstiter);
-		this.lastiter = new IntegerStoredField(prefix + "LASTITER", null, new Integer(INFINITY));
-		this.addFieldSchema(this.lastiter);
+		this.mnfirstiter = new IntegerStoredField( "MNFIRSTITER", null, new Integer(1));
+		this.addFieldSchema(this.mnfirstiter);
+		this.mnlastiter = new IntegerStoredField ("MNLASTITER", null, new Integer(INFINITY));
+		this.addFieldSchema(this.mnlastiter);
+
 	}
 
-	private String prefix;
-
-	public String getPrefix() {
-		return prefix;
-	}
 
 	@Override
 	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema() {
@@ -70,7 +66,7 @@ public class IteratedcompanionDefinition<E extends DataObject<E>>
 	@Override
 	public QueryCondition getUniversalQueryCondition(String aliasstring) {
 		TableAlias alias = parentobject.getAlias(aliasstring);
-		QueryCondition activeiterationcondition = new SimpleQueryCondition<Integer>(alias, lastiter,
+		QueryCondition activeiterationcondition = new SimpleQueryCondition<Integer>(alias, mnlastiter,
 				new QueryOperatorEqual<Integer>(), new Integer(INFINITY));
 		return activeiterationcondition;
 	}
@@ -80,10 +76,10 @@ public class IteratedcompanionDefinition<E extends DataObject<E>>
 		@SuppressWarnings("unchecked")
 		FieldSchemaForDisplay<E>[] returnvalue = new FieldSchemaForDisplay[2];
 		returnvalue[0] = new FieldSchemaForDisplay<E>("Created on iteration",
-				"value of the history counter of the left object of the link at creation", this.firstiter, false, true,
+				"First iteration of main object where this data is valid", this.mnfirstiter, false, true,
 				true, -200, 20, this.parentobject);
 		returnvalue[1] = new FieldSchemaForDisplay<E>("Last active iteration ",
-				"value of the history counter of the left obeject of the link before removal or update", this.lastiter,
+				"Last iteration of main object where this data is valid", this.mnlastiter,
 				false, true, true, -200, 20, this.parentobject);
 
 		return returnvalue;
@@ -127,9 +123,9 @@ public class IteratedcompanionDefinition<E extends DataObject<E>>
 	public QueryCondition getIterationQueryCondition(TableAlias alias, Integer iteration) {
 
 		StoredFieldSchema<Integer> leftfromiteration = (StoredFieldSchema<Integer>) this.getDefinition()
-				.lookupOnName(prefix + "FIRSTITER");
+				.lookupOnName("MNFIRSTITER");
 		StoredFieldSchema<Integer> lefttoiteration = (StoredFieldSchema<Integer>) this.getDefinition()
-				.lookupOnName(prefix + "LASTITER");
+				.lookupOnName("MNLASTITER");
 		SimpleQueryCondition<Integer> fromiterationcondition = new SimpleQueryCondition<Integer>(alias,
 				leftfromiteration, new QueryOperatorSmallerOrEqualTo<Integer>(), iteration);
 		SimpleQueryCondition<Integer> toiterationcondition = new SimpleQueryCondition<Integer>(alias, lefttoiteration,

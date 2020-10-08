@@ -31,7 +31,7 @@ import org.openlowcode.server.data.storage.StoredField;
  *         SAS</a>
  * @since 1.13
  */
-public class Iteratedcompanion<E extends DataObject<E>>
+public class Iteratedcompanion<E extends DataObject<E> & HasidInterface<E>>
 		extends
 		DataObjectProperty<E> {
 
@@ -45,27 +45,35 @@ public class Iteratedcompanion<E extends DataObject<E>>
 	public Iteratedcompanion(IteratedcompanionDefinition<E> definition, DataObjectPayload parentpayload) {
 		super(definition, parentpayload);
 		this.casteddefinition = definition;
-		firstiter = (StoredField<Integer>) this.field.lookupOnName(casteddefinition.getPrefix() + "FIRSTITER");
-		lastiter = (StoredField<Integer>) this.field.lookupOnName(casteddefinition.getPrefix() + "LASTITER");
+		mnfirstiter = (StoredField<Integer>) this.field.lookupOnName("MNFIRSTITER");
+		mnlastiter = (StoredField<Integer>) this.field.lookupOnName("MNLASTITER");
 		
 	}
 
-	private StoredField<Integer> firstiter;
-	private StoredField<Integer> lastiter;
+	private StoredField<Integer> mnfirstiter;
+	private StoredField<Integer> mnlastiter;
 	/**
 	 * @return the first iteration of the external object for which this object is valid
 	 */
 	public Integer getFirstiter() {
-		return firstiter.getPayload();
+		return mnfirstiter.getPayload();
 	}
 
 	/**
 	 * @return the last iteration of the external object for which this object is valid
 	 */
 	public Integer getLastiter() {
-		return lastiter.getPayload();
+		return mnlastiter.getPayload();
 	}
 
+	protected void setFirstiter(Integer payload) {
+		this.mnfirstiter.setPayload(payload);
+	}
+	
+	protected void setLastiter(Integer payload) {
+		this.mnlastiter.setPayload(payload);
+	}
+	
 	/**
 	 * archive this iteration
 	 * 
@@ -75,7 +83,29 @@ public class Iteratedcompanion<E extends DataObject<E>>
 	 *                          update)
 	 */
 	public void archivethisiteration(E object, long leftobjectolditer) {
-		this.lastiter.setPayload(new Integer((int) leftobjectolditer));
+		this.mnlastiter.setPayload(new Integer((int) leftobjectolditer));
 		parentpayload.insert();
+	}
+	
+	
+	/**
+	 * massive version of the archive iteration. It is optimized for massive
+	 * treatment
+	 * 
+	 * @param objectbatch       batch of data objects
+	 * @param iteratedlinkbatch corresponding batch of iterated link property
+	 * @param leftobjectolditer old iterations of the left object for each data
+	 *                          object provided
+	 */
+	public static <E extends DataObject<E> & HasidInterface<E>> void archivethisiteration(
+			E[] objectbatch, Iteratedcompanion<E>[] iteratedlinkbatch, Integer[] leftobjectolditer) {
+		for (int i = 0; i < objectbatch.length; i++) {
+			iteratedlinkbatch[i].mnlastiter.setPayload(leftobjectolditer[i]);
+		}
+		DataObjectPayload[] payloads = new DataObjectPayload[objectbatch.length];
+		for (int i = 0; i < iteratedlinkbatch.length; i++) {
+			payloads[i] = iteratedlinkbatch[i].parentpayload;
+		}
+		DataObjectPayload.massiveinsert(payloads);
 	}
 }
