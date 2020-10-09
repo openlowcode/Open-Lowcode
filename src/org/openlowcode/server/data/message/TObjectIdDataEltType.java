@@ -11,7 +11,7 @@
 package org.openlowcode.server.data.message;
 
 import org.openlowcode.server.data.DataObject;
-import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
+import org.openlowcode.server.data.properties.HasidInterface;
 import org.openlowcode.tools.structure.ObjectIdDataEltType;
 
 /**
@@ -23,7 +23,7 @@ import org.openlowcode.tools.structure.ObjectIdDataEltType;
  *
  * @param <E> type of data object
  */
-public class TObjectIdDataEltType<E extends DataObject<E> & UniqueidentifiedInterface<E>>
+public class TObjectIdDataEltType<E extends DataObject<E> & HasidInterface<E>>
 		extends
 		ObjectIdDataEltType {
 

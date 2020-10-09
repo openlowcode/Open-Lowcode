@@ -19,6 +19,7 @@ import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.SimpleChoiceCategory;
 import org.openlowcode.design.generation.SourceGenerator;
+import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
 /**
@@ -77,6 +78,7 @@ public class Typed
 
 	@Override
 	public void controlAfterParentDefinition() {
+		this.addChoiceCategoryHelper("TYPES", types);
 		for (int i=0;i<allcompanions.size();i++) {
 			DataObjectDefinition companion = allcompanions.get(i);
 			if (companion.getPropertyByName("UNIQUEIDENTIFIED")!=null) throw new RuntimeException("Companion object cannot have property Unique Identified");
@@ -129,7 +131,8 @@ public class Typed
 
 	@Override
 	public void writeDependentClass(SourceGenerator sg, Module module) throws IOException {
-		// TODO Auto-generated method stub
+		sg.wl("import " + types.getParentModule().getPath() + ".data.choice."
+				+ StringFormatter.formatForJavaClass(types.getName()) + "ChoiceDefinition;");
 
 	}
 

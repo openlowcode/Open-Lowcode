@@ -11,6 +11,9 @@
 package org.openlowcode.server.data.properties;
 
 import org.openlowcode.server.data.DataObject;
+import org.openlowcode.server.data.DataObjectPayload;
+import org.openlowcode.server.data.DataObjectProperty;
+import org.openlowcode.server.data.DataObjectPropertyDefinition;
 import org.openlowcode.server.data.FieldChoiceDefinition;
 
 /**
@@ -20,6 +23,11 @@ import org.openlowcode.server.data.FieldChoiceDefinition;
  *         SAS</a> 
  * @since 1.13
  */
-public class Typed<E extends DataObject<E> & TypedInterface<E,F>,F extends FieldChoiceDefinition<F>> {
+public class Typed<E extends DataObject<E> & TypedInterface<E,F>,F extends FieldChoiceDefinition<F>> extends DataObjectProperty<E> {
+
+	public Typed(DataObjectPropertyDefinition<E> definition, DataObjectPayload parentpayload) {
+		super(definition, parentpayload);
+		
+	}
 
 }

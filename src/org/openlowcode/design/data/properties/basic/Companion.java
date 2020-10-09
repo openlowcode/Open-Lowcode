@@ -58,6 +58,7 @@ public class Companion
 				new ObjectArgument("MAIN", maintypedobject), new ObjectArgument("COMPANION", this.getParent()))));
 		this.addDataAccessMethod(updatetyped);
 		// put the main typed object as related to this property
+		this.addChoiceCategoryHelper("TYPE",((Typed)maintypedobject.getPropertyByName("TYPED")).getTypes() );
 		this.addPropertyGenerics(new PropertyGenerics("MAINTYPEDOBJECT",maintypedobject, maintypedobject.getPropertyByName("TYPED")));
 		this.addDependentProperty(this.getParent().getPropertyByName("HASID"));
 	}
