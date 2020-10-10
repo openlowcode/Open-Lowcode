@@ -15,9 +15,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.openlowcode.design.data.ChoiceValue;
+import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
+import org.openlowcode.design.data.MethodAdditionalProcessing;
+import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.SimpleChoiceCategory;
+import org.openlowcode.design.data.argument.ChoiceArgument;
+import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
@@ -90,6 +95,15 @@ public class Typed
 				companion.addProperty(new HasId());
 			}
 		}
+		DataAccessMethod settypebeforecreation = new DataAccessMethod("SETTYPEBEFORECREATION", null, false,false);
+		settypebeforecreation.addInputArgument(new MethodArgument("OBJECT",new ObjectArgument("OBJECT",this.getParent())));
+		settypebeforecreation.addInputArgument(new MethodArgument("TYPE",new ChoiceArgument("TYPE", types)));
+		this.addDataAccessMethod(settypebeforecreation);
+		this.addDependentProperty(this.getParent().getPropertyByName("UNIQUEIDENTIFIED"));
+		StoredObject storedobject = (StoredObject) this.getParent().getPropertyByName("STOREDOBJECT");
+		MethodAdditionalProcessing insertidgeneration = new MethodAdditionalProcessing(false,
+				storedobject.getDataAccessMethod("INSERT"));
+		this.addMethodAdditionalProcessing(insertidgeneration);
 	}
 
 	@Override

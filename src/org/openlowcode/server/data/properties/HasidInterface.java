@@ -19,7 +19,7 @@ import org.openlowcode.server.data.DataObject;
  * @param <E> parent data object
  * @since 2.0
  */
-public interface HasidInterface<E extends DataObject<E>> {
+public interface HasidInterface<E extends DataObject<E>> extends StoredobjectInterface<E> {
 	/**
 	 * @return the unique id of the object
 	 */

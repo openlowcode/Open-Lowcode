@@ -22,6 +22,7 @@ import org.openlowcode.server.data.DataObjectPropertyDefinition;
 import org.openlowcode.server.data.FieldChoiceDefinition;
 import org.openlowcode.server.data.PropertyExtractor;
 import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
+import org.openlowcode.server.data.properties.typed.TypedHelper;
 import org.openlowcode.server.data.specificstorage.ExternalFieldSchema;
 import org.openlowcode.server.data.storage.QueryCondition;
 
@@ -29,16 +30,32 @@ import org.openlowcode.server.data.storage.QueryCondition;
  * 
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
- *         SAS</a> 
+ *         SAS</a>
  * @since 1.13
  */
-public class TypedDefinition<E extends DataObject<E> & TypedInterface<E,F>,F extends FieldChoiceDefinition<F>> extends DataObjectPropertyDefinition<E> {
+public class TypedDefinition<E extends DataObject<E> & TypedInterface<E, F>, F extends FieldChoiceDefinition<F>>
+		extends
+		DataObjectPropertyDefinition<E> {
 
 	private F typechoice;
+	private UniqueidentifiedDefinition<E> uniqueidentified;
+	private TypedHelper<E, F> helper;
 
-	public TypedDefinition(DataObjectDefinition<E> parentobject,F typechoice) {
+	public TypedHelper<E,F> getHelper() {
+		return this.helper;
+	}
+	
+	public TypedDefinition(DataObjectDefinition<E> parentobject, F typechoice) {
 		super(parentobject, "TYPED");
 		this.typechoice = typechoice;
+	}
+
+	public UniqueidentifiedDefinition<E> getDependentUniqueIdentified() {
+		return this.uniqueidentified;
+	}
+
+	public void setDependentDefinitionUniqueidentified(UniqueidentifiedDefinition<E> uniqueidentified) {
+		this.uniqueidentified = uniqueidentified;
 	}
 
 	@Override
@@ -46,10 +63,11 @@ public class TypedDefinition<E extends DataObject<E> & TypedInterface<E,F>,F ext
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	public F getTypeChoice() {
 		return this.typechoice;
 	}
-	
+
 	@Override
 	public QueryCondition getUniversalQueryCondition(String alias) {
 		// TODO Auto-generated method stub
@@ -86,9 +104,8 @@ public class TypedDefinition<E extends DataObject<E> & TypedInterface<E,F>,F ext
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public DataObjectElement initiateFieldInstance(
-			DataObjectPayload parentpayload) {
-		return new Typed<E,F>(this, parentpayload);
+	public DataObjectElement initiateFieldInstance(DataObjectPayload parentpayload) {
+		return new Typed<E, F>(this, parentpayload);
 	}
 
 }

@@ -25,7 +25,9 @@ import org.openlowcode.server.data.TwoDataObjects;
  */
 public class CompanionQueryHelper {
 	private static CompanionQueryHelper singleton = new CompanionQueryHelper();
+	@SuppressWarnings("unused")
 	private static final int BATCH_QUERY_SIZE = 20;
+	@SuppressWarnings("unused")
 	private static final String BLANK_ID = "NEVERLAND";
 
 	/**
@@ -43,6 +45,11 @@ public class CompanionQueryHelper {
 					DataObjectDefinition<E> companiondefinition,
 					DataObjectDefinition<F> maintypedobject,
 					CompanionDefinition<E, F, G> companionproperty) {
-		throw new RuntimeException("Not yet implemented");
+		E companion = HasidQueryHelper.get().readone(companionobjectid, companiondefinition,
+				companionproperty.getHasidDefinition());
+		DataObjectId<F> mainobjectid = new DataObjectId<F>(companionobjectid.getId(), maintypedobject);
+		F mainobject = HasidQueryHelper.get().readone(mainobjectid, maintypedobject,
+				companionproperty.getMainObjectTypedDefinition().getDependentUniqueIdentified().getDependentDefinitionHasid());
+		return new TwoDataObjects<F,E>(mainobject,companion);
 	}
 }

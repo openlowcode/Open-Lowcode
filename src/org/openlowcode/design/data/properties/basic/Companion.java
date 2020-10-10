@@ -20,6 +20,7 @@ import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.PropertyGenerics;
 import org.openlowcode.design.data.SimpleChoiceCategory;
+import org.openlowcode.design.data.argument.ChoiceArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.data.argument.TwoObjectsArgument;
@@ -72,6 +73,7 @@ public class Companion
 		DataAccessMethod createtyped = new DataAccessMethod("CREATETYPED",null,false,false);
 		createtyped.addInputArgument(new MethodArgument("THISCOMPANION",new ObjectArgument("COMPANION",this.getParent())));
 		createtyped.addInputArgument(new MethodArgument("MAINOBJECT",new ObjectArgument("MAINOBJECT",maintypedobject)));
+		createtyped.addInputArgument(new MethodArgument("TYPE",new ChoiceArgument("TYPE", mainobjecttypedproperty.getTypes())));
 		this.addDataAccessMethod(createtyped);
 		
 		// put the main typed object as related to this property

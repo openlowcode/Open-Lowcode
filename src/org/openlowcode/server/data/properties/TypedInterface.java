@@ -10,6 +10,7 @@
 
 package org.openlowcode.server.data.properties;
 
+import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.FieldChoiceDefinition;
 
@@ -21,5 +22,5 @@ import org.openlowcode.server.data.FieldChoiceDefinition;
  * @since 1.13
  */
 public interface TypedInterface<E extends DataObject<E> & TypedInterface<E,F>,F extends FieldChoiceDefinition<F>> extends UniqueidentifiedInterface<E> {
-
+	public void settypebeforecreation(ChoiceValue<F> typechoice);
 }

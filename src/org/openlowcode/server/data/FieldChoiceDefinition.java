@@ -82,7 +82,7 @@ public abstract class FieldChoiceDefinition<E extends FieldChoiceDefinition<E>> 
 	 * @param valueasstored the code of the value
 	 * @return the value corresponding to the code
 	 */
-	protected ChoiceValue<E> parseChoiceValue(String valueasstored) {
+	public ChoiceValue<E> parseChoiceValue(String valueasstored) {
 		return choicevalues.lookupOnName(valueasstored);
 	}
 
