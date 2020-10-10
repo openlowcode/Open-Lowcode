@@ -62,7 +62,7 @@ public class Typed
 	 * @param companion
 	 * @param types
 	 */
-	public void addCompanionObject(DataObjectDefinition companion, ChoiceValue[] types) {
+	protected void addCompanionObject(DataObjectDefinition companion, ChoiceValue[] types) {
 		for (int i = 0; i < types.length; i++) {
 			if (types[i] == null)
 				throw new RuntimeException("Type " + i + " is null.");
@@ -72,6 +72,7 @@ public class Typed
 		companionspertype.put(types[i],companion);
 		allcompanions.add(companion);
 		}
+		
 	}
 	
 	
@@ -88,9 +89,7 @@ public class Typed
 			if (companion.getPropertyByName("HASID")==null) {
 				companion.addProperty(new HasId());
 			}
-			this.addExternalObjectProperty(companion,new Companion(this.getParent()));
 		}
-		
 	}
 
 	@Override

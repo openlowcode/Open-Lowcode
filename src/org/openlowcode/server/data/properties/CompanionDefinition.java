@@ -34,11 +34,41 @@ import org.openlowcode.server.data.storage.QueryCondition;
  */
 public class CompanionDefinition<E extends DataObject<E> & HasidInterface<E>,F extends DataObject<F> & TypedInterface<F,G>,G extends FieldChoiceDefinition<G>> extends DataObjectPropertyDefinition<E>{
 
-	public CompanionDefinition(DataObjectDefinition<E> parentobject, String name) {
-		super(parentobject, name);
-		// TODO Auto-generated constructor stub
-	}
+	private HasidDefinition<E> hasiddefinition;
+	private TypedDefinition<F, G> typeddefinitionformainobject;
+	private DataObjectDefinition<F> mainobjectfortyped;
+	private FieldChoiceDefinition<G> types;
 
+	public CompanionDefinition(DataObjectDefinition<E> parentobject, DataObjectDefinition<F> mainobjectfortyped,FieldChoiceDefinition<G> types) {
+		super(parentobject,"COMPANION");
+		this.mainobjectfortyped = mainobjectfortyped;
+		this.types = types;
+	
+	}
+	
+	public FieldChoiceDefinition<G> getTypes() {
+		return this.types;
+	}
+	
+	public DataObjectDefinition<F> getMainObjectForTyped() {
+		return this.mainobjectfortyped;
+	}
+	
+	public TypedDefinition<F, G> getMainObjectTypedDefinition() {
+		return this.typeddefinitionformainobject;
+	}
+	
+	public HasidDefinition<E> getHasidDefinition() {
+		return this.hasiddefinition;
+	}
+	public void setDependentDefinitionHasid(HasidDefinition<E> hasiddefinition) {
+		this.hasiddefinition = hasiddefinition;
+	}
+	
+	public void setGenericsMaintypedobjectProperty(TypedDefinition<F,G> typeddefinitionformainobject) {
+		this.typeddefinitionformainobject = typeddefinitionformainobject;
+	}
+	
 	@Override
 	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema() {
 		// TODO Auto-generated method stub

@@ -25,9 +25,22 @@ import org.openlowcode.server.data.FieldChoiceDefinition;
  */
 public class Companion<E extends DataObject<E> & HasidInterface<E>,F extends DataObject<F> & TypedInterface<F,G>,G extends FieldChoiceDefinition<G>> extends DataObjectProperty<E> {
 
+	private Hasid<E> hasid;
+
 	public Companion(DataObjectPropertyDefinition<E> definition, DataObjectPayload parentpayload) {
 		super(definition, parentpayload);
 		// TODO Auto-generated constructor stub
 	}
+	
+	public void setDependentPropertyHasid(Hasid<E> hasid) {
+		this.hasid=hasid;
+	}
+	public void createtyped(E companionobject,F mainobject) {
+		throw new RuntimeException("Not yet implemented");
+	}
+	public void updatetyped(E companionobject,F mainobject) {
+		throw new RuntimeException("Not yet implemented");
+	}
+	
 
 }

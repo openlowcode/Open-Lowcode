@@ -13,15 +13,18 @@ package org.openlowcode.design.data.properties.basic;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.openlowcode.design.data.ChoiceValue;
 import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.PropertyGenerics;
+import org.openlowcode.design.data.SimpleChoiceCategory;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.data.argument.TwoObjectsArgument;
 import org.openlowcode.design.generation.SourceGenerator;
+import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
 /**
@@ -37,26 +40,40 @@ public class Companion
 		Property<Companion> {
 
 	private DataObjectDefinition maintypedobject;
+	private ChoiceValue[] types;
 
-	public Companion(DataObjectDefinition maintypedobject) {
+	public Companion(DataObjectDefinition maintypedobject,ChoiceValue[] types) {
 		super("COMPANION");
 		this.maintypedobject = maintypedobject;
-
+		this.types = types;
+		
 	}
 
 	@Override
 	public void controlAfterParentDefinition() {
+
+		Typed mainobjecttypedproperty = (Typed) maintypedobject.getPropertyByName("TYPED");
+		if (mainobjecttypedproperty==null) throw new RuntimeException("Main object "+maintypedobject.getName()+" should have the Typed property added before this statement.");
+		mainobjecttypedproperty.addCompanionObject(this.getParent(), types);
+		
 		// READ THE TYPED OBJECTS
 		DataAccessMethod readtyped = new DataAccessMethod("READTYPED", new TwoObjectsArgument("TYPED",
 				new ObjectArgument("MAIN", maintypedobject), new ObjectArgument("COMPANION", this.getParent())), false,
-				true);
+				false);
 		readtyped.addInputArgument(new MethodArgument("OBJECTID", new ObjectIdArgument("OBJECT", this.getParent())));
 		this.addDataAccessMethod(readtyped);
 		// UPDATE THE TYPED OBJECT
-		DataAccessMethod updatetyped = new DataAccessMethod("UPDATETYPED",null,false,true);
-		updatetyped.addInputArgument(new MethodArgument("TYPEDOBJECT", new TwoObjectsArgument("TYPED",
-				new ObjectArgument("MAIN", maintypedobject), new ObjectArgument("COMPANION", this.getParent()))));
+		DataAccessMethod updatetyped = new DataAccessMethod("UPDATETYPED",null,false,false);
+		updatetyped.addInputArgument(new MethodArgument("THISCOMPANION",new ObjectArgument("COMPANION",this.getParent())));
+		updatetyped.addInputArgument(new MethodArgument("MAINOBJECT",new ObjectArgument("MAINOBJECT",maintypedobject)));
+
 		this.addDataAccessMethod(updatetyped);
+		// CREATE A TYPED OBJECT
+		DataAccessMethod createtyped = new DataAccessMethod("CREATETYPED",null,false,false);
+		createtyped.addInputArgument(new MethodArgument("THISCOMPANION",new ObjectArgument("COMPANION",this.getParent())));
+		createtyped.addInputArgument(new MethodArgument("MAINOBJECT",new ObjectArgument("MAINOBJECT",maintypedobject)));
+		this.addDataAccessMethod(createtyped);
+		
 		// put the main typed object as related to this property
 		this.addChoiceCategoryHelper("TYPE",((Typed)maintypedobject.getPropertyByName("TYPED")).getTypes() );
 		this.addPropertyGenerics(new PropertyGenerics("MAINTYPEDOBJECT",maintypedobject, maintypedobject.getPropertyByName("TYPED")));
@@ -101,7 +118,9 @@ public class Companion
 
 	@Override
 	public void writeDependentClass(SourceGenerator sg, Module module) throws IOException {
-		// TODO Auto-generated method stub
+		SimpleChoiceCategory typechoice = ((Typed)maintypedobject.getPropertyByName("TYPED")).getTypes();
+		sg.wl("import " + typechoice.getParentModule().getPath() + ".data.choice."
+				+ StringFormatter.formatForJavaClass(typechoice.getName()) + "ChoiceDefinition;");
 
 	}
 
