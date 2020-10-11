@@ -98,7 +98,7 @@ public class LifecycleDefinition<E extends DataObject<E> & UniqueidentifiedInter
 		state = new StringStoredField("STATE", null, 64, new LifecycleDefaultValueGenerator(lifecyclehelper));
 		this.addFieldSchema(state);
 		StoredTableIndex stateindex = new StoredTableIndex("STATE");
-		stateindex.addStoredFieldSchame(state);
+		stateindex.addStoredFieldSchema(state);
 		this.addIndex(stateindex);
 		if (lifecyclehelper.IsFinalTransitionDefined()) {
 			finalstatetime = new TimestampStoredField("FINALSTATETIME", null);

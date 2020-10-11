@@ -102,7 +102,7 @@ public class TestDatabase {
 			StoredTableSchema ping = new StoredTableSchema("PING");
 			StringStoredField content = new StringStoredField("CONTENT", ping, 1000);
 			StoredTableIndex contentindex = new StoredTableIndex("CONTENTIDX");
-			contentindex.addStoredFieldSchame(content);
+			contentindex.addStoredFieldSchema(content);
 
 			ping.addField(content);
 			ping.addIndex(contentindex);

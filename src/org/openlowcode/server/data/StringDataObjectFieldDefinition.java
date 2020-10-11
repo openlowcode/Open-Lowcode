@@ -105,7 +105,7 @@ public class StringDataObjectFieldDefinition<E extends DataObject<E>>
 			easysearchfield = new StringStoredField(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX, null, maxlength);
 			this.addFieldSchema(easysearchfield);
 			StoredTableIndex easysearchindex = new StoredTableIndex(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX);
-			easysearchindex.addStoredFieldSchame(easysearchfield);
+			easysearchindex.addStoredFieldSchema(easysearchfield);
 			this.addIndex(easysearchindex);
 		}
 	}
@@ -171,7 +171,7 @@ public class StringDataObjectFieldDefinition<E extends DataObject<E>>
 			easysearchfield = new StringStoredField(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX, null, maxlength);
 			this.addFieldSchema(easysearchfield);
 			StoredTableIndex easysearchindex = new StoredTableIndex(this.getName() + FieldSchema.EASY_SEARCH_FIELD_SUFFIX);
-			easysearchindex.addStoredFieldSchame(easysearchfield);
+			easysearchindex.addStoredFieldSchema(easysearchfield);
 			this.addIndex(easysearchindex);
 		}
 	}

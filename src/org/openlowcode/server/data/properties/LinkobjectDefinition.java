@@ -222,11 +222,11 @@ public class LinkobjectDefinition<
 		this.addFieldSchema(rightid);
 
 		StoredTableIndex lfidindex = new StoredTableIndex("LFID");
-		lfidindex.addStoredFieldSchame(leftid);
+		lfidindex.addStoredFieldSchema(leftid);
 		this.addIndex(lfidindex);
 
 		StoredTableIndex rgidindex = new StoredTableIndex("RGID");
-		rgidindex.addStoredFieldSchame(rightid);
+		rgidindex.addStoredFieldSchema(rightid);
 		this.addIndex(rgidindex);
 
 		this.constraintsonlinkobject = new ArrayList<ConstraintOnLinkObject<F, G>>();

@@ -52,7 +52,7 @@ public class GenericlinkDefinition<E extends DataObject<E>> extends DataObjectPr
 		id = new StringStoredField(this.getName() + "ID", null, 200);
 		this.addFieldSchema(id);
 		StoredTableIndex idindex = new StoredTableIndex(this.getName().substring(14) + "GLKID");
-		idindex.addStoredFieldSchame(id);
+		idindex.addStoredFieldSchema(id);
 		this.addIndex(idindex);
 
 		objecttype = new StringStoredField(this.getName() + "OBJECTTYPE", null, 200);

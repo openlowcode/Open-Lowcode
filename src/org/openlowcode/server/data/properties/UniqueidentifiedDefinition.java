@@ -24,8 +24,6 @@ import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
 import org.openlowcode.server.data.specificstorage.ExternalFieldSchema;
 import org.openlowcode.server.data.storage.QueryCondition;
 
-import org.openlowcode.server.data.storage.StoredTableIndex;
-import org.openlowcode.server.data.storage.StringStoredField;
 
 /**
  * definition of the Uniqueidentified property

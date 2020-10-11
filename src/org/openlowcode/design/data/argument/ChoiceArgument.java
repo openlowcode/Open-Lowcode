@@ -91,7 +91,7 @@ public class ChoiceArgument
 
 	@Override
 	public ArgumentContent generateCopy(String newname) {
-		throw new RuntimeException("Not yet implemented");
+		return new ChoiceArgument(newname,category);
 	}
 
 	@Override

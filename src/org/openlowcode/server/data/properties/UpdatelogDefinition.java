@@ -65,10 +65,10 @@ public class UpdatelogDefinition<E extends DataObject<E>>
 		this.fieldsintitle = false;
 		this.fieldsinbottomnotes = false;
 		StoredTableIndex updatetimeindex = new StoredTableIndex("UPDATETIME");
-		updatetimeindex.addStoredFieldSchame(updatetime);
+		updatetimeindex.addStoredFieldSchema(updatetime);
 		this.addIndex(updatetimeindex);
 		StoredTableIndex updateuseridindex = new StoredTableIndex("UPDATEUSERID");
-		updateuseridindex.addStoredFieldSchame(updateuserid);
+		updateuseridindex.addStoredFieldSchema(updateuserid);
 		this.addIndex(updateuseridindex);
 	}
 

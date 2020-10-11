@@ -69,7 +69,7 @@ public class StoredTableIndex extends Named {
 	 * 
 	 * @param indexfield the field to add at current position in the index
 	 */
-	public void addStoredFieldSchame(StoredFieldSchema indexfield) {
+	public void addStoredFieldSchema(StoredFieldSchema indexfield) {
 		indexfields.add(indexfield);
 	}
 

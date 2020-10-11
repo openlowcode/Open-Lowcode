@@ -222,11 +222,11 @@ public class LinkobjecttomasterDefinition<
 		this.addFieldSchema(rightmasterid);
 
 		StoredTableIndex lfidindex = new StoredTableIndex("LFID");
-		lfidindex.addStoredFieldSchame(leftid);
+		lfidindex.addStoredFieldSchema(leftid);
 		this.addIndex(lfidindex);
 
 		StoredTableIndex rgidindex = new StoredTableIndex("RGMSID");
-		rgidindex.addStoredFieldSchame(rightmasterid);
+		rgidindex.addStoredFieldSchema(rightmasterid);
 		this.addIndex(rgidindex);
 
 		this.constraintsonlinkobject = new ArrayList<ConstraintOnLinkToMaster<F, G>>();

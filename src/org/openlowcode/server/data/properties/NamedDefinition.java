@@ -54,7 +54,7 @@ public class NamedDefinition<E extends DataObject<E>> extends DataObjectProperty
 		this.name = new StringStoredField("OBJECTNAME", null, NAMED_LENGTH);
 		this.addFieldSchema(name);
 		StoredTableIndex nameindex = new StoredTableIndex("NAME");
-		nameindex.addStoredFieldSchame(name);
+		nameindex.addStoredFieldSchema(name);
 		this.addIndex(nameindex);
 	}
 

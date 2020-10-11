@@ -76,6 +76,12 @@ public class Companion
 		createtyped.addInputArgument(new MethodArgument("TYPE",new ChoiceArgument("TYPE", mainobjecttypedproperty.getTypes())));
 		this.addDataAccessMethod(createtyped);
 		
+		// INSERT AFTER TYPED OBJECT CREATION
+		DataAccessMethod insertcompanion = new DataAccessMethod("INSERTCOMPANION",null,false,false);
+		insertcompanion.addInputArgument(new MethodArgument("THISCOMPANION",new ObjectArgument("COMPANION",this.getParent())));
+		insertcompanion.addInputArgument(new MethodArgument("MAINOBJECT",new ObjectArgument("MAINOBJECT",maintypedobject)));	
+		this.addDataAccessMethod(insertcompanion);
+		
 		// put the main typed object as related to this property
 		this.addChoiceCategoryHelper("TYPE",((Typed)maintypedobject.getPropertyByName("TYPED")).getTypes() );
 		this.addPropertyGenerics(new PropertyGenerics("MAINTYPEDOBJECT",maintypedobject, maintypedobject.getPropertyByName("TYPED")));

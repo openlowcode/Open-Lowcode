@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.openlowcode.design.data.argument.ChoiceArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.data.argument.StringArgument;
 import org.openlowcode.design.data.argument.TimestampArgument;
@@ -21,9 +22,11 @@ import org.openlowcode.design.data.autopages.GeneratedPages;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
 import org.openlowcode.design.data.properties.basic.Session;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.server.graphic.widget.SChoiceTextField;
 
 /**
  * Generation of the creation page for a Data Object
@@ -71,8 +74,6 @@ public class DataObjectDefinitionCreatePageToFile
 					pageattributeentry.append(" , ");
 				pageattributeentry.append(" " + thisargument.getName().toLowerCase() + " ");
 
-	
-
 				ArrayList<String> imports = thisargument.getImports();
 				for (int k = 0; k < imports.size(); k++) {
 					importdeclaration.put(imports.get(k), imports.get(k));
@@ -83,7 +84,6 @@ public class DataObjectDefinitionCreatePageToFile
 				for (int j = 0; j < thisproperty.getDataInputSize(); j++) {
 					ArgumentContent thisargument = thisproperty.getDataInputForCreation(j);
 					if (!thisproperty.isDataInputHiddenForCreation()) {
-			
 
 						if (thisargument instanceof StringArgument) {
 							String importtextfield = "import org.openlowcode.server.graphic.widget.STextField;";
@@ -149,7 +149,10 @@ public class DataObjectDefinitionCreatePageToFile
 			if (thisproperty instanceof Session) {
 				sg.wl("import org.openlowcode.server.graphic.widget.STimeslotField;");
 				sg.wl("import org.openlowcode.server.graphic.widget.SIntegerField;");
-
+			}
+			if (thisproperty instanceof Typed) {
+				sg.wl("import org.openlowcode.server.graphic.widget.SChoiceTextField;");
+				
 			}
 		}
 
@@ -275,6 +278,20 @@ public class DataObjectDefinitionCreatePageToFile
 						sg.wl("			}");
 
 					}
+					treated = true;
+				}
+				if (contextdata instanceof ChoiceArgument) {
+					ChoiceArgument choiceargument = (ChoiceArgument) contextdata;
+					sg.wl("		SChoiceTextField<"
+							+ choiceargument.getChoiceCategoryClass()
+							+ "> typefield = new SChoiceTextField<"
+							+ choiceargument.getChoiceCategoryClass()
+							+ ">(");
+					sg.wl("				\"Type\", \"TYPE\",\"Type\", "
+							+choiceargument.getChoiceCategoryClass()
+							+ ".get(), this.getType(), this, true, back);");
+					sg.wl("		mainband.addElement(typefield);");
+
 					treated = true;
 				}
 				if (!treated)

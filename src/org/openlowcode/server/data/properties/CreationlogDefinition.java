@@ -59,10 +59,10 @@ public class CreationlogDefinition<E extends DataObject<E>> extends DataObjectPr
 		this.fieldsintitle = false;
 		this.fieldsinbottomnotes = false;
 		StoredTableIndex createtimeid = new StoredTableIndex("CREATETIME");
-		createtimeid.addStoredFieldSchame(createtime);
+		createtimeid.addStoredFieldSchema(createtime);
 		this.addIndex(createtimeid);
 		StoredTableIndex createuseridindex = new StoredTableIndex("CREATEUSERID");
-		createuseridindex.addStoredFieldSchame(createuserid);
+		createuseridindex.addStoredFieldSchema(createuserid);
 		this.addIndex(createuseridindex);
 
 	}

@@ -50,7 +50,7 @@ public class VersionedDefinition<E extends DataObject<E>>
 		this.masterid = new StringStoredField("MASTERID", null, 200);
 		this.addFieldSchema(this.masterid);
 		StoredTableIndex msidindex = new StoredTableIndex("MSID");
-		msidindex.addStoredFieldSchame(masterid);
+		msidindex.addStoredFieldSchema(masterid);
 		this.addIndex(msidindex);
 	}
 

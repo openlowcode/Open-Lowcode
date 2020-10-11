@@ -48,10 +48,10 @@ public class TimeslotDefinition<E extends DataObject<E> & TimeslotInterface<E>>
 		endtime = new TimestampStoredField("ENDTIME", null, new Date());
 		this.addFieldSchema(endtime);
 		StoredTableIndex startdateindex = new StoredTableIndex("STARTTIME");
-		startdateindex.addStoredFieldSchame(starttime);
+		startdateindex.addStoredFieldSchema(starttime);
 		this.addIndex(startdateindex);
 		StoredTableIndex enddateindex = new StoredTableIndex("ENDTIME");
-		enddateindex.addStoredFieldSchame(endtime);
+		enddateindex.addStoredFieldSchema(endtime);
 		this.addIndex(enddateindex);
 
 	}

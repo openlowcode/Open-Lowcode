@@ -31,10 +31,11 @@ public class Typed<E extends DataObject<E> & TypedInterface<E, F>, F extends Fie
 	private Uniqueidentified<E> uniqueidentified;
 	private TypedDefinition<E, F> typeddefinition;
 
+	@SuppressWarnings("unchecked")
 	public Typed(TypedDefinition<E, F> definition, DataObjectPayload parentpayload) {
 		super(definition, parentpayload);
 		this.typeddefinition = definition;
-
+		type = (StoredField<String>) this.field.lookupOnName("TYPE");
 	}
 
 	public void settypebeforecreation(E object, ChoiceValue<F> typechoice) {
@@ -56,9 +57,25 @@ public class Typed<E extends DataObject<E> & TypedInterface<E, F>, F extends Fie
 	}
 
 	public void postprocStoredobjectInsert(E object) {
-		// creates the companion object. 
+		// creates the companion object.
 		ChoiceValue<F> value = typeddefinition.getTypeChoice().parseChoiceValue(type.getPayload());
-		HasidInterface<?> blankcompanion = typeddefinition.getHelper().generateBlankCompanion(value);
-		blankcompanion.insert();
+		CompanionInterface<?, E, F> blankcompanion = typeddefinition.getHelper().generateBlankCompanion(value);
+		blankcompanion.insertcompanion(object);
 	}
+
+	/**
+	 * creates by batch the companion objects. This is not yet performance optimized
+	 * 
+	 * @param object            a batch of object
+	 * @param preproctypesbatch the corresponding typed properties
+	 */
+	public static <
+			E extends DataObject<E> & TypedInterface<E, F>,
+			F extends FieldChoiceDefinition<F>> void postprocStoredobjectInsert(
+					E[] object,
+					Typed<E, F>[] preproctypesbatch) {
+		for (int i = 0; i < object.length; i++)
+			preproctypesbatch[i].postprocStoredobjectInsert(object[i]);
+	}
+
 }

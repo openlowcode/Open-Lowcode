@@ -13,7 +13,9 @@ package org.openlowcode.design.data.properties.basic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
+import org.openlowcode.design.data.ArgumentContent;
 import org.openlowcode.design.data.ChoiceValue;
 import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
@@ -23,6 +25,7 @@ import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.SimpleChoiceCategory;
 import org.openlowcode.design.data.argument.ChoiceArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
+import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
@@ -46,9 +49,9 @@ public class Typed
 	private SimpleChoiceCategory types;
 
 	private HashMap<ChoiceValue, DataObjectDefinition> companionspertype;
+	private HashMap<DataObjectDefinition, ChoiceValue[]> typespercompanion;
 	private ArrayList<DataObjectDefinition> allcompanions;
-	
-	
+
 	/**
 	 * @param types
 	 */
@@ -56,13 +59,14 @@ public class Typed
 		super("TYPED");
 		this.types = types;
 		companionspertype = new HashMap<ChoiceValue, DataObjectDefinition>();
+		typespercompanion = new HashMap<DataObjectDefinition, ChoiceValue[]>();
 		allcompanions = new ArrayList<DataObjectDefinition>();
 	}
-	
+
 	public SimpleChoiceCategory getTypes() {
 		return types;
 	}
-	
+
 	/**
 	 * @param companion
 	 * @param types
@@ -74,36 +78,43 @@ public class Typed
 			if (companionspertype.containsKey(types[i]))
 				throw new RuntimeException("Duplicate companion declaration for type " + types[i] + " new companion = "
 						+ companion.getName() + ", old companion = " + companionspertype.get(types[i]).getName());
-		companionspertype.put(types[i],companion);
-		allcompanions.add(companion);
+			companionspertype.put(types[i], companion);
+			allcompanions.add(companion);
+
 		}
-		
+		if (typespercompanion.get(companion) != null)
+			throw new RuntimeException("Companion " + companion.getName() + " has already been added");
+		typespercompanion.put(companion, types);
 	}
-	
-	
 
 	@Override
 	public void controlAfterParentDefinition() {
 		this.addChoiceCategoryHelper("TYPES", types);
-		for (int i=0;i<allcompanions.size();i++) {
+		for (int i = 0; i < allcompanions.size(); i++) {
 			DataObjectDefinition companion = allcompanions.get(i);
-			if (companion.getPropertyByName("UNIQUEIDENTIFIED")!=null) throw new RuntimeException("Companion object cannot have property Unique Identified");
-			if (companion.getPropertyByName("STOREDOBJECT")==null) {
+			if (companion.getPropertyByName("UNIQUEIDENTIFIED") != null)
+				throw new RuntimeException("Companion object cannot have property Unique Identified");
+			if (companion.getPropertyByName("STOREDOBJECT") == null) {
 				companion.addProperty(new StoredObject());
 			}
-			if (companion.getPropertyByName("HASID")==null) {
+			if (companion.getPropertyByName("HASID") == null) {
 				companion.addProperty(new HasId());
 			}
 		}
-		DataAccessMethod settypebeforecreation = new DataAccessMethod("SETTYPEBEFORECREATION", null, false,false);
-		settypebeforecreation.addInputArgument(new MethodArgument("OBJECT",new ObjectArgument("OBJECT",this.getParent())));
-		settypebeforecreation.addInputArgument(new MethodArgument("TYPE",new ChoiceArgument("TYPE", types)));
+		DataAccessMethod settypebeforecreation = new DataAccessMethod("SETTYPEBEFORECREATION", null, false, false);
+		settypebeforecreation
+				.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", this.getParent())));
+		settypebeforecreation.addInputArgument(new MethodArgument("TYPE", new ChoiceArgument("TYPE", types)));
 		this.addDataAccessMethod(settypebeforecreation);
 		this.addDependentProperty(this.getParent().getPropertyByName("UNIQUEIDENTIFIED"));
 		StoredObject storedobject = (StoredObject) this.getParent().getPropertyByName("STOREDOBJECT");
 		MethodAdditionalProcessing insertidgeneration = new MethodAdditionalProcessing(false,
 				storedobject.getDataAccessMethod("INSERT"));
 		this.addMethodAdditionalProcessing(insertidgeneration);
+		
+		ArgumentContent typeargument = new ChoiceArgument("TYPE", types);
+		typeargument.setOptional(false);
+		this.addContextForDataCreation(typeargument);
 	}
 
 	@Override
@@ -146,6 +157,25 @@ public class Typed
 	public void writeDependentClass(SourceGenerator sg, Module module) throws IOException {
 		sg.wl("import " + types.getParentModule().getPath() + ".data.choice."
 				+ StringFormatter.formatForJavaClass(types.getName()) + "ChoiceDefinition;");
+
+	}
+
+	@Override
+	public void writeAdditionalDefinition(SourceGenerator sg) throws IOException {
+		Iterator<DataObjectDefinition> companioniterator = this.typespercompanion.keySet().iterator();
+		while (companioniterator.hasNext()) {
+			DataObjectDefinition companion = companioniterator.next();
+			sg.wl("		typed.getHelper().setCompanion(()->(new "+StringFormatter.formatForJavaClass(companion.getName())+"()), new ChoiceValue[] ");
+			String values = "";
+			ChoiceValue[] typeslist = this.typespercompanion.get(companion);
+			for (int i=0;i<typeslist.length;i++) {
+				if (i>0) values+=",";
+				values+=StringFormatter.formatForJavaClass(types.getName());
+				values+="ChoiceDefinition.get().";
+				values+=typeslist[i].getName().toUpperCase();
+			}
+			sg.wl("				{"+values+"});");
+		}
 
 	}
 

@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.FieldChoiceDefinition;
-import org.openlowcode.server.data.properties.HasidInterface;
+import org.openlowcode.server.data.properties.CompanionInterface;
 import org.openlowcode.server.data.properties.TypedInterface;
 
 /**
@@ -28,20 +28,20 @@ import org.openlowcode.server.data.properties.TypedInterface;
  * @param <F>
  */
 public class TypedHelper<E extends DataObject<E> & TypedInterface<E, F>, F extends FieldChoiceDefinition<F>> {
-	private HashMap<ChoiceValue<F>, Supplier<HasidInterface<?>>> suppliersbytype;
+	private HashMap<ChoiceValue<F>, Supplier<CompanionInterface<?,E,F>>> suppliersbytype;
 
 	public TypedHelper() {
-		suppliersbytype = new HashMap<ChoiceValue<F>, Supplier<HasidInterface<?>>>();
+		suppliersbytype = new HashMap<ChoiceValue<F>, Supplier<CompanionInterface<?,E,F>>>();
 	}
 
-	public HasidInterface<?> generateBlankCompanion(ChoiceValue<F> type) {
+	public CompanionInterface<?,E,F> generateBlankCompanion(ChoiceValue<F> type) {
 		if (type==null) throw new RuntimeException("Provided choice is null");
-		Supplier<HasidInterface<?>> supplier = suppliersbytype.get(type);
+		Supplier<CompanionInterface<?,E,F>> supplier = suppliersbytype.get(type);
 		if (supplier==null) throw new RuntimeException("No supplier found for type "+type.getDisplayValue());
 		return supplier.get();
 	}
 	
-	public void setCompanion(Supplier<HasidInterface<?>> companionsupplier, ChoiceValue<F>[] typesforcompanion) {
+	public void setCompanion(Supplier<CompanionInterface<?,E,F>> companionsupplier, ChoiceValue<F>[] typesforcompanion) {
 		if (typesforcompanion == null)
 			throw new RuntimeException("no types precised for companion (null array)");
 		if (typesforcompanion.length == 0)

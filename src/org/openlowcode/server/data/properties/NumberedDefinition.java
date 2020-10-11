@@ -79,7 +79,7 @@ public class NumberedDefinition<E extends DataObject<E> & UniqueidentifiedInterf
 		this.addFieldSchema(nr);
 		this.autonumberingrule = null;
 		StoredTableIndex nrindex = new StoredTableIndex("NR");
-		nrindex.addStoredFieldSchame(nr);
+		nrindex.addStoredFieldSchema(nr);
 		this.addIndex(nrindex);
 	}
 

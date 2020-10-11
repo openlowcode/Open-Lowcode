@@ -49,6 +49,21 @@ public class Companion<E extends DataObject<E> & HasidInterface<E>,F extends Dat
 		hasid.SetId(id);
 		mainobject.update();
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void insertcompanion(E companionobject,F mainobject) {
+		if (mainobject.getId()==null) throw new RuntimeException("Main object not yet persisted");
+		if (mainobject.getId().getId()==null) throw new RuntimeException("Main object not yet persisted");
+		if (mainobject.getId().getId().length()==0) throw new RuntimeException("Main object not yet persisted");
+		
+		String id = mainobject.getId().getId();
+		hasid.SetId(id);
+		NamedList<DataUpdateTrigger<E>> triggers = companionobject.getDataUpdateTriggers();
+		TriggerLauncher triggerlauncher = new TriggerLauncher(triggers);
+		triggerlauncher.executeTriggerList(companionobject);
+		this.parentpayload.insert();
+	}
+	
 	public void updatetyped(E companionobject,F mainobject) {
 		mainobject.update();
 		update(companionobject);

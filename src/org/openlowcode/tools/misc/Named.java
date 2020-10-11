@@ -72,4 +72,9 @@ public abstract class Named implements NamedInterface {
 		return (namedobject.name.equals(this.name));
 	}
 
+	@Override
+	public int hashCode() {
+		return (this.getClass().getName()+"-"+this.name).hashCode();
+	}
+
 }

@@ -49,7 +49,7 @@ public class HasidDefinition<E extends DataObject<E>>
 		id = new StringStoredField("ID", null, 200);
 		this.addFieldSchema(id);
 		StoredTableIndex idindex = new StoredTableIndex("ID");
-		idindex.addStoredFieldSchame(id);
+		idindex.addStoredFieldSchema(id);
 		this.addIndex(idindex);
 
 	}

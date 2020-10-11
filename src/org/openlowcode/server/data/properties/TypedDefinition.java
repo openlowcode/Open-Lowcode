@@ -25,6 +25,8 @@ import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
 import org.openlowcode.server.data.properties.typed.TypedHelper;
 import org.openlowcode.server.data.specificstorage.ExternalFieldSchema;
 import org.openlowcode.server.data.storage.QueryCondition;
+import org.openlowcode.server.data.storage.StoredTableIndex;
+import org.openlowcode.server.data.storage.StringStoredField;
 
 /**
  * 
@@ -36,7 +38,7 @@ import org.openlowcode.server.data.storage.QueryCondition;
 public class TypedDefinition<E extends DataObject<E> & TypedInterface<E, F>, F extends FieldChoiceDefinition<F>>
 		extends
 		DataObjectPropertyDefinition<E> {
-
+	private StringStoredField type;
 	private F typechoice;
 	private UniqueidentifiedDefinition<E> uniqueidentified;
 	private TypedHelper<E, F> helper;
@@ -48,6 +50,12 @@ public class TypedDefinition<E extends DataObject<E> & TypedInterface<E, F>, F e
 	public TypedDefinition(DataObjectDefinition<E> parentobject, F typechoice) {
 		super(parentobject, "TYPED");
 		this.typechoice = typechoice;
+		this.type = new StringStoredField("TYPE", null, typechoice.getStorageSize());
+		this.addFieldSchema(type);
+		StoredTableIndex typeindex = new StoredTableIndex("TYPE");
+		typeindex.addStoredFieldSchema(type);
+		this.addIndex(typeindex);
+		helper = new TypedHelper<E,F>();
 	}
 
 	public UniqueidentifiedDefinition<E> getDependentUniqueIdentified() {

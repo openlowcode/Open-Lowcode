@@ -101,7 +101,7 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 		this.addFieldSchema(id);
 		// remove prefix LINKEDTOPARENTFOR
 		StoredTableIndex parentidindex = new StoredTableIndex(this.getName().substring(17) + "PRID");
-		parentidindex.addStoredFieldSchame(id);
+		parentidindex.addStoredFieldSchema(id);
 		this.addIndex(parentidindex);
 
 		this.subobject = false;
@@ -119,9 +119,9 @@ public class LinkedtoparentDefinition<E extends DataObject<E> & Uniqueidentified
 	 */
 	public void setCompositeIndex(String name, DataObjectFieldDefinition<E>[] fields) {
 		StoredTableIndex thisindex = new StoredTableIndex(this.getName().substring(17) + name);
-		thisindex.addStoredFieldSchame(id);
+		thisindex.addStoredFieldSchema(id);
 		for (int i = 0; i < fields.length; i++)
-			thisindex.addStoredFieldSchame(fields[i].getMainStoredField());
+			thisindex.addStoredFieldSchema(fields[i].getMainStoredField());
 		this.addIndex(thisindex);
 	}
 

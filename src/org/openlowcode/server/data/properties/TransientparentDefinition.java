@@ -71,7 +71,7 @@ public class TransientparentDefinition<E extends DataObject<E>, F extends DataOb
 		this.addFieldSchema(id);
 		// remove prefix LINKEDTOPARENTFOR
 		StoredTableIndex parentidindex = new StoredTableIndex(this.getName().substring(17) + "PRID");
-		parentidindex.addStoredFieldSchame(id);
+		parentidindex.addStoredFieldSchema(id);
 		this.addIndex(parentidindex);
 
 		this.displayprofilehideparentfields = parentobject.getDisplayProfileByName("HIDE" + name);
