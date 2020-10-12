@@ -323,7 +323,8 @@ public class CChoiceField
 					type));
 		// case of read-write element
 		if (this.choicebox!=null) return new ChoiceDataElt<CChoiceFieldValue>(eltname, this.choicebox.getValue());
-		// case of read-only element
+		// case of read-only element, return the initial choice (the best we have)
+		// do not read it from widget as it would be more complex
 		return new ChoiceDataElt<CChoiceFieldValue>(eltname,this.initialchoice);
 	}
 
