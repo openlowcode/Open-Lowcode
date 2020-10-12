@@ -116,6 +116,7 @@ public class CChoiceField
 	private boolean compactshow;
 	private CChoiceFieldValue blankchoicefield;
 	private boolean twolines;
+	private CChoiceFieldValue initialchoice;
 
 	/**
 	 * creates a new Choice Field widget from a message coming from the server
@@ -279,8 +280,11 @@ public class CChoiceField
 			}
 		} else {
 			currentchoice = findChoiceFromStoredValue(defaultvaluecode);
+			
 
 		}
+		this.initialchoice=currentchoice;
+		logger.finest("Set Initial Choice = "+currentchoice);
 		logger.finest("--- Printing Choice field with label = " + label + ", current choice = " + currentchoice
 				+ ",data referenece is " + (datareference == null ? "NULL" : "NOTNULL")
 				+ ", restricted values length = " + (restrictedvalues != null ? restrictedvalues.size() : "NONE"));
@@ -317,8 +321,10 @@ public class CChoiceField
 			throw new RuntimeException(String.format(
 					"Only ChoiceDataEltType can be extracted from CChoiceField in single selection mode, but request was %s ",
 					type));
-		return new ChoiceDataElt<CChoiceFieldValue>(eltname, this.choicebox.getValue());
-
+		// case of read-write element
+		if (this.choicebox!=null) return new ChoiceDataElt<CChoiceFieldValue>(eltname, this.choicebox.getValue());
+		// case of read-only element
+		return new ChoiceDataElt<CChoiceFieldValue>(eltname,this.initialchoice);
 	}
 
 	@Override
@@ -358,7 +364,7 @@ public class CChoiceField
 			if (thisvalue.getStorageCode().compareTo(storedvalue) == 0)
 				return thisvalue;
 		}
-		logger.severe("display code not found for list of value, code = " + storedvalue + ", field name = "
+		logger.warning("display code not found for list of value, code = " + storedvalue + ", field name = "
 				+ this.datafieldname);
 		return generateInvalidValue(storedvalue);
 		

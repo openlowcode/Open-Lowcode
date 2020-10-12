@@ -43,8 +43,14 @@ public class Typed<E extends DataObject<E> & TypedInterface<E, F>, F extends Fie
 			this.type.setPayload("");
 		if (typechoice != null)
 			this.type.setPayload(typechoice.getStorageCode());
+		boolean significant = false;
 		if (object.getId() != null)
-			throw new RuntimeException("Type cannot be set after object was created");
+			if (object.getId().getId() != null)
+				if (object.getId().getId().length() > 0)
+					significant = true;
+		if (significant)
+			throw new RuntimeException("Type cannot be set after object was created, ID is set as "
+					+ (object.getId() != null ? object.getId().getId() : "NULL"));
 
 	}
 

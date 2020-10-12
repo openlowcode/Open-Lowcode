@@ -26,6 +26,7 @@ import org.openlowcode.design.data.properties.basic.AutolinkObject;
 import org.openlowcode.design.data.properties.basic.ConstraintOnLinkObjectSameParent;
 import org.openlowcode.design.data.properties.basic.LinkObject;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
@@ -33,6 +34,7 @@ import org.openlowcode.design.pages.DynamicPageDefinition;
 import org.openlowcode.design.pages.PageDefinition;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
 import org.openlowcode.module.system.design.SystemModule;
+
 
 /**
  * This class regroups methods to generate search actions and pages
@@ -1261,7 +1263,11 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("");
 		sg.wl("import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;");
 		sg.wl("import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;");
-
+		if (object.getPropertyByName("TYPED")!=null) {
+			Typed typed = (Typed) (object.getPropertyByName("TYPED"));
+			sg.wl("import "+typed.getTypes().getParentModule().getPath()+".data.choice."+
+			StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition;");
+		}
 		sg.wl("import org.openlowcode.server.action.SActionInputDataRef;");
 		sg.wl("import org.openlowcode.server.action.SActionOutputDataRef;");
 		sg.wl("import org.openlowcode.server.action.SActionRef;");
@@ -1575,6 +1581,26 @@ public class DataObjectDefinitionSearchPagesAndActions {
 					+ "\",\"Enter data directly in the tool\",preparestandardcreateactionref,this);");
 			sg.wl("		createband.addElement(createbutton);");
 
+		}
+
+		if (object.getPropertyByName("TYPED") != null) {
+			Typed typed = (Typed) object.getPropertyByName("TYPED");
+			sg.wl("		// Create typed object ----------------");
+			sg.wl("		SComponentBand createpopup = new SComponentBand(SComponentBand.DIRECTION_DOWN, this);");
+			sg.wl("		AtgPreparestandardcreate"+objectattribute+"Action.ActionRef preparestandardcreateactionref = AtgPreparestandardcreate"+objectattribute+"Action.get().getActionRef();");
+			sg.wl("		SPopupButton createpopupbutton = new SPopupButton(this, createpopup, \"Create "
+					+ object.getLabel() + "\", \"\",");
+			sg.wl("				true,true,preparestandardcreateactionref);");
+			sg.wl("");
+			sg.wl("		createband.addElement(createpopupbutton);");
+			String typechoice = StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition";
+			sg.wl("		SChoiceTextField<"+typechoice+"> createpopuptype");
+			sg.wl("		= new SChoiceTextField<"+typechoice+">(\"Type\",\"TYPE\", \"\", "+typechoice+".get(),");
+			sg.wl("				null, this, false, null);");
+			sg.wl("		createpopup.addElement(createpopuptype);");
+			sg.wl("		preparestandardcreateactionref.setType(createpopuptype.getChoiceInput());");
+			sg.wl("		createpopup.addElement(new SActionButton(\"Create\" , preparestandardcreateactionref, this));");
+			sg.wl("		");
 		}
 
 		sg.wl("		// popupprocessing");

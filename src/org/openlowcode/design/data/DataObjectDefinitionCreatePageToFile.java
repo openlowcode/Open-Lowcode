@@ -26,7 +26,6 @@ import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
-import org.openlowcode.server.graphic.widget.SChoiceTextField;
 
 /**
  * Generation of the creation page for a Data Object
@@ -429,7 +428,9 @@ public class DataObjectDefinitionCreatePageToFile
 
 		sg.wl("			create" + objectvariable + "actionref.setObject(" + objectvariable
 				+ "display.getObjectInput()); ");
-
+		if (dataobject.getPropertyByName("TYPED")!=null) {
+			sg.wl("			create" + objectvariable + "actionref.setType(typefield.getChoiceInput());");
+		}
 		sg.wl("			SActionButton create = new SActionButton(\"Create\", create" + objectvariable
 				+ "actionref, this);");
 		sg.wl("			SActionButton backbutton = new SActionButton(\"Back\",back,this);");

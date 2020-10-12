@@ -16,7 +16,6 @@ import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
 import org.openlowcode.server.data.DataObjectElement;
-import org.openlowcode.server.data.DataObjectElementDefinition;
 import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectPropertyDefinition;
 import org.openlowcode.server.data.FieldChoiceDefinition;
@@ -71,19 +70,17 @@ public class CompanionDefinition<E extends DataObject<E> & HasidInterface<E>,F e
 	
 	@Override
 	public ArrayList<ExternalFieldSchema<?>> generateExternalSchema() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public QueryCondition getUniversalQueryCondition(String alias) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public FieldSchemaForDisplay[] setFieldSchemaToDisplay() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -93,27 +90,25 @@ public class CompanionDefinition<E extends DataObject<E> & HasidInterface<E>,F e
 			String[] columnattributes,
 			PropertyExtractor<E> propertyextractor,
 			ChoiceValue<ApplocaleChoiceDefinition> locale) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String[] getLoaderFieldList() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String[] getLoaderFieldSample(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public DataObjectElement<DataObjectElementDefinition<?, E>, E> initiateFieldInstance(
+	public DataObjectElement initiateFieldInstance(
 			DataObjectPayload parentpayload) {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return new Companion(this, parentpayload);
 	}
 
 }
