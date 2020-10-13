@@ -61,6 +61,7 @@ public class DataObjectDefinitionShowPage
 	private DataObjectDefinition dataobject;
 	private HashMap<String, String> importstatements;
 	private ArrayList<Widget> widgets = new ArrayList<Widget>();
+	private DataObjectDefinition companion;
 
 	/**
 	 * creates a utility code generation class for the show object page for the data
@@ -73,6 +74,19 @@ public class DataObjectDefinitionShowPage
 		importstatements = new HashMap<String, String>();
 	}
 
+	/**
+	 * creates a utility code generation class for the show object page for the data
+	 * object given in argument
+	 * 
+	 * @param dataobject Data object to generate code for
+	 */
+	public DataObjectDefinitionShowPage(DataObjectDefinition dataobject,DataObjectDefinition companion) {
+		this.dataobject = dataobject;
+		this.companion = companion;
+		importstatements = new HashMap<String, String>();
+	}
+	
+	
 	@Override
 	public void generateToFile(SourceGenerator sg, Module module) throws IOException {
 		String lifecycleclass = null;
@@ -84,6 +98,7 @@ public class DataObjectDefinitionShowPage
 		boolean hasfilecontent = false;
 		boolean hasworkflow = false;
 		String pagename = "Show" + dataobject.getName().toLowerCase() + "Page";
+		if (companion!=null) pagename = "Show" + companion.getName().toLowerCase() + "Page";
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 		boolean islinkedobject = false;

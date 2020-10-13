@@ -59,6 +59,7 @@ import org.openlowcode.design.data.properties.basic.PrintOut;
 import org.openlowcode.design.data.properties.basic.Schedule;
 import org.openlowcode.design.data.properties.basic.SubObject;
 import org.openlowcode.design.data.properties.basic.Trigger;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.roles.Group;
@@ -1522,6 +1523,19 @@ public class Module
 				DataObjectDefinitionShowAction.generateShowActionToFile(currentobject,
 						new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this);
 
+				if (currentobject.getPropertyByName("TYPED")!=null) {
+					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
+					for (int c=0;c<typed.getCompanionNumber();c++) {
+						DataObjectDefinition companion = typed.getCompanion(c);
+						String fullfilepathforcompanion = srcautoactionfolder + "Atg"
+								+ StringFormatter.formatForJavaClass("SHOW" + companion.getName()) + "Action.java";
+						logger.info("generating file " + fullfilepathforcompanion);
+
+						DataObjectDefinitionShowAction.generateShowActionToFile(currentobject,companion,
+								new SourceGenerator(new File(fullfilepathforcompanion), this.getAuthor(), this.getVersionid()), this);
+					}
+				}
+				
 				String fullfilepathsearch = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("SEARCH" + currentobject.getName()) + "Action.java";
 				logger.info("generating file " + fullfilepathsearch);
@@ -2051,6 +2065,19 @@ public class Module
 				showpage.generateToFile(
 						new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this);
 
+				if (currentobject.getPropertyByName("TYPED")!=null) {
+					Typed typed = (Typed) currentobject.getPropertyByName("TYPED");
+					for (int c=0;c<typed.getCompanionNumber();c++) {
+						DataObjectDefinition companion = typed.getCompanion(c);
+						String fullfilecompanionpath = srcautopagefolder + "Atg"
+								+ StringFormatter.formatForJavaClass("SHOW" + companion.getName()) + "Page.java";
+						logger.info("generating file " + fullfilecompanionpath);
+						DataObjectDefinitionShowPage showcompanionpage = new DataObjectDefinitionShowPage(currentobject,companion);
+						showcompanionpage.generateToFile(
+								new SourceGenerator(new File(fullfilecompanionpath), this.getAuthor(), this.getVersionid()), this);
+					}
+				}
+				
 				String fullfilepathsearch = srcautopagefolder + "Atg"
 						+ StringFormatter.formatForJavaClass("SEARCH" + currentobject.getName()) + "Page.java";
 				logger.info("generating file " + fullfilepathsearch);

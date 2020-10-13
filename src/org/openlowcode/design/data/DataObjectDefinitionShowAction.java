@@ -31,6 +31,7 @@ import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.tools.misc.NamedList;
 
+
 /**
  * A utility class generating the show action to file
  * 
@@ -47,12 +48,36 @@ public class DataObjectDefinitionShowAction {
 	 * @param module     parent module
 	 * @throws IOException if anyting bad happens while writing the source code
 	 */
-	public static void generateShowActionToFile(DataObjectDefinition dataobject, SourceGenerator sg, Module module)
+	public static void generateShowActionToFile(DataObjectDefinition mainobject, SourceGenerator sg, Module module)
 			throws IOException {
+		generateShowActionToFile(mainobject, null, sg, module);
+	}
+
+	/**
+	 * generates the show action code to the given file
+	 * 
+	 * @param dataobject data object
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anyting bad happens while writing the source code
+	 */
+	public static void generateShowActionToFile(
+			DataObjectDefinition dataobject,
+			DataObjectDefinition companionobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+
 		// define general class naming
 		String actionname = "Show" + dataobject.getName().toLowerCase() + "Action";
+		if (companionobject != null)
+			actionname = "Show" + companionobject.getName().toLowerCase() + "Action";
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
+		String companionclass = null;
+		if (companionobject!=null) {
+			companionclass = StringFormatter.formatForJavaClass(companionobject.getName());
+			
+		}
 		String lifecycleclass = null;
 		ChoiceCategory lifecycle = null;
 		if (dataobject.hasLifecycle()) {
@@ -105,6 +130,10 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.data.NodeTree;");
+		if (companionobject!=null) {
+			sg.wl("import org.openlowcode.server.data.TwoDataObjects;");
+			sg.wl("import "+companionobject.getOwnermodule().getPath()+".data."+companionclass+";");
+		}
 		sg.wl("import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;");
 		sg.wl("import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;");
 		sg.wl("import " + module.getPath() + ".action.generated.Abs" + actionname + ";");
@@ -153,7 +182,13 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("	public " + outputforexecuteaction + " executeActionLogic(DataObjectId<" + objectclass
 				+ "> id,Function<TableAlias,QueryFilter> datafilter)  {");
 		sg.wl("		");
-		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(id);");
+		if (companionobject == null) {
+			sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(id);");
+		} else {
+			sg.wl("		TwoDataObjects<"+objectclass+","+companionclass+"> mainandcompanion = "+companionclass+".readtyped(id);");
+
+			
+		}
 		sg.wl("		ChoiceValue<ApplocaleChoiceDefinition> userlocale = OLcServer.getServer().getCurrentUser().getPreflang();");
 		sg.wl("		ChoiceValue<PreferedfileencodingChoiceDefinition> preffileencoding = OLcServer.getServer().getCurrentUser().getPreffileenc();");
 
@@ -322,7 +357,7 @@ public class DataObjectDefinitionShowAction {
 				extraargumentfordata.add("Rightforlinkfor" + linkedobject.getName().toLowerCase() + "blankforadd");
 
 			}
-			
+
 			if (dataobjectproperty instanceof LeftForLinkToMaster) {
 				LeftForLinkToMaster<?, ?> dataobjectleftforlink = (LeftForLinkToMaster<?, ?>) dataobjectproperty;
 				DataObjectDefinition linkedobject = dataobjectleftforlink.getLinkObjectDefinition();
@@ -340,7 +375,8 @@ public class DataObjectDefinitionShowAction {
 				sg.wl("		" + dataobjectlinkobjectclass + " " + dataobjectblankextravariable + " = new "
 						+ dataobjectlinkobjectclass + "();");
 				extravariableforaction.add(dataobjectblankextravariable);
-				extraargumentfordata.add("Leftforlinktomasterfor" + linkedobject.getName().toLowerCase() + "blankforadd");
+				extraargumentfordata
+						.add("Leftforlinktomasterfor" + linkedobject.getName().toLowerCase() + "blankforadd");
 			}
 			if (dataobjectproperty instanceof RightForLinkToMaster) {
 				RightForLinkToMaster<?, ?> dataobjectrightforlink = (RightForLinkToMaster<?, ?>) dataobjectproperty;
@@ -349,7 +385,8 @@ public class DataObjectDefinitionShowAction {
 				String dataobjectextravariable = "extradatafor"
 						+ StringFormatter.formatForJavaClass(dataobjectrightforlink.getName());
 				sg.wl("		" + dataobjectlinkobjectclass + "[] " + dataobjectextravariable + " = "
-						+ dataobjectlinkobjectclass + ".getalllinksfromrightmsid("+objectvariable+".getMasterid(),null);");
+						+ dataobjectlinkobjectclass + ".getalllinksfromrightmsid(" + objectvariable
+						+ ".getMasterid(),null);");
 				extravariableforaction.add(dataobjectextravariable);
 				extraargumentfordata.add("Rightforlinktomasterfor" + linkedobject.getName().toLowerCase());
 				String dataobjectblankextravariable = "blankforaddfor"
@@ -357,11 +394,11 @@ public class DataObjectDefinitionShowAction {
 				sg.wl("		" + dataobjectlinkobjectclass + " " + dataobjectblankextravariable + " = new "
 						+ dataobjectlinkobjectclass + "();");
 				extravariableforaction.add(dataobjectblankextravariable);
-				extraargumentfordata.add("Rightforlinktomasterfor" + linkedobject.getName().toLowerCase() + "blankforadd");
+				extraargumentfordata
+						.add("Rightforlinktomasterfor" + linkedobject.getName().toLowerCase() + "blankforadd");
 
 			}
-			
-			
+
 			if (dataobjectproperty instanceof HasAutolink) {
 				HasAutolink<?> hasautolink = (HasAutolink<?>) dataobjectproperty;
 				DataObjectDefinition linkedobject = hasautolink.getLinkObjectDefinition();
@@ -415,8 +452,13 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("		");
 		/* if (isextraobject) { */
 // ActionOutputData is used only if output has more than one argument
+		if (companionobject==null) {
 		sg.w("		ActionOutputData outputdata = new ActionOutputData(" + objectvariable
 				+ ",userlocale,preffileencoding");
+		} else {
+			sg.w("		ActionOutputData outputdata = new ActionOutputData(mainandcompanion.getObjectOne(),mainandcompanion.getObjectTwo()"
+					+ ",userlocale,preffileencoding");
+		}
 		for (int i = 0; i < extravariableforaction.size(); i++)
 			sg.w("," + extravariableforaction.get(i));
 

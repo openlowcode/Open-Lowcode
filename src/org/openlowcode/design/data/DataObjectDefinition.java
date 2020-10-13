@@ -60,6 +60,7 @@ import org.openlowcode.design.data.properties.basic.StoredObject;
 import org.openlowcode.design.data.properties.basic.SubObject;
 import org.openlowcode.design.data.properties.basic.TargetDate;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.data.properties.basic.UniqueIdentified;
 import org.openlowcode.design.data.properties.basic.Versioned;
 import org.openlowcode.design.generation.SourceGenerator;
@@ -1048,14 +1049,12 @@ public class DataObjectDefinition
 		return updatepage;
 	}
 
-	/**
-	 * @return the interfaces (input argument) of the automatically generated show
-	 *         page
-	 */
-	private PageDefinition generateShowPage() {
+	private PageDefinition generateShowPage(DataObjectDefinition companion) {
 		String showpagename = "SHOW" + this.getName();
+		if (companion!=null) showpagename = "SHOW"+companion.getName();
 		DynamicPageDefinition showpage = new DynamicPageDefinition(showpagename);
 		showpage.addInputParameter(new ObjectArgument(this.getName(), this));
+		if (companion!=null) showpage.addInputParameter(new ObjectArgument(companion.getName(),companion));
 		showpage.addInputParameter(
 				new ChoiceArgument("USERLOCALE", SystemModule.getSystemModule().getApplicationLocale()));
 		showpage.addInputParameter(
@@ -1200,6 +1199,14 @@ public class DataObjectDefinition
 		}
 
 		return showpage;
+	}
+	
+	/**
+	 * @return the interfaces (input argument) of the automatically generated show
+	 *         page
+	 */
+	private PageDefinition generateShowPage() {
+		return generateShowPage(null);
 	}
 
 	private DynamicActionDefinition generatePrepareUpdateAction() {
@@ -1832,12 +1839,13 @@ public class DataObjectDefinition
 			this.addActionToSteerActionGroup(renumberaction);
 		return renumberaction;
 	}
-
-	private ActionDefinition generateShowAction() {
+	private ActionDefinition generateShowAction(DataObjectDefinition companion) {
 		String showactionname = "SHOW" + this.getName();
+		if (companion!=null) showactionname = "SHOW"+companion.getName();
 		DynamicActionDefinition showaction = new DynamicActionDefinition(showactionname, true);
 		showaction.addInputArgumentAsAccessCriteria(new ObjectIdArgument("ID", this));
 		showaction.addOutputArgument(new ObjectArgument(this.getName(), this));
+		if (companion!=null) showaction.addOutputArgument(new ObjectArgument(companion.getName(),companion));
 		showaction.addOutputArgument(
 				new ChoiceArgument("USERLOCALE", SystemModule.getSystemModule().getApplicationLocale()));
 		showaction.addOutputArgument(
@@ -1992,6 +2000,9 @@ public class DataObjectDefinition
 
 		return showaction;
 	}
+	private ActionDefinition generateShowAction() {
+		return generateShowAction(null);
+	}
 
 	/**
 	 * This method adds to the module automatically generated actions and pages.<br>
@@ -2106,7 +2117,23 @@ public class DataObjectDefinition
 
 		if (isShowActionAutomaticallyGenerated()) {
 			module.addAction(generateShowAction());
+			if (this.getPropertyByName("TYPED")!=null) {
+				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
+				for (int i=0;i<typed.getCompanionNumber();i++) {
+					DataObjectDefinition companion = typed.getCompanion(i);
+					logger.finer("generating show action for index  "+i+", main "+this.getName()+" and companion "+companion.getName());
+					module.addAction(generateShowAction(companion));
+				}
+			}
 			module.AddPage(generateShowPage());
+			if (this.getPropertyByName("TYPED")!=null) {
+				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
+				for (int i=0;i<typed.getCompanionNumber();i++) {
+					DataObjectDefinition companion = typed.getCompanion(i);
+					generateShowPage(companion);
+				}
+			}
+			
 			if (this.IsIterated()) {
 				ActionDefinition showactionforiteration = generateShowActionForIteration();
 				module.addAction(showactionforiteration);

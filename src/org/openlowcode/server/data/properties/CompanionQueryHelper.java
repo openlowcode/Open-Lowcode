@@ -41,13 +41,13 @@ public class CompanionQueryHelper {
 			E extends DataObject<E> & CompanionInterface<E, F, G> & HasidInterface<E>,
 			F extends DataObject<F> & TypedInterface<F, G>,
 			G extends FieldChoiceDefinition<G>> TwoDataObjects<F, E> readtyped(
-					DataObjectId<E> companionobjectid,
+					DataObjectId<F> mainobjectid,
 					DataObjectDefinition<E> companiondefinition,
 					DataObjectDefinition<F> maintypedobject,
 					CompanionDefinition<E, F, G> companionproperty) {
-		E companion = HasidQueryHelper.get().readone(companionobjectid, companiondefinition,
+		E companion = HasidQueryHelper.get().readone(new DataObjectId<E>(mainobjectid.getId(),companiondefinition), companiondefinition,
 				companionproperty.getHasidDefinition());
-		DataObjectId<F> mainobjectid = new DataObjectId<F>(companionobjectid.getId(), maintypedobject);
+		
 		F mainobject = HasidQueryHelper.get().readone(mainobjectid, maintypedobject,
 				companionproperty.getMainObjectTypedDefinition().getDependentUniqueIdentified().getDependentDefinitionHasid());
 		return new TwoDataObjects<F,E>(mainobject,companion);

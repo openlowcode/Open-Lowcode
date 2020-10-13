@@ -52,6 +52,14 @@ public class Typed
 	private HashMap<DataObjectDefinition, ChoiceValue[]> typespercompanion;
 	private ArrayList<DataObjectDefinition> allcompanions;
 
+	public DataObjectDefinition getCompanion(int index) {
+		return this.allcompanions.get(index);
+	}
+
+	public int getCompanionNumber() {
+		return this.allcompanions.size();
+	}
+
 	/**
 	 * @param types
 	 */
@@ -79,9 +87,8 @@ public class Typed
 				throw new RuntimeException("Duplicate companion declaration for type " + types[i] + " new companion = "
 						+ companion.getName() + ", old companion = " + companionspertype.get(types[i]).getName());
 			companionspertype.put(types[i], companion);
-			allcompanions.add(companion);
-
 		}
+		allcompanions.add(companion);
 		if (typespercompanion.get(companion) != null)
 			throw new RuntimeException("Companion " + companion.getName() + " has already been added");
 		typespercompanion.put(companion, types);
@@ -111,7 +118,7 @@ public class Typed
 		MethodAdditionalProcessing insertidgeneration = new MethodAdditionalProcessing(false,
 				storedobject.getDataAccessMethod("INSERT"));
 		this.addMethodAdditionalProcessing(insertidgeneration);
-		
+
 		ArgumentContent typeargument = new ChoiceArgument("TYPE", types);
 		typeargument.setOptional(false);
 		this.addContextForDataCreation(typeargument);
@@ -165,16 +172,18 @@ public class Typed
 		Iterator<DataObjectDefinition> companioniterator = this.typespercompanion.keySet().iterator();
 		while (companioniterator.hasNext()) {
 			DataObjectDefinition companion = companioniterator.next();
-			sg.wl("		typed.getHelper().setCompanion(()->(new "+StringFormatter.formatForJavaClass(companion.getName())+"()), new ChoiceValue[] ");
+			sg.wl("		typed.getHelper().setCompanion(()->(new "
+					+ StringFormatter.formatForJavaClass(companion.getName()) + "()), new ChoiceValue[] ");
 			String values = "";
 			ChoiceValue[] typeslist = this.typespercompanion.get(companion);
-			for (int i=0;i<typeslist.length;i++) {
-				if (i>0) values+=",";
-				values+=StringFormatter.formatForJavaClass(types.getName());
-				values+="ChoiceDefinition.get().";
-				values+=typeslist[i].getName().toUpperCase();
+			for (int i = 0; i < typeslist.length; i++) {
+				if (i > 0)
+					values += ",";
+				values += StringFormatter.formatForJavaClass(types.getName());
+				values += "ChoiceDefinition.get().";
+				values += typeslist[i].getName().toUpperCase();
 			}
-			sg.wl("				{"+values+"});");
+			sg.wl("				{" + values + "});");
 		}
 
 	}

@@ -61,7 +61,7 @@ public class Companion
 		DataAccessMethod readtyped = new DataAccessMethod("READTYPED", new TwoObjectsArgument("TYPED",
 				new ObjectArgument("MAIN", maintypedobject), new ObjectArgument("COMPANION", this.getParent())), false,
 				false);
-		readtyped.addInputArgument(new MethodArgument("OBJECTID", new ObjectIdArgument("OBJECT", this.getParent())));
+		readtyped.addInputArgument(new MethodArgument("OBJECTID", new ObjectIdArgument("OBJECT", maintypedobject)));
 		this.addDataAccessMethod(readtyped);
 		// UPDATE THE TYPED OBJECT
 		DataAccessMethod updatetyped = new DataAccessMethod("UPDATETYPED",null,false,false);
@@ -81,6 +81,8 @@ public class Companion
 		insertcompanion.addInputArgument(new MethodArgument("THISCOMPANION",new ObjectArgument("COMPANION",this.getParent())));
 		insertcompanion.addInputArgument(new MethodArgument("MAINOBJECT",new ObjectArgument("MAINOBJECT",maintypedobject)));	
 		this.addDataAccessMethod(insertcompanion);
+		
+	
 		
 		// put the main typed object as related to this property
 		this.addChoiceCategoryHelper("TYPE",((Typed)maintypedobject.getPropertyByName("TYPED")).getTypes() );
