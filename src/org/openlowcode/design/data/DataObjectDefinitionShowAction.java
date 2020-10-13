@@ -138,7 +138,11 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;");
 		sg.wl("import " + module.getPath() + ".action.generated.Abs" + actionname + ";");
 		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
-		sg.wl("import " + module.getPath() + ".page.generated.AtgShow" + objectvariable + "Page;");
+		if (companionobject==null) {
+			sg.wl("import " + module.getPath() + ".page.generated.AtgShow" + objectvariable + "Page;");
+		} else {
+			sg.wl("import "+companionobject.getOwnermodule().getPath()+".page.generated.AtgShow"+companionobject.getName().toLowerCase()+"Page;");
+		}
 		sg.wl("import java.util.Date;");
 		if (dataobject.hasLifecycle()) {
 			sg.wl("import org.openlowcode.server.data.properties.LifecycleDefinition;");
@@ -474,8 +478,8 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("	@Override");
 		sg.wl("	public SPage choosePage(ActionOutputData logicoutput)  {");
 		sg.wl("		");
-		sg.wl("		return new AtgShow" + objectvariable + "Page(logicoutput.get" + objectclass
-				+ "(),logicoutput.getUserlocale(),logicoutput.getPrefencoding()");
+		sg.wl("		return new AtgShow" + (companionobject!=null?companionobject.getName().toLowerCase():objectvariable) + "Page(logicoutput.get" + objectclass
+				+ "(),"+(companionobject!=null?"logicoutput.get"+companionclass+"(),":"")+"logicoutput.getUserlocale(),logicoutput.getPrefencoding()");
 		for (int i = 0; i < extraargumentfordata.size(); i++) {
 			sg.wl("				,logicoutput.get" + extraargumentfordata.get(i) + "()");
 		}

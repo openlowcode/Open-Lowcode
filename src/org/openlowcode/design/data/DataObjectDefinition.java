@@ -2130,7 +2130,7 @@ public class DataObjectDefinition
 				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
 				for (int i=0;i<typed.getCompanionNumber();i++) {
 					DataObjectDefinition companion = typed.getCompanion(i);
-					generateShowPage(companion);
+					module.AddPage(generateShowPage(companion));
 				}
 			}
 			

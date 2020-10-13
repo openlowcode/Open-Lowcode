@@ -98,7 +98,13 @@ public class DataObjectDefinitionShowPage
 		boolean hasfilecontent = false;
 		boolean hasworkflow = false;
 		String pagename = "Show" + dataobject.getName().toLowerCase() + "Page";
-		if (companion!=null) pagename = "Show" + companion.getName().toLowerCase() + "Page";
+		String companionclass = null;
+		String companionattribute = null;
+		if (this.companion!=null) {
+			pagename = "Show" + companion.getName().toLowerCase() + "Page";
+			companionclass = StringFormatter.formatForJavaClass(companion.getName());
+			companionattribute = StringFormatter.formatForAttribute(companion.getName());
+		}
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 		boolean islinkedobject = false;
@@ -321,7 +327,9 @@ public class DataObjectDefinitionShowPage
 		sg.wl("import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SSeparator;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPopupButton;");
-
+		if(this.companion!=null) {
+			sg.wl("import "+companion.getOwnermodule().getPath()+".data."+companionclass+";");
+		}
 		if (hasfilecontent) {
 			sg.wl("import org.openlowcode.tools.messages.SFile;");
 			sg.wl("import org.openlowcode.module.system.data.Binaryfile;");
@@ -513,6 +521,10 @@ public class DataObjectDefinitionShowPage
 			sg.wl("	private boolean hasparent;");
 		}
 		boolean hasunreleasedwarnings = false;
+		String companiondeclaration = "";
+		if (companion!=null) {
+			companiondeclaration = ","+companionclass+" "+companionattribute;
+		}
 		Lifecycle lifecycleproperty = (Lifecycle) (dataobject.getPropertyByName("LIFECYCLE"));
 		if (lifecycleproperty != null)
 			if (lifecycleproperty.getUnreleasedWarning() != null)
@@ -521,7 +533,7 @@ public class DataObjectDefinitionShowPage
 		if (hasunreleasedwarnings)
 			hasunreleasedwarningstring = ",String unreleasedwarning";
 		sg.wl("	@Override");
-		sg.wl("	public String generateTitle(" + objectclass + " " + objectvariable
+		sg.wl("	public String generateTitle(" + objectclass + " " + objectvariable+companiondeclaration
 				+ ", ChoiceValue<ApplocaleChoiceDefinition> userlocale");
 		sg.wl("			,ChoiceValue<PreferedfileencodingChoiceDefinition> preffileencooding");
 		if (hasworkflow) {
@@ -597,11 +609,11 @@ public class DataObjectDefinitionShowPage
 		if (dataobject.getPropertyByName("NAMED") != null) {
 			sg.wl("		objectdisplay+=\" \"+" + objectvariable + ".getObjectname();");
 		}
-		sg.wl("		objectdisplay+=\" (" + dataobject.getLabel() + ")\";");
+		sg.wl("		objectdisplay+=\" (" + (companion!=null?companion.getLabel():dataobject.getLabel()) + ")\";");
 		sg.wl("		return objectdisplay;");
 		sg.wl("	}");
 
-		sg.wl("	public AtgShow" + objectvariable + "Page(" + objectclass + " " + objectvariable
+		sg.wl("	public AtgShow" + (companion!=null?companionattribute:objectvariable) + "Page(" + objectclass + " " + objectvariable+companiondeclaration
 				+ ", ChoiceValue<ApplocaleChoiceDefinition> userlocale");
 		sg.wl("			,ChoiceValue<PreferedfileencodingChoiceDefinition> preffileencooding");
 		if (hasworkflow) {
@@ -668,7 +680,7 @@ public class DataObjectDefinitionShowPage
 				sg.wl("			," + arraytypes.get(i) + " " + blankobjectname.get(i));
 		}
 		sg.wl("			)   {");
-		sg.wl("		super(" + objectvariable + ",userlocale");
+		sg.wl("		super(" + objectvariable +(companionattribute!=null?","+companionattribute:"")+",userlocale");
 		sg.wl("			,preffileencooding");
 		if (hasworkflow) {
 			sg.wl("			,activetasks");
@@ -792,6 +804,11 @@ public class DataObjectDefinitionShowPage
 					+ ".getDefinition(),this, true);");
 			sg.wl("		objectdisplaydefinition.setReducedDisplay(false);");
 			sg.wl("		detailstab.addElement(objectdisplaydefinition);");
+			if (companion!=null) {
+				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, false);");
+				sg.wl("		detailstab.addElement(companionobjectdisplay);"); 
+
+			}
 
 			for (int i = 0; i < extratabs.length; i++) {
 				ObjectTab thistab = extratabs[i];
@@ -807,6 +824,11 @@ public class DataObjectDefinitionShowPage
 			if (hasworkflow)
 				sg.wl("		objectdisplaydefinition.addPageNodeRightOfTitle(activetaskband);");
 			sg.wl("");
+			if (companion!=null) {
+				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, false);");
+				sg.wl("		mainband.addElement(companionobjectdisplay);"); 
+
+			}
 
 		}
 
