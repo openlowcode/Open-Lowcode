@@ -805,7 +805,8 @@ public class DataObjectDefinitionShowPage
 			sg.wl("		objectdisplaydefinition.setReducedDisplay(false);");
 			sg.wl("		detailstab.addElement(objectdisplaydefinition);");
 			if (companion!=null) {
-				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, false);");
+				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, true);");
+				sg.wl("		companionobjectdisplay.setReducedDisplay(false);");
 				sg.wl("		detailstab.addElement(companionobjectdisplay);"); 
 
 			}
@@ -825,7 +826,8 @@ public class DataObjectDefinitionShowPage
 				sg.wl("		objectdisplaydefinition.addPageNodeRightOfTitle(activetaskband);");
 			sg.wl("");
 			if (companion!=null) {
-				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, false);");
+				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, true);");
+				sg.wl("		companionobjectdisplay.setReducedDisplay(false);");
 				sg.wl("		mainband.addElement(companionobjectdisplay);"); 
 
 			}

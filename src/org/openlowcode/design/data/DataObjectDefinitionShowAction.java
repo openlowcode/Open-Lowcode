@@ -12,6 +12,7 @@ package org.openlowcode.design.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.openlowcode.design.data.properties.basic.ComplexWorkflow;
 import org.openlowcode.design.data.properties.basic.FileContent;
@@ -26,11 +27,11 @@ import org.openlowcode.design.data.properties.basic.RightForLinkToMaster;
 import org.openlowcode.design.data.properties.basic.Schedule;
 import org.openlowcode.design.data.properties.basic.SimpleTaskWorkflow;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.tools.misc.NamedList;
-
 
 /**
  * A utility class generating the show action to file
@@ -130,6 +131,15 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.data.NodeTree;");
+		if (dataobject.getPropertyByName("TYPED")!=null) {
+			Typed typed = (Typed) dataobject.getPropertyByName("TYPED");
+			SimpleChoiceCategory choice = typed.getTypes();
+			sg.wl("import "+choice.getParentModule().getPath()+".data.choice."+StringFormatter.formatForJavaClass(choice.getName())+"ChoiceDefinition;");
+			for (int i=0;i<typed.getCompanionNumber();i++) {
+				DataObjectDefinition thiscompanion = typed.getCompanion(i);
+				sg.wl("import "+thiscompanion.getOwnermodule().getPath()+".data."+StringFormatter.formatForJavaClass(thiscompanion.getName())+";");
+			}
+		}
 		if (companionobject!=null) {
 			sg.wl("import org.openlowcode.server.data.TwoDataObjects;");
 			sg.wl("import "+companionobject.getOwnermodule().getPath()+".data."+companionclass+";");
@@ -478,6 +488,20 @@ public class DataObjectDefinitionShowAction {
 		sg.wl("	@Override");
 		sg.wl("	public SPage choosePage(ActionOutputData logicoutput)  {");
 		sg.wl("		");
+		if (dataobject.getPropertyByName("TYPED")!=null) if (companionobject==null) {
+			Typed typed = (Typed) (dataobject.getPropertyByName("TYPED"));
+			Iterator<ChoiceValue> types = typed.getTypesIterator();
+			while (types.hasNext()) {
+				ChoiceValue thistype = types.next();
+				DataObjectDefinition companion = typed.getCompanionForType(thistype);			
+				sg.wl("		if ("+StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition.get()."+thistype.getName().toUpperCase()+".getStorageCode().equals(logicoutput.get"+objectclass+"().getType()))"); 
+				sg.wl("			return AtgShow"+companion.getName().toLowerCase()+"Action.get().executeAndShowPage(logicoutput.get"+objectclass+"().getId());");
+
+			}
+		}
+
+		
+		
 		sg.wl("		return new AtgShow" + (companionobject!=null?companionobject.getName().toLowerCase():objectvariable) + "Page(logicoutput.get" + objectclass
 				+ "(),"+(companionobject!=null?"logicoutput.get"+companionclass+"(),":"")+"logicoutput.getUserlocale(),logicoutput.getPrefencoding()");
 		for (int i = 0; i < extraargumentfordata.size(); i++) {

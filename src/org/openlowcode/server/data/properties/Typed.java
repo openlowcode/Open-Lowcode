@@ -83,5 +83,8 @@ public class Typed<E extends DataObject<E> & TypedInterface<E, F>, F extends Fie
 		for (int i = 0; i < object.length; i++)
 			preproctypesbatch[i].postprocStoredobjectInsert(object[i]);
 	}
+	public String getType() {
+		return this.type.getPayload();
+	}
 
 }

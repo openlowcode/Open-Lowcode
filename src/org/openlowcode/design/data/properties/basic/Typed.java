@@ -23,12 +23,14 @@ import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.SimpleChoiceCategory;
+import org.openlowcode.design.data.StoredElement;
+import org.openlowcode.design.data.StringStoredElement;
 import org.openlowcode.design.data.argument.ChoiceArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
-import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.design.pages.SearchWidgetDefinition;
 
 /**
  * A Typed data object (e.g. vehicle) can be declared with a specialized type
@@ -52,6 +54,14 @@ public class Typed
 	private HashMap<DataObjectDefinition, ChoiceValue[]> typespercompanion;
 	private ArrayList<DataObjectDefinition> allcompanions;
 
+	public Iterator<ChoiceValue> getTypesIterator() {
+		return companionspertype.keySet().iterator();
+	}
+	
+	public DataObjectDefinition getCompanionForType(ChoiceValue type) {
+		return companionspertype.get(type);
+	}
+	
 	public DataObjectDefinition getCompanion(int index) {
 		return this.allcompanions.get(index);
 	}
@@ -122,6 +132,12 @@ public class Typed
 		ArgumentContent typeargument = new ChoiceArgument("TYPE", types);
 		typeargument.setOptional(false);
 		this.addContextForDataCreation(typeargument);
+		
+		StoredElement type = new StringStoredElement("TYPE",types.getKeyStorageLength());
+		this.addElementasSearchElement(type, "Type", "Type of "+parent.getLabel(),
+				Property.FIELDDIPLSAY_TITLE_MOD, 860, 40,
+				new SearchWidgetDefinition(true, "TYPE", "Type", types));
+
 	}
 
 	@Override
