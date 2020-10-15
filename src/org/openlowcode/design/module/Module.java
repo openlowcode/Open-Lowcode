@@ -1761,6 +1761,20 @@ public class Module
 				DataObjectDefinitionDeleteAndUpdate.generatePrepareupdateActionToFile(currentobject,
 						new SourceGenerator(new File(fullfilepathprepareupdate), this.getAuthor(), this.getVersionid()),
 						this);
+				
+				if (currentobject.getPropertyByName("TYPED")!=null) {
+					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
+					for (int c=0;c<typed.getCompanionNumber();c++) {
+						DataObjectDefinition companion = typed.getCompanion(c);
+						String fullfilepathprepareupdateforcompanion = srcautoactionfolder + "Atg"
+								+ StringFormatter.formatForJavaClass("PREPAREUPDATE" + companion.getName()) + "Action.java";
+						logger.info("generating file " + fullfilepathprepareupdateforcompanion);
+						DataObjectDefinitionDeleteAndUpdate.generatePrepareupdateActionToFile(currentobject,companion,
+								new SourceGenerator(new File(fullfilepathprepareupdateforcompanion), this.getAuthor(), this.getVersionid()),
+								this);
+					}
+				}
+				
 				// update action
 				String fullfilepathupdate = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("UPDATE" + currentobject.getName()) + "Action.java";

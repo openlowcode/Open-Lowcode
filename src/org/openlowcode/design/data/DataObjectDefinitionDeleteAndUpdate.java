@@ -533,8 +533,6 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.close();
 	}
 
-	
-	
 	/**
 	 * generate the code for the prepare update action
 	 * 
@@ -545,12 +543,19 @@ public class DataObjectDefinitionDeleteAndUpdate {
 	 */
 	public static void generatePrepareupdateActionToFile(
 			DataObjectDefinition dataobject,
+			DataObjectDefinition companion,
 			SourceGenerator sg,
 			Module module) throws IOException {
 		String actionname = "Prepareupdate" + dataobject.getName().toLowerCase() + "Action";
+		if (companion!=null) actionname = "Prepareupdate" + companion.getName().toLowerCase() + "Action";
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
-
+		String companionvariable = null;
+		String companionclass = null;
+		if (companion!=null) {
+			companionclass = StringFormatter.formatForJavaClass(companion.getName());
+			companionvariable = StringFormatter.formatForAttribute(companion.getName());
+		}
 		boolean isextra = false;
 		HashMap<String, String> importdeclaration = new HashMap<String, String>();
 		StringBuffer extraattributesdeclaration = new StringBuffer();
@@ -579,10 +584,13 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("package " + module.getPath() + ".action.generated;");
 		sg.wl("");
 		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
+		if (companion!=null)
+		sg.wl("import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";");
 		for (int i = 0; i < importdeclaration.size(); i++) {
 			sg.wl(importdeclaration.get(importdeclaration.keySet().toArray()[i]));
 		}
-		sg.wl("import " + module.getPath() + ".page.generated.AtgUpdate" + objectvariable + "Page;");
+		if (companion==null) sg.wl("import " + module.getPath() + ".page.generated.AtgUpdate" + objectvariable + "Page;");
+		if (companion!=null) sg.wl("import " + companion.getOwnermodule().getPath() + ".page.generated.AtgUpdate" + companionvariable + "Page;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
@@ -611,6 +619,8 @@ public class DataObjectDefinitionDeleteAndUpdate {
 				+ "> id,Function<TableAlias,QueryFilter> datafilter)");
 		sg.wl("			 {");
 		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(id);");
+		if (companion!=null)
+			sg.wl("		" + companionclass + " " + companionvariable + " = " + companionclass + ".readone(id);");
 		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
 				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
@@ -621,10 +631,13 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		}
 		if (isdatacontrol)
 			sg.wl("		String controlstatus = " + objectvariable + ".getvalidationdetail();");
-		if (!isextra) {
+		boolean simple=false;
+		if (!isextra) if (companion==null) {
 			sg.wl("		return " + objectvariable + ";");
-		} else {
-			sg.wl("		return new ActionOutputData(" + objectvariable);
+			simple=true;
+		} 
+		if (!simple){
+			sg.wl("		return new ActionOutputData(" + objectvariable+(companion!=null?","+companionvariable:""));
 			for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 				Property<?> thisproperty = dataobject.propertylist.get(i);
 				if (thisproperty.isDataInputUsedForUpdate()) {
@@ -658,13 +671,19 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("");
 
 		sg.wl("	@Override");
-		if (!isextra) {
+		
+		if (simple) {
 			sg.wl("	public SPage choosePage(" + objectclass + " " + objectvariable + ")  {");
 			sg.wl("		return new AtgUpdate" + objectvariable + "Page(" + objectvariable + ");");
 			sg.wl("	}");
-		} else {
+			
+		}
+		if (!simple) {
 			sg.wl("	public SPage choosePage(ActionOutputData logicoutput)  {");
-			sg.wl("		return new AtgUpdate" + objectvariable + "Page(logicoutput.get" + objectclass + "()");
+			if (companion==null)
+				sg.wl("		return new AtgUpdate" + objectvariable + "Page(logicoutput.get" + objectclass + "()");
+			if (companion!=null)
+				sg.wl("		return new AtgUpdate" + companionvariable + "Page(logicoutput.get" + objectclass + "(),logicoutput.get"+companionclass+"()");
 			for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 				Property<?> thisproperty = dataobject.propertylist.get(i);
 				if (thisproperty.isDataInputUsedForUpdate()) {
@@ -696,6 +715,21 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("}");
 
 		sg.close();
+	}
+	/**
+	 * generate the code for the prepare update action without companion
+	 * 
+	 * @param dataobject Data Object to generate the file for
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anyting bad happens while writing the source code
+	 */
+	public static void generatePrepareupdateActionToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+		generatePrepareupdateActionToFile(dataobject,null,sg,module);
+		
 	}
 
 	/**

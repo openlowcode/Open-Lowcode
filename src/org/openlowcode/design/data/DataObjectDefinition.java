@@ -1209,12 +1209,15 @@ public class DataObjectDefinition
 		return generateShowPage(null);
 	}
 
-	private DynamicActionDefinition generatePrepareUpdateAction() {
+	private DynamicActionDefinition generatePrepareUpdateAction(DataObjectDefinition companion) {
 		String prepareupdateactionname = "PREPAREUPDATE" + this.getName();
+		if (companion!=null) prepareupdateactionname ="PREPAREUPDATE"+companion.getName();
 		DynamicActionDefinition prepareupdateaction = new DynamicActionDefinition(prepareupdateactionname, true);
 		prepareupdateaction.setButtonlabel("Update");
 		prepareupdateaction.addInputArgumentAsAccessCriteria(new ObjectIdArgument("ID", this));
 		prepareupdateaction.addOutputArgument(new ObjectArgument(this.getName(), this));
+		if (companion!=null)
+			prepareupdateaction.addOutputArgument(new ObjectArgument(companion.getName(),companion));
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
 			if (property.isDataInputUsedForUpdate()) {
@@ -1243,6 +1246,10 @@ public class DataObjectDefinition
 		}
 		this.addActionToModifyGroup(prepareupdateaction);
 		return prepareupdateaction;
+	}
+
+	private DynamicActionDefinition generatePrepareUpdateAction() {
+		return generatePrepareUpdateAction(null);
 	}
 
 	private ActionDefinition generateDeleteAction() {
@@ -1425,12 +1432,14 @@ public class DataObjectDefinition
 		return generateflatfilesampleaction;
 	}
 
-	private ActionDefinition generateUpdateAction() {
+	private ActionDefinition generateUpdateAction(DataObjectDefinition companion) {
 		// security done
 		String updateactionname = "UPDATE" + this.getName();
+		if (companion!=null) updateactionname = "UPDATE" + companion.getName();
 		DynamicActionDefinition updateaction = new DynamicActionDefinition(updateactionname, true);
 
 		updateaction.addInputArgumentAsAccessCriteria(new ObjectArgument(this.getName(), this));
+		if (companion!=null) updateaction.addInputArgument(new ObjectArgument(companion.getName(), companion));
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
 			if (property.isDataInputUsedForUpdate()) {
@@ -1442,6 +1451,10 @@ public class DataObjectDefinition
 		updateaction.addOutputArgument(new ObjectIdArgument("ID", this));
 		this.addActionToModifyGroup(updateaction);
 		return updateaction;
+	}
+	
+	private ActionDefinition generateUpdateAction() {
+		return generateUpdateAction(null);
 
 	}
 
@@ -2154,6 +2167,14 @@ public class DataObjectDefinition
 
 			logger.info(" -- declared automatically generated show action / page for object " + this.getName());
 			DynamicActionDefinition prepareupdateaction = generatePrepareUpdateAction();
+			if (this.getPropertyByName("TYPED")!=null) {
+				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
+				for (int i=0;i<typed.getCompanionNumber();i++) {
+					DataObjectDefinition companion = typed.getCompanion(i);
+					module.addAction(generatePrepareUpdateAction(companion));
+					module.addAction(generateUpdateAction(companion));
+				}
+			}
 			UniqueIdentified uniqueidentifiedproperty = (UniqueIdentified) this.getPropertyByName("UNIQUEIDENTIFIED");
 			uniqueidentifiedproperty.addActionOnObjectId(prepareupdateaction);
 			module.addAction(prepareupdateaction);
