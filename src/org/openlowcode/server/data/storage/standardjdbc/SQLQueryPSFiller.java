@@ -126,6 +126,8 @@ public class SQLQueryPSFiller implements QueryCondition.Visitor {
 				if (!found)
 					throw new RuntimeException("class not managed for simple query condition " + simplequerycondition
 							+ ", " + simplequerycondition.getPayload());
+			} else {
+				LOGGER.info("JDBC preparedStatement - null content for "+counter+" - "+simplequerycondition.getField());
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(String.format(

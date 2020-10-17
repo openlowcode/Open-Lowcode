@@ -10,6 +10,8 @@
 
 package org.openlowcode.server.data.properties;
 
+import java.util.logging.Logger;
+
 import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectPayload;
@@ -20,6 +22,7 @@ import org.openlowcode.server.data.formula.TriggerLauncher;
 import org.openlowcode.server.data.storage.AndQueryCondition;
 import org.openlowcode.server.data.storage.QueryCondition;
 import org.openlowcode.tools.misc.NamedList;
+
 
 /**
  * 
@@ -33,6 +36,7 @@ public class Companion<E extends DataObject<E> & HasidInterface<E>,F extends Dat
 	private Hasid<E> hasid;
 	@SuppressWarnings("unused")
 	private CompanionDefinition<E, F, G> companiondefinition;
+	private static Logger logger = Logger.getLogger(Companion.class.getName());
 
 	public Companion(CompanionDefinition<E,F,G> definition, DataObjectPayload parentpayload) {
 		super(definition, parentpayload);
@@ -70,6 +74,10 @@ public class Companion<E extends DataObject<E> & HasidInterface<E>,F extends Dat
 	}
 	
 	private void update(E companionobject) {
+		logger.severe(" ------------ Companion object log before update------------------");
+		logger.severe("   "+companionobject.dropToString());
+		logger.severe("------------------------------------------------------------------");
+		
 		QueryCondition objectuniversalcondition = definition.getParentObject().getUniversalQueryCondition(definition,
 				null);
 		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null,

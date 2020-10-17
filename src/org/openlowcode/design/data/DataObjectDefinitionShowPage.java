@@ -79,6 +79,7 @@ public class DataObjectDefinitionShowPage
 	 * object given in argument
 	 * 
 	 * @param dataobject Data object to generate code for
+	 * @param companion companion data object for typed object
 	 */
 	public DataObjectDefinitionShowPage(DataObjectDefinition dataobject,DataObjectDefinition companion) {
 		this.dataobject = dataobject;
@@ -389,7 +390,16 @@ public class DataObjectDefinitionShowPage
 			sg.wl("import org.openlowcode.server.graphic.widget.SObjectArray;");
 		if (objectbuttonband)
 			sg.wl("import org.openlowcode.server.graphic.widget.SActionButton;");
-
+		if (dataobject.getPropertyByName("UNIQUEIDENTIFIED")!=null) {
+			if (this.companion==null) {
+				sg.wl("import "+dataobject.getOwnermodule().getPath()+".action.generated.AtgPrepareupdate"+objectvariable+"Action;");
+				
+			} else {
+				sg.wl("import "+companion.getOwnermodule().getPath()+".action.generated.AtgPrepareupdate"+companionattribute+"Action;");
+				
+			}
+		}
+		
 		for (int i = 0; i < allparentlinks.size(); i++) {
 			LinkedToParent<?> linkedtoparent = allparentlinks.get(i);
 			String changeparentvariable = StringFormatter.formatForAttribute(
@@ -865,6 +875,25 @@ public class DataObjectDefinitionShowPage
 				sg.wl("");
 			}
 
+			if (dataobject.getPropertyByName("UNIQUEIDENTIFIED")!=null) {
+				String actionclassname="AtgPrepareupdate"+objectvariable;
+				String actionattributename="update";
+				String buttonname="\"Update\"";
+				String inputargumentclass="Id";
+				
+				if (this.companion!=null) {
+					actionclassname="AtgPrepareupdate"+companionattribute;
+				} 
+				sg.wl("		" + actionclassname + "Action.ActionRef " + actionattributename + "forobjectbandaction = "
+						+ actionclassname + "Action.get().getActionRef();");
+				sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
+						+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+				sg.wl("		SActionButton " + actionattributename + "forobjectbandbutton = new SActionButton("
+						+ buttonname + ",\"\"," + actionattributename + "forobjectbandaction,this);");
+				sg.wl("		objectbuttonband.addElement(" + actionattributename + "forobjectbandbutton);	");
+				sg.wl("");
+			}
+			
 			for (int i = 0; i < actionlistonobjectid.getSize(); i++) {
 				DynamicActionDefinition thisaction = actionlistonobjectid.get(i);
 				String actionclassname = StringFormatter.formatForJavaClass(thisaction.getName());

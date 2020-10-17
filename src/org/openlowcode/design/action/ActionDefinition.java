@@ -1016,7 +1016,7 @@ public abstract class ActionDefinition
 			if (thisarg instanceof ObjectArgument) {
 				ObjectArgument thisobjectarg = (ObjectArgument) thisarg;
 				sg.wl("		if (attribute" + i + ".getName().compareTo(\"" + thisarg.getName() + "\")==0) {");
-				if (thisobjectarg.getMasterObject().isUniqueIdentified()) {
+				if (thisobjectarg.getMasterObject().hasId()) {
 					sg.wl("			if (attribute" + i + ".getUID().length()>0) "
 							+ StringFormatter.formatForAttribute(thisarg.getName()) + " = " + thisarg.getType()
 							+ ".readone(DataObjectId.generatefromDataObjectElt(attribute" + i + "," + thisarg.getType()

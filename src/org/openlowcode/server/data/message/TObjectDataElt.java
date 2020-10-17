@@ -14,8 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.openlowcode.server.data.DataObject;
-
-import org.openlowcode.server.data.properties.UniqueidentifiedInterface;
+import org.openlowcode.server.data.properties.HasidInterface;
 import org.openlowcode.server.runtime.OLcServer;
 import org.openlowcode.tools.messages.MessageWriter;
 import org.openlowcode.tools.misc.NamedInterface;
@@ -42,10 +41,10 @@ public class TObjectDataElt<E extends DataObject<E>> extends ObjectDataElt {
 	public TObjectDataElt(String name, E object) {
 		super(name, new TObjectDataEltType<E>(object.getDefinitionFromObject()), object.getFieldList());
 		this.object = object;
-		if (object instanceof UniqueidentifiedInterface) {
+		if (object instanceof HasidInterface) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			UniqueidentifiedInterface<E> uiobject = (UniqueidentifiedInterface) object;
-			this.setUID(uiobject.getId().getId());
+			HasidInterface<E> hasidobject = (HasidInterface) object;
+			this.setUID(hasidobject.getId().getId());
 		} else {
 			if (object.getTransientid() != null) {
 				this.setUID(object.getTransientid());

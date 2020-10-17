@@ -700,7 +700,9 @@ public abstract class BaseJDBCStorage
 					boolean treated = false;
 					if (thisfieldschema instanceof StringStoredField) {
 						StringStoredField castedfieldschema = (StringStoredField) thisfieldschema;
-						ps.setString(i + 1, uq.getRow().getPayload(castedfieldschema));
+						String payload = uq.getRow().getPayload(castedfieldschema);
+						ps.setString(i + 1, payload);
+						LOGGER.info("JDBC preparedstatement update setString " + (i + 1) + "," + payload);
 						treated = true;
 					}
 					if (thisfieldschema instanceof TimestampStoredField) {
@@ -710,6 +712,7 @@ public abstract class BaseJDBCStorage
 							ps.setTimestamp(i + 1, new Timestamp(thisdate.getTime()));
 						if (thisdate == null)
 							ps.setTimestamp(i + 1, null);
+						LOGGER.info("JDBC preparedstatement update setTimestamp " + (i + 1) + "," + thisdate);
 						treated = true;
 					}
 					if (thisfieldschema instanceof DecimalStoredField) {
@@ -719,6 +722,7 @@ public abstract class BaseJDBCStorage
 							ps.setBigDecimal(i + 1, thisdecimal);
 						if (thisdecimal == null)
 							ps.setBigDecimal(i + 1, null);
+						LOGGER.info("JDBC preparedstatement update setDecimal " + (i + 1) + "," + thisdecimal);
 						treated = true;
 					}
 					if (thisfieldschema instanceof IntegerStoredField) {
@@ -728,6 +732,7 @@ public abstract class BaseJDBCStorage
 							ps.setInt(i + 1, thisinteger.intValue());
 						if (thisinteger == null)
 							ps.setNull(i + 1, java.sql.Types.INTEGER);
+						LOGGER.info("JDBC preparedstatement update setInteger " + (i + 1) + "," + thisinteger);
 						treated = true;
 					}
 

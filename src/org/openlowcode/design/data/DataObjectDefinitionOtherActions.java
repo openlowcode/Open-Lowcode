@@ -1189,6 +1189,9 @@ public class DataObjectDefinitionOtherActions {
 						sg.wl("		object" + methodsforcreation[j]);
 					}
 		}
+		if (dataobject.getPropertyByName("TYPED")!=null) {
+			sg.wl("		object.settypebeforecreation(type);");
+		}
 		sg.wl("		object.insert(this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
 		sg.wl("		return object.getId();");
 		sg.wl("	}");

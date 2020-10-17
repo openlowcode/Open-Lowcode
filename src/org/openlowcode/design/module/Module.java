@@ -1781,6 +1781,17 @@ public class Module
 				logger.info("generating file " + fullfilepathupdate);
 				DataObjectDefinitionDeleteAndUpdate.generateUpdateActionToFile(currentobject,
 						new SourceGenerator(new File(fullfilepathupdate), this.getAuthor(), this.getVersionid()), this);
+				if (currentobject.getPropertyByName("TYPED")!=null) {
+					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
+					for (int c=0;c<typed.getCompanionNumber();c++) {
+						DataObjectDefinition companion = typed.getCompanion(c);
+						String fullfilepathcompanionupdate = srcautoactionfolder + "Atg"
+								+ StringFormatter.formatForJavaClass("UPDATE" + companion.getName()) + "Action.java";
+						logger.info("generating file " + fullfilepathcompanionupdate);
+						DataObjectDefinitionDeleteAndUpdate.generateUpdateActionToFile(currentobject,companion,
+								new SourceGenerator(new File(fullfilepathcompanionupdate), this.getAuthor(), this.getVersionid()), this);
+					}
+				}
 				// flat file loading
 				String fullfilepathflatfile = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("FLATFILELOADERFOR" + currentobject.getName())
@@ -2111,7 +2122,17 @@ public class Module
 				logger.info("generating file " + fullfilepath);
 				(new DataObjectDefinitionUpdatePage(currentobject)).generateToFile(
 						new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this);
-
+				if (currentobject.getPropertyByName("TYPED")!=null) {
+					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
+					for (int c=0;c<typed.getCompanionNumber();c++) {
+						DataObjectDefinition companion = typed.getCompanion(c);
+						String fullfilepathcompanion = srcautopagefolder + "Atg"
+								+ StringFormatter.formatForJavaClass("UPDATE" + companion.getName()) + "Page.java";
+						logger.info("generating file " + fullfilepathcompanion);
+						(new DataObjectDefinitionUpdatePage(currentobject,companion)).generateToFile(
+								new SourceGenerator(new File(fullfilepathcompanion), this.getAuthor(), this.getVersionid()), this);
+					}
+				}
 			}
 
 			if ((currentobject.IsIterated()) || (currentobject.isVersioned())) {

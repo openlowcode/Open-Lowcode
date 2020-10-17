@@ -23,6 +23,7 @@ import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 
+
 /**
  * An utility class gathering the generation of code for all delete and update
  * actions
@@ -620,7 +621,7 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("			 {");
 		sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(id);");
 		if (companion!=null)
-			sg.wl("		" + companionclass + " " + companionvariable + " = " + companionclass + ".readone(id);");
+			sg.wl("		"+companionclass+" "+companionvariable+" = "+companionclass+".readone(DataObjectId.castDataObjectId(id, "+companionclass+".getDefinition()));");
 		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
 				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
@@ -1084,17 +1085,30 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.close();
 	}
 
+	public static void generateUpdateActionToFile(DataObjectDefinition dataobject, SourceGenerator sg, Module module)
+			throws IOException {
+		generateUpdateActionToFile(dataobject,null,sg,module);
+	}
+	
 	/**
 	 * generate the unitary update action to file
 	 * 
 	 * @param dataobject data object
+	 * @param companion companion for typed objects
 	 * @param sg         source generator
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens while writing the source code
 	 */
-	public static void generateUpdateActionToFile(DataObjectDefinition dataobject, SourceGenerator sg, Module module)
+	public static void generateUpdateActionToFile(DataObjectDefinition dataobject,DataObjectDefinition companion, SourceGenerator sg, Module module)
 			throws IOException {
 		String actionname = "Update" + dataobject.getName().toLowerCase() + "Action";
+		String companionclass = null;
+		String companionattribute=null;
+		if (companion!=null) {
+			actionname = "Update" + companion.getName().toLowerCase() + "Action";
+			companionclass = StringFormatter.formatForJavaClass(companion.getName());
+			companionattribute = StringFormatter.formatForAttribute(companion.getName());
+		}
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 		LinkedToParent<?> subobject = dataobject.isSubObject();
@@ -1120,6 +1134,7 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("package " + module.getPath() + ".action.generated;");
 		sg.wl("");
 		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
+		if(companion!=null) sg.wl("import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";");
 		if (subobject != null) {
 			sg.wl("import " + subobject.getParentObjectForLink().getOwnermodule().getPath() + ".data."
 					+ StringFormatter.formatForJavaClass(subobject.getParentObjectForLink().getName()) + ";");
@@ -1145,7 +1160,7 @@ public class DataObjectDefinitionDeleteAndUpdate {
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public DataObjectId<" + objectclass + "> executeActionLogic(" + objectclass + " " + objectvariable
-				+ extraattributesdeclaration.toString() + ",Function<TableAlias,QueryFilter> datafilter)");
+				+(companion!=null?", "+companionclass+" "+companionattribute+" ":"")+ extraattributesdeclaration.toString() + ",Function<TableAlias,QueryFilter> datafilter)");
 		sg.wl("			 {");
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
@@ -1157,7 +1172,10 @@ public class DataObjectDefinitionDeleteAndUpdate {
 					}
 			}
 		}
-		sg.wl("		" + objectvariable + ".update(this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
+		if (companion==null)
+			sg.wl("		" + objectvariable+ ".update(this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
+		if (companion!=null)
+		sg.wl("		" + companionattribute + ".updatetyped( " + objectvariable+",this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
 		sg.wl("		return " + objectvariable + ".getId();");
 		sg.wl("	}");
 		sg.wl("");

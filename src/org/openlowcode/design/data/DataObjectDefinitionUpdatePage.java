@@ -33,6 +33,7 @@ public class DataObjectDefinitionUpdatePage
 		GeneratedPages {
 
 	private DataObjectDefinition dataobject;
+	private DataObjectDefinition companionobject;
 
 	/**
 	 * creates the update page class for the provided data object
@@ -41,11 +42,31 @@ public class DataObjectDefinitionUpdatePage
 	 */
 	public DataObjectDefinitionUpdatePage(DataObjectDefinition dataobject) {
 		this.dataobject = dataobject;
+		this.companionobject = null;
+	}
+
+	/**
+	 * creates the update page class for the provided data object
+	 * 
+	 * @param dataobject      data object definition
+	 * @param companionobject companion data object definition (for typed object)
+	 */
+	public DataObjectDefinitionUpdatePage(DataObjectDefinition dataobject, DataObjectDefinition companionobject) {
+		this.companionobject = companionobject;
+		this.dataobject = dataobject;
 	}
 
 	@Override
 	public void generateToFile(SourceGenerator sg, Module module) throws IOException {
 		String pagename = "Update" + dataobject.getName().toLowerCase() + "Page";
+		String companionclass = null;
+		String companionvariable = null;
+
+		if (companionobject != null) {
+			pagename = "Update" + companionobject.getName().toLowerCase() + "Page";
+			companionclass = StringFormatter.formatForJavaClass(companionobject.getName());
+			companionvariable = StringFormatter.formatForAttribute(companionobject.getName());
+		}
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 		HashMap<String, String> importdeclaration = new HashMap<String, String>();
@@ -83,26 +104,35 @@ public class DataObjectDefinitionUpdatePage
 			pageattributeentry.append(" , ");
 			pageattributeentry.append(" controlstatus ");
 		}
-		
-		// ------------------------ Attributes for field suggestions ---------------------
-		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+
+		// ------------------------ Attributes for field suggestions
+		// ---------------------
+		for (int i = 0; i < dataobject.fieldlist.getSize(); i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
-				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				StringField stringfield = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
-	
+
 					pageattributedeclaration
-							.append(", String[] suggestionsforfield" + stringfield.getName().toLowerCase()+ " ");
-				
+							.append(", String[] suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
+
 					pageattributeentry.append(", suggestionsforfield" + stringfield.getName().toLowerCase() + " ");
 				}
 			}
 		}
-		
+
 		sg.wl("package " + module.getPath() + ".page.generated;");
 		sg.wl("");
 		sg.wl("import " + module.getPath() + ".action.generated.AtgShow" + objectvariable + "Action;");
-		sg.wl("import " + module.getPath() + ".action.generated.AtgUpdate" + objectvariable + "Action;");
+		if (companionobject == null) {
+			sg.wl("import " + module.getPath() + ".action.generated.AtgUpdate" + objectvariable + "Action;");
+		} else {
+			sg.wl("import " + companionobject.getOwnermodule().getPath() + ".action.generated.AtgUpdate"
+					+ companionvariable + "Action;");
+		}
 		sg.wl("import " + module.getPath() + ".data." + objectclass + ";");
+		if (companionobject != null) {
+			sg.wl("import " + companionobject.getOwnermodule().getPath() + ".data." + companionclass + ";");
+		}
 		sg.wl("import org.openlowcode.server.action.SActionRef;");
 		sg.wl("import org.openlowcode.server.graphic.SPageNode;");
 		sg.wl("import org.openlowcode.server.graphic.widget.STextField;");
@@ -120,8 +150,10 @@ public class DataObjectDefinitionUpdatePage
 
 		sg.wl("	@Override");
 		sg.wl("	public String generateTitle(" + objectclass + " " + objectvariable + " "
+				+ (companionobject != null ? ", " + companionclass + " " + companionvariable + " " : "")
 				+ pageattributedeclaration.toString() + ") {");
-		sg.wl("		String objectdisplay = \"Update " + dataobject.getLabel() + "\";");
+		sg.wl("		String objectdisplay = \"Update "
+				+ (companionobject != null ? companionobject.getLabel() : dataobject.getLabel()) + "\";");
 		if (dataobject.getPropertyByName("NUMBERED") != null) {
 			sg.wl("		objectdisplay+=\" \"+" + objectvariable + ".getNr();");
 		}
@@ -133,8 +165,10 @@ public class DataObjectDefinitionUpdatePage
 		sg.wl("	}");
 
 		sg.wl("	public Atg" + pagename + "(" + objectclass + " " + objectvariable + " "
+				+ (companionobject != null ? ", " + companionclass + " " + companionvariable + " " : "")
 				+ pageattributedeclaration.toString() + ")  {");
-		sg.wl("		super(" + objectvariable + " " + pageattributeentry.toString() + ");");
+		sg.wl("		super(" + objectvariable + (companionobject != null ? ", " + companionvariable + " " : "") + " "
+				+ pageattributeentry.toString() + ");");
 		sg.wl("		");
 		sg.wl("	}");
 		sg.wl("");
@@ -142,8 +176,9 @@ public class DataObjectDefinitionUpdatePage
 		sg.wl("	protected SPageNode getContent()  {");
 		sg.wl("		SComponentBand mainband = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
 		sg.wl("		mainband.addElement(new SPageText(\"Update " + objectclass + "\",SPageText.TYPE_TITLE,this));");
-		sg.wl("		AtgUpdate" + objectvariable + "Action.ActionRef update" + objectvariable + "actionref = AtgUpdate"
-				+ objectvariable + "Action.get().getActionRef();");
+		sg.wl("		AtgUpdate" + (companionobject != null ? companionvariable : objectvariable)
+				+ "Action.ActionRef update" + objectvariable + "actionref = AtgUpdate"
+				+ (companionobject != null ? companionvariable : objectvariable) + "Action.get().getActionRef();");
 		if (isdatacontrol) {
 			sg.wl("		STextField controlstatus = new STextField(\"Control Status\",\"CONTROLSTATUS\",\"\",20000, \"\",");
 			sg.wl("				false,this, true, false, false,null, false);");
@@ -157,17 +192,27 @@ public class DataObjectDefinitionUpdatePage
 				+ ".getDefinition(),this, false);");
 		sg.wl("		update" + objectvariable + "actionref.set" + objectclass
 				+ "(objectupdatedefinition.getObjectInput()); ");
+		if (companionobject != null) {
+			sg.wl("		SObjectDisplay<" + companionclass + "> companionupdatedefinition = new SObjectDisplay<"
+					+ companionclass + ">(\"" + companionobject.getName().toUpperCase() + "\", this.get"
+					+ companionclass + "()," + companionclass + ".getDefinition(),this, false);");
+			sg.wl("		update" + objectvariable + "actionref.set" + companionclass
+					+ "(companionupdatedefinition.getObjectInput()); ");
+			sg.wl("		companionupdatedefinition.setReducedDisplay(false);");
+		}
 
-		for (int i=0;i<dataobject.fieldlist.getSize();i++) {
+		for (int i = 0; i < dataobject.fieldlist.getSize(); i++) {
 			if (dataobject.fieldlist.get(i) instanceof StringField) {
-				StringField stringfield  = (StringField) dataobject.fieldlist.get(i);
+				StringField stringfield = (StringField) dataobject.fieldlist.get(i);
 				if (stringfield.hasListOfValuesHelper()) {
-					sg.wl("			objectupdatedefinition.addTextFieldSuggestion("+objectclass+".get"+StringFormatter.formatForJavaClass(stringfield.getName())+"FieldMarker(),this.getSuggestionsforfield"+stringfield.getName().toLowerCase()+"());");		
+					sg.wl("			objectupdatedefinition.addTextFieldSuggestion(" + objectclass + ".get"
+							+ StringFormatter.formatForJavaClass(stringfield.getName())
+							+ "FieldMarker(),this.getSuggestionsforfield" + stringfield.getName().toLowerCase()
+							+ "());");
 				}
 			}
 		}
-		
-		
+
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			if (thisproperty.isDataInputUsedForUpdate())
@@ -199,6 +244,8 @@ public class DataObjectDefinitionUpdatePage
 
 		}
 		sg.wl("		mainband.addElement(objectupdatedefinition);");
+		if (companionobject != null)
+			sg.wl("		mainband.addElement(companionupdatedefinition);");
 
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);

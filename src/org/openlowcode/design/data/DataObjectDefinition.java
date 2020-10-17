@@ -74,7 +74,6 @@ import org.openlowcode.tools.misc.Named;
 import org.openlowcode.tools.misc.NamedList;
 import org.openlowcode.tools.misc.Pair;
 
-
 import org.openlowcode.module.system.design.SystemModule;
 
 /**
@@ -252,7 +251,8 @@ public class DataObjectDefinition
 	}
 
 	/**
-	 * allows to add an alias with condition on parent (this is for simple alias only)
+	 * allows to add an alias with condition on parent (this is for simple alias
+	 * only)
 	 * 
 	 * @param parent
 	 */
@@ -275,8 +275,7 @@ public class DataObjectDefinition
 					"for object " + this.getName() + ", Parent needs to be defined to add alias with restriction");
 		this.dynamicaliasfilteronparent = parent;
 	}
-	
-	
+
 	/**
 	 * adds a flat file loader alias
 	 * 
@@ -575,7 +574,7 @@ public class DataObjectDefinition
 	public DataObjectDefinition getDynamicAliasFilterOnParent() {
 		return this.dynamicaliasfilteronparent;
 	}
-	
+
 	/**
 	 * get the field by name
 	 * 
@@ -916,7 +915,8 @@ public class DataObjectDefinition
 			boolean exception = false;
 			if (methodname.compareTo("setFinalSettings") == 0)
 				exception = true;
-			if (methodname.compareTo("addPropertyOnSameObject")==0) break;
+			if (methodname.compareTo("addPropertyOnSameObject") == 0)
+				break;
 			@SuppressWarnings("rawtypes")
 			Class classstack;
 			try {
@@ -974,13 +974,9 @@ public class DataObjectDefinition
 			externalobject.addProperty(externalproperty);
 
 		}
-		
+
 	}
 
-	
-	
-	
-	
 	/**
 	 * adds a new property to the data object, removing it from the GUI, but still
 	 * keeping the data accessible for a migrator
@@ -1011,13 +1007,30 @@ public class DataObjectDefinition
 	}
 
 	/**
+	 * Generate update page without a companion
+	 * 
 	 * @return the interfaces (input argument) of the automatically generated update
 	 *         page
 	 */
 	private PageDefinition generateUpdatePage() {
+		return generateUpdatePage(null);
+	}
+
+	/**
+	 * Generate update page with a companion
+	 * 
+	 * @param companion companion object (can be null if no companion)
+	 * @return the interfaces (input argument) of the automatically generated update
+	 *         page
+	 */
+	private PageDefinition generateUpdatePage(DataObjectDefinition companion) {
 		String updatepagename = "UPDATE" + this.getName();
+		if (companion != null)
+			updatepagename = "UPDATE" + companion.getName();
 		DynamicPageDefinition updatepage = new DynamicPageDefinition(updatepagename);
 		updatepage.addInputParameter(new ObjectArgument(this.getName(), this));
+		if (companion != null)
+			updatepage.addInputParameter(new ObjectArgument(companion.getName(), companion));
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
 			if (property.isDataInputUsedForUpdate()) {
@@ -1051,10 +1064,12 @@ public class DataObjectDefinition
 
 	private PageDefinition generateShowPage(DataObjectDefinition companion) {
 		String showpagename = "SHOW" + this.getName();
-		if (companion!=null) showpagename = "SHOW"+companion.getName();
+		if (companion != null)
+			showpagename = "SHOW" + companion.getName();
 		DynamicPageDefinition showpage = new DynamicPageDefinition(showpagename);
 		showpage.addInputParameter(new ObjectArgument(this.getName(), this));
-		if (companion!=null) showpage.addInputParameter(new ObjectArgument(companion.getName(),companion));
+		if (companion != null)
+			showpage.addInputParameter(new ObjectArgument(companion.getName(), companion));
 		showpage.addInputParameter(
 				new ChoiceArgument("USERLOCALE", SystemModule.getSystemModule().getApplicationLocale()));
 		showpage.addInputParameter(
@@ -1200,7 +1215,7 @@ public class DataObjectDefinition
 
 		return showpage;
 	}
-	
+
 	/**
 	 * @return the interfaces (input argument) of the automatically generated show
 	 *         page
@@ -1209,15 +1224,22 @@ public class DataObjectDefinition
 		return generateShowPage(null);
 	}
 
+	/**
+	 * generate prepare update action
+	 * 
+	 * @param companion the companion object (if not null)
+	 * @return the action
+	 */
 	private DynamicActionDefinition generatePrepareUpdateAction(DataObjectDefinition companion) {
 		String prepareupdateactionname = "PREPAREUPDATE" + this.getName();
-		if (companion!=null) prepareupdateactionname ="PREPAREUPDATE"+companion.getName();
+		if (companion != null)
+			prepareupdateactionname = "PREPAREUPDATE" + companion.getName();
 		DynamicActionDefinition prepareupdateaction = new DynamicActionDefinition(prepareupdateactionname, true);
 		prepareupdateaction.setButtonlabel("Update");
 		prepareupdateaction.addInputArgumentAsAccessCriteria(new ObjectIdArgument("ID", this));
 		prepareupdateaction.addOutputArgument(new ObjectArgument(this.getName(), this));
-		if (companion!=null)
-			prepareupdateaction.addOutputArgument(new ObjectArgument(companion.getName(),companion));
+		if (companion != null)
+			prepareupdateaction.addOutputArgument(new ObjectArgument(companion.getName(), companion));
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
 			if (property.isDataInputUsedForUpdate()) {
@@ -1435,11 +1457,13 @@ public class DataObjectDefinition
 	private ActionDefinition generateUpdateAction(DataObjectDefinition companion) {
 		// security done
 		String updateactionname = "UPDATE" + this.getName();
-		if (companion!=null) updateactionname = "UPDATE" + companion.getName();
+		if (companion != null)
+			updateactionname = "UPDATE" + companion.getName();
 		DynamicActionDefinition updateaction = new DynamicActionDefinition(updateactionname, true);
 
 		updateaction.addInputArgumentAsAccessCriteria(new ObjectArgument(this.getName(), this));
-		if (companion!=null) updateaction.addInputArgument(new ObjectArgument(companion.getName(), companion));
+		if (companion != null)
+			updateaction.addInputArgument(new ObjectArgument(companion.getName(), companion));
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
 			if (property.isDataInputUsedForUpdate()) {
@@ -1452,7 +1476,7 @@ public class DataObjectDefinition
 		this.addActionToModifyGroup(updateaction);
 		return updateaction;
 	}
-	
+
 	private ActionDefinition generateUpdateAction() {
 		return generateUpdateAction(null);
 
@@ -1852,13 +1876,16 @@ public class DataObjectDefinition
 			this.addActionToSteerActionGroup(renumberaction);
 		return renumberaction;
 	}
+
 	private ActionDefinition generateShowAction(DataObjectDefinition companion) {
 		String showactionname = "SHOW" + this.getName();
-		if (companion!=null) showactionname = "SHOW"+companion.getName();
+		if (companion != null)
+			showactionname = "SHOW" + companion.getName();
 		DynamicActionDefinition showaction = new DynamicActionDefinition(showactionname, true);
 		showaction.addInputArgumentAsAccessCriteria(new ObjectIdArgument("ID", this));
 		showaction.addOutputArgument(new ObjectArgument(this.getName(), this));
-		if (companion!=null) showaction.addOutputArgument(new ObjectArgument(companion.getName(),companion));
+		if (companion != null)
+			showaction.addOutputArgument(new ObjectArgument(companion.getName(), companion));
 		showaction.addOutputArgument(
 				new ChoiceArgument("USERLOCALE", SystemModule.getSystemModule().getApplicationLocale()));
 		showaction.addOutputArgument(
@@ -2013,6 +2040,7 @@ public class DataObjectDefinition
 
 		return showaction;
 	}
+
 	private ActionDefinition generateShowAction() {
 		return generateShowAction(null);
 	}
@@ -2130,23 +2158,24 @@ public class DataObjectDefinition
 
 		if (isShowActionAutomaticallyGenerated()) {
 			module.addAction(generateShowAction());
-			if (this.getPropertyByName("TYPED")!=null) {
+			if (this.getPropertyByName("TYPED") != null) {
 				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
-				for (int i=0;i<typed.getCompanionNumber();i++) {
+				for (int i = 0; i < typed.getCompanionNumber(); i++) {
 					DataObjectDefinition companion = typed.getCompanion(i);
-					logger.finer("generating show action for index  "+i+", main "+this.getName()+" and companion "+companion.getName());
+					logger.finer("generating show action for index  " + i + ", main " + this.getName()
+							+ " and companion " + companion.getName());
 					module.addAction(generateShowAction(companion));
 				}
 			}
 			module.AddPage(generateShowPage());
-			if (this.getPropertyByName("TYPED")!=null) {
+			if (this.getPropertyByName("TYPED") != null) {
 				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
-				for (int i=0;i<typed.getCompanionNumber();i++) {
+				for (int i = 0; i < typed.getCompanionNumber(); i++) {
 					DataObjectDefinition companion = typed.getCompanion(i);
 					module.AddPage(generateShowPage(companion));
 				}
 			}
-			
+
 			if (this.IsIterated()) {
 				ActionDefinition showactionforiteration = generateShowActionForIteration();
 				module.addAction(showactionforiteration);
@@ -2167,23 +2196,27 @@ public class DataObjectDefinition
 
 			logger.info(" -- declared automatically generated show action / page for object " + this.getName());
 			DynamicActionDefinition prepareupdateaction = generatePrepareUpdateAction();
-			if (this.getPropertyByName("TYPED")!=null) {
+			if (this.getPropertyByName("TYPED") != null) {
 				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
-				for (int i=0;i<typed.getCompanionNumber();i++) {
+				for (int i = 0; i < typed.getCompanionNumber(); i++) {
 					DataObjectDefinition companion = typed.getCompanion(i);
 					module.addAction(generatePrepareUpdateAction(companion));
 					module.addAction(generateUpdateAction(companion));
 				}
 			}
-			UniqueIdentified uniqueidentifiedproperty = (UniqueIdentified) this.getPropertyByName("UNIQUEIDENTIFIED");
-			uniqueidentifiedproperty.addActionOnObjectId(prepareupdateaction);
 			module.addAction(prepareupdateaction);
 			module.addAction(generateUpdateAction());
 			module.addAction(generateMassUpdateAction());
 			module.addAction(generateFlatFileLoader());
 			module.addAction(generateFlatFileSample());
 			module.AddPage(generateUpdatePage());
-
+			if (this.getPropertyByName("TYPED") != null) {
+				Typed typed = (Typed) (this.getPropertyByName("TYPED"));
+				for (int i = 0; i < typed.getCompanionNumber(); i++) {
+					DataObjectDefinition companion = typed.getCompanion(i);
+					module.AddPage(generateUpdatePage(companion));
+				}
+			}
 			module.addAction(generateSearchAction());
 			module.addAction(generateLaunchSearchAction());
 			module.AddPage(generateSearchPage());
@@ -2259,42 +2292,47 @@ public class DataObjectDefinition
 
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> thisproperty = this.propertylist.get(i);
-			
-			
+
 			if (thisproperty instanceof HasMultiDimensionalChild) {
 				HasMultiDimensionalChild hasmultidimensionchild = (HasMultiDimensionalChild) thisproperty;
-				String actionname = "REPAIRLINESFOR"+hasmultidimensionchild.getInstancename().toUpperCase();
-				DynamicActionDefinition repairchildren = new DynamicActionDefinition(actionname,true);
-				repairchildren.addInputArgumentAsAccessCriteria(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
-				repairchildren.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
+				String actionname = "REPAIRLINESFOR" + hasmultidimensionchild.getInstancename().toUpperCase();
+				DynamicActionDefinition repairchildren = new DynamicActionDefinition(actionname, true);
+				repairchildren.addInputArgumentAsAccessCriteria(
+						new ObjectIdArgument(this.getName().toUpperCase() + "ID", this));
+				repairchildren.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase() + "ID_THRU", this));
 				module.addAction(repairchildren);
 				this.addActionToModifyGroup(repairchildren);
-				
-				String prepareaddchildname = "PREPAREADDLINESFOR"+hasmultidimensionchild.getInstancename().toUpperCase();
-				DynamicActionDefinition prepareaddchild = new DynamicActionDefinition(prepareaddchildname,true);
-				prepareaddchild.addInputArgumentAsAccessCriteria(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
-				prepareaddchild.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
-				prepareaddchild.addOutputArgument(new ArrayArgument(new ObjectArgument("NEWBLANKS", hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
-				prepareaddchild.addOutputArgument(new ArrayArgument(new ObjectArgument("EXISTINGCHILDREN", hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
+
+				String prepareaddchildname = "PREPAREADDLINESFOR"
+						+ hasmultidimensionchild.getInstancename().toUpperCase();
+				DynamicActionDefinition prepareaddchild = new DynamicActionDefinition(prepareaddchildname, true);
+				prepareaddchild.addInputArgumentAsAccessCriteria(
+						new ObjectIdArgument(this.getName().toUpperCase() + "ID", this));
+				prepareaddchild.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase() + "ID_THRU", this));
+				prepareaddchild.addOutputArgument(new ArrayArgument(new ObjectArgument("NEWBLANKS",
+						hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
+				prepareaddchild.addOutputArgument(new ArrayArgument(new ObjectArgument("EXISTINGCHILDREN",
+						hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
 				prepareaddchild.addOutputArgument(new StringArgument("CONTEXT", 256));
 				module.addAction(prepareaddchild);
 				this.addActionToModifyGroup(prepareaddchild);
-				
-				String addchildname = "ADDLINESFOR"+hasmultidimensionchild.getInstancename().toUpperCase();
-				
-				
+
+				String addchildname = "ADDLINESFOR" + hasmultidimensionchild.getInstancename().toUpperCase();
+
 				DynamicPageDefinition addchildpage = new DynamicPageDefinition(addchildname);
 				addchildpage.linkPageToAction(prepareaddchild);
 				module.AddPage(addchildpage);
-				
-				DynamicActionDefinition addchild = new DynamicActionDefinition(addchildname,true);
-				addchild.addInputArgumentAsAccessCriteria(new ObjectIdArgument(this.getName().toUpperCase()+"ID", this));
-				addchild.addInputArgument(new ArrayArgument(new ObjectArgument("NEWBLANKS", hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
-				addchild.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU",this));
+
+				DynamicActionDefinition addchild = new DynamicActionDefinition(addchildname, true);
+				addchild.addInputArgumentAsAccessCriteria(
+						new ObjectIdArgument(this.getName().toUpperCase() + "ID", this));
+				addchild.addInputArgument(new ArrayArgument(new ObjectArgument("NEWBLANKS",
+						hasmultidimensionchild.getOriginMultiDimensionChildProperty().getParent())));
+				addchild.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase() + "ID_THRU", this));
 				module.addAction(addchild);
 				this.addActionToModifyGroup(addchild);
 			}
-			
+
 			if (thisproperty instanceof LinkedFromChildren) {
 				LinkedFromChildren linkedfromchildren = (LinkedFromChildren) thisproperty;
 				String loadchildrenactioname = "LOADCHILDREN" + linkedfromchildren.getInstancename() + "FOR"
@@ -2765,6 +2803,15 @@ public class DataObjectDefinition
 	}
 
 	/**
+	 * @return true if object has the HasId property (basis for persistence)
+	 */
+	public boolean hasId() {
+		if (this.getPropertyByName("HASID") != null)
+			return true;
+		return false;
+	}
+
+	/**
 	 * @return all the LinkedToParent properties on this object
 	 */
 	public LinkedToParent<?>[] getParents() {
@@ -3147,24 +3194,25 @@ public class DataObjectDefinition
 		sg.wl("import org.openlowcode.server.data.storage.StoredFieldSchema;");
 		sg.wl("import org.openlowcode.server.data.properties.UniqueidentifiedInterface;");
 
-		if (this.dynamicloaderalias.size()>0) {
-			if (this.dynamicaliasfilteronparent!=null) {
+		if (this.dynamicloaderalias.size() > 0) {
+			if (this.dynamicaliasfilteronparent != null) {
 				sg.wl("import org.openlowcode.server.data.loader.FlatFileExtractorDynamicAliasParentFilter;");
-				
+
 			} else {
 				sg.wl("import org.openlowcode.server.data.loader.FlatFileExtractorDynamicAliasFilter;");
 			}
-			Iterator<Pair<String,String>> dynamicaliasiterator = this.dynamicloaderalias.keySet().iterator();
+			Iterator<Pair<String, String>> dynamicaliasiterator = this.dynamicloaderalias.keySet().iterator();
 			while (dynamicaliasiterator.hasNext()) {
-				Pair<String,String> thisdynamicalias = dynamicaliasiterator.next();
+				Pair<String, String> thisdynamicalias = dynamicaliasiterator.next();
 				String name = this.dynamicloadername.get(thisdynamicalias).toLowerCase();
 				String nameclass = StringFormatter.formatForJavaClass(name);
-				String parent = (dynamicaliasfilteronparent!=null?"Parent":"");
-				sg.wl("import "+this.getOwnermodule().getPath()+".utility."+nameclass+"For"+classname+"DynamicAlias"+parent+"Filter;");
+				String parent = (dynamicaliasfilteronparent != null ? "Parent" : "");
+				sg.wl("import " + this.getOwnermodule().getPath() + ".utility." + nameclass + "For" + classname
+						+ "DynamicAlias" + parent + "Filter;");
 			}
-			
+
 		}
-		
+
 		// imports for loaders --------------------------
 
 		if (this.aliasfilteronparent != null) {
@@ -3182,10 +3230,10 @@ public class DataObjectDefinition
 			if (this.aliasfilteronparent == null)
 				sg.wl("import org.openlowcode.server.data.loader.ConditionalAliasListHelper;");
 		}
-		if (this.dynamicloaderalias.size()>0) {
-			if (this.dynamicaliasfilteronparent!=null)
+		if (this.dynamicloaderalias.size() > 0) {
+			if (this.dynamicaliasfilteronparent != null)
 				sg.wl("import org.openlowcode.server.data.loader.ConditionalAliasListParentHelper;");
-			if (this.dynamicaliasfilteronparent==null)
+			if (this.dynamicaliasfilteronparent == null)
 				sg.wl("import org.openlowcode.server.data.loader.ConditionalAliasListHelper;");
 		}
 		if (this.categoryforextractor == null)
@@ -3248,21 +3296,24 @@ public class DataObjectDefinition
 		if (this.categoryforextractor != null) {
 			interfacestring = "\n		implements SpecificAliasList<"
 					+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition> ";
-			if (this.aliasfilteronparent != null) 
+			if (this.aliasfilteronparent != null)
 				interfacestring += ",\n			SpecificAliasListWithParent<"
 						+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition,"
 						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";
-			if (this.dynamicaliasfilteronparent!=null) if (this.dynamicaliasfilteronparent!=this.aliasfilteronparent)
-				interfacestring += ",\n			SpecificAliasListWithParent<"
-						+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName()) + "ChoiceDefinition,"
-						+ StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName()) + ">";
+			if (this.dynamicaliasfilteronparent != null)
+				if (this.dynamicaliasfilteronparent != this.aliasfilteronparent)
+					interfacestring += ",\n			SpecificAliasListWithParent<"
+							+ StringFormatter.formatForJavaClass(this.categoryforextractor.getName())
+							+ "ChoiceDefinition,"
+							+ StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName()) + ">";
 		} else {
-			if ((this.aliasfilteronparent != null) )
+			if ((this.aliasfilteronparent != null))
 				interfacestring += "\n		implements SpecificAliasListWithParentWithoutParameter<"
 						+ StringFormatter.formatForJavaClass(aliasfilteronparent.getName()) + ">";
-			if (this.dynamicaliasfilteronparent!=null) if (this.dynamicaliasfilteronparent!=this.aliasfilteronparent)
-				interfacestring += "\n		implements SpecificAliasListWithParentWithoutParameter<"
-						+ StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName()) + ">";
+			if (this.dynamicaliasfilteronparent != null)
+				if (this.dynamicaliasfilteronparent != this.aliasfilteronparent)
+					interfacestring += "\n		implements SpecificAliasListWithParentWithoutParameter<"
+							+ StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName()) + ">";
 		}
 
 		sg.wl("public class " + classname + "Definition extends DataObjectDefinition<" + classname + "> "
@@ -3372,18 +3423,17 @@ public class DataObjectDefinition
 		String parentclassforfilter = (this.aliasfilteronparent != null
 				? StringFormatter.formatForJavaClass(this.aliasfilteronparent.getName())
 				: null);
-		
+
 		String parentclassfordynamicfilter = (this.dynamicaliasfilteronparent != null
 				? StringFormatter.formatForJavaClass(this.dynamicaliasfilteronparent.getName())
 				: null);
-		
-		
 
-
-		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent!=null)) {
+		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent != null)) {
 			String classfilter = parentclassforfilter;
-			if (classfilter==null) classfilter = parentclassfordynamicfilter;
-			if (classfilter==null) throw new RuntimeException("No class defined");
+			if (classfilter == null)
+				classfilter = parentclassfordynamicfilter;
+			if (classfilter == null)
+				throw new RuntimeException("No class defined");
 			sg.wl("	private ConditionalAliasListParentHelper<");
 			sg.wl("			" + classname + ", " + choiceclass + ",");
 			sg.wl("			" + classfilter + "> aliaslisthelper;");
@@ -3591,17 +3641,20 @@ public class DataObjectDefinition
 		// -------------------------------------------- Generate the category extractor
 		// ---------------------------------
 
-		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent!=null)) {
+		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent != null)) {
 			String consolidatedparentclass = parentclassforfilter;
-			if (consolidatedparentclass==null) consolidatedparentclass = parentclassfordynamicfilter;
+			if (consolidatedparentclass == null)
+				consolidatedparentclass = parentclassfordynamicfilter;
 			sg.wl("		aliaslisthelper = new ConditionalAliasListParentHelper<");
 			sg.wl("					" + classname + ", "
-					+ (choiceclass.equals("?") ? "BooleanChoiceDefinition" : choiceclass) + ", " + consolidatedparentclass
-					+ ">(" + classname + ".getDefinition(),");
+					+ (choiceclass.equals("?") ? "BooleanChoiceDefinition" : choiceclass) + ", "
+					+ consolidatedparentclass + ">(" + classname + ".getDefinition(),");
 			sg.wl("							" + consolidatedparentclass + ".getDefinition(), (a) -> ("
 					+ consolidatedparentclass + ".readone(a)),");
-			if (this.aliasfilteronparent != null) sg.wl("							new " + parentclassforfilter + "For" + classname + "AliasFilter());");
-			if (this.aliasfilteronparent == null) sg.wl("							null);");
+			if (this.aliasfilteronparent != null)
+				sg.wl("							new " + parentclassforfilter + "For" + classname + "AliasFilter());");
+			if (this.aliasfilteronparent == null)
+				sg.wl("							null);");
 			sg.wl("");
 			sg.wl("");
 		} else if (this.categoryforextractor != null) {
@@ -4016,21 +4069,33 @@ public class DataObjectDefinition
 			Iterator<Pair<String, String>> dynamicaliasesiterator = this.dynamicloaderalias.keySet().iterator();
 			while (dynamicaliasesiterator.hasNext()) {
 				String loaderchoice = "BooleanChoiceDefinition";
-				if (this.categoryforextractor!=null) loaderchoice = StringFormatter.formatForJavaClass(categoryforextractor.getName())+"ChoiceDefinition";
-				Pair<String,String> thisdynamicalias = dynamicaliasesiterator.next();
+				if (this.categoryforextractor != null)
+					loaderchoice = StringFormatter.formatForJavaClass(categoryforextractor.getName())
+							+ "ChoiceDefinition";
+				Pair<String, String> thisdynamicalias = dynamicaliasesiterator.next();
 				String name = this.dynamicloadername.get(thisdynamicalias).toLowerCase();
 				String nameclass = StringFormatter.formatForJavaClass(name);
-				if (this.dynamicaliasfilteronparent==null) {
-					sg.wl("		FlatFileExtractorDynamicAliasFilter<"+classname+","+loaderchoice+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasFilter();");
-					sg.wl("		aliaslisthelper.addDynamicAliasHelper(\""+StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject())+"\",\""+StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject())+"\", "+name+"filter);");
+				if (this.dynamicaliasfilteronparent == null) {
+					sg.wl("		FlatFileExtractorDynamicAliasFilter<" + classname + "," + loaderchoice + "> " + name
+							+ "filter = new " + nameclass + "For" + classname + "DynamicAliasFilter();");
+					sg.wl("		aliaslisthelper.addDynamicAliasHelper(\""
+							+ StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject()) + "\",\""
+							+ StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject()) + "\", " + name
+							+ "filter);");
 				} else {
-					sg.wl("		FlatFileExtractorDynamicAliasParentFilter<"+classname+","+StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName())+","+loaderchoice+"> "+name+"filter = new "+nameclass+"For"+classname+"DynamicAliasParentFilter();");
-					sg.wl("		aliaslisthelper.addDynamicAliasParentHelper(\""+StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject())+"\",\""+StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject())+"\", "+name+"filter);");
-					
+					sg.wl("		FlatFileExtractorDynamicAliasParentFilter<" + classname + ","
+							+ StringFormatter.formatForJavaClass(dynamicaliasfilteronparent.getName()) + ","
+							+ loaderchoice + "> " + name + "filter = new " + nameclass + "For" + classname
+							+ "DynamicAliasParentFilter();");
+					sg.wl("		aliaslisthelper.addDynamicAliasParentHelper(\""
+							+ StringFormatter.escapeforjavastring(thisdynamicalias.getFirstobject()) + "\",\""
+							+ StringFormatter.escapeforjavastring(thisdynamicalias.getSecondobject()) + "\", " + name
+							+ "filter);");
+
 				}
-			
+
 			}
-			
+
 			sg.wl("	}");
 			sg.wl("");
 		}
@@ -4041,9 +4106,10 @@ public class DataObjectDefinition
 			sg.wl("	}");
 		}
 
-		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent!=null)) {
+		if ((this.aliasfilteronparent != null) || (this.dynamicaliasfilteronparent != null)) {
 			String consolidatedparentclass = parentclassforfilter;
-			if (consolidatedparentclass==null) consolidatedparentclass = parentclassfordynamicfilter;
+			if (consolidatedparentclass == null)
+				consolidatedparentclass = parentclassfordynamicfilter;
 			if (this.categoryforextractor != null) {
 
 				sg.wl("	@Override");
@@ -4053,7 +4119,7 @@ public class DataObjectDefinition
 				sg.wl("		return aliaslisthelper.getSpecificAliasList(selectedvalue,parentid);");
 				sg.wl("	}");
 				sg.wl("");
-			} else  {
+			} else {
 				sg.wl("	@Override");
 				sg.wl("	public String[] getSpecificAliasList(");
 				sg.wl("			DataObjectId<" + consolidatedparentclass + "> parentid) {");
