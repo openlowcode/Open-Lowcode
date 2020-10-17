@@ -41,12 +41,17 @@ public class AESCommunicator {
 	private Cipher decryptaescipher;
 	private Deflater deflater;
 	private Inflater inflater;
-
+	private boolean messageaudit=false;
 	/**
 	 * @param secretkey
 	 * @throws Exception
 	 */
 	public AESCommunicator(SecretKey secretkey) throws Exception {
+		this(secretkey,false);
+
+	}
+	
+	public AESCommunicator(SecretKey secretkey,boolean messageaudit) throws Exception {
 		this.secretkey = secretkey;
 		encryptaescipher = Cipher.getInstance("AES");
 		encryptaescipher.init(Cipher.ENCRYPT_MODE, secretkey);
@@ -54,7 +59,7 @@ public class AESCommunicator {
 		decryptaescipher.init(Cipher.DECRYPT_MODE, secretkey);
 		deflater = new Deflater();
 		inflater = new Inflater();
-
+		this.messageaudit=messageaudit;
 	}
 
 	/**
@@ -64,6 +69,11 @@ public class AESCommunicator {
 	 */
 	public byte[] zipandencrypt(String message) throws Exception {
 		try {
+			if (this.messageaudit) {
+				logger.info("--------------------------- FULL MESSAGE AUDIT (before encryption)-----------------------");
+				logger.info(message);
+				logger.info("--------------------------- FULL MESSAGE AUDIT END (after encryption) -------------------");
+			}
 			if (message==null) return null;
 			byte[] messagebinary = message.getBytes("UTF-8");
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -151,6 +161,7 @@ public class AESCommunicator {
 	 */
 	public static AESCommunicator performServerHandshake(MessageSimpleReader reader, MessageBufferedWriter writer)
 			throws Exception {
+		
 		reader.returnNextMessageStart();
 		reader.returnNextStartStructure("RSAKEY");
 		byte[] rsapublickey = reader.returnNextLargeBinary("PUBLICKEY").getContent();
@@ -164,7 +175,7 @@ public class AESCommunicator {
 		byte[] aeskey = secretKey.getEncoded();
 
 		// ----------- keep AES keys ----
-		AESCommunicator aescommunicator = new AESCommunicator(secretKey);
+		AESCommunicator aescommunicator = new AESCommunicator(secretKey,writer.getMessageAudit());
 		// --- Encrypt AES key with RSA key ----
 
 		KeyFactory kf = KeyFactory.getInstance("RSA");

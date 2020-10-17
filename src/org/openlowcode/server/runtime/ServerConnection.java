@@ -334,7 +334,7 @@ public class ServerConnection
 		byte[] encryptedaeskey = reader.returnNextLargeBinary("AESKEY").getContent();
 		byte[] decryptedaeskey = OLcServer.getServer().getSecuritymanager().decodeWithRSAPrivateKey(encryptedaeskey);
 		SecretKey aeskey = new SecretKeySpec(decryptedaeskey, 0, decryptedaeskey.length, "AES");
-		OLcServer.getServer().setAESCommunicator(new AESCommunicator(aeskey));
+		OLcServer.getServer().setAESCommunicator(new AESCommunicator(aeskey,writer.getMessageAudit()));
 		reader.returnNextEndStructure("SESAESKEY");
 		reader.returnNextEndMessage();
 		logger.info("    ---- successfull security handshacke with client --- ");

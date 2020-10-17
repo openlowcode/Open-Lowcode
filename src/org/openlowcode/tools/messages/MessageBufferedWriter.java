@@ -31,6 +31,10 @@ public class MessageBufferedWriter extends MessageWriter {
 	private int closestructurestacklength;
 	private boolean messageaudit;
 
+	public boolean getMessageAudit() {
+		return this.messageaudit;
+	}
+	
 	@Override
 	public void checkConnection() {
 
