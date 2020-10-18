@@ -66,7 +66,7 @@ public class Typed<E extends DataObject<E> & TypedInterface<E, F>, F extends Fie
 		// creates the companion object.
 		ChoiceValue<F> value = typeddefinition.getTypeChoice().parseChoiceValue(type.getPayload());
 		CompanionInterface<?, E, F> blankcompanion = typeddefinition.getHelper().generateBlankCompanion(value);
-		blankcompanion.insertcompanion(object);
+		if (blankcompanion!=null) blankcompanion.insertcompanion(object);
 	}
 
 	/**

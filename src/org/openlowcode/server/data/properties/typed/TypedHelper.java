@@ -37,7 +37,8 @@ public class TypedHelper<E extends DataObject<E> & TypedInterface<E, F>, F exten
 	public CompanionInterface<?,E,F> generateBlankCompanion(ChoiceValue<F> type) {
 		if (type==null) throw new RuntimeException("Provided choice is null");
 		Supplier<CompanionInterface<?,E,F>> supplier = suppliersbytype.get(type);
-		if (supplier==null) throw new RuntimeException("No supplier found for type "+type.getDisplayValue());
+		// typed should work if for some types, companion is not present
+		if (supplier==null) return null;
 		return supplier.get();
 	}
 	
