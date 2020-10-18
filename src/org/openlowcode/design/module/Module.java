@@ -1339,29 +1339,32 @@ public class Module
 					DataObjectDefinitionOtherActions.generateRepairMultiDimensionChildrenToFile(currentobject,
 							new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this,
 							hasmultidimensionchild);
-					
+
 					String addlinesaction = "ADDLINESFOR" + thisproperty.getInstancename();
-					String addlinesactionfullfilepath = srcautoactionfolder + "Atg" + StringFormatter.formatForJavaClass(addlinesaction)
-							+ "Action.java";
+					String addlinesactionfullfilepath = srcautoactionfolder + "Atg"
+							+ StringFormatter.formatForJavaClass(addlinesaction) + "Action.java";
 					logger.info("generating file " + addlinesactionfullfilepath);
 					DataObjectDefinitionOtherActions.generateAddLinesActionToFile(currentobject,
-							new SourceGenerator(new File(addlinesactionfullfilepath), this.getAuthor(), this.getVersionid()), this,
-							hasmultidimensionchild);
-					
-					String addlinespagefullfilepath = srcautopagefolder + "Atg" + StringFormatter.formatForJavaClass(addlinesaction)
-					+ "Page.java";
+							new SourceGenerator(new File(addlinesactionfullfilepath), this.getAuthor(),
+									this.getVersionid()),
+							this, hasmultidimensionchild);
+
+					String addlinespagefullfilepath = srcautopagefolder + "Atg"
+							+ StringFormatter.formatForJavaClass(addlinesaction) + "Page.java";
 					logger.info("generating file " + addlinespagefullfilepath);
 					DataObjectDefinitionOtherActions.generateAddLinesPageToFile(currentobject,
-							new SourceGenerator(new File(addlinespagefullfilepath), this.getAuthor(), this.getVersionid()), this,
-							hasmultidimensionchild);
-					
+							new SourceGenerator(new File(addlinespagefullfilepath), this.getAuthor(),
+									this.getVersionid()),
+							this, hasmultidimensionchild);
+
 					String prepareaddlinesaction = "PREPAREADDLINESFOR" + thisproperty.getInstancename();
-					String prepareaddlinesactionfilepath = srcautoactionfolder + "Atg" + StringFormatter.formatForJavaClass(prepareaddlinesaction)
-					+ "Action.java";
+					String prepareaddlinesactionfilepath = srcautoactionfolder + "Atg"
+							+ StringFormatter.formatForJavaClass(prepareaddlinesaction) + "Action.java";
 					logger.info("generating file " + prepareaddlinesactionfilepath);
 					DataObjectDefinitionOtherActions.generatePrepareAddLinesActionToFile(currentobject,
-							new SourceGenerator(new File(prepareaddlinesactionfilepath), this.getAuthor(), this.getVersionid()), this,
-							hasmultidimensionchild);
+							new SourceGenerator(new File(prepareaddlinesactionfilepath), this.getAuthor(),
+									this.getVersionid()),
+							this, hasmultidimensionchild);
 				}
 				if (thisproperty instanceof ImageContent) {
 					ImageContent imagecontent = (ImageContent) thisproperty;
@@ -1523,19 +1526,21 @@ public class Module
 				DataObjectDefinitionShowAction.generateShowActionToFile(currentobject,
 						new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this);
 
-				if (currentobject.getPropertyByName("TYPED")!=null) {
+				if (currentobject.getPropertyByName("TYPED") != null) {
 					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
-					for (int c=0;c<typed.getCompanionNumber();c++) {
+					for (int c = 0; c < typed.getCompanionNumber(); c++) {
 						DataObjectDefinition companion = typed.getCompanion(c);
 						String fullfilepathforcompanion = srcautoactionfolder + "Atg"
 								+ StringFormatter.formatForJavaClass("SHOW" + companion.getName()) + "Action.java";
 						logger.info("generating file " + fullfilepathforcompanion);
 
-						DataObjectDefinitionShowAction.generateShowActionToFile(currentobject,companion,
-								new SourceGenerator(new File(fullfilepathforcompanion), this.getAuthor(), this.getVersionid()), this);
+						DataObjectDefinitionShowAction.generateShowActionToFile(currentobject, companion,
+								new SourceGenerator(new File(fullfilepathforcompanion), this.getAuthor(),
+										this.getVersionid()),
+								this);
 					}
 				}
-				
+
 				String fullfilepathsearch = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("SEARCH" + currentobject.getName()) + "Action.java";
 				logger.info("generating file " + fullfilepathsearch);
@@ -1761,35 +1766,39 @@ public class Module
 				DataObjectDefinitionDeleteAndUpdate.generatePrepareupdateActionToFile(currentobject,
 						new SourceGenerator(new File(fullfilepathprepareupdate), this.getAuthor(), this.getVersionid()),
 						this);
-				
-				if (currentobject.getPropertyByName("TYPED")!=null) {
+
+				if (currentobject.getPropertyByName("TYPED") != null) {
 					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
-					for (int c=0;c<typed.getCompanionNumber();c++) {
+					for (int c = 0; c < typed.getCompanionNumber(); c++) {
 						DataObjectDefinition companion = typed.getCompanion(c);
 						String fullfilepathprepareupdateforcompanion = srcautoactionfolder + "Atg"
-								+ StringFormatter.formatForJavaClass("PREPAREUPDATE" + companion.getName()) + "Action.java";
+								+ StringFormatter.formatForJavaClass("PREPAREUPDATE" + companion.getName())
+								+ "Action.java";
 						logger.info("generating file " + fullfilepathprepareupdateforcompanion);
-						DataObjectDefinitionDeleteAndUpdate.generatePrepareupdateActionToFile(currentobject,companion,
-								new SourceGenerator(new File(fullfilepathprepareupdateforcompanion), this.getAuthor(), this.getVersionid()),
+						DataObjectDefinitionDeleteAndUpdate.generatePrepareupdateActionToFile(currentobject, companion,
+								new SourceGenerator(new File(fullfilepathprepareupdateforcompanion), this.getAuthor(),
+										this.getVersionid()),
 								this);
 					}
 				}
-				
+
 				// update action
 				String fullfilepathupdate = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("UPDATE" + currentobject.getName()) + "Action.java";
 				logger.info("generating file " + fullfilepathupdate);
 				DataObjectDefinitionDeleteAndUpdate.generateUpdateActionToFile(currentobject,
 						new SourceGenerator(new File(fullfilepathupdate), this.getAuthor(), this.getVersionid()), this);
-				if (currentobject.getPropertyByName("TYPED")!=null) {
+				if (currentobject.getPropertyByName("TYPED") != null) {
 					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
-					for (int c=0;c<typed.getCompanionNumber();c++) {
+					for (int c = 0; c < typed.getCompanionNumber(); c++) {
 						DataObjectDefinition companion = typed.getCompanion(c);
 						String fullfilepathcompanionupdate = srcautoactionfolder + "Atg"
 								+ StringFormatter.formatForJavaClass("UPDATE" + companion.getName()) + "Action.java";
 						logger.info("generating file " + fullfilepathcompanionupdate);
-						DataObjectDefinitionDeleteAndUpdate.generateUpdateActionToFile(currentobject,companion,
-								new SourceGenerator(new File(fullfilepathcompanionupdate), this.getAuthor(), this.getVersionid()), this);
+						DataObjectDefinitionDeleteAndUpdate.generateUpdateActionToFile(currentobject, companion,
+								new SourceGenerator(new File(fullfilepathcompanionupdate), this.getAuthor(),
+										this.getVersionid()),
+								this);
 					}
 				}
 				// flat file loading
@@ -2002,6 +2011,21 @@ public class Module
 									this.getVersionid()),
 							this);
 
+					if (currentobject.getPropertyByName("TYPED") != null) {
+						Typed typed = (Typed) currentobject.getPropertyByName("TYPED");
+						for (int c = 0; c < typed.getCompanionNumber(); c++) {
+							DataObjectDefinition companion = typed.getCompanion(c);
+							String fullfilepathpreparestandardcreateactionforcompanion = srcautoactionfolder + "Atg"
+									+ StringFormatter.formatForJavaClass("PREPARESTANDARDCREATE" + companion.getName())
+									+ "Action.java";
+							logger.info("generating file " + fullfilepathpreparestandardcreateactionforcompanion);
+							DataObjectDefinitionOtherActions.generatePrepareStandardCreateActionToFile(currentobject,
+									companion,
+									new SourceGenerator(new File(fullfilepathpreparestandardcreateactionforcompanion),
+											this.getAuthor(), this.getVersionid()),
+									this);
+						}
+					}
 					String fullfilepathstandardcreateaction = srcautoactionfolder + "Atg"
 							+ StringFormatter.formatForJavaClass("STANDARDCREATE" + currentobject.getName())
 							+ "Action.java";
@@ -2011,7 +2035,21 @@ public class Module
 							new SourceGenerator(new File(fullfilepathstandardcreateaction), this.getAuthor(),
 									this.getVersionid()),
 							this);
-
+					if (currentobject.getPropertyByName("TYPED") != null) {
+						Typed typed = (Typed) currentobject.getPropertyByName("TYPED");
+						for (int c = 0; c < typed.getCompanionNumber(); c++) {
+							DataObjectDefinition companion = typed.getCompanion(c);
+							String fullfilepathstandardcreatecompanionaction = srcautoactionfolder + "Atg"
+									+ StringFormatter.formatForJavaClass("STANDARDCREATE" + companion.getName())
+									+ "Action.java";
+							;
+							logger.info("generating file " + fullfilepathstandardcreatecompanionaction);
+							DataObjectDefinitionOtherActions.generateStandardCreateActionToFile(currentobject,
+									companion, new SourceGenerator(new File(fullfilepathstandardcreatecompanionaction),
+											this.getAuthor(), this.getVersionid()),
+									this);
+						}
+					}
 					String fullfilepathduplicateaction = srcautoactionfolder + "Atg"
 							+ StringFormatter.formatForJavaClass("DUPLICATE" + currentobject.getName()) + "Action.java";
 					;
@@ -2090,19 +2128,20 @@ public class Module
 				showpage.generateToFile(
 						new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this);
 
-				if (currentobject.getPropertyByName("TYPED")!=null) {
+				if (currentobject.getPropertyByName("TYPED") != null) {
 					Typed typed = (Typed) currentobject.getPropertyByName("TYPED");
-					for (int c=0;c<typed.getCompanionNumber();c++) {
+					for (int c = 0; c < typed.getCompanionNumber(); c++) {
 						DataObjectDefinition companion = typed.getCompanion(c);
 						String fullfilecompanionpath = srcautopagefolder + "Atg"
 								+ StringFormatter.formatForJavaClass("SHOW" + companion.getName()) + "Page.java";
 						logger.info("generating file " + fullfilecompanionpath);
-						DataObjectDefinitionShowPage showcompanionpage = new DataObjectDefinitionShowPage(currentobject,companion);
-						showcompanionpage.generateToFile(
-								new SourceGenerator(new File(fullfilecompanionpath), this.getAuthor(), this.getVersionid()), this);
+						DataObjectDefinitionShowPage showcompanionpage = new DataObjectDefinitionShowPage(currentobject,
+								companion);
+						showcompanionpage.generateToFile(new SourceGenerator(new File(fullfilecompanionpath),
+								this.getAuthor(), this.getVersionid()), this);
 					}
 				}
-				
+
 				String fullfilepathsearch = srcautopagefolder + "Atg"
 						+ StringFormatter.formatForJavaClass("SEARCH" + currentobject.getName()) + "Page.java";
 				logger.info("generating file " + fullfilepathsearch);
@@ -2115,6 +2154,18 @@ public class Module
 				(new DataObjectDefinitionCreatePageToFile(currentobject)).generateToFile(
 						new SourceGenerator(new File(fullfilestandardcreate), this.getAuthor(), this.getVersionid()),
 						this);
+				if (currentobject.getPropertyByName("TYPED") != null) {
+					Typed typed = (Typed) currentobject.getPropertyByName("TYPED");
+					for (int c = 0; c < typed.getCompanionNumber(); c++) {
+						DataObjectDefinition companion = typed.getCompanion(c);
+						String fullfilestandardcreatecompanion = srcautopagefolder + "Atg"
+								+ StringFormatter.formatForJavaClass("STANDARDCREATE" + companion.getName()) + "Page.java";
+						logger.info("generating file " + fullfilestandardcreatecompanion);
+						(new DataObjectDefinitionCreatePageToFile(currentobject,companion)).generateToFile(
+								new SourceGenerator(new File(fullfilestandardcreatecompanion), this.getAuthor(), this.getVersionid()),
+								this);
+					}
+				}
 			}
 			if (currentobject.isShowActionAutomaticallyGenerated()) {
 				String fullfilepath = srcautopagefolder + "Atg"
@@ -2122,15 +2173,16 @@ public class Module
 				logger.info("generating file " + fullfilepath);
 				(new DataObjectDefinitionUpdatePage(currentobject)).generateToFile(
 						new SourceGenerator(new File(fullfilepath), this.getAuthor(), this.getVersionid()), this);
-				if (currentobject.getPropertyByName("TYPED")!=null) {
+				if (currentobject.getPropertyByName("TYPED") != null) {
 					Typed typed = (Typed) (currentobject.getPropertyByName("TYPED"));
-					for (int c=0;c<typed.getCompanionNumber();c++) {
+					for (int c = 0; c < typed.getCompanionNumber(); c++) {
 						DataObjectDefinition companion = typed.getCompanion(c);
 						String fullfilepathcompanion = srcautopagefolder + "Atg"
 								+ StringFormatter.formatForJavaClass("UPDATE" + companion.getName()) + "Page.java";
 						logger.info("generating file " + fullfilepathcompanion);
-						(new DataObjectDefinitionUpdatePage(currentobject,companion)).generateToFile(
-								new SourceGenerator(new File(fullfilepathcompanion), this.getAuthor(), this.getVersionid()), this);
+						(new DataObjectDefinitionUpdatePage(currentobject, companion))
+								.generateToFile(new SourceGenerator(new File(fullfilepathcompanion), this.getAuthor(),
+										this.getVersionid()), this);
 					}
 				}
 			}

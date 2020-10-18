@@ -37,6 +37,7 @@ public class DataObjectDefinitionCreatePageToFile
 		implements
 		GeneratedPages {
 	private DataObjectDefinition dataobject;
+	private DataObjectDefinition companion;
 
 	/**
 	 * creates the utility class to generate the creation page
@@ -45,6 +46,18 @@ public class DataObjectDefinitionCreatePageToFile
 	 */
 	public DataObjectDefinitionCreatePageToFile(DataObjectDefinition dataobject) {
 		this.dataobject = dataobject;
+		this.companion=null;
+	}
+	
+
+	/**
+	 * creates the utility class to generate the creation page
+	 * 
+	 * @param dataobject data object
+	 */
+	public DataObjectDefinitionCreatePageToFile(DataObjectDefinition dataobject,DataObjectDefinition companion) {
+		this.dataobject = dataobject;
+		this.companion=companion;
 	}
 
 	@Override
@@ -52,6 +65,14 @@ public class DataObjectDefinitionCreatePageToFile
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
 
+		String pagename = objectvariable;
+		String companionclass = null;
+		
+		if (companion!=null) {
+			pagename = StringFormatter.formatForAttribute(companion.getName());
+			companionclass = StringFormatter.formatForJavaClass(companion.getName());
+		}
+		
 		sg.wl("package " + module.getPath() + ".page.generated;");
 		sg.wl("");
 
@@ -131,6 +152,14 @@ public class DataObjectDefinitionCreatePageToFile
 		String objectimport = "import " + dataobject.getOwnermodule().getPath() + ".data." + objectclass + ";";
 		importdeclaration.put(objectimport, objectimport);
 
+		if (companion!=null) {
+			String companionimport = "import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";";
+			
+			importdeclaration.put(companionimport, companionimport);
+			String companioncreateaction = "import gallium.test.action.generated.AtgStandardcreate"+companion.getName().toLowerCase()+"Action;";
+			importdeclaration.put(companioncreateaction, companioncreateaction);
+		}
+		
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			if (thisproperty instanceof LinkedToParent) {
@@ -179,8 +208,8 @@ public class DataObjectDefinitionCreatePageToFile
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectSearcher;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPageText;");
 		sg.wl("");
-		sg.wl("public class AtgStandardcreate" + objectvariable + "Page extends");
-		sg.wl("		AbsStandardcreate" + objectvariable + "Page {");
+		sg.wl("public class AtgStandardcreate" + pagename + "Page extends");
+		sg.wl("		AbsStandardcreate" + pagename + "Page {");
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++)
 			for (int j = 0; j < dataobject.propertylist.get(i).getContextDataForCreationSize(); j++) {
 				ArgumentContent contextfordatacreation = dataobject.propertylist.get(i).getContextDataForCreation(j);
@@ -199,15 +228,15 @@ public class DataObjectDefinitionCreatePageToFile
 
 		sg.wl("	@Override");
 		sg.wl("	public String generateTitle(" + pageattributedeclaration.toString());
-		sg.wl("			" + objectclass + " object)  {");
+		sg.wl("			" + objectclass + " object"+(companion!=null?", "+companionclass+" companion":"")+")  {");
 		sg.wl("		return \"Create " + dataobject.getLabel() + "\";");
 		sg.wl("		}");
 
-		sg.wl("	public AtgStandardcreate" + objectvariable + "Page(" + pageattributedeclaration.toString());
-		sg.wl("			" + objectclass + " object)  {");
+		sg.wl("	public AtgStandardcreate" + pagename + "Page(" + pageattributedeclaration.toString());
+		sg.wl("			" + objectclass + " object"+(companion!=null?", "+companionclass+" companion":"")+")  {");
 
 		sg.wl("		super(" + pageattributeentry.toString());
-		sg.wl("			  object);");
+		sg.wl("			  object"+(companion!=null?",companion":"")+");");
 		sg.wl("		");
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++)
 			for (int j = 0; j < dataobject.propertylist.get(i).getContextDataForCreationSize(); j++) {
@@ -227,8 +256,8 @@ public class DataObjectDefinitionCreatePageToFile
 		sg.wl("		");
 		sg.wl("			SComponentBand mainband = new  SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
 
-		sg.wl("			AtgStandardcreate" + objectvariable + "Action.ActionRef create" + objectvariable
-				+ "actionref = AtgStandardcreate" + objectvariable + "Action.get().getActionRef();");
+		sg.wl("			AtgStandardcreate" + pagename + "Action.ActionRef create" + pagename
+				+ "actionref = AtgStandardcreate" + pagename + "Action.get().getActionRef();");
 		if (subobject != null) {
 			sg.wl("	AtgShow" + StringFormatter.formatForAttribute(subobject.getParentObjectForLink().getName())
 					+ "Action.ActionRef back = AtgShow"
@@ -259,7 +288,7 @@ public class DataObjectDefinitionCreatePageToFile
 							+ " = new SObjectIdStorage<" + objectidclass + ">(\"PARENTID\",this, this.get" + nameclass
 							+ "());");
 					sg.wl("			mainband.addElement(" + namevariable + ");");
-					sg.wl("			create" + objectvariable + "actionref.set" + nameclass + "(" + namevariable
+					sg.wl("			create" + pagename + "actionref.set" + nameclass + "(" + namevariable
 							+ ".getObjectIdInput());");
 					if (issubobject)
 						sg.wl("			back.setId(" + namevariable + ".getObjectIdInput());");
@@ -271,7 +300,7 @@ public class DataObjectDefinitionCreatePageToFile
 						sg.wl("				mainband.addElement(new SPageText(\"Select relevant "
 								+ contextobjectid.getObject().getLabel() + "\",SPageText.TYPE_TITLE,this));");
 						sg.wl("				mainband.addElement(" + objectidvariable + "searcher);");
-						sg.wl("				create" + objectvariable + "actionref.set" + nameclass + "("
+						sg.wl("				create" + pagename + "actionref.set" + nameclass + "("
 								+ objectidvariable + "searcher.getresultarray().getAttributeInput(" + objectidclass
 								+ ".getIdMarker())); ");
 						sg.wl("			}");
@@ -299,7 +328,7 @@ public class DataObjectDefinitionCreatePageToFile
 			}
 
 		}
-		sg.wl("			SPageText title = new SPageText(\"Enter data for new " + dataobject.getLabel()
+		sg.wl("			SPageText title = new SPageText(\"Enter data for new " + (companion!=null?companion.getLabel():dataobject.getLabel())
 				+ "\",SPageText.TYPE_TITLE,this);");
 
 		sg.wl("			mainband.addElement(title);");
@@ -321,7 +350,7 @@ public class DataObjectDefinitionCreatePageToFile
 							sg.wl("			" + argumentvariable + "entryfield.setTextBusinessData(this.get"
 									+ argumentclass + "());");
 							sg.wl("			mainband.addElement(" + argumentvariable + "entryfield);");
-							sg.wl("			create" + objectvariable + "actionref.set" + argumentclass + "("
+							sg.wl("			create" + pagename + "actionref.set" + argumentclass + "("
 									+ argumentvariable + "entryfield.getTextInput()); ");
 							treated = true;
 						}
@@ -339,7 +368,7 @@ public class DataObjectDefinitionCreatePageToFile
 									sg.wl("			" + argumentvariable + "entryfield.setDateBusinessData(this.get"
 											+ argumentclass + "());");
 									sg.wl("			mainband.addElement(" + argumentvariable + "entryfield);");
-									sg.wl("			create" + objectvariable + "actionref.set" + argumentclass + "("
+									sg.wl("			create" + pagename + "actionref.set" + argumentclass + "("
 											+ argumentvariable + "entryfield.getDateInput());");
 									treated = true;
 									treated = true;
@@ -358,7 +387,7 @@ public class DataObjectDefinitionCreatePageToFile
 				sg.wl("			STimeslotField timeslotfield = new STimeslotField(\"ORIGINTIMESLOT\",\"Start Time\",\"End Time\",\"Start Time\",\"End Time\", STimeslotField.DEFAULT_EMPTY,");
 				sg.wl("					this.getStarttime(),this.getEndtime(), true, this);");
 				sg.wl("			mainband.addElement(timeslotfield);");
-				sg.wl("			create" + objectvariable
+				sg.wl("			create" + pagename
 						+ "actionref.setStarttime(timeslotfield.getStartDateInput());");
 				sg.wl("			create" + objectvariable + "actionref.setEndtime(timeslotfield.getEndDateInput()); ");
 
@@ -369,10 +398,10 @@ public class DataObjectDefinitionCreatePageToFile
 				sg.wl("			mainband.addElement(timeslotfield);");
 				sg.wl("			SIntegerField sequencefield = new SIntegerField(\"Sequence Number\",\"SEQUENCEFIELD\", \"\", new Integer(1), true,this, false,false,false, null);");
 				sg.wl("			mainband.addElement(sequencefield);");
-				sg.wl("			create" + objectvariable
+				sg.wl("			create" + pagename
 						+ "actionref.setStarttime(timeslotfield.getStartDateInput()); ");
-				sg.wl("			create" + objectvariable + "actionref.setEndtime(timeslotfield.getEndDateInput()); ");
-				sg.wl("			create" + objectvariable + "actionref.setSequence(sequencefield.getIntegerInput());  ");
+				sg.wl("			create" + pagename + "actionref.setEndtime(timeslotfield.getEndDateInput()); ");
+				sg.wl("			create" + pagename + "actionref.setSequence(sequencefield.getIntegerInput());  ");
 
 				sg.wl("			");
 
@@ -395,7 +424,13 @@ public class DataObjectDefinitionCreatePageToFile
 		}
 		sg.wl("			" + objectvariable + "display.setHideReadOnly();");
 		sg.wl("			mainband.addElement(" + objectvariable + "display);");
-
+if (companion!=null) {
+		sg.wl("			SObjectDisplay<" + companionclass + "> " + pagename + "display = new SObjectDisplay<"
+				+ companionclass + ">(\"COMPANIONDISPLAY\", this.getCompanion()," + companionclass
+				+ ".getDefinition(),this, false);");
+		sg.wl("			" + pagename + "display.setHideReadOnly();");
+		sg.wl("			mainband.addElement(" + pagename + "display);")	;
+}
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			for (int j = 0; j < thisproperty.getDataInputSize(); j++) {
@@ -414,7 +449,7 @@ public class DataObjectDefinitionCreatePageToFile
 							sg.wl("			" + argumentvariable + "entryfield.setTextBusinessData(this.get"
 									+ argumentclass + "());");
 							sg.wl("			mainband.addElement(" + argumentvariable + "entryfield);");
-							sg.wl("			create" + objectvariable + "actionref.set" + argumentclass + "("
+							sg.wl("			create" + pagename + "actionref.set" + argumentclass + "("
 									+ argumentvariable + "entryfield.getActionDataInput());");
 							treated = true;
 						}
@@ -426,12 +461,16 @@ public class DataObjectDefinitionCreatePageToFile
 			}
 		}
 
-		sg.wl("			create" + objectvariable + "actionref.setObject(" + objectvariable
+		sg.wl("			create" + pagename + "actionref.setObject(" + objectvariable
 				+ "display.getObjectInput()); ");
-		if (dataobject.getPropertyByName("TYPED")!=null) {
-			sg.wl("			create" + objectvariable + "actionref.setType(typefield.getChoiceInput());");
+		if (companion!=null) {
+			sg.wl("			create" + pagename + "actionref.setCompanion(" + pagename
+					+ "display.getObjectInput()); ");
 		}
-		sg.wl("			SActionButton create = new SActionButton(\"Create\", create" + objectvariable
+		if (dataobject.getPropertyByName("TYPED")!=null) {
+			sg.wl("			create" + pagename + "actionref.setType(typefield.getChoiceInput());");
+		}
+		sg.wl("			SActionButton create = new SActionButton(\"Create\", create" + pagename
 				+ "actionref, this);");
 		sg.wl("			SActionButton backbutton = new SActionButton(\"Back\",back,this);");
 		sg.wl("			");

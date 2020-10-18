@@ -13,6 +13,7 @@ package org.openlowcode.design.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.openlowcode.design.data.properties.basic.AutolinkObject;
 import org.openlowcode.design.data.properties.basic.ConstraintOnLinkObjectSameChoiceFieldValue;
@@ -26,6 +27,7 @@ import org.openlowcode.design.data.properties.basic.LinkObjectToMaster;
 import org.openlowcode.design.data.properties.basic.LinkedFromChildren;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
 import org.openlowcode.design.data.properties.basic.PrintOut;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
@@ -656,7 +658,7 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("");
 		sg.wl("import java.util.ArrayList;");
 		sg.wl("");
-		
+
 		sg.wl("import org.openlowcode.server.data.DataObjectFieldMarker;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.graphic.SPageNode;");
@@ -1125,19 +1127,29 @@ public class DataObjectDefinitionOtherActions {
 	}
 
 	/**
-	 * generates the code for the standard creation action
+	 * generates the code for the standard creation action without companion
 	 * 
 	 * @param dataobject data object definition
+	 * @param companion  companion object (can be null)
 	 * @param sg         source generator
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens during the generation
 	 */
 	public static void generateStandardCreateActionToFile(
 			DataObjectDefinition dataobject,
+			DataObjectDefinition companion,
 			SourceGenerator sg,
 			Module module) throws IOException {
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
+
+		String actionname = objectvariable;
+		String companionclass = null;
+		if (companion != null) {
+			actionname = StringFormatter.formatForAttribute(companion.getName());
+			companionclass = StringFormatter.formatForJavaClass(companion.getName());
+		}
+
 		// ------- prepare generation
 
 		HashMap<String, String> importdeclaration = dataobject.getImportDeclarationForCreation(dataobject);
@@ -1145,6 +1157,10 @@ public class DataObjectDefinitionOtherActions {
 		StringBuffer extraattributesdeclaration = dataobject.generateCreateObjectExtraAttributes(dataobject);
 
 		String objectimport = "import " + module.getPath() + ".data." + objectclass + ";";
+		if (companion != null) {
+			String companionimport = "import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";";
+			importdeclaration.put(companionimport, companionimport);
+		}
 		importdeclaration.put(objectimport, objectimport);
 		String dataobjectidimport = "import org.openlowcode.server.data.properties.DataObjectId;";
 		importdeclaration.put(dataobjectidimport, dataobjectidimport);
@@ -1164,10 +1180,10 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import java.util.Date;");
 		sg.wl("");
-		sg.wl("public class AtgStandardcreate" + objectvariable + "Action extends");
-		sg.wl("		AbsStandardcreate" + objectvariable + "Action {");
+		sg.wl("public class AtgStandardcreate" + actionname + "Action extends");
+		sg.wl("		AbsStandardcreate" + actionname + "Action {");
 		sg.wl("");
-		sg.wl("	public AtgStandardcreate" + objectvariable + "Action(SModule parent) {");
+		sg.wl("	public AtgStandardcreate" + actionname + "Action(SModule parent) {");
 		sg.wl("		super(parent);");
 		sg.wl("");
 		sg.wl("	}");
@@ -1176,7 +1192,8 @@ public class DataObjectDefinitionOtherActions {
 		if (extraattributesdeclaration.length() > 0)
 			extraattributesdeclaration.append(',');
 		sg.wl("	public DataObjectId<" + objectclass + "> executeActionLogic( " + extraattributesdeclaration.toString()
-				+ " " + objectclass + " object,Function<TableAlias,QueryFilter> datafilter)");
+				+ " " + objectclass + " object" + (companion != null ? "," + companionclass + " companion" : "")
+				+ ",Function<TableAlias,QueryFilter> datafilter)");
 		sg.wl("			 {");
 
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
@@ -1189,10 +1206,15 @@ public class DataObjectDefinitionOtherActions {
 						sg.wl("		object" + methodsforcreation[j]);
 					}
 		}
-		if (dataobject.getPropertyByName("TYPED")!=null) {
+		if (dataobject.getPropertyByName("TYPED") != null) {
 			sg.wl("		object.settypebeforecreation(type);");
 		}
-		sg.wl("		object.insert(this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
+		if (companion != null) {
+			sg.wl("		companion.createtyped(object,type,this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
+		} else {
+			sg.wl("		object.insert(this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
+		}
+
 		sg.wl("		return object.getId();");
 		sg.wl("	}");
 		sg.wl("");
@@ -1216,6 +1238,21 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("}");
 
 		sg.close();
+	}
+
+	/**
+	 * generates the code for the standard creation action without companion
+	 * 
+	 * @param dataobject data object definition
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anything bad happens during the generation
+	 */
+	public static void generateStandardCreateActionToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+		generateStandardCreateActionToFile(dataobject, null, sg, module);
 	}
 
 	/**
@@ -1686,16 +1723,25 @@ public class DataObjectDefinitionOtherActions {
 	 * generates the code for the standard create action
 	 * 
 	 * @param dataobject data object definition
+	 * @param companion  companion object (can be null)
 	 * @param sg         source generator
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens during the generation
 	 */
 	public static void generatePrepareStandardCreateActionToFile(
 			DataObjectDefinition dataobject,
+			DataObjectDefinition companion,
 			SourceGenerator sg,
 			Module module) throws IOException {
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
+
+		String actionname = objectvariable;
+		String companionclass = null;
+		if (companion != null) {
+			actionname = StringFormatter.formatForAttribute(companion.getName());
+			companionclass = StringFormatter.formatForJavaClass(companion.getName());
+		}
 
 		sg.wl("package " + module.getPath() + ".action.generated;");
 		HashMap<String, String> importdeclaration = new HashMap<String, String>();
@@ -1765,13 +1811,23 @@ public class DataObjectDefinitionOtherActions {
 
 		String objectimport = "import " + dataobject.getOwnermodule().getPath() + ".data." + objectclass + ";";
 		importdeclaration.put(objectimport, objectimport);
-
+		if (companion != null) {
+			String companionimport = "import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";";
+			importdeclaration.put(companionimport, companionimport);
+		}
 		for (int i = 0; i < importdeclaration.size(); i++) {
 			sg.wl(importdeclaration.get(importdeclaration.keySet().toArray()[i]));
 		}
 
 		sg.wl("");
-		sg.wl("import " + module.getPath() + ".page.generated.AtgStandardcreate" + objectvariable + "Page;");
+		sg.wl("import " + module.getPath() + ".page.generated.AtgStandardcreate" + actionname + "Page;");
+		if (dataobject.getPropertyByName("TYPED")!=null) {
+			Typed typedproperty =(Typed) dataobject.getPropertyByName("TYPED");
+			for (int i=0;i<typedproperty.getCompanionNumber();i++) {
+				DataObjectDefinition specificcompanion = typedproperty.getCompanion(i);
+				sg.wl("import " + specificcompanion.getOwnermodule().getPath() + ".page.generated.AtgStandardcreate" + specificcompanion.getName().toLowerCase() + "Page;");
+			}
+		}
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import java.util.function.Function;");
@@ -1780,10 +1836,10 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
 		sg.wl("import java.util.Date;");
 		sg.wl("");
-		sg.wl("public class AtgPreparestandardcreate" + objectvariable + "Action extends");
-		sg.wl("		AbsPreparestandardcreate" + objectvariable + "Action {");
+		sg.wl("public class AtgPreparestandardcreate" + actionname + "Action extends");
+		sg.wl("		AbsPreparestandardcreate" + actionname + "Action {");
 		sg.wl("");
-		sg.wl("	public AtgPreparestandardcreate" + objectvariable + "Action(SModule parent) {");
+		sg.wl("	public AtgPreparestandardcreate" + actionname + "Action(SModule parent) {");
 		sg.wl("		super(parent);");
 		sg.wl("		");
 		sg.wl("	}");
@@ -1810,20 +1866,56 @@ public class DataObjectDefinitionOtherActions {
 				}
 			}
 		}
-		sg.wl("		return new ActionOutputData(" + extraattributesfilling.toString() + "new " + objectclass + "());");
+		sg.wl("		return new ActionOutputData(" + extraattributesfilling.toString() + "new " + objectclass + "()"
+				+ (companion != null ? ", new " + companionclass + "()" : "") + ");");
 
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public SPage choosePage(ActionOutputData logicoutput)  {");
-		sg.wl("		return new AtgStandardcreate" + objectvariable + "Page(" + extraattributestopage.toString()
-				+ "logicoutput.getObject());");
+
+		if (dataobject.getPropertyByName("TYPED") != null)
+			if (companion == null) {
+				Typed typed = (Typed) (dataobject.getPropertyByName("TYPED"));
+				Iterator<ChoiceValue> types = typed.getTypesIterator();
+				while (types.hasNext()) {
+					ChoiceValue thistype = types.next();
+					DataObjectDefinition specificcompanion = typed.getCompanionForType(thistype);
+					if (specificcompanion != null) {
+
+						
+						sg.wl("		if ("+StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition.get()."+thistype.getName().toUpperCase()+".getStorageCode().equals(logicoutput.getCopytype().getStorageCode()))");
+						sg.wl("			return AtgPreparestandardcreate"+specificcompanion.getName().toLowerCase()+"Action.get().executeAndShowPage(logicoutput.getCopytype());");
+
+
+						
+					}
+				}
+			}
+
+		sg.wl("		return new AtgStandardcreate" + actionname + "Page(" + extraattributestopage.toString()
+				+ "logicoutput.getObject()" + (companion != null ? ",logicoutput.getCompanion()" : "") + ");");
 		sg.wl("	}");
 
 		sg.wl("");
 		sg.wl("}");
 
 		sg.close();
+	}
+
+	/**
+	 * generates the code for the standard create action without companion object
+	 * 
+	 * @param dataobject data object definition
+	 * @param sg         source generator
+	 * @param module     parent module
+	 * @throws IOException if anything bad happens during the generation
+	 */
+	public static void generatePrepareStandardCreateActionToFile(
+			DataObjectDefinition dataobject,
+			SourceGenerator sg,
+			Module module) throws IOException {
+		generatePrepareStandardCreateActionToFile(dataobject, null, sg, module);
 	}
 
 	/**

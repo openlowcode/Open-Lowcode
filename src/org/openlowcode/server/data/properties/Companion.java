@@ -46,12 +46,13 @@ public class Companion<E extends DataObject<E> & HasidInterface<E>,F extends Dat
 	public void setDependentPropertyHasid(Hasid<E> hasid) {
 		this.hasid=hasid;
 	}
+
 	public void createtyped(E companionobject,F mainobject,ChoiceValue<G> type) {
 		mainobject.settypebeforecreation(type);
 		mainobject.insert();
 		String id = mainobject.getId().getId();
 		hasid.SetId(id);
-		mainobject.update();
+		update(companionobject);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

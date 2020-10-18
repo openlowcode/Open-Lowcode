@@ -2284,12 +2284,27 @@ public class DataObjectDefinition
 					|| (this.isShowActionAutomaticallyGenerated())) {
 				module.addAction(this.generatePrepareStandardCreateAction());
 				module.addAction(this.generateStandardCreateAction());
-
+				
+				if (this.getPropertyByName("TYPED") != null) {
+					Typed typed = (Typed) (this.getPropertyByName("TYPED"));
+					for (int i = 0; i < typed.getCompanionNumber(); i++) {
+						DataObjectDefinition companion = typed.getCompanion(i);
+						module.addAction(generatePrepareStandardCreateAction(companion));
+						module.addAction(generateStandardCreateAction(companion));
+					}
+				}
+				
 				this.addActionOnObjectPageOnManageMenu(this.generateDuplicateAction(),
 						"Create new " + this.getLabel() + " with similar data");
 				module.AddPage(this.generateStandardCreatePage());
+				if (this.getPropertyByName("TYPED") != null) {
+					Typed typed = (Typed) (this.getPropertyByName("TYPED"));
+					for (int i = 0; i < typed.getCompanionNumber(); i++) {
+						DataObjectDefinition companion = typed.getCompanion(i);
+						module.AddPage(this.generateStandardCreatePage(companion));
+					}
 			}
-
+			}
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> thisproperty = this.propertylist.get(i);
 
@@ -2450,9 +2465,12 @@ public class DataObjectDefinition
 		return launchsearch;
 	}
 
-	private PageDefinition generateStandardCreatePage() {
+	private PageDefinition generateStandardCreatePage(DataObjectDefinition companion) {
+		
+		String actionname = this.getName().toUpperCase();
+		if (companion!=null) actionname = companion.getName().toUpperCase();
 		DynamicPageDefinition standardcreatepage = new DynamicPageDefinition(
-				"STANDARDCREATE" + this.getName().toUpperCase());
+				"STANDARDCREATE" + actionname);
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
 			for (int j = 0; j < property.getContextDataForCreationSize(); j++) {
@@ -2477,7 +2495,15 @@ public class DataObjectDefinition
 			}
 		}
 		standardcreatepage.addInputParameter(new ObjectArgument("object", this));
+		if (companion!=null) {
+			standardcreatepage.addInputParameter(new ObjectArgument("COMPANION",companion));
+			
+		}
 		return standardcreatepage;
+	}
+	
+	private PageDefinition generateStandardCreatePage() {
+		return generateStandardCreatePage(null);
 	}
 
 	private ActionDefinition generateCreateLinkAndRightObjectAction(LinkObject<?, ?> linkobjectproperty) {
@@ -2530,18 +2556,22 @@ public class DataObjectDefinition
 		return duplicateaction;
 	}
 
-	private ActionDefinition generateStandardCreateAction() {
+	private ActionDefinition generateStandardCreateAction(DataObjectDefinition companion) {
 		DynamicActionDefinition standardcreationaction = new DynamicActionDefinition(
-				"STANDARDCREATE" + this.getName().toUpperCase(), true);
+				"STANDARDCREATE" + (companion==null?this.getName().toUpperCase():companion.getName().toUpperCase()), true);
 		addAttributesToCreateobject(standardcreationaction, this);
+		if (companion!=null) standardcreationaction.addInputArgument(new ObjectArgument("COMPANION",companion));
 		standardcreationaction.addOutputArgument(new ObjectIdArgument("createdobjectid", this));
 		this.addActionToCreateNewGroup(standardcreationaction);
 		return standardcreationaction;
 	}
+	private ActionDefinition generateStandardCreateAction() {
+		return generateStandardCreateAction(null);
+	}
 
-	private ActionDefinition generatePrepareStandardCreateAction() {
+	private ActionDefinition generatePrepareStandardCreateAction(DataObjectDefinition companion) {
 		DynamicActionDefinition preparestandardcreationaction = new DynamicActionDefinition(
-				"PREPARESTANDARDCREATE" + this.getName().toUpperCase(), true);
+				"PREPARESTANDARDCREATE" + (companion==null?this.getName().toUpperCase():companion.getName().toUpperCase()), true);
 		// -- contextattributes
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
@@ -2580,9 +2610,14 @@ public class DataObjectDefinition
 				}
 			}
 		}
-		preparestandardcreationaction.addOutputArgument(new ObjectArgument("object", this));
+		preparestandardcreationaction.addOutputArgument(new ObjectArgument("OBJECT", this));
+		if (companion!=null) preparestandardcreationaction.addOutputArgument(new ObjectArgument("COMPANION", companion));
 		this.addActionToCreateNewGroup(preparestandardcreationaction);
 		return preparestandardcreationaction;
+	}
+	
+	private ActionDefinition generatePrepareStandardCreateAction() {
+		return generatePrepareStandardCreateAction(null);
 	}
 
 	private PageDefinition generateSearchPage() {
