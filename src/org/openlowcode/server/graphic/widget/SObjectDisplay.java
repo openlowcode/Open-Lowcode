@@ -70,6 +70,7 @@ public class SObjectDisplay<E extends DataObject<E>>
 	private ArrayList<DataObjectFieldMarker<E>> hiddenfields;
 	private HashMap<DataObjectFieldMarker<E>, TextDataElt> overridenlabels;
 	private HashMap<DataObjectFieldMarker<E>, ArrayDataElt<TextDataElt>> suggestionsfortextfields;
+	private String overrideslabel;
 
 	/**
 	 * creates an object display
@@ -290,10 +291,19 @@ public class SObjectDisplay<E extends DataObject<E>>
 		return this.name;
 	}
 
+	/**
+	 * Replaces the object type label by another label
+	 * 
+	 * @param overrideslabel alternative label
+	 */
+	public void overridesLabel(String overrideslabel) {
+		this.overrideslabel = overrideslabel;
+	}
+	
 	@Override
 	public void WritePayloadToCDL(MessageWriter writer, SPageData input, SecurityBuffer buffer) throws IOException {
 		writer.addStringField("NAME", this.name);
-		writer.addStringField("LABEL", this.objectmodel.getLabel());
+		writer.addStringField("LABEL",(overrideslabel!=null?overrideslabel: this.objectmodel.getLabel()));
 		writer.addBooleanField("SOT", this.showtitle);
 		writer.addBooleanField("SOC", this.showcontent);
 

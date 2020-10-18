@@ -831,6 +831,7 @@ public class DataObjectDefinitionShowPage
 			sg.wl("		objectdisplaydefinition.setReducedDisplay(false);");
 			sg.wl("		detailstab.addElement(objectdisplaydefinition);");
 			if (companion != null) {
+				sg.wl("		objectdisplaydefinition.overridesLabel(\""+companion.getLabel()+"\");");
 				sg.wl("		SObjectDisplay<" + companionclass + "> companionobjectdisplay = new SObjectDisplay<"
 						+ companionclass + ">(\"COMPANION\",this.get" + companionclass + "()," + companionclass
 						+ ".getDefinition(), this, true);");
@@ -849,11 +850,13 @@ public class DataObjectDefinitionShowPage
 			sg.wl("		SObjectDisplay<" + objectclass + "> objectdisplaydefinition = new SObjectDisplay<" + objectclass
 					+ ">(\"" + objectclass.toUpperCase() + "\", this.get" + objectclass + "()," + objectclass
 					+ ".getDefinition(),this, true);");
+			
 			sg.wl("		mainband.addElement(objectdisplaydefinition);");
 			if (hasworkflow)
 				sg.wl("		objectdisplaydefinition.addPageNodeRightOfTitle(activetaskband);");
 			sg.wl("");
 			if (companion != null) {
+				sg.wl("		objectdisplaydefinition.overridesLabel(\""+companion.getLabel()+"\");");
 				sg.wl("		SObjectDisplay<" + companionclass + "> companionobjectdisplay = new SObjectDisplay<"
 						+ companionclass + ">(\"COMPANION\",this.get" + companionclass + "()," + companionclass
 						+ ".getDefinition(), this, true);");

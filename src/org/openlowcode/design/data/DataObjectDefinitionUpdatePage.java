@@ -175,7 +175,7 @@ public class DataObjectDefinitionUpdatePage
 		sg.wl("	@Override");
 		sg.wl("	protected SPageNode getContent()  {");
 		sg.wl("		SComponentBand mainband = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
-		sg.wl("		mainband.addElement(new SPageText(\"Update " + objectclass + "\",SPageText.TYPE_TITLE,this));");
+		sg.wl("		mainband.addElement(new SPageText(\"Update " + (companionobject!=null?companionobject.getLabel():dataobject.getLabel()) + "\",SPageText.TYPE_TITLE,this));");
 		sg.wl("		AtgUpdate" + (companionobject != null ? companionvariable : objectvariable)
 				+ "Action.ActionRef update" + objectvariable + "actionref = AtgUpdate"
 				+ (companionobject != null ? companionvariable : objectvariable) + "Action.get().getActionRef();");
@@ -190,6 +190,7 @@ public class DataObjectDefinitionUpdatePage
 		sg.wl("		SObjectDisplay<" + objectclass + "> objectupdatedefinition = new SObjectDisplay<" + objectclass
 				+ ">(\"" + dataobject.getName().toUpperCase() + "\", this.get" + objectclass + "()," + objectclass
 				+ ".getDefinition(),this, false);");
+		sg.wl("		objectupdatedefinition.setReducedDisplay(false);");
 		sg.wl("		update" + objectvariable + "actionref.set" + objectclass
 				+ "(objectupdatedefinition.getObjectInput()); ");
 		if (companionobject != null) {
