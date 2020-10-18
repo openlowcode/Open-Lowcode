@@ -51,6 +51,12 @@ public class NamedList<E extends NamedInterface> {
 		return dropname.toString();
 	}
 
+	public NamedList<E> deepcopy() {
+		NamedList<E> deepcopy = new NamedList<E>();
+		for (int i=0;i<sequencelist.size();i++) deepcopy.add(sequencelist.get(i));
+		return deepcopy;
+	}
+	
 	/**
 	 * @param name name to look at. The name should be the cleaned version
 	 * @return the object if it exists, or null if no object with that name exists

@@ -12,17 +12,15 @@ package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 import org.openlowcode.design.action.DynamicActionDefinition;
-import org.openlowcode.design.data.ArgumentContent;
 import org.openlowcode.design.data.DataAccessMethod;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.argument.ObjectArgument;
-import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.tools.misc.NamedList;
@@ -43,45 +41,9 @@ import org.openlowcode.tools.misc.NamedList;
 public class UniqueIdentified
 		extends
 		Property<UniqueIdentified> {
-	private NamedList<DynamicActionDefinition> actionsonobjectid;
-	private NamedList<DynamicActionDefinition> actionsonobjectidonmanagemenu;
-	private ArrayList<String> menucommentinmanagetabs;
-	private HashMap<String, ArrayList<DynamicActionDefinition>> actionsonspecificmenu;
-	private ArrayList<String> specificmenus;
+
 	private StoredObject storedobject;
 	private HasId hasid;
-
-	public ArrayList<String> getSpecificMenuList() {
-		return this.specificmenus;
-	}
-
-	public ArrayList<DynamicActionDefinition> getActionsOnSpecificMenu(String specifictabname) {
-		return this.actionsonspecificmenu.get(specifictabname);
-	}
-
-	/**
-	 * @return the list of actions on object id to be added to button band of the
-	 *         object page
-	 */
-	public NamedList<DynamicActionDefinition> getActionListonObjectId() {
-		return actionsonobjectid;
-	}
-
-	/**
-	 * @return the list of actions on object id to be added to the manage menu of the
-	 *         object page
-	 */
-	public NamedList<DynamicActionDefinition> getActionListonObjectIdForManageMenu() {
-		return actionsonobjectidonmanagemenu;
-	}
-	
-	/**
-	 * @return the list of menu comment to print
-	 */
-	@SuppressWarnings("unchecked")
-	public ArrayList<String> getMenuCommentListOnActionForManageTab() {
-		return (ArrayList<String>)(this.menucommentinmanagetabs.clone());
-	}
 
 	/**
 	 * @return get the related property stored object
@@ -95,11 +57,7 @@ public class UniqueIdentified
 	 */
 	public UniqueIdentified() {
 		super("UNIQUEIDENTIFIED");
-		this.actionsonobjectid = new NamedList<DynamicActionDefinition>();
-		this.actionsonobjectidonmanagemenu = new NamedList<DynamicActionDefinition>();
-		this.menucommentinmanagetabs = new ArrayList<String>();
-		this.actionsonspecificmenu = new HashMap<String, ArrayList<DynamicActionDefinition>>();
-		specificmenus = new ArrayList<String>();
+
 	}
 
 	@Override
@@ -169,79 +127,7 @@ public class UniqueIdentified
 		return dependencies;
 	}
 
-	/**
-	 * adds action in the main button band of the object. The action should have a
-	 * single input attribute being the data object id
-	 * 
-	 * @param action adds an action on the object id. The action should have a
-	 *               single input attribute being the data object id
-	 */
-	public void addActionOnObjectId(DynamicActionDefinition action) {
-		addActionOnObjectId(action, false);
-	}
-
-	public void addActionOnObjectId(DynamicActionDefinition action, String specialmenuname) {
-		validateActionOnObjectId(action);
-		ArrayList<DynamicActionDefinition> actionsforspecialmenu = this.actionsonspecificmenu.get(specialmenuname);
-		if (actionsforspecialmenu == null) {
-			actionsforspecialmenu = new ArrayList<DynamicActionDefinition>();
-			this.actionsonspecificmenu.put(specialmenuname, actionsforspecialmenu);
-			this.specificmenus.add(specialmenuname);
-		}
-		actionsforspecialmenu.add(action);
-	}
-
-	private void validateActionOnObjectId(DynamicActionDefinition action) {
-		if (action.getInputArguments().getSize() != 1)
-			throw new RuntimeException("you can add an action on object id only if it has 1 argument, action "
-					+ action.getName() + " has " + action.getInputArguments().getSize() + ".");
-		ArgumentContent uniqueinputargument = action.getInputArguments().get(0);
-		if (!(uniqueinputargument instanceof ObjectIdArgument))
-			throw new RuntimeException("the first argument of " + action.getName()
-					+ " should be ObjectidArgument, it is actually " + uniqueinputargument.getClass().getName() + ".");
-		ObjectIdArgument objectidargument = (ObjectIdArgument) uniqueinputargument;
-		DataObjectDefinition objectforid = objectidargument.getObject();
-		if (objectforid != parent) {
-			throw new RuntimeException("objectid should be of consistent type, actionid type = "
-					+ objectforid.getOwnermodule().getName() + "/" + objectforid.getName() + ", object parentid type = "
-					+ parent.getOwnermodule().getName() + "/" + parent.getName());
-		}
-	}
-
-	/**
-	 * adds an action on the object, either in the main button band, or in the
-	 * manage tab
-	 * 
-	 * @param action            adds an action on the object id. The action should
-	 *                          have a single input attribute being the data object
-	 *                          id
-	 * @param actioninmanagetab if true, action is put in manage tabs, if false,
-	 *                          action is directly in the action button
-	 */
-	public void addActionOnObjectId(DynamicActionDefinition action, boolean actioninmanagetab) {
-		validateActionOnObjectId(action);
-
-		if (actioninmanagetab) {
-			this.actionsonobjectidonmanagemenu.add(action);
-			this.menucommentinmanagetabs.add(null);
-		} else {
-			actionsonobjectid.add(action);
-
-		}
-	}
-
-	/**
-	 * adds an action on the object, either in the main button band, or in the
-	 * manage tab
-	 * 
-	 * @param action  adds an action on the object id. The action should have a
-	 *                single input attribute being the data object id
-	 * @param comment a comment to add before the content in manage menu
-	 */
-	public void addActionOnObjectIdOnManageMenu(DynamicActionDefinition action, String comment) {
-		this.actionsonobjectidonmanagemenu.add(action);
-		this.menucommentinmanagetabs.add(comment);
-	}
+	
 
 	@Override
 	public String[] getPropertyInitMethod() {
@@ -256,5 +142,88 @@ public class UniqueIdentified
 	public String[] getPropertyExtractMethod() {
 		return new String[0];
 	}
+	/**
+	 * @return the list of menus
+	 */
+	public ArrayList<String> getSpecificMenuList() {
+		return hasid.getSpecificMenuList();
+	}
+	/**
+	 * get actions assigned on a specific menu
+	 * @param specific menu
+	 * @return actions 
+	 */
+	public ArrayList<DynamicActionDefinition> getActionsOnSpecificMenu(String specifictabname) {
+		return hasid.getActionsOnSpecificMenu(specifictabname);
+	}
 
+	/**
+	 * @return the list of actions on object id to be added to button band of the
+	 *         object page
+	 */
+	public NamedList<DynamicActionDefinition> getActionListonObjectId() {
+		return hasid.getActionListonObjectId();
+	}
+
+	/**
+	 * @return the list of actions on object id to be added to the manage menu of the
+	 *         object page
+	 */
+	public NamedList<DynamicActionDefinition> getActionListonObjectIdForManageMenu() {
+		return hasid.getActionListonObjectIdForManageMenu();
+	}
+	
+	/**
+	 * @return the list of menu comment to print
+	 */
+	public ArrayList<String> getMenuCommentListOnActionForManageTab() {
+		return hasid.getMenuCommentListOnActionForManageTab();
+	}
+
+	
+	
+	/**
+	 * adds action in the main button band of the object. The action should have a
+	 * single input attribute being the data object id
+	 * 
+	 * @param action adds an action on the object id. The action should have a
+	 *               single input attribute being the data object id
+	 */
+	public void addActionOnObjectId(DynamicActionDefinition action) {
+		addActionOnObjectId(action, false);
+	}
+
+	public void addActionOnObjectId(DynamicActionDefinition action, String specialmenuname) {
+		hasid.addActionOnObjectId(action,specialmenuname);
+	}
+
+	
+
+	/**
+	 * adds an action on the object, either in the main button band, or in the
+	 * manage tab
+	 * 
+	 * @param action            adds an action on the object id. The action should
+	 *                          have a single input attribute being the data object
+	 *                          id
+	 * @param actioninmanagetab if true, action is put in manage tabs, if false,
+	 *                          action is directly in the action button
+	 */
+	public void addActionOnObjectId(DynamicActionDefinition action, boolean actioninmanagetab) {
+		hasid.addActionOnObjectId(action,actioninmanagetab);
+	}
+
+	/**
+	 * adds an action on the object, either in the main button band, or in the
+	 * manage tab
+	 * 
+	 * @param action  adds an action on the object id. The action should have a
+	 *                single input attribute being the data object id
+	 * @param comment a comment to add before the content in manage menu
+	 */
+	public void addActionOnObjectIdOnManageMenu(DynamicActionDefinition action, String comment) {
+		hasid.addActionOnObjectIdOnManageMenu(action,comment);
+	}
+	
+	
 }

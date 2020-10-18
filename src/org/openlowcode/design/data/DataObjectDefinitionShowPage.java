@@ -17,7 +17,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.openlowcode.design.action.DynamicActionDefinition;
+import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.data.autopages.GeneratedPages;
+import org.openlowcode.design.data.properties.basic.Companion;
 import org.openlowcode.design.data.properties.basic.ConstraintOnLinkObjectSameParent;
 import org.openlowcode.design.data.properties.basic.DisplayLinkAsAttributeFromLeftObject;
 import org.openlowcode.design.data.properties.basic.FileContent;
@@ -45,7 +47,7 @@ import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
 import org.openlowcode.module.system.design.SystemModule;
 import org.openlowcode.tools.misc.NamedList;
-
+import org.openlowcode.tools.misc.StandardUtil;
 
 /**
  * this class generates the show object page. This is the biggest automatically
@@ -79,15 +81,14 @@ public class DataObjectDefinitionShowPage
 	 * object given in argument
 	 * 
 	 * @param dataobject Data object to generate code for
-	 * @param companion companion data object for typed object
+	 * @param companion  companion data object for typed object
 	 */
-	public DataObjectDefinitionShowPage(DataObjectDefinition dataobject,DataObjectDefinition companion) {
+	public DataObjectDefinitionShowPage(DataObjectDefinition dataobject, DataObjectDefinition companion) {
 		this.dataobject = dataobject;
 		this.companion = companion;
 		importstatements = new HashMap<String, String>();
 	}
-	
-	
+
 	@Override
 	public void generateToFile(SourceGenerator sg, Module module) throws IOException {
 		String lifecycleclass = null;
@@ -101,10 +102,12 @@ public class DataObjectDefinitionShowPage
 		String pagename = "Show" + dataobject.getName().toLowerCase() + "Page";
 		String companionclass = null;
 		String companionattribute = null;
-		if (this.companion!=null) {
+		Companion companionproperty = null;
+		if (this.companion != null) {
 			pagename = "Show" + companion.getName().toLowerCase() + "Page";
 			companionclass = StringFormatter.formatForJavaClass(companion.getName());
 			companionattribute = StringFormatter.formatForAttribute(companion.getName());
+			companionproperty = (Companion) (companion.getPropertyByName("COMPANION"));
 		}
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
 		String objectvariable = StringFormatter.formatForAttribute(dataobject.getName());
@@ -159,7 +162,7 @@ public class DataObjectDefinitionShowPage
 				Widget childtable = thislinkedfromchildren.generateChildrenTableWidget();
 				this.widgets.add(childtable);
 			}
-			
+
 			if (thisproperty instanceof LeftForLink) {
 
 				LeftForLink<?, ?> thisleftforlink = (LeftForLink<?, ?>) thisproperty;
@@ -178,7 +181,7 @@ public class DataObjectDefinitionShowPage
 				arrayistree.add(Boolean.FALSE);
 				leftlinkedproperties.add(thisleftforlink);
 			}
-			
+
 			if (thisproperty instanceof RightForLink) {
 				RightForLink<?, ?> thisrightforlink = (RightForLink<?, ?>) thisproperty;
 				Widget linktablefromright = thisrightforlink.getLinkFromRightTableWidget();
@@ -195,7 +198,7 @@ public class DataObjectDefinitionShowPage
 				arrayistree.add(Boolean.FALSE);
 				rightlinkedproperties.add(thisrightforlink);
 			}
-			
+
 			if (thisproperty instanceof LeftForLinkToMaster) {
 
 				LeftForLinkToMaster<?, ?> thisleftforlink = (LeftForLinkToMaster<?, ?>) thisproperty;
@@ -214,7 +217,7 @@ public class DataObjectDefinitionShowPage
 				arrayistree.add(Boolean.FALSE);
 
 			}
-			
+
 			if (thisproperty instanceof RightForLinkToMaster) {
 				RightForLinkToMaster<?, ?> thisrightforlink = (RightForLinkToMaster<?, ?>) thisproperty;
 				Widget linktablefromright = thisrightforlink.getLinkFromRightTableWidget();
@@ -231,8 +234,7 @@ public class DataObjectDefinitionShowPage
 				arrayistree.add(Boolean.FALSE);
 
 			}
-			
-			
+
 			if (thisproperty instanceof HasAutolink) {
 				HasAutolink<?> hasautolink = (HasAutolink<?>) thisproperty;
 				Widget autolinkwidgetfromleftorcommon = hasautolink.getWidgetForLeftOrCommonAutolink();
@@ -285,10 +287,17 @@ public class DataObjectDefinitionShowPage
 		// buttons
 
 		UniqueIdentified uniqueidentifiedproperty = (UniqueIdentified) dataobject.getPropertyByName("UNIQUEIDENTIFIED");
-		NamedList<DynamicActionDefinition> actionlistonobjectid = uniqueidentifiedproperty.getActionListonObjectId();
+		NamedList<DynamicActionDefinition> actionlistonobjectid = uniqueidentifiedproperty.getActionListonObjectId().deepcopy();
+
+		actionlistonobjectid.mergeWithNamedListIfNotExist(
+				(companionproperty != null ? companionproperty.getActionListonObjectId() : null));
 		NamedList<DynamicActionDefinition> actionlistonobjectidinmanagetab = uniqueidentifiedproperty
-				.getActionListonObjectIdForManageMenu();
-		ArrayList<String> commentsonobjectsinmanagetab = uniqueidentifiedproperty.getMenuCommentListOnActionForManageTab();
+				.getActionListonObjectIdForManageMenu().deepcopy();
+		actionlistonobjectidinmanagetab.mergeWithNamedListIfNotExist(
+				(companionproperty != null ? companionproperty.getActionListonObjectIdForManageMenu() : null));
+		ArrayList<String> commentsonobjectsinmanagetab = StandardUtil.mergeListsWithoutDuplicates(
+				uniqueidentifiedproperty.getMenuCommentListOnActionForManageTab(),
+				(companionproperty != null ? companionproperty.getMenuCommentListOnActionForManageTab() : null));
 		boolean objectbuttonband = false;
 		objectbuttonband = true; // added as anyways we have the link to search page
 		if (parentlink != null)
@@ -328,8 +337,8 @@ public class DataObjectDefinitionShowPage
 		sg.wl("import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SSeparator;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPopupButton;");
-		if(this.companion!=null) {
-			sg.wl("import "+companion.getOwnermodule().getPath()+".data."+companionclass+";");
+		if (this.companion != null) {
+			sg.wl("import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";");
 		}
 		if (hasfilecontent) {
 			sg.wl("import org.openlowcode.tools.messages.SFile;");
@@ -390,16 +399,18 @@ public class DataObjectDefinitionShowPage
 			sg.wl("import org.openlowcode.server.graphic.widget.SObjectArray;");
 		if (objectbuttonband)
 			sg.wl("import org.openlowcode.server.graphic.widget.SActionButton;");
-		if (dataobject.getPropertyByName("UNIQUEIDENTIFIED")!=null) {
-			if (this.companion==null) {
-				sg.wl("import "+dataobject.getOwnermodule().getPath()+".action.generated.AtgPrepareupdate"+objectvariable+"Action;");
-				
+		if (dataobject.getPropertyByName("UNIQUEIDENTIFIED") != null) {
+			if (this.companion == null) {
+				sg.wl("import " + dataobject.getOwnermodule().getPath() + ".action.generated.AtgPrepareupdate"
+						+ objectvariable + "Action;");
+
 			} else {
-				sg.wl("import "+companion.getOwnermodule().getPath()+".action.generated.AtgPrepareupdate"+companionattribute+"Action;");
-				
+				sg.wl("import " + companion.getOwnermodule().getPath() + ".action.generated.AtgPrepareupdate"
+						+ companionattribute + "Action;");
+
 			}
 		}
-		
+
 		for (int i = 0; i < allparentlinks.size(); i++) {
 			LinkedToParent<?> linkedtoparent = allparentlinks.get(i);
 			String changeparentvariable = StringFormatter.formatForAttribute(
@@ -472,11 +483,15 @@ public class DataObjectDefinitionShowPage
 					+ objectstoshow.get(i).getName().toLowerCase() + "Action;"); // because tables link to action
 		}
 
-		ArrayList<String> specificmenulist = uniqueidentifiedproperty.getSpecificMenuList();
-		for (int i=0;i<specificmenulist.size();i++) {
+		ArrayList<String> specificmenulist = StandardUtil.mergeListsWithoutDuplicates(
+				uniqueidentifiedproperty.getSpecificMenuList(), (companionproperty!=null?companionproperty.getSpecificMenuList():null));
+
+		for (int i = 0; i < specificmenulist.size(); i++) {
 			String specifictabname = specificmenulist.get(i);
-			ArrayList<DynamicActionDefinition> actionsfortab = uniqueidentifiedproperty.getActionsOnSpecificMenu(specifictabname);
-			
+			ArrayList<DynamicActionDefinition> actionsfortab = StandardUtil.mergeListsWithoutDuplicates(
+					uniqueidentifiedproperty.getActionsOnSpecificMenu(specifictabname),
+					(companionproperty!=null?companionproperty.getActionsOnSpecificMenu(specifictabname):null));
+
 			for (int j = 0; j < actionsfortab.size(); j++) {
 				DynamicActionDefinition thisaction = actionsfortab.get(j);
 				String path = "import " + thisaction.getModule().getPath() + ".action.";
@@ -532,8 +547,8 @@ public class DataObjectDefinitionShowPage
 		}
 		boolean hasunreleasedwarnings = false;
 		String companiondeclaration = "";
-		if (companion!=null) {
-			companiondeclaration = ","+companionclass+" "+companionattribute;
+		if (companion != null) {
+			companiondeclaration = "," + companionclass + " " + companionattribute;
 		}
 		Lifecycle lifecycleproperty = (Lifecycle) (dataobject.getPropertyByName("LIFECYCLE"));
 		if (lifecycleproperty != null)
@@ -543,7 +558,7 @@ public class DataObjectDefinitionShowPage
 		if (hasunreleasedwarnings)
 			hasunreleasedwarningstring = ",String unreleasedwarning";
 		sg.wl("	@Override");
-		sg.wl("	public String generateTitle(" + objectclass + " " + objectvariable+companiondeclaration
+		sg.wl("	public String generateTitle(" + objectclass + " " + objectvariable + companiondeclaration
 				+ ", ChoiceValue<ApplocaleChoiceDefinition> userlocale");
 		sg.wl("			,ChoiceValue<PreferedfileencodingChoiceDefinition> preffileencooding");
 		if (hasworkflow) {
@@ -619,12 +634,12 @@ public class DataObjectDefinitionShowPage
 		if (dataobject.getPropertyByName("NAMED") != null) {
 			sg.wl("		objectdisplay+=\" \"+" + objectvariable + ".getObjectname();");
 		}
-		sg.wl("		objectdisplay+=\" (" + (companion!=null?companion.getLabel():dataobject.getLabel()) + ")\";");
+		sg.wl("		objectdisplay+=\" (" + (companion != null ? companion.getLabel() : dataobject.getLabel()) + ")\";");
 		sg.wl("		return objectdisplay;");
 		sg.wl("	}");
 
-		sg.wl("	public AtgShow" + (companion!=null?companionattribute:objectvariable) + "Page(" + objectclass + " " + objectvariable+companiondeclaration
-				+ ", ChoiceValue<ApplocaleChoiceDefinition> userlocale");
+		sg.wl("	public AtgShow" + (companion != null ? companionattribute : objectvariable) + "Page(" + objectclass
+				+ " " + objectvariable + companiondeclaration + ", ChoiceValue<ApplocaleChoiceDefinition> userlocale");
 		sg.wl("			,ChoiceValue<PreferedfileencodingChoiceDefinition> preffileencooding");
 		if (hasworkflow) {
 			sg.wl("			,Task[] activetasks");
@@ -690,7 +705,8 @@ public class DataObjectDefinitionShowPage
 				sg.wl("			," + arraytypes.get(i) + " " + blankobjectname.get(i));
 		}
 		sg.wl("			)   {");
-		sg.wl("		super(" + objectvariable +(companionattribute!=null?","+companionattribute:"")+",userlocale");
+		sg.wl("		super(" + objectvariable + (companionattribute != null ? "," + companionattribute : "")
+				+ ",userlocale");
 		sg.wl("			,preffileencooding");
 		if (hasworkflow) {
 			sg.wl("			,activetasks");
@@ -814,10 +830,12 @@ public class DataObjectDefinitionShowPage
 					+ ".getDefinition(),this, true);");
 			sg.wl("		objectdisplaydefinition.setReducedDisplay(false);");
 			sg.wl("		detailstab.addElement(objectdisplaydefinition);");
-			if (companion!=null) {
-				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, true);");
+			if (companion != null) {
+				sg.wl("		SObjectDisplay<" + companionclass + "> companionobjectdisplay = new SObjectDisplay<"
+						+ companionclass + ">(\"COMPANION\",this.get" + companionclass + "()," + companionclass
+						+ ".getDefinition(), this, true);");
 				sg.wl("		companionobjectdisplay.setReducedDisplay(false);");
-				sg.wl("		detailstab.addElement(companionobjectdisplay);"); 
+				sg.wl("		detailstab.addElement(companionobjectdisplay);");
 
 			}
 
@@ -835,10 +853,12 @@ public class DataObjectDefinitionShowPage
 			if (hasworkflow)
 				sg.wl("		objectdisplaydefinition.addPageNodeRightOfTitle(activetaskband);");
 			sg.wl("");
-			if (companion!=null) {
-				sg.wl("		SObjectDisplay<"+companionclass+"> companionobjectdisplay = new SObjectDisplay<"+companionclass+">(\"COMPANION\",this.get"+companionclass+"(),"+companionclass+".getDefinition(), this, true);");
+			if (companion != null) {
+				sg.wl("		SObjectDisplay<" + companionclass + "> companionobjectdisplay = new SObjectDisplay<"
+						+ companionclass + ">(\"COMPANION\",this.get" + companionclass + "()," + companionclass
+						+ ".getDefinition(), this, true);");
 				sg.wl("		companionobjectdisplay.setReducedDisplay(false);");
-				sg.wl("		mainband.addElement(companionobjectdisplay);"); 
+				sg.wl("		mainband.addElement(companionobjectdisplay);");
 
 			}
 
@@ -858,32 +878,34 @@ public class DataObjectDefinitionShowPage
 				String parentname = parentlink.getParentObjectForLink().getName().toLowerCase();
 				String linkname = parentlink.getName().toLowerCase();
 				String parentextralabel = parentlink.getDisplayname();
-				boolean hasextralabel=false;
-				if (parentextralabel!=null) if (parentextralabel.trim().length()>0) hasextralabel=true;
-				if (!hasextralabel) parentextralabel = parentlink.getParentObjectForLink().getLabel();
+				boolean hasextralabel = false;
+				if (parentextralabel != null)
+					if (parentextralabel.trim().length() > 0)
+						hasextralabel = true;
+				if (!hasextralabel)
+					parentextralabel = parentlink.getParentObjectForLink().getLabel();
 				sg.wl("		if (hasparent) {");
 				sg.wl("			AtgShow" + parentname + "Action.ActionRef showparent" + parentname + " = AtgShow"
 						+ parentname + "Action.get().getActionRef();");
 				sg.wl("			showparent" + parentname + ".setId(objectdisplaydefinition.getAttributeInput("
 						+ objectclass + ".get" + StringFormatter.formatForJavaClass(linkname) + "idMarker()));");
 				sg.wl("			SActionButton gotoparent" + parentname + " = new SActionButton(\"parent "
-						+ parentextralabel + "\",\"opens the parent "
-						+ parentlink.parent.getName().toLowerCase() + " for this " + objectclass + "\",showparent"
-						+ parentname + ",this);");
+						+ parentextralabel + "\",\"opens the parent " + parentlink.parent.getName().toLowerCase()
+						+ " for this " + objectclass + "\",showparent" + parentname + ",this);");
 				sg.wl("			objectbuttonband.addElement(gotoparent" + parentname + ");");
 				sg.wl("		}");
 				sg.wl("");
 			}
 
-			if (dataobject.getPropertyByName("UNIQUEIDENTIFIED")!=null) {
-				String actionclassname="AtgPrepareupdate"+objectvariable;
-				String actionattributename="update";
-				String buttonname="\"Update\"";
-				String inputargumentclass="Id";
-				
-				if (this.companion!=null) {
-					actionclassname="AtgPrepareupdate"+companionattribute;
-				} 
+			if (dataobject.getPropertyByName("UNIQUEIDENTIFIED") != null) {
+				String actionclassname = "AtgPrepareupdate" + objectvariable;
+				String actionattributename = "update";
+				String buttonname = "\"Update\"";
+				String inputargumentclass = "Id";
+
+				if (this.companion != null) {
+					actionclassname = "AtgPrepareupdate" + companionattribute;
+				}
 				sg.wl("		" + actionclassname + "Action.ActionRef " + actionattributename + "forobjectbandaction = "
 						+ actionclassname + "Action.get().getActionRef();");
 				sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
@@ -893,7 +915,7 @@ public class DataObjectDefinitionShowPage
 				sg.wl("		objectbuttonband.addElement(" + actionattributename + "forobjectbandbutton);	");
 				sg.wl("");
 			}
-			
+
 			for (int i = 0; i < actionlistonobjectid.getSize(); i++) {
 				DynamicActionDefinition thisaction = actionlistonobjectid.get(i);
 				String actionclassname = StringFormatter.formatForJavaClass(thisaction.getName());
@@ -908,23 +930,33 @@ public class DataObjectDefinitionShowPage
 
 				sg.wl("		" + actionclassname + "Action.ActionRef " + actionattributename + "forobjectbandaction = "
 						+ actionclassname + "Action.get().getActionRef();");
+				ObjectIdArgument argument = (ObjectIdArgument) thisaction.getInputArguments().get(0);
+				if (argument.getObject().equals(companion)) {
+					sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
+							+ "(companionobjectdisplay.getAttributeInput(" + companionclass + ".getIdMarker()));");					
+				} else {
 				sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
 						+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+				}
 				sg.wl("		SActionButton " + actionattributename + "forobjectbandbutton = new SActionButton("
 						+ buttonname + ",\"\"," + actionattributename + "forobjectbandaction,this);");
 				sg.wl("		objectbuttonband.addElement(" + actionattributename + "forobjectbandbutton);	");
 				sg.wl("");
 			}
-			
-			/// ------------------------------------------------ Specific menu for object --------------------
-		
-			for (int i=0;i<specificmenulist.size();i++) {
+
+			/// ------------------------------------------------ Specific menu for object
+			/// --------------------
+
+			for (int i = 0; i < specificmenulist.size(); i++) {
 				String specificmenuname = specificmenulist.get(i);
-				sg.wl("		// Manage Specific Band "+i+" - "+specificmenuname);
+				sg.wl("		// Manage Specific Band " + i + " - " + specificmenuname);
 				sg.wl("");
-				sg.wl("		SComponentBand specificpopup"+i+" = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
-				ArrayList<DynamicActionDefinition> actionsformenu = uniqueidentifiedproperty.getActionsOnSpecificMenu(specificmenuname);
-				
+				sg.wl("		SComponentBand specificpopup" + i
+						+ " = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
+				ArrayList<DynamicActionDefinition> actionsformenu = StandardUtil.mergeListsWithoutDuplicates(
+						uniqueidentifiedproperty.getActionsOnSpecificMenu(specificmenuname),
+						(companionproperty!=null?companionproperty.getActionsOnSpecificMenu(specificmenuname):null));
+
 				for (int j = 0; j < actionsformenu.size(); j++) {
 					DynamicActionDefinition thisaction = actionsformenu.get(j);
 					String actionclassname = StringFormatter.formatForJavaClass(thisaction.getName());
@@ -939,19 +971,25 @@ public class DataObjectDefinitionShowPage
 
 					sg.wl("		" + actionclassname + "Action.ActionRef " + actionattributename
 							+ "forobjectbandaction = " + actionclassname + "Action.get().getActionRef();");
+					ObjectIdArgument argument = (ObjectIdArgument) thisaction.getInputArguments().get(0);
+					if (argument.getObject().equals(companion)) {
+						sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
+								+ "(companionobjectdisplay.getAttributeInput(" + companionclass + ".getIdMarker()));");					
+					} else {
 					sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
 							+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+					}
 					sg.wl("		SActionButton " + actionattributename + "forobjectbandbutton = new SActionButton("
 							+ buttonname + ",\"\"," + actionattributename + "forobjectbandaction,this);");
-					sg.wl("		specificpopup"+i+".addElement(" + actionattributename + "forobjectbandbutton);	");
+					sg.wl("		specificpopup" + i + ".addElement(" + actionattributename + "forobjectbandbutton);	");
 					sg.wl("");
 				}
-				
-				
-				sg.wl("		SPopupButton specificpopup"+i+"button = new SPopupButton(this, specificpopup"+i+", \""+specificmenuname+"\",\"\",true,true,null);");
-				sg.wl("		objectbuttonband.addElement(specificpopup"+i+"button);");
+
+				sg.wl("		SPopupButton specificpopup" + i + "button = new SPopupButton(this, specificpopup" + i
+						+ ", \"" + specificmenuname + "\",\"\",true,true,null);");
+				sg.wl("		objectbuttonband.addElement(specificpopup" + i + "button);");
 			}
-			
+
 			boolean first = true;
 			sg.wl("		// Manage Band");
 			sg.wl("");
@@ -1000,14 +1038,14 @@ public class DataObjectDefinitionShowPage
 				sg.wl("				" + lifecycleclass
 						+ "ChoiceDefinition.get(),null,this,true, false, false, false, changestateaction);");
 				sg.wl("		newstatesfield.setCompactShow(true);");
-				
-			
-				sg.wl("		if (!OLcServer.getServer().isCurrentUserAdmin("+objectclass+".getDefinition().getModuleName())) {");
+
+				sg.wl("		if (!OLcServer.getServer().isCurrentUserAdmin(" + objectclass
+						+ ".getDefinition().getModuleName())) {");
 				sg.wl("			newstatesfield.setLinkedData(this.getPotentialstates());");
 				sg.wl("		} else {");
 				sg.wl("			managepopup.addElement(new SPageText(\"Warning: admin access\",SPageText.TYPE_WARNING,this));");
 				sg.wl("		}");
-				
+
 				sg.wl("		changestateaction.setId(objectdisplaydefinition.getAttributeInput(" + objectclass
 						+ ".getDefinition().getIdMarker()));");
 				sg.wl("		changestateaction.setNewstate(newstatesfield.getChoiceInput());");
@@ -1045,7 +1083,7 @@ public class DataObjectDefinitionShowPage
 				}
 				for (int i = 0; i < actionlistonobjectidinmanagetab.getSize(); i++) {
 					DynamicActionDefinition thisaction = actionlistonobjectidinmanagetab.get(i);
-					String comment= commentsonobjectsinmanagetab.get(i);
+					String comment = commentsonobjectsinmanagetab.get(i);
 					String actionclassname = StringFormatter.formatForJavaClass(thisaction.getName());
 					if (thisaction.isAutogenerated())
 						actionclassname = "Atg" + actionclassname;
@@ -1062,8 +1100,9 @@ public class DataObjectDefinitionShowPage
 							+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
 					sg.wl("		SActionButton " + actionattributename + "forobjectbandbutton = new SActionButton("
 							+ buttonname + ",\"\"," + actionattributename + "forobjectbandaction,this);");
-					if (comment!=null)
-						sg.wl("		managepopup.addElement(new SPageText(\""+StringFormatter.escapeforjavastring(comment)+"\",SPageText.TYPE_NORMAL,this));");
+					if (comment != null)
+						sg.wl("		managepopup.addElement(new SPageText(\""
+								+ StringFormatter.escapeforjavastring(comment) + "\",SPageText.TYPE_NORMAL,this));");
 					sg.wl("		managepopup.addElement(" + actionattributename + "forobjectbandbutton);	");
 					sg.wl("");
 				}
@@ -1116,181 +1155,181 @@ public class DataObjectDefinitionShowPage
 			sg.wl(" deletebutton.setConfirmationMessage(\"Are you sure you want to delete this " + dataobject.getLabel()
 					+ " ?\");");
 			sg.wl("	managepopup.addElement(deletebutton);");
-		
 
-		if ((dataobject.IsIterated()) || (dataobject.isVersioned())) {
+			if ((dataobject.IsIterated()) || (dataobject.isVersioned())) {
 
-			sg.wl("	AtgShowhistoryfor" + objectvariable + "Action.ActionRef showhistoryaction = AtgShowhistoryfor"
-					+ objectvariable + "Action.get().getActionRef();");
-			sg.wl("	showhistoryaction.set" + objectclass + "id(objectdisplaydefinition.getAttributeInput(" + objectclass
-					+ ".getIdMarker()));");
-			sg.wl("	SActionButton showhistorybutton= new SActionButton(\"Show History\", showhistoryaction,this);");
-			sg.wl("	managepopup.addElement(showhistorybutton);");
+				sg.wl("	AtgShowhistoryfor" + objectvariable + "Action.ActionRef showhistoryaction = AtgShowhistoryfor"
+						+ objectvariable + "Action.get().getActionRef();");
+				sg.wl("	showhistoryaction.set" + objectclass + "id(objectdisplaydefinition.getAttributeInput("
+						+ objectclass + ".getIdMarker()));");
+				sg.wl("	SActionButton showhistorybutton= new SActionButton(\"Show History\", showhistoryaction,this);");
+				sg.wl("	managepopup.addElement(showhistorybutton);");
 
-		}
+			}
 
-		sg.wl("		SPopupButton managepopupbutton = new SPopupButton(this, managepopup, \"Manage\",\"Change Status of Action\",true,true,null);");
-		sg.wl("		objectbuttonband.addElement(managepopupbutton);");
-		sg.wl("");
+			sg.wl("		SPopupButton managepopupbutton = new SPopupButton(this, managepopup, \"Manage\",\"Change Status of Action\",true,true,null);");
+			sg.wl("		objectbuttonband.addElement(managepopupbutton);");
+			sg.wl("");
 
-		sg.wl("	AtgLaunchsearch" + objectvariable + "Action.ActionRef launchsearch" + objectvariable
-				+ "action = AtgLaunchsearch" + objectvariable + "Action.get().getActionRef();");
-		sg.wl("	SActionButton launchsearch" + objectvariable
-				+ "button = new SActionButton(\"Search others\",launchsearch" + objectvariable + "action,this);");
-		sg.wl("	objectbuttonband.addElement(launchsearch" + objectvariable + "button);	");
+			sg.wl("	AtgLaunchsearch" + objectvariable + "Action.ActionRef launchsearch" + objectvariable
+					+ "action = AtgLaunchsearch" + objectvariable + "Action.get().getActionRef();");
+			sg.wl("	SActionButton launchsearch" + objectvariable
+					+ "button = new SActionButton(\"Search others\",launchsearch" + objectvariable + "action,this);");
+			sg.wl("	objectbuttonband.addElement(launchsearch" + objectvariable + "button);	");
 
-		if (dataobject.hasTimeslot()) {
+			if (dataobject.hasTimeslot()) {
 
-			sg.wl("	// ---------- reschedule popup -----------------");
-			sg.wl("	SComponentBand reschedulepopup = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
-			sg.wl("	AtgReschedule" + objectvariable + "Action.ActionRef rescheduleaction = AtgReschedule"
-					+ objectvariable + "Action.get().getActionRef();");
-			sg.wl("	STimeslotField reschedulefield = new STimeslotField(\"RESCHEDULE\",\"Start Time\",\"End Time\",\"Start Time\",\"End Time\", STimeslotField.DEFAULT_EMPTY,");
-			sg.wl("			this.getStarttime(),this.getEndtime(), true, this);");
-			sg.wl("	reschedulepopup.addElement(reschedulefield);");
-			sg.wl("	rescheduleaction.setId(objectdisplaydefinition.getAttributeInput(" + objectclass
-					+ ".getIdMarker()));");
-			sg.wl("	rescheduleaction.setStarttime(reschedulefield.getStartDateInput());");
-			sg.wl("	rescheduleaction.setEndtime(reschedulefield.getEndDateInput());");
-			sg.wl("	SActionButton reschedulebutton = new SActionButton(\"OK\", rescheduleaction, true, this);");
-			sg.wl("	reschedulepopup.addElement(reschedulebutton);");
-			sg.wl("	SPopupButton reschedulepopupbutton = new SPopupButton(this, reschedulepopup, \"Reschedule\",\"allows to change start and end time\",false,rescheduleaction);");
-			sg.wl("	objectbuttonband.addElement(reschedulepopupbutton);");
-			sg.wl("	// ---------- reschedule popup end -----------------		");
-			sg.wl("	");
+				sg.wl("	// ---------- reschedule popup -----------------");
+				sg.wl("	SComponentBand reschedulepopup = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
+				sg.wl("	AtgReschedule" + objectvariable + "Action.ActionRef rescheduleaction = AtgReschedule"
+						+ objectvariable + "Action.get().getActionRef();");
+				sg.wl("	STimeslotField reschedulefield = new STimeslotField(\"RESCHEDULE\",\"Start Time\",\"End Time\",\"Start Time\",\"End Time\", STimeslotField.DEFAULT_EMPTY,");
+				sg.wl("			this.getStarttime(),this.getEndtime(), true, this);");
+				sg.wl("	reschedulepopup.addElement(reschedulefield);");
+				sg.wl("	rescheduleaction.setId(objectdisplaydefinition.getAttributeInput(" + objectclass
+						+ ".getIdMarker()));");
+				sg.wl("	rescheduleaction.setStarttime(reschedulefield.getStartDateInput());");
+				sg.wl("	rescheduleaction.setEndtime(reschedulefield.getEndDateInput());");
+				sg.wl("	SActionButton reschedulebutton = new SActionButton(\"OK\", rescheduleaction, true, this);");
+				sg.wl("	reschedulepopup.addElement(reschedulebutton);");
+				sg.wl("	SPopupButton reschedulepopupbutton = new SPopupButton(this, reschedulepopup, \"Reschedule\",\"allows to change start and end time\",false,rescheduleaction);");
+				sg.wl("	objectbuttonband.addElement(reschedulepopupbutton);");
+				sg.wl("	// ---------- reschedule popup end -----------------		");
+				sg.wl("	");
 
-		}
+			}
 
-		if (dataobject.hasSchedule()) {
+			if (dataobject.hasSchedule()) {
 
-			sg.wl("	// ----------- insert after popup ---------------------");
-			sg.wl("	SComponentBand insertafterpopup = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);	");
-			sg.wl("	AtgInsertafter" + objectvariable + "Action.ActionRef insertafteraction = AtgInsertafter"
-					+ objectvariable + "Action.get().getActionRef();	");
+				sg.wl("	// ----------- insert after popup ---------------------");
+				sg.wl("	SComponentBand insertafterpopup = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);	");
+				sg.wl("	AtgInsertafter" + objectvariable + "Action.ActionRef insertafteraction = AtgInsertafter"
+						+ objectvariable + "Action.get().getActionRef();	");
 
-			if (dataobject.hasNumbered())
-				if (!dataobject.isAutoNumbered()) {
-					Numbered numbered = (Numbered) dataobject.getPropertyByName("NUMBERED");
-					sg.wl("	STextField insertafternumberentryfield = new STextField(\"" + numbered.getNumberLabel()
-							+ "\",\"INSERTAFTERNR\",\"NUMBER\",64,\"\",false,this,false,false,false,null);");
-					sg.wl("	insertafternumberentryfield.setTextBusinessData(this.getInsertafternr());");
-					sg.wl("	insertafterpopup.addElement(insertafternumberentryfield);");
+				if (dataobject.hasNumbered())
+					if (!dataobject.isAutoNumbered()) {
+						Numbered numbered = (Numbered) dataobject.getPropertyByName("NUMBERED");
+						sg.wl("	STextField insertafternumberentryfield = new STextField(\"" + numbered.getNumberLabel()
+								+ "\",\"INSERTAFTERNR\",\"NUMBER\",64,\"\",false,this,false,false,false,null);");
+						sg.wl("	insertafternumberentryfield.setTextBusinessData(this.getInsertafternr());");
+						sg.wl("	insertafterpopup.addElement(insertafternumberentryfield);");
+
+					}
+				if (dataobject.hasNamed()) {
+					Named named = (Named) dataobject.getPropertyByName("NAMED");
+					sg.wl("	STextField insertafternameentryfield = new STextField(\"" + named.getNameLabel()
+							+ "\",\"INSERTAFTERNAME\",\"OBJECTNAME\",64,\"\",false,this,false,false,false,null);");
+					sg.wl("	insertafternameentryfield.setTextBusinessData(this.getInsertaftername());");
+					sg.wl("	insertafterpopup.addElement(insertafternameentryfield);");
 
 				}
-			if (dataobject.hasNamed()) {
-				Named named = (Named) dataobject.getPropertyByName("NAMED");
-				sg.wl("	STextField insertafternameentryfield = new STextField(\"" + named.getNameLabel()
-						+ "\",\"INSERTAFTERNAME\",\"OBJECTNAME\",64,\"\",false,this,false,false,false,null);");
-				sg.wl("	insertafternameentryfield.setTextBusinessData(this.getInsertaftername());");
-				sg.wl("	insertafterpopup.addElement(insertafternameentryfield);");
+				sg.wl("	SObjectDisplay<" + objectclass + "> " + objectvariable + "toinsert =  new SObjectDisplay<"
+						+ objectclass + ">(\"" + dataobject.getName().toUpperCase()
+						+ "TOINSERT\", this.getBlankforinsertafter()," + objectclass
+						+ ".getDefinition(),this,false);	");
+				sg.wl("	" + objectvariable + "toinsert.setHideReadOnly();	");
+				sg.wl("	insertafterpopup.addElement(" + objectvariable + "toinsert);	");
+				sg.wl("	STimeslotField " + objectvariable + "toinserttimeslot = new STimeslotField(\""
+						+ dataobject.getName().toUpperCase() + "TOINSERTIMESLOT\",\"Start Time\",	");
+				sg.wl("			\"End Time\",\"Start Time\",\"End Time\",STimeslotField.DEFAULT_EMPTY,	");
+				sg.wl("			this.getInsertafterstart(),this.getInsertafterend(), true, this);	");
+				;
+				sg.wl("	insertafterpopup.addElement(" + objectvariable + "toinserttimeslot);	");
 
-			}
-			sg.wl("	SObjectDisplay<" + objectclass + "> " + objectvariable + "toinsert =  new SObjectDisplay<"
-					+ objectclass + ">(\"" + dataobject.getName().toUpperCase()
-					+ "TOINSERT\", this.getBlankforinsertafter()," + objectclass + ".getDefinition(),this,false);	");
-			sg.wl("	" + objectvariable + "toinsert.setHideReadOnly();	");
-			sg.wl("	insertafterpopup.addElement(" + objectvariable + "toinsert);	");
-			sg.wl("	STimeslotField " + objectvariable + "toinserttimeslot = new STimeslotField(\""
-					+ dataobject.getName().toUpperCase() + "TOINSERTIMESLOT\",\"Start Time\",	");
-			sg.wl("			\"End Time\",\"Start Time\",\"End Time\",STimeslotField.DEFAULT_EMPTY,	");
-			sg.wl("			this.getInsertafterstart(),this.getInsertafterend(), true, this);	");
-			;
-			sg.wl("	insertafterpopup.addElement(" + objectvariable + "toinserttimeslot);	");
+				sg.wl("		insertafteraction.setOriginid(objectdisplaydefinition.getAttributeInput(" + objectclass
+						+ ".getIdMarker()));");
+				if (dataobject.hasNumbered())
+					if (!dataobject.isAutoNumbered()) {
+						sg.wl("	insertafteraction.setSuccessornr(insertafternumberentryfield.getTextInput());");
 
-			sg.wl("		insertafteraction.setOriginid(objectdisplaydefinition.getAttributeInput(" + objectclass
-					+ ".getIdMarker()));");
-			if (dataobject.hasNumbered())
-				if (!dataobject.isAutoNumbered()) {
-					sg.wl("	insertafteraction.setSuccessornr(insertafternumberentryfield.getTextInput());");
+					}
+				if (dataobject.hasNamed()) {
+					sg.wl("	insertafteraction.setSuccessorname(insertafternameentryfield.getTextInput());");
 
 				}
-			if (dataobject.hasNamed()) {
-				sg.wl("	insertafteraction.setSuccessorname(insertafternameentryfield.getTextInput());");
+				sg.wl("	insertafteraction.setSuccessor(" + objectvariable + "toinsert.getObjectInput());");
+				sg.wl("	insertafteraction.setSuccessorstartdate(" + objectvariable
+						+ "toinserttimeslot.getStartDateInput());");
+				sg.wl("	insertafteraction.setSuccessorenddate(" + objectvariable
+						+ "toinserttimeslot.getEndDateInput());");
+
+				sg.wl("	SActionButton insertafterbutton = new SActionButton(\"Insert\",insertafteraction,true,this);	");
+				sg.wl("	insertafterpopup.addElement(insertafterbutton);	");
+				sg.wl("	SPopupButton insertafterpopupbutton = new SPopupButton(this,insertafterpopup,\"Insert After\",\"Inserts a new "
+						+ objectvariable + " after the current " + objectvariable + "\",false,insertafteraction);	");
+				sg.wl("	objectbuttonband.addElement(insertafterpopupbutton);		");
+				sg.wl("	// ----------- insert after popup end ---------------------");
+
+				sg.wl("	// -- addition of planning link");
+				sg.wl("	");
+				sg.wl("	AtgPrepareshowplanningfor" + objectvariable
+						+ "Action.ActionRef showplanning = AtgPrepareshowplanningfor" + objectvariable
+						+ "Action.get().getActionRef();");
+				sg.wl("	showplanning.setId(objectdisplaydefinition.getAttributeInput(" + objectclass
+						+ ".getIdMarker()));");
+				sg.wl("	SActionButton showplanningbutton = new SActionButton(\"Planning\",showplanning,this);");
+				sg.wl("	objectbuttonband.addElement(showplanningbutton);");
 
 			}
-			sg.wl("	insertafteraction.setSuccessor(" + objectvariable + "toinsert.getObjectInput());");
-			sg.wl("	insertafteraction.setSuccessorstartdate(" + objectvariable
-					+ "toinserttimeslot.getStartDateInput());");
-			sg.wl("	insertafteraction.setSuccessorenddate(" + objectvariable + "toinserttimeslot.getEndDateInput());");
 
-			sg.wl("	SActionButton insertafterbutton = new SActionButton(\"Insert\",insertafteraction,true,this);	");
-			sg.wl("	insertafterpopup.addElement(insertafterbutton);	");
-			sg.wl("	SPopupButton insertafterpopupbutton = new SPopupButton(this,insertafterpopup,\"Insert After\",\"Inserts a new "
-					+ objectvariable + " after the current " + objectvariable + "\",false,insertafteraction);	");
-			sg.wl("	objectbuttonband.addElement(insertafterpopupbutton);		");
-			sg.wl("	// ----------- insert after popup end ---------------------");
+			for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+				Property<?> thisproperty = dataobject.propertylist.get(i);
+				if (thisproperty instanceof ImageContent) {
+					ImageContent imagecontent = (ImageContent) thisproperty;
+					String imagename = StringFormatter.formatForAttribute(imagecontent.getInstancename());
 
-			sg.wl("	// -- addition of planning link");
-			sg.wl("	");
-			sg.wl("	AtgPrepareshowplanningfor" + objectvariable
-					+ "Action.ActionRef showplanning = AtgPrepareshowplanningfor" + objectvariable
-					+ "Action.get().getActionRef();");
-			sg.wl("	showplanning.setId(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
-			sg.wl("	SActionButton showplanningbutton = new SActionButton(\"Planning\",showplanning,this);");
-			sg.wl("	objectbuttonband.addElement(showplanningbutton);");
+					sg.wl("// set image for " + imagename + "");
+					sg.wl("	AtgSetimagecontentfor" + imagename + "for" + objectvariable
+							+ "Action.ActionRef setimagecontentfor" + imagename + "action = AtgSetimagecontentfor"
+							+ imagename + "for" + objectvariable + "Action.get().getActionRef();");
+					sg.wl("	SImageChooser imagechooserfor" + imagename + " = new SImageChooser(\""
+							+ imagecontent.getInstancename().toUpperCase() + "\", this,160, setimagecontentfor"
+							+ imagename + "action,\"Set as " + imagename + "\");");
+					sg.wl("setimagecontentfor" + imagename + "action.set" + objectclass
+							+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+					sg.wl("	setimagecontentfor" + imagename + "action.setFullimage(imagechooserfor" + imagename
+							+ ".getFullImageDataInput());");
+					sg.wl("	setimagecontentfor" + imagename + "action.setThumbnail(imagechooserfor" + imagename
+							+ ".getThumbnailImageDataInput());");
+					sg.wl("	SPopupButton setimagecontentfor" + imagename
+							+ "button = new SPopupButton(this, imagechooserfor" + imagename + ", \"set image for "
+							+ imagename + "\",\"allows to add an image as " + imagename
+							+ " from either clipboard or file\",false,setimagecontentfor" + imagename + "action);");
+					sg.wl("	objectbuttonband.addElement(setimagecontentfor" + imagename + "button);");
 
-		}
-		
-		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
-			Property<?> thisproperty = dataobject.propertylist.get(i);
-			if (thisproperty instanceof ImageContent) {
-				ImageContent imagecontent = (ImageContent) thisproperty;
-				String imagename = StringFormatter.formatForAttribute(imagecontent.getInstancename());
-
-				sg.wl("// set image for " + imagename + "");
-				sg.wl("	AtgSetimagecontentfor" + imagename + "for" + objectvariable
-						+ "Action.ActionRef setimagecontentfor" + imagename + "action = AtgSetimagecontentfor"
-						+ imagename + "for" + objectvariable + "Action.get().getActionRef();");
-				sg.wl("	SImageChooser imagechooserfor" + imagename + " = new SImageChooser(\""
-						+ imagecontent.getInstancename().toUpperCase() + "\", this,160, setimagecontentfor" + imagename
-						+ "action,\"Set as " + imagename + "\");");
-				sg.wl("setimagecontentfor" + imagename + "action.set" + objectclass
-						+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
-				sg.wl("	setimagecontentfor" + imagename + "action.setFullimage(imagechooserfor" + imagename
-						+ ".getFullImageDataInput());");
-				sg.wl("	setimagecontentfor" + imagename + "action.setThumbnail(imagechooserfor" + imagename
-						+ ".getThumbnailImageDataInput());");
-				sg.wl("	SPopupButton setimagecontentfor" + imagename + "button = new SPopupButton(this, imagechooserfor"
-						+ imagename + ", \"set image for " + imagename + "\",\"allows to add an image as " + imagename
-						+ " from either clipboard or file\",false,setimagecontentfor" + imagename + "action);");
-				sg.wl("	objectbuttonband.addElement(setimagecontentfor" + imagename + "button);");
-
+				}
 			}
-		}
 
-		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
-			Property<?> thisproperty = dataobject.propertylist.get(i);
-			if (thisproperty instanceof PrintOut) {
-				PrintOut printout = (PrintOut) thisproperty;
-				String printoutnamevariable = StringFormatter.formatForAttribute(printout.getInstancename());
+			for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+				Property<?> thisproperty = dataobject.propertylist.get(i);
+				if (thisproperty instanceof PrintOut) {
+					PrintOut printout = (PrintOut) thisproperty;
+					String printoutnamevariable = StringFormatter.formatForAttribute(printout.getInstancename());
 
-				sg.wl("	// Preview " + printoutnamevariable + "");
-				sg.wl("	AtgPreviewprintoutfor" + objectvariable + "for" + printoutnamevariable
-						+ "Action.InlineActionRef preview" + printoutnamevariable + " = AtgPreviewprintoutfor"
-						+ objectvariable + "for" + printoutnamevariable + "Action.get().getInlineActionRef();");
-				sg.wl("	preview" + printoutnamevariable + ".set" + objectclass
-						+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass
-						+ ".getDefinition().getIdMarker()));");
-				sg.wl("	SActionButton " + printoutnamevariable
-						+ "preview = new SActionButton(\"Preview Printout\",preview" + printoutnamevariable
-						+ ",this);");
-				sg.wl("	objectbuttonband.addElement(" + printoutnamevariable + "preview);");
-				sg.wl("	SFileDownloader preview" + printoutnamevariable
-						+ "downloader = new SFileDownloader(\"PREVIEWDOWNLOAD\", this, preview" + printoutnamevariable
-						+ ",AtgPreviewprintoutfor" + objectvariable + "for" + printoutnamevariable
-						+ "Action.get().getPreviewRef());");
-				sg.wl("	objectbuttonband.addElement(preview" + printoutnamevariable + "downloader);");
+					sg.wl("	// Preview " + printoutnamevariable + "");
+					sg.wl("	AtgPreviewprintoutfor" + objectvariable + "for" + printoutnamevariable
+							+ "Action.InlineActionRef preview" + printoutnamevariable + " = AtgPreviewprintoutfor"
+							+ objectvariable + "for" + printoutnamevariable + "Action.get().getInlineActionRef();");
+					sg.wl("	preview" + printoutnamevariable + ".set" + objectclass
+							+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass
+							+ ".getDefinition().getIdMarker()));");
+					sg.wl("	SActionButton " + printoutnamevariable
+							+ "preview = new SActionButton(\"Preview Printout\",preview" + printoutnamevariable
+							+ ",this);");
+					sg.wl("	objectbuttonband.addElement(" + printoutnamevariable + "preview);");
+					sg.wl("	SFileDownloader preview" + printoutnamevariable
+							+ "downloader = new SFileDownloader(\"PREVIEWDOWNLOAD\", this, preview"
+							+ printoutnamevariable + ",AtgPreviewprintoutfor" + objectvariable + "for"
+							+ printoutnamevariable + "Action.get().getPreviewRef());");
+					sg.wl("	objectbuttonband.addElement(preview" + printoutnamevariable + "downloader);");
 
+				}
 			}
-		}
 
-	
 			sg.wl("		objectdisplaydefinition.addButtonBarUnderTitle(objectbuttonband);");
-		
-		
+
 		}
-		
-		
+
 		// -------------------------------- Process Image Content
 
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
@@ -1319,7 +1358,6 @@ public class DataObjectDefinitionShowPage
 				sg.wl("");
 			}
 		}
-
 
 		// display all left links as field
 
@@ -1461,9 +1499,9 @@ public class DataObjectDefinitionShowPage
 					SearchWidgetDefinition searchwidget = leftlinkedproperty.getRightObjectForLink()
 							.getSearchWidgets()[j];
 					if (searchwidget.getFieldname().compareTo("NR") != 0)
-						if (searchwidget.getType()!=SearchWidgetDefinition.TYPE_DATE) {
-						sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
-								+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "(null);");
+						if (searchwidget.getType() != SearchWidgetDefinition.TYPE_DATE) {
+							sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
+									+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "(null);");
 						} else {
 							sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
 									+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "from(null);");
@@ -1490,7 +1528,6 @@ public class DataObjectDefinitionShowPage
 			}
 
 		}
-	
 
 		// ----------------------------------------------------------------------------------------
 		// -- DISPLAY WIDGETS --

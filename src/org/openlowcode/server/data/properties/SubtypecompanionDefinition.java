@@ -75,6 +75,7 @@ G extends SimpleFieldChoiceDefinition<G>> extends DataObjectPropertyDefinition<E
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public FieldSchemaForDisplay[] setFieldSchemaToDisplay() {
 		return null;

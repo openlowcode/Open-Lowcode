@@ -16,8 +16,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.openlowcode.module.system.data.choice.ReportingfrequencyChoiceDefinition;
 import org.openlowcode.server.data.ChoiceValue;
@@ -30,6 +32,37 @@ import org.openlowcode.server.data.ChoiceValue;
  *
  */
 public class StandardUtil {
+
+	/**
+	 * merges the two lists, removing duplicates.
+	 * 
+	 * @param firstlist  first list to merge (can be null)
+	 * @param secondlist second list to merge (can be null)
+	 * @return the merged list, removing dupicates between the two lists
+	 */
+	public static <E extends Object> ArrayList<E> mergeListsWithoutDuplicates(
+			ArrayList<E> firstlist,
+			ArrayList<E> secondlist) {
+		if (firstlist == null)
+			return deepcopy(secondlist);
+		if (secondlist == null)
+			return deepcopy(firstlist);
+		ArrayList<E> answer = deepcopy(firstlist);
+		HashMap<E, E> firstelementsmap = new HashMap<E, E>();
+		for (int i = 0; i < firstlist.size(); i++)
+			firstelementsmap.put(firstlist.get(i), firstlist.get(i));
+		for (int i = 0; i < secondlist.size(); i++) {
+			if (!firstelementsmap.containsKey(secondlist.get(i))) {
+				answer.add(secondlist.get(i));
+			}
+		}
+		return answer;
+	}
+	private static <E extends Object> ArrayList<E> deepcopy(ArrayList<E> originallist) {
+		ArrayList<E> deepcopy = new ArrayList<E>();
+		deepcopy.addAll(originallist);
+		return deepcopy;
+	}
 	/**
 	 * returns true if both objects are null, returns false if one of the 2 objets
 	 * only is null. If both objects are not null, returns the equal comparison of
