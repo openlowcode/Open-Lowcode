@@ -255,7 +255,10 @@ public class DataObjectDefinitionCreatePageToFile
 		sg.wl("	protected SPageNode getContent()  {");
 		sg.wl("		");
 		sg.wl("			SComponentBand mainband = new  SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
+		sg.wl("			SPageText title = new SPageText(\"Enter data for new " + (companion!=null?companion.getLabel():dataobject.getLabel())
+				+ "\",SPageText.TYPE_TITLE,this);");
 
+		sg.wl("			mainband.addElement(title);");
 		sg.wl("			AtgStandardcreate" + pagename + "Action.ActionRef create" + pagename
 				+ "actionref = AtgStandardcreate" + pagename + "Action.get().getActionRef();");
 		if (subobject != null) {
@@ -328,10 +331,7 @@ public class DataObjectDefinitionCreatePageToFile
 			}
 
 		}
-		sg.wl("			SPageText title = new SPageText(\"Enter data for new " + (companion!=null?companion.getLabel():dataobject.getLabel())
-				+ "\",SPageText.TYPE_TITLE,this);");
 
-		sg.wl("			mainband.addElement(title);");
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			for (int j = 0; j < thisproperty.getDataInputSize(); j++) {
