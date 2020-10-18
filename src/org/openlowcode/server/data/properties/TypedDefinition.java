@@ -84,8 +84,12 @@ public class TypedDefinition<E extends DataObject<E> & TypedInterface<E, F>, F e
 
 	@Override
 	public FieldSchemaForDisplay<E>[] setFieldSchemaToDisplay() {
-		// TODO Auto-generated method stub
-		return null;
+		@SuppressWarnings("unchecked")
+		FieldSchemaForDisplay<E>[] returnvalue=  new FieldSchemaForDisplay[1];
+		returnvalue[0] = new FieldSchemaForDisplay<E>("Type",
+				"Type of the object ", type, true, false, true,
+				typechoice, 720, 25, this.parentobject);
+		return returnvalue;
 	}
 
 	@Override
