@@ -75,9 +75,9 @@ public class Companion<E extends DataObject<E> & HasidInterface<E>,F extends Dat
 	}
 	
 	private void update(E companionobject) {
-		logger.severe(" ------------ Companion object log before update------------------");
-		logger.severe("   "+companionobject.dropToString());
-		logger.severe("------------------------------------------------------------------");
+		logger.finest(" ------------ Companion object log before update------------------");
+		logger.finest("   "+companionobject.dropToString());
+		logger.finest("------------------------------------------------------------------");
 		
 		QueryCondition objectuniversalcondition = definition.getParentObject().getUniversalQueryCondition(definition,
 				null);
