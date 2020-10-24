@@ -86,6 +86,8 @@ public class DataObjectDefinitionCreatePageToFile
 
 				ArgumentContent thisargument = thisproperty.getContextDataForCreation(j);
 
+
+				
 				if (pageattributedeclaration.length() > 0)
 					pageattributedeclaration.append(" , ");
 				pageattributedeclaration
@@ -156,7 +158,7 @@ public class DataObjectDefinitionCreatePageToFile
 			String companionimport = "import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";";
 			
 			importdeclaration.put(companionimport, companionimport);
-			String companioncreateaction = "import gallium.test.action.generated.AtgStandardcreate"+companion.getName().toLowerCase()+"Action;";
+			String companioncreateaction = "import  "+ companion.getOwnermodule().getPath() + ".action.generated.AtgStandardcreate"+companion.getName().toLowerCase()+"Action;";
 			importdeclaration.put(companioncreateaction, companioncreateaction);
 		}
 		

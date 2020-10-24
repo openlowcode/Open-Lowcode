@@ -1749,6 +1749,7 @@ public class DataObjectDefinitionOtherActions {
 		StringBuffer extraattributesdeclaration = new StringBuffer();
 		StringBuffer extraattributesfilling = new StringBuffer();
 		StringBuffer extraattributestopage = new StringBuffer();
+		StringBuffer companionactionattributecall=new StringBuffer();
 		// ------------------------ Attributes for properties ---------------------
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
@@ -1768,6 +1769,13 @@ public class DataObjectDefinitionOtherActions {
 					extraattributestopage.append(" , ");
 				extraattributestopage.append("logicoutput.getCopy" + thisargument.getName().toLowerCase() + "()");
 
+				if (companionactionattributecall.length()>0)
+					companionactionattributecall.append(" , ");
+
+				companionactionattributecall.append("logicoutput.getCopy");
+				companionactionattributecall.append(thisargument.getName().toLowerCase());
+				companionactionattributecall.append("()");
+				
 				ArrayList<String> imports = thisargument.getImports();
 				for (int k = 0; k < imports.size(); k++) {
 					importdeclaration.put(imports.get(k), imports.get(k));
@@ -1882,10 +1890,9 @@ public class DataObjectDefinitionOtherActions {
 					ChoiceValue thistype = types.next();
 					DataObjectDefinition specificcompanion = typed.getCompanionForType(thistype);
 					if (specificcompanion != null) {
-
 						
 						sg.wl("		if ("+StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition.get()."+thistype.getName().toUpperCase()+".getStorageCode().equals(logicoutput.getCopytype().getStorageCode()))");
-						sg.wl("			return AtgPreparestandardcreate"+specificcompanion.getName().toLowerCase()+"Action.get().executeAndShowPage(logicoutput.getCopytype());");
+						sg.wl("			return AtgPreparestandardcreate"+specificcompanion.getName().toLowerCase()+"Action.get().executeAndShowPage("+ companionactionattributecall.toString()+");");
 
 
 						

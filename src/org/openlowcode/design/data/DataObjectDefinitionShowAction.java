@@ -31,6 +31,7 @@ import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.module.designer.data.Propertydef;
 import org.openlowcode.tools.misc.NamedList;
 
 /**
@@ -200,7 +201,7 @@ public class DataObjectDefinitionShowAction {
 			sg.wl("		" + objectclass + " " + objectvariable + " = " + objectclass + ".readone(id);");
 		} else {
 			sg.wl("		TwoDataObjects<"+objectclass+","+companionclass+"> mainandcompanion = "+companionclass+".readtyped(id);");
-
+			sg.wl("		"+objectclass+" "+objectvariable+" = mainandcompanion.getObjectOne();");
 			
 		}
 		sg.wl("		ChoiceValue<ApplocaleChoiceDefinition> userlocale = OLcServer.getServer().getCurrentUser().getPreflang();");
