@@ -52,6 +52,7 @@ public class Companion<E extends DataObject<E> & HasidInterface<E>,F extends Dat
 		mainobject.insert();
 		String id = mainobject.getId().getId();
 		hasid.SetId(id);
+		hasid.setDeleted("N");
 		update(companionobject);
 	}
 	

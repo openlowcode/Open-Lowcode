@@ -23,6 +23,7 @@ import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.PropertyGenerics;
+import org.openlowcode.design.data.SimpleChoiceCategory;
 import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
@@ -91,6 +92,7 @@ public class LinkedFromChildren
 			Widget {
 
 		private LinkedFromChildren linkedfromchildren;
+		private Typed typed;
 
 		/**
 		 * creates the widget showing all children on the parent object
@@ -100,6 +102,7 @@ public class LinkedFromChildren
 		ChildrenTable(LinkedFromChildren linkedfromchildren) {
 			super("CHILDRENTABLE");
 			this.linkedfromchildren = linkedfromchildren;
+			typed = (Typed) this.linkedfromchildren.getRelatedLinkedToParent().getParent().getPropertyByName("TYPED");
 		}
 
 		@Override
@@ -130,6 +133,11 @@ public class LinkedFromChildren
 			importstatements.add("import org.openlowcode.server.graphic.widget.SCollapsibleBand;");
 			importstatements.add("import org.openlowcode.server.data.DataObjectFieldMarker;");
 
+			if (typed!=null) {
+				SimpleChoiceCategory types = typed.getTypes();
+				importstatements.add("import "+types.getParentModule().getPath()+".data.choice."+StringFormatter.formatForJavaClass(types.getName())+"ChoiceDefinition;");
+			}
+			
 			if (linkedfromchildren.getOriginObjectProperty().getMultiDimensionChild() != null) {
 				importstatements.add("import " + linkedfromchildren.getParent().getOwnermodule().getPath()
 						+ ".action.generated.AbsRepairlinesfor"
@@ -308,11 +316,24 @@ public class LinkedFromChildren
 
 						}
 					}
-
+					if (typed==null) {
 					sg.wl("		childrenactionbandfor" + childclassattribute + ".addElement(new SActionButton(\"Create "
 							+ linkedfromchildren.getChildObject().getLabel() + "\",create" + childclassattribute
 							+ "withparentaction,this));");
+					} else {
+						
 
+sg.wl("		SComponentBand create" + childclassattribute + "withparentpopup = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
+sg.wl("		SChoiceTextField<PropertytypeChoiceDefinition> create" + childclassattribute + "withparentpopuptype ");
+sg.wl("		= new SChoiceTextField<PropertytypeChoiceDefinition>(\"Type\", \"CREATE" + childclassattribute.toUpperCase() + "WITHPARENT\",\"\", PropertytypeChoiceDefinition.get(), this, true,false,false,false,null);");
+sg.wl("		create" + childclassattribute + "withparentpopup.addElement(create" + childclassattribute + "withparentpopuptype);");
+sg.wl("		create" + childclassattribute + "withparentaction.setType(create" + childclassattribute + "withparentpopuptype.getChoiceInput());");
+sg.wl("		create" + childclassattribute + "withparentpopup.addElement(new SActionButton(\"Create Property\",create" + childclassattribute + "withparentaction,this));");
+sg.wl("		childrenactionbandfor" + childclassattribute + ".addElement(new SPopupButton(this, create" + childclassattribute + "withparentpopup, \"Create  "
+							+ linkedfromchildren.getChildObject().getLabel() + "\",\"\"));");
+		
+ 
+					}
 					sg.wl("		// --------------- load children");
 					sg.wl("		AtgLoadchildren" + linknameshortname + "for" + objectvariable
 							+ "Action.ActionRef loadchildrenfor" + linknameshortname + " = AtgLoadchildren"
