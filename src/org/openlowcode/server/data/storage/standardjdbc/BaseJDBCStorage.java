@@ -31,6 +31,7 @@ import org.openlowcode.server.data.storage.DeleteQuery;
 import org.openlowcode.server.data.storage.IntegerStoredField;
 import org.openlowcode.server.data.storage.JDBCstorage;
 import org.openlowcode.server.data.storage.LargeBinaryStoredField;
+import org.openlowcode.server.data.storage.LimitedFieldsUpdateQuery;
 import org.openlowcode.server.data.storage.MultipleTableRow;
 import org.openlowcode.server.data.storage.PersistenceGateway;
 import org.openlowcode.server.data.storage.PersistentStorage;
@@ -258,6 +259,10 @@ public abstract class BaseJDBCStorage
 		}
 		throw new RuntimeException("Database sqlerror, even after retries " + lastsqlexception);
 	}
+
+	
+	
+	
 
 	@Override
 	public Row selectOnDB(SelectQuery sq) {
@@ -1047,6 +1052,43 @@ public abstract class BaseJDBCStorage
 		}
 	}
 
+	@Override
+	public void LimitedFieldUpdateOnDB(LimitedFieldsUpdateQuery limitedfieldsupdatequery) {
+		StringBuffer query = new StringBuffer();
+		query.append(" UPDATE ");
+		query.append(limitedfieldsupdatequery.getTableSchema().getName());
+	
+		query.append(" SET ");
+		for (int i=0;i<limitedfieldsupdatequery.getUpdatedFieldsNumber();i++) {
+			if (i>0) query.append(" , ");
+			SQLQueryConditionGenerator generator = new SQLQueryConditionGenerator(query);
+			limitedfieldsupdatequery.getFieldUpdateAt(i).accept(generator);
+			
+		}
+		
+		query.append(" WHERE  ");
+		SQLQueryConditionGenerator generator = new SQLQueryConditionGenerator(query);
+		limitedfieldsupdatequery.getCondition().accept(generator);
+		String stringquery = query.toString();
+		this.executeWithRelaunch(new SQLExecution<Object>(stringquery) {
+
+			@Override
+			public Object executes() throws SQLException {
+				PreparedStatement ps = connection.prepareStatement(stringquery);
+				SQLQueryPSFiller filler = new SQLQueryPSFiller(ps, 1);
+				for (int i=0;i<limitedfieldsupdatequery.getUpdatedFieldsNumber();i++) {
+					limitedfieldsupdatequery.getFieldUpdateAt(i).accept(filler);
+				}
+				limitedfieldsupdatequery.getCondition().accept(filler);
+				ps.execute();
+				ps.close();
+				return null;
+			}
+
+		});
+	}
+	
+	
 	@Override
 	public void DeleteOnDB(DeleteQuery dq) {
 		StoredTableSchema tableschema = dq.getTableSchema();

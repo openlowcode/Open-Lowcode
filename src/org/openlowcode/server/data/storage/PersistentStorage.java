@@ -73,6 +73,14 @@ public interface PersistentStorage {
 	public void UpdateOnDB(UpdateQuery uq);
 
 	/**
+	 * perform an update on a table on potentially several rows updating only some fields
+	 * 
+	 * @param limitedfieldsupdatequery
+	 * @since 1.14
+	 */
+	public void LimitedFieldUpdateOnDB(LimitedFieldsUpdateQuery limitedfieldsupdatequery);
+	
+	/**
 	 * deletes a single line in the database
 	 * 
 	 * @param dq query to delete a single row

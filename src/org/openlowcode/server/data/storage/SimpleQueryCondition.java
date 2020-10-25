@@ -11,7 +11,7 @@
 package org.openlowcode.server.data.storage;
 
 /**
- * A simple query condition of the form 'FIELD = VALUE'
+ * A simple query condition of the form 'FIELD <OPERATOR> VALUE' (operator being greater than, equal, lower than...)
  * 
  * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
  *         SAS</a>

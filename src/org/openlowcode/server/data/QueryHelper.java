@@ -10,6 +10,7 @@
 
 package org.openlowcode.server.data;
 
+import org.openlowcode.server.data.storage.LimitedFieldsUpdateQuery;
 import org.openlowcode.server.data.storage.PersistenceGateway;
 import org.openlowcode.server.data.storage.PersistentStorage;
 import org.openlowcode.server.data.storage.Row;
@@ -45,5 +46,17 @@ public class QueryHelper {
 		PersistenceGateway.checkinStorage(storage);
 		return row;
 
+	}
+	
+	/**
+	 * Executes a limited update query thourhg the persistence gateway
+	 * 
+	 * @param limitedupdatequery a limited update query
+	 * @since 1.14
+	 */
+	public void limitedUpdate(LimitedFieldsUpdateQuery limitedupdatequery) {
+		PersistentStorage storage = PersistenceGateway.getStorage();
+		storage.LimitedFieldUpdateOnDB(limitedupdatequery);
+		PersistenceGateway.checkinStorage(storage);
 	}
 }
