@@ -3631,6 +3631,7 @@ public class DataObjectDefinition
 					+ thisproperty.getDataObjectConstructorAttributes() + ");");
 			for (int j = 0; j < thisproperty.getBusinessRuleNumber(); j++) {
 				PropertyBusinessRule<?> thisbusinessrule = thisproperty.getBusinessRule(j);
+				thisbusinessrule.checkBeforeGeneration(thisproperty);
 				thisbusinessrule.writeInitialization(sg);
 			}
 

@@ -59,4 +59,15 @@ public abstract class PropertyBusinessRule<E extends Property<E>>
 	 */
 	public abstract String[] getImportstatements();
 
+	/**
+	 * This method will be executed before generation to check that everything is
+	 * valid for the most complex properties
+	 * 
+	 * @param parentproperty property
+	 * @since 1.14
+	 */
+	public void checkBeforeGeneration(Property<?> parentproperty) {
+
+	}
+
 }
