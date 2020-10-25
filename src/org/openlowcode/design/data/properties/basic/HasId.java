@@ -23,6 +23,7 @@ import org.openlowcode.design.data.MethodArgument;
 import org.openlowcode.design.data.ObjectIdStoredElement;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.StoredElement;
+import org.openlowcode.design.data.StringStoredElement;
 import org.openlowcode.design.data.argument.ArrayArgument;
 import org.openlowcode.design.data.argument.ObjectArgument;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
@@ -65,6 +66,12 @@ public class HasId
 		this.addElement(id, "Id", "technical identification", Property.FIELDDISPLAY_NORMAL, -50, 25);
 		this.addIndex(new Index("ID", id, true));
 
+		StoredElement deleted = new StringStoredElement("DELETED", 3);
+		this.addElement(deleted, "Deleted", "Deleted element", Property.FIELDDISPLAY_BOTTOMNOTES, -900, 15);
+		this.addIndex(new Index("DELETED", deleted, false));
+
+		
+		
 		DataAccessMethod read = new DataAccessMethod("READONE", new ObjectArgument("OBJECT", parent), false);
 		read.addInputArgument(new MethodArgument("ID", new ObjectIdArgument("ID", parent)));
 		this.addDataAccessMethod(read);

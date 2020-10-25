@@ -19,10 +19,15 @@ import org.openlowcode.module.system.data.sequence.ObjectidseedSequence;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectProperty;
+import org.openlowcode.server.data.QueryHelper;
 import org.openlowcode.server.data.formula.DataUpdateTrigger;
 import org.openlowcode.server.data.formula.TriggerLauncher;
 import org.openlowcode.server.data.storage.AndQueryCondition;
+import org.openlowcode.server.data.storage.LimitedFieldsUpdateQuery;
+import org.openlowcode.server.data.storage.OrQueryCondition;
 import org.openlowcode.server.data.storage.QueryCondition;
+import org.openlowcode.server.data.storage.SimpleEqualQueryCondition;
+import org.openlowcode.server.data.storage.StoredFieldSchema;
 import org.openlowcode.server.runtime.OLcServer;
 
 /**
@@ -186,6 +191,7 @@ public class Uniqueidentified<E extends DataObject<E>>
 		// figures (especially "[", "]" and "/" are forbidden
 
 		this.hasid.SetId(idstring);
+		this.hasid.setDeleted("N");
 
 	}
 
@@ -212,7 +218,9 @@ public class Uniqueidentified<E extends DataObject<E>>
 	}
 
 	private String generateDeleteLogForObject(E object) {
-		return "DELETING "+this.getDefinition().getParentObject().getName()+" as "+OLcServer.getServer().getCurrentUser().getNr()+", ID=" + this.hasid.getId().getId() + ", " + object.dropToString();
+		return "DELETING " + this.getDefinition().getParentObject().getName() + " as "
+				+ OLcServer.getServer().getCurrentUser().getNr() + ", ID=" + this.hasid.getId().getId() + ", "
+				+ object.dropToString();
 	}
 
 	/**
@@ -221,17 +229,16 @@ public class Uniqueidentified<E extends DataObject<E>>
 	 * 
 	 * @param object the object to delete
 	 */
+	@SuppressWarnings("unchecked")
 	public void delete(E object) {
 		logger.severe(generateDeleteLogForObject(object));
-		QueryCondition objectuniversalcondition = definition.getParentObject().getUniversalQueryCondition(definition,
-				null);
 		QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null, this.hasid.getId().getId(),
 				definition.getParentObject());
-		QueryCondition finalcondition = uniqueidcondition;
-		if (objectuniversalcondition != null) {
-			finalcondition = new AndQueryCondition(objectuniversalcondition, uniqueidcondition);
-		}
-		parentpayload.delete(finalcondition);
+		LimitedFieldsUpdateQuery limitedupdatequery = new LimitedFieldsUpdateQuery(
+				definition.getParentObject().getTableschema(), uniqueidcondition);
+		limitedupdatequery.addFieldUpdate(new SimpleEqualQueryCondition<String>(null,
+				(StoredFieldSchema<String>) (this.hasid.getDefinition().getDefinition().lookupOnName("DELETED")), "Y"));
+		QueryHelper.getHelper().limitedUpdate(limitedupdatequery);
 
 	}
 
@@ -292,6 +299,7 @@ public class Uniqueidentified<E extends DataObject<E>>
 	 * @param uniqueidentifiedarrayformethod their corresponding unique identified
 	 *                                       properties
 	 */
+	@SuppressWarnings("unchecked")
 	public static <
 			E extends DataObject<E>> void delete(E[] object, Uniqueidentified<E>[] uniqueidentifiedarrayformethod) {
 		if (object == null)
@@ -300,32 +308,38 @@ public class Uniqueidentified<E extends DataObject<E>>
 			throw new RuntimeException("cannot treat null array of uniqueidentified");
 		if (object.length != uniqueidentifiedarrayformethod.length)
 			throw new RuntimeException("Uniqueidentified Array and Object Array do not have same size");
+		// do nothing if no line in input
+		if (object.length==0) return;
+		
 		StringBuffer deleteobjectlog = new StringBuffer();
 		ArrayList<QueryCondition> conditionlist = new ArrayList<QueryCondition>();
-		ArrayList<DataObjectPayload> payloadlist = new ArrayList<DataObjectPayload>();
 		for (int i = 0; i < object.length; i++) {
 
 			Uniqueidentified<E> uniqueidentified = uniqueidentifiedarrayformethod[i];
-			deleteobjectlog.append("			"+uniqueidentified.generateDeleteLogForObject(object[i]) + "\n");
+			deleteobjectlog.append("			" + uniqueidentified.generateDeleteLogForObject(object[i]) + "\n");
 			if (i % 100 == 99) {
-				logger.severe(" ---- Multiple row delete log, details in next line for lines "+i+"---- \n"+deleteobjectlog.toString());
+				logger.severe(" ---- Multiple row delete log, details in next line for lines " + i + "---- \n"
+						+ deleteobjectlog.toString());
 				deleteobjectlog = new StringBuffer();
 			}
-			QueryCondition objectuniversalcondition = uniqueidentified.definition.getParentObject()
-					.getUniversalQueryCondition(uniqueidentified.definition, null);
+
 			QueryCondition uniqueidcondition = HasidQueryHelper.getIdQueryCondition(null,
 					uniqueidentified.getRelatedHasid().getId().getId(), uniqueidentified.definition.getParentObject());
-			QueryCondition finalcondition = uniqueidcondition;
-			if (objectuniversalcondition != null) {
-				finalcondition = new AndQueryCondition(objectuniversalcondition, uniqueidcondition);
-			}
-			conditionlist.add(finalcondition);
-			payloadlist.add(uniqueidentified.parentpayload);
+		
+			conditionlist.add(uniqueidcondition);
+		
 		}
-		logger.severe(" ---- Multiple row delete log, details in next line ---- \n"+deleteobjectlog.toString());
+		logger.severe(" ---- Multiple row delete log, details in next line ---- \n" + deleteobjectlog.toString());
+		OrQueryCondition allidscondition = new OrQueryCondition();
+		for (int i=0;i<conditionlist.size();i++) allidscondition.addCondition(conditionlist.get(i));
+		
+		LimitedFieldsUpdateQuery limitedupdatequery = new LimitedFieldsUpdateQuery(
+				uniqueidentifiedarrayformethod[0].definition.getParentObject().getTableschema(), allidscondition);
+		
+		limitedupdatequery.addFieldUpdate(new SimpleEqualQueryCondition<String>(null,
+				(StoredFieldSchema<String>) (uniqueidentifiedarrayformethod[0].hasid.getDefinition().getDefinition().lookupOnName("DELETED")), "Y"));
+		QueryHelper.getHelper().limitedUpdate(limitedupdatequery);
 
-		DataObjectPayload.massivedelete(payloadlist.toArray(new DataObjectPayload[0]),
-				conditionlist.toArray(new QueryCondition[0]));
 
 	}
 

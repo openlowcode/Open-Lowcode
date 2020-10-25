@@ -35,6 +35,7 @@ public class Hasid<E extends DataObject<E>>
 	private StoredField<String> idfield;
 	@SuppressWarnings("unused")
 	private HasidDefinition<E> hasiddefinition;
+	private StoredField<String> deletedfield;
 
 	/**
 	 * Creates the property Hasid
@@ -47,6 +48,7 @@ public class Hasid<E extends DataObject<E>>
 		super(definition, parentpayload);
 		this.hasiddefinition = definition;
 		idfield = (StoredField<String>) this.field.lookupOnName("ID");
+		deletedfield = (StoredField<String>) this.field.lookupOnName("DELETED");
 	}
 
 	/**
@@ -60,6 +62,14 @@ public class Hasid<E extends DataObject<E>>
 	protected void SetId(String id) {
 		this.idfield.setPayload(id);
 
+	}
+	
+	protected void setDeleted(String deleted) {
+		this.deletedfield.setPayload(deleted);
+	}
+	
+	public String getDeleted() {
+		return this.deletedfield.getPayload();
 	}
 
 	/**

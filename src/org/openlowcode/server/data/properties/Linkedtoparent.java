@@ -59,7 +59,7 @@ public class Linkedtoparent<E extends DataObject<E> & UniqueidentifiedInterface<
 		this.linkedtoparentdefinition = definition;
 		this.parentdefinition = parentdefinition;
 		pridfield = (StoredField<String>) this.field.lookupOnName(this.getName() + "ID");
-
+		if (pridfield==null) throw new RuntimeException("Missing field "+this.getName()+"ID"+" existing field list "+this.field.dropNameList());
 		if (parentdefinition.hasProperty("NAMED")) {
 			prname = (ExternalField<String>) this.field.lookupOnName(this.getName() + "OBJECTNAME");
 		}
