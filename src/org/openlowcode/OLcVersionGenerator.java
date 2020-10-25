@@ -28,8 +28,8 @@ import org.openlowcode.design.generation.SourceGenerator;
  */
 public class OLcVersionGenerator {
 
-	public final static String version = "1.13.1";
-	public final static String clientversion = "1.13.1";
+	public final static String version = "1.14.0";
+	public final static String clientversion = "1.14.0";
 	public final static boolean stable = false;
 
 
