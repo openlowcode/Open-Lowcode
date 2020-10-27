@@ -86,5 +86,15 @@ public class Typed<E extends DataObject<E> & TypedInterface<E, F>, F extends Fie
 	public String getType() {
 		return this.type.getPayload();
 	}
+	
+	/**
+	 * gets the object type
+	 * 
+	 * @param object object to process
+	 * @return the object type
+	 */
+	public ChoiceValue<F> getobjecttype(E object) {
+		return typeddefinition.getTypeChoice().parseChoiceValue(this.getType());
+	}
 
 }

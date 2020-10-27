@@ -11,6 +11,7 @@
 package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.openlowcode.design.data.ChoiceValue;
@@ -19,6 +20,7 @@ import org.openlowcode.design.data.Property;
 import org.openlowcode.design.data.PropertyBusinessRule;
 import org.openlowcode.design.data.SimpleChoiceCategory;
 import org.openlowcode.design.generation.SourceGenerator;
+import org.openlowcode.design.generation.StringFormatter;
 
 /**
  * 
@@ -34,6 +36,8 @@ public class ConstraintOnLinkTypeRestrictionForLeft
 
 	private ChoiceValue[] allowedtypes;
 	private HashMap<ChoiceValue, String> alternativelabels;
+	private LinkObject<?, ?> parentlinkobject;
+	private Typed leftobjectyped;
 
 	/**
 	 * @param allowedtypes
@@ -68,14 +72,36 @@ public class ConstraintOnLinkTypeRestrictionForLeft
 
 	@Override
 	public void writeInitialization(SourceGenerator sg) throws IOException {
-		// TODO Auto-generated method stub
+
+		String typeclass = StringFormatter.formatForJavaClass(leftobjectyped.getTypes().getName());
+		String leftobjectclass = StringFormatter.formatForJavaClass(parentlinkobject.getLeftobjectforlink().getName());
+		String rightobjectclass = StringFormatter.formatForJavaClass(parentlinkobject.getRightobjectforlink().getName());
+		
+		sg.wl("		linkobject.setContraintOnLinkObject(new ConstraintOnLinkedObjectLeftAttributeValue<");
+		sg.wl("				"+leftobjectclass+", "+rightobjectclass+", String>((a)->(");
+		sg.wl("						"+leftobjectclass+".readone(a).getType()), ");
+		sg.wl("						(a)->(a.getType()), ");
+		sg.wl("						"+leftobjectclass+".getDefinition().getTypeFieldSchema(), ");
+		sg.wl("						new String[] ");
+		StringBuffer types = new StringBuffer();
+		for (int i=0;i<allowedtypes.length;i++) {
+			if (i>0) types.append(",\n");
+			types.append(typeclass+"ChoiceDefinition.get()."+allowedtypes[i].getName().toUpperCase()+".getStorageCode()");
+		}
+ 		sg.wl("								{"+types+"},");
+		sg.wl("						\"Bad "+parentlinkobject.getLeftobjectforlink().getLabel()+" type : \"));");
 
 	}
 
 	@Override
 	public String[] getImportstatements() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<String> importstatements = new ArrayList<String>();
+		importstatements.add(
+				"import org.openlowcode.server.data.properties.constraints.ConstraintOnLinkedObjectLeftAttributeValue;");
+		importstatements.add("import " + leftobjectyped.getTypes().getParentModule().getPath() + ".data.choice."
+				+ StringFormatter.formatForJavaClass(leftobjectyped.getTypes().getName()) + "ChoiceDefinition;");
+
+		return importstatements.toArray(new String[0]);
 	}
 
 	@Override
@@ -84,8 +110,10 @@ public class ConstraintOnLinkTypeRestrictionForLeft
 			throw new RuntimeException(
 					"Business rule added to bad type of property " + parentproperty.getClass().getName());
 		LinkObject<?, ?> linkobject = (LinkObject<?, ?>) parentproperty;
+		parentlinkobject = linkobject;
 		DataObjectDefinition leftobject = linkobject.getLeftobjectforlink();
 		Typed typed = (Typed) leftobject.getPropertyByName("TYPED");
+		leftobjectyped = typed;
 		if (typed == null)
 			throw new RuntimeException("Left object " + leftobject.getName() + " for link "
 					+ linkobject.getParent().getName() + " is not typed");

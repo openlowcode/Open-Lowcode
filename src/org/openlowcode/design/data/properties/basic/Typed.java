@@ -118,6 +118,11 @@ public class Typed
 				companion.addProperty(new HasId());
 			}
 		}
+		DataAccessMethod getobjectype = new DataAccessMethod("GETOBJECTTYPE",
+				new ChoiceArgument("OBJECTTYPE", types), false);
+		getobjectype.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", parent)));
+		this.addDataAccessMethod(getobjectype);
+		
 		DataAccessMethod settypebeforecreation = new DataAccessMethod("SETTYPEBEFORECREATION", null, false, false);
 		settypebeforecreation
 				.addInputArgument(new MethodArgument("OBJECT", new ObjectArgument("OBJECT", this.getParent())));

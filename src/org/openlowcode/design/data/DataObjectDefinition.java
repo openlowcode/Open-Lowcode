@@ -3312,6 +3312,7 @@ public class DataObjectDefinition
 					+ StringFormatter.formatForJavaClass(thisproperty.getPropertyclassname()) + "Definition;");
 			for (int j = 0; j < thisproperty.getBusinessRuleNumber(); j++) {
 				PropertyBusinessRule<?> businessrule = thisproperty.getBusinessRule(j);
+				businessrule.checkBeforeGeneration(thisproperty);
 				String[] importstatements = businessrule.getImportstatements();
 				if (importstatements != null)
 					for (int k = 0; k < importstatements.length; k++)
@@ -3631,7 +3632,7 @@ public class DataObjectDefinition
 					+ thisproperty.getDataObjectConstructorAttributes() + ");");
 			for (int j = 0; j < thisproperty.getBusinessRuleNumber(); j++) {
 				PropertyBusinessRule<?> thisbusinessrule = thisproperty.getBusinessRule(j);
-				thisbusinessrule.checkBeforeGeneration(thisproperty);
+				
 				thisbusinessrule.writeInitialization(sg);
 			}
 
