@@ -12,16 +12,19 @@ package org.openlowcode.client.graphic.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
 
 import org.openlowcode.client.graphic.CPageData;
+import org.openlowcode.client.graphic.CPageDataRef;
 import org.openlowcode.client.graphic.CPageNode;
 import org.openlowcode.client.graphic.CPageSignifPath;
 import org.openlowcode.client.graphic.Callback;
+import org.openlowcode.client.graphic.widget.tools.CChoiceFieldValue;
 import org.openlowcode.client.runtime.PageActionManager;
-
+import org.openlowcode.tools.structure.ChoiceDataElt;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
 import javafx.geometry.Insets;
@@ -51,6 +54,7 @@ public class CComponentBand
 		CPageNode {
 	private int direction;
 	private ArrayList<CPageNode> elements;
+	private HashMap<Integer, ArrayList<ConditionalBlock>> conditionalelements;
 	/**
 	 * horizontal band, adding widgets from left to right
 	 */
@@ -71,7 +75,7 @@ public class CComponentBand
 	 * a component band with a direction right and no upper line in display
 	 */
 	public static final int DIRECTION_RIGHT_NOLINE = 5;
-	
+
 	private int minwidth = 0;
 
 	/**
@@ -127,6 +131,33 @@ public class CComponentBand
 			reader.returnNextEndStructure("ELT");
 		}
 
+		reader.startStructureArray("CDNBLK");
+		this.conditionalelements = new HashMap<Integer, ArrayList<ConditionalBlock>>();
+		while (reader.structureArrayHasNextElement("CDNBLK")) {
+			int index = reader.returnNextIntegerField("IND");
+			CPageDataRef datareference = CPageDataRef.parseCPageDataRef(reader);
+			ArrayList<String> validvalues = new ArrayList<String>();
+
+			while (reader.structureArrayHasNextElement("VLD")) {
+				validvalues.add(reader.returnNextStringField("PLD"));
+				reader.returnNextEndStructure("VLD");
+			}
+			ArrayList<CPageNode> conditionalelements = new ArrayList<CPageNode>();
+			while (reader.structureArrayHasNextElement("ELT")) {
+				conditionalelements.add(CPageNode.parseNode(reader, this.nodepath));
+				reader.returnNextEndStructure("ELT");
+			}
+			ConditionalBlock conditionalblock = new ConditionalBlock( datareference, validvalues,
+					conditionalelements);
+			ArrayList<ConditionalBlock> elementsforindex = this.conditionalelements.get(new Integer(index));
+			if (elementsforindex == null) {
+				elementsforindex = new ArrayList<ConditionalBlock>();
+				this.conditionalelements.put(new Integer(index), elementsforindex);
+			}
+			elementsforindex.add(conditionalblock);
+			reader.returnNextEndStructure("CDNBLK");
+		}
+
 		reader.returnNextEndStructure("COMPONENTBAND"); // consumes the closing the component band
 
 	}
@@ -138,39 +169,64 @@ public class CComponentBand
 	 * @return a pane with the given direction
 	 */
 	public static Pane returnBandPane(int direction) {
-		Pane thispane=null;
+		Pane thispane = null;
 		if (direction == DIRECTION_DOWN) {
 			thispane = new VBox(8);
 			thispane.setPadding(new Insets(5, 5, 5, 0));
 			thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 			return thispane;
-		} 
+		}
 		if (direction == DIRECTION_RIGHT) {
-			
+
 			thispane = new HBox(8);
 			thispane.setPadding(new Insets(2, 0, 0, 0));
-			((HBox)thispane).setAlignment(Pos.CENTER_LEFT);
+			((HBox) thispane).setAlignment(Pos.CENTER_LEFT);
 			thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-			thispane.setBorder(new Border(new BorderStroke(Color.LIGHTGREY, Color.LIGHTGREY, Color.LIGHTGREY, Color.LIGHTGREY,
-			            BorderStrokeStyle.SOLID, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE,
-			            CornerRadii.EMPTY, new BorderWidths(1), Insets.EMPTY)));
+			thispane.setBorder(new Border(new BorderStroke(Color.LIGHTGREY, Color.LIGHTGREY, Color.LIGHTGREY,
+					Color.LIGHTGREY, BorderStrokeStyle.SOLID, BorderStrokeStyle.NONE, BorderStrokeStyle.NONE,
+					BorderStrokeStyle.NONE, CornerRadii.EMPTY, new BorderWidths(1), Insets.EMPTY)));
 			return thispane;
 		}
-		
+
 		if (direction == DIRECTION_RIGHT_NOLINE) {
-			
+
 			thispane = new HBox(8);
-			((HBox)thispane).setAlignment(Pos.CENTER_LEFT);
+			((HBox) thispane).setAlignment(Pos.CENTER_LEFT);
 			thispane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-			
+
 			return thispane;
 		}
-		
-		throw new RuntimeException("Direction "+direction+" not supported");
-		
+
+		throw new RuntimeException("Direction " + direction + " not supported");
+
 	}
 
 	private Pane bandpane;
+
+	private void checkConditionNode(
+			int indexbefore,
+			Pane thispane,
+			PageActionManager actionmanager,
+			CPageData inputdata,
+			Window parentwindow,
+			TabPane[] parenttabpanes,
+			CollapsibleNode nodetocollapsewhenactiontriggered) {
+		ArrayList<ConditionalBlock> blocksatthisindex = this.conditionalelements.get(new Integer(indexbefore));
+		if (blocksatthisindex != null)
+			for (int i = 0; i < blocksatthisindex.size(); i++) {
+				ConditionalBlock block = blocksatthisindex.get(i);
+				ChoiceDataElt<
+						CChoiceFieldValue> choice = CChoiceField.getExternalContent(inputdata, block.datareference);
+				boolean choicevalid = false;
+				for (int j = 0; j < block.validvalues.size(); j++)
+					if (block.validvalues.get(j).equals(choice.getStoredValue()))
+						choicevalid = true;
+				for (int j = 0; j < block.conditionalelements.size(); j++) {
+					thispane.getChildren().add(block.conditionalelements.get(j).getNode(actionmanager, inputdata,
+							parentwindow, parenttabpanes, nodetocollapsewhenactiontriggered));
+				}
+			}
+	}
 
 	@Override
 	public Node getNode(
@@ -184,13 +240,20 @@ public class CComponentBand
 		if (this.minwidth != 0)
 			thispane.setMinWidth(this.minwidth);
 		for (int i = 0; i < elements.size(); i++) {
-			Node currentnode = elements.get(i).getNode(actionmanager, inputdata, parentwindow, parenttabpanes,nodetocollapsewhenactiontriggered);
+			// check conditional nodes first
+			checkConditionNode(i, thispane, actionmanager, inputdata, parentwindow, parenttabpanes,
+					nodetocollapsewhenactiontriggered);
+
+			Node currentnode = elements.get(i).getNode(actionmanager, inputdata, parentwindow, parenttabpanes,
+					nodetocollapsewhenactiontriggered);
 			// if node is null (e.g. CObjectIdStorage), then do not add it to the graphic
 			if (currentnode != null)
 				thispane.getChildren().add(currentnode);
 
 		}
-		
+		checkConditionNode(elements.size(), thispane, actionmanager, inputdata, parentwindow, parenttabpanes,
+				nodetocollapsewhenactiontriggered);
+
 		return thispane;
 	}
 
@@ -222,6 +285,35 @@ public class CComponentBand
 		this.bandpane.getChildren().clear();
 		for (int i = 0; i < elements.size(); i++)
 			elements.get(i).mothball();
+
+	}
+
+	/**
+	 * 
+	 * A conditional block in the SComponentBand
+	 * 
+	 * @author <a href="https://openlowcode.com/" rel="nofollow">Open Lowcode
+	 *         SAS</a>
+	 * @since 1.14
+	 *
+	 */
+	private class ConditionalBlock {
+
+		CPageDataRef datareference;
+		ArrayList<String> validvalues;
+		ArrayList<CPageNode> conditionalelements;
+
+		public ConditionalBlock(
+
+				CPageDataRef datareference,
+				ArrayList<String> validvalues,
+				ArrayList<CPageNode> conditionalelements) {
+			super();
+
+			this.datareference = datareference;
+			this.validvalues = validvalues;
+			this.conditionalelements = conditionalelements;
+		}
 
 	}
 
