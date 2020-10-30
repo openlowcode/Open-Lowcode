@@ -81,7 +81,9 @@ import javafx.scene.control.TableCell;
  */
 public class CChoiceField
 		extends
-		CBusinessField<SimpleDataElt> implements ObjectDataElementKeyExtractor<ObjectDataElt,CChoiceFieldValue> {
+		CBusinessField<SimpleDataElt>
+		implements
+		ObjectDataElementKeyExtractor<ObjectDataElt, CChoiceFieldValue> {
 	private static Logger logger = Logger.getLogger(CChoiceField.class.getName());
 	private String label;
 	private String datafieldname;
@@ -242,7 +244,14 @@ public class CChoiceField
 
 	}
 
-	private ChoiceDataElt<CChoiceFieldValue> getExternalContent(CPageData inputdata, CPageDataRef dataref) {
+	/**
+	 * Parses a data element from the page input data
+	 * 
+	 * @param inputdata input data for th epage
+	 * @param dataref   reference of the page
+	 * @return the choice data element
+	 */
+	public static ChoiceDataElt<CChoiceFieldValue> getExternalContent(CPageData inputdata, CPageDataRef dataref) {
 		DataElt thiselement = inputdata.lookupDataElementByName(dataref.getName());
 		if (thiselement == null)
 			throw new RuntimeException("could not find any page data with name = " + dataref.getName());
@@ -280,11 +289,10 @@ public class CChoiceField
 			}
 		} else {
 			currentchoice = findChoiceFromStoredValue(defaultvaluecode);
-			
 
 		}
-		this.initialchoice=currentchoice;
-		logger.finest("Set Initial Choice = "+currentchoice);
+		this.initialchoice = currentchoice;
+		logger.finest("Set Initial Choice = " + currentchoice);
 		logger.finest("--- Printing Choice field with label = " + label + ", current choice = " + currentchoice
 				+ ",data referenece is " + (datareference == null ? "NULL" : "NOTNULL")
 				+ ", restricted values length = " + (restrictedvalues != null ? restrictedvalues.size() : "NONE"));
@@ -322,10 +330,11 @@ public class CChoiceField
 					"Only ChoiceDataEltType can be extracted from CChoiceField in single selection mode, but request was %s ",
 					type));
 		// case of read-write element
-		if (this.choicebox!=null) return new ChoiceDataElt<CChoiceFieldValue>(eltname, this.choicebox.getValue());
+		if (this.choicebox != null)
+			return new ChoiceDataElt<CChoiceFieldValue>(eltname, this.choicebox.getValue());
 		// case of read-only element, return the initial choice (the best we have)
 		// do not read it from widget as it would be more complex
-		return new ChoiceDataElt<CChoiceFieldValue>(eltname,this.initialchoice);
+		return new ChoiceDataElt<CChoiceFieldValue>(eltname, this.initialchoice);
 	}
 
 	@Override
@@ -368,7 +377,7 @@ public class CChoiceField
 		logger.warning("display code not found for list of value, code = " + storedvalue + ", field name = "
 				+ this.datafieldname);
 		return generateInvalidValue(storedvalue);
-		
+
 	}
 
 	@Override
@@ -549,12 +558,13 @@ public class CChoiceField
 				ArrayList<String> restrictionsonupdate = line.hasFieldRestriction(fieldname);
 				if (displayvalue == null) {
 					displayvalue = thischoicefield.getBlankChoiceField();
-					if (code!=null) if (code.length()>0) {
-						displayvalue = thischoicefield.generateInvalidValue(code);
-					}
-				}	
-				
-					if (displayvalue != null)
+					if (code != null)
+						if (code.length() > 0) {
+							displayvalue = thischoicefield.generateInvalidValue(code);
+						}
+				}
+
+				if (displayvalue != null)
 					displayvalue.setRestrictionsOnNextValues(restrictionsonupdate);
 				if (line.isRowFrozen())
 					displayvalue = displayvalue.duplicateAsFrozen();
@@ -742,12 +752,14 @@ public class CChoiceField
 			PageActionManager pageactionmanager,
 			boolean largedisplay,
 			int rowheight,
-			String actionkeyforupdate,boolean forcefieldupdatable) {
+			String actionkeyforupdate,
+			boolean forcefieldupdatable) {
 
 		TableColumn<
 				ObjectTableRow,
 				CChoiceFieldValue> thiscolumn = new TableColumn<ObjectTableRow, CChoiceFieldValue>(this.getLabel());
-		if (((actionkeyforupdate != null) && (this.isEditable())) || (actionkeyforupdate!=null && forcefieldupdatable))  {
+		if (((actionkeyforupdate != null) && (this.isEditable()))
+				|| (actionkeyforupdate != null && forcefieldupdatable)) {
 			thiscolumn.setEditable(true);
 			thiscolumn.setOnEditCommit(new TableColumnOnEditCommit(this));
 		} else {
@@ -781,7 +793,7 @@ public class CChoiceField
 	}
 
 	public CChoiceFieldValue generateInvalidValue(String code) {
-		return new CChoiceFieldValue(code,"Invalid value "+code,"Invalid value currently in database",-5);
+		return new CChoiceFieldValue(code, "Invalid value " + code, "Invalid value currently in database", -5);
 	}
 
 	/**
@@ -1012,38 +1024,33 @@ public class CChoiceField
 
 	}
 
-	
-	
 	// ---------------------------------------------------------------------------
 	// key extractors
 	// ---------------------------------------------------------------------------
-	
+
 	@Override
 	public Function<ObjectDataElt, CChoiceFieldValue> fieldExtractor() {
-		
+
 		return (t) -> {
-				SimpleDataElt field = t.lookupEltByName(CChoiceField.this.datafieldname);
-				String code = field.defaultTextRepresentation();
-				CChoiceFieldValue displayvalue = CChoiceField.this.valuesbycode.get(code); // try to get display value
-				
-				if (displayvalue == null)
-					displayvalue = CChoiceField.this.getBlankChoiceField();
-				return displayvalue;
-			};
-			
-		
+			SimpleDataElt field = t.lookupEltByName(CChoiceField.this.datafieldname);
+			String code = field.defaultTextRepresentation();
+			CChoiceFieldValue displayvalue = CChoiceField.this.valuesbycode.get(code); // try to get display value
+
+			if (displayvalue == null)
+				displayvalue = CChoiceField.this.getBlankChoiceField();
+			return displayvalue;
+		};
+
 	}
 
 	@Override
 	public Function<CChoiceFieldValue, String> keyExtractor() {
-		return (t) -> (t.getStorageCode());	
+		return (t) -> (t.getStorageCode());
 	}
 
 	@Override
 	public Function<CChoiceFieldValue, String> labelExtractor() {
-		return (t) -> (t.getDisplayvalue());	
+		return (t) -> (t.getDisplayvalue());
 	}
 
-	
-	
 }
