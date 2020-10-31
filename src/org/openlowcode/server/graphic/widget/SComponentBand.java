@@ -130,7 +130,6 @@ public class SComponentBand
 
 	}
 
-
 	@Override
 	public void WritePayloadToCDL(MessageWriter writer, SPageData input, SecurityBuffer buffer) throws IOException {
 		writer.sendMessageElement(new MessageStringField("DIR", "" + direction));
@@ -143,36 +142,36 @@ public class SComponentBand
 				writer.endStructure("ELT");
 			}
 		}
-		
+
 		writer.endStructure("ELTS");
 
 		writer.startStructure("CDNBLKS");
-		for (int i=0;i<this.conditionalblocks.size();i++) {
+		for (int i = 0; i < this.conditionalblocks.size(); i++) {
 			writer.startStructure("CDNBLK");
 			ConditionalBlock thisblock = this.conditionalblocks.get(i);
-			writer.addIntegerField("IND",thisblock.insertbeforeindex);
+			writer.addIntegerField("IND", thisblock.insertbeforeindex);
 			thisblock.conditionchoice.writeReferenceToCML(writer);
 			// values block
 			writer.startStructure("VLDS");
-			for (int j=0;j<thisblock.validchoices.length;j++) {
+			for (int j = 0; j < thisblock.validchoices.length; j++) {
 				writer.startStructure("VLD");
-				writer.addStringField("PLD",thisblock.validchoices[j].getStorageCode());
+				writer.addStringField("PLD", thisblock.validchoices[j].getStorageCode());
 				writer.endStructure("VLD");
 			}
 			writer.endStructure("VLDS");
-			// ------ Node block 
+			// ------ Node block
 			writer.startStructure("ELTS");
-			for (int j=0;j<thisblock.conditionalelements.length;j++) {
+			for (int j = 0; j < thisblock.conditionalelements.length; j++) {
 				writer.startStructure("ELT");
 				thisblock.conditionalelements[j].WriteToCDL(writer, input, buffer);
 				writer.endStructure("ELT");
 			}
 			writer.endStructure("ELTS");
-			
+
 			writer.endStructure("CDNBLK");
 		}
 		writer.endStructure("CDNBLKS");
-		
+
 	}
 
 	@Override
@@ -195,7 +194,13 @@ public class SComponentBand
 		SPageNode[] newwidgetpathtoroot = this.addCurrentWidgetToRoot(widgetpathtoroot);
 
 		for (int i = 0; i < this.elements.size(); i++) {
+
 			this.elements.get(i).populateDown(pathforelements, newwidgetpathtoroot);
+		}
+		for (int i = 0; i < this.conditionalblocks.size(); i++) {
+			ConditionalBlock block = this.conditionalblocks.get(i);
+			for (int j = 0; j < block.conditionalelements.length; j++)
+				block.conditionalelements[j].populateDown(pathforelements, newwidgetpathtoroot);
 		}
 	}
 
@@ -203,7 +208,6 @@ public class SComponentBand
 	public String toString() {
 		return "SCOMPONENTBAND[" + callstackatcreation + "]";
 	}
-
 
 	/**
 	 * adds a conditional block in the page band

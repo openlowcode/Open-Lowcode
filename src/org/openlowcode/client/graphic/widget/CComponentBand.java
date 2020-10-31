@@ -97,7 +97,7 @@ public class CComponentBand
 		super(parentpath, null);
 		this.direction = direction;
 		elements = new ArrayList<CPageNode>();
-
+		this.conditionalelements = new HashMap<Integer, ArrayList<ConditionalBlock>>();
 	}
 
 	/**
@@ -137,18 +137,18 @@ public class CComponentBand
 			int index = reader.returnNextIntegerField("IND");
 			CPageDataRef datareference = CPageDataRef.parseCPageDataRef(reader);
 			ArrayList<String> validvalues = new ArrayList<String>();
-
+			reader.startStructureArray("VLD");
 			while (reader.structureArrayHasNextElement("VLD")) {
 				validvalues.add(reader.returnNextStringField("PLD"));
 				reader.returnNextEndStructure("VLD");
 			}
 			ArrayList<CPageNode> conditionalelements = new ArrayList<CPageNode>();
+			reader.startStructureArray("ELT");
 			while (reader.structureArrayHasNextElement("ELT")) {
 				conditionalelements.add(CPageNode.parseNode(reader, this.nodepath));
 				reader.returnNextEndStructure("ELT");
 			}
-			ConditionalBlock conditionalblock = new ConditionalBlock( datareference, validvalues,
-					conditionalelements);
+			ConditionalBlock conditionalblock = new ConditionalBlock(datareference, validvalues, conditionalelements);
 			ArrayList<ConditionalBlock> elementsforindex = this.conditionalelements.get(new Integer(index));
 			if (elementsforindex == null) {
 				elementsforindex = new ArrayList<ConditionalBlock>();
@@ -221,10 +221,13 @@ public class CComponentBand
 				for (int j = 0; j < block.validvalues.size(); j++)
 					if (block.validvalues.get(j).equals(choice.getStoredValue()))
 						choicevalid = true;
-				for (int j = 0; j < block.conditionalelements.size(); j++) {
-					thispane.getChildren().add(block.conditionalelements.get(j).getNode(actionmanager, inputdata,
-							parentwindow, parenttabpanes, nodetocollapsewhenactiontriggered));
-				}
+				if (choicevalid)
+					for (int j = 0; j < block.conditionalelements.size(); j++) {
+						Node currentnode = block.conditionalelements.get(j).getNode(actionmanager, inputdata,
+								parentwindow, parenttabpanes, nodetocollapsewhenactiontriggered);
+						if (currentnode != null)
+							thispane.getChildren().add(currentnode);
+					}
 			}
 	}
 
