@@ -292,7 +292,7 @@ public String[] getImportStatements() {
 }
 
 @Override
-public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 
 	DataObjectDefinition linkobject = rightforlinktomaster.getLinkObjectDefinition();
 	String objectvariable = StringFormatter.formatForAttribute(rightforlinktomaster.getParent().getName());

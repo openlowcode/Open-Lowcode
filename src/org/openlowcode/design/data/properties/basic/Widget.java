@@ -12,6 +12,7 @@ package org.openlowcode.design.data.properties.basic;
 
 import java.io.IOException;
 
+import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
 
@@ -43,9 +44,11 @@ public abstract class Widget
 	 * @param sg           source generator
 	 * @param module       parent module
 	 * @param locationname a prefix related to the location of this widget
+	 * @param companion companion data object if it exists (new since 1.14) 
 	 * @throws IOException if anything bad happens writing the file
+	 * @since 1.14
 	 */
-	public abstract void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException;
+	public abstract void generateWidgetCode(SourceGenerator sg, Module module, String locationname, DataObjectDefinition companion) throws IOException;
 
 	/**
 	 * @return the widget display priority if specified

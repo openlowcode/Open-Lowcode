@@ -13,6 +13,7 @@ package org.openlowcode.design.data.properties.basic;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.Property;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.module.Module;
@@ -96,7 +97,7 @@ public abstract class ObjectWithWorkflow
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 			sg.wl("		// ----------------------------------------------------------------------------");
 			sg.wl("		// Display all tasks of object workflows");
 			sg.wl("		// ----------------------------------------------------------------------------");

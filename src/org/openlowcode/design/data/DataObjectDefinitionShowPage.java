@@ -21,6 +21,7 @@ import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.data.autopages.GeneratedPages;
 import org.openlowcode.design.data.properties.basic.Companion;
 import org.openlowcode.design.data.properties.basic.ConstraintOnLinkObjectSameParent;
+import org.openlowcode.design.data.properties.basic.ConstraintOnLinkTypeRestrictionForLeft;
 import org.openlowcode.design.data.properties.basic.DisplayLinkAsAttributeFromLeftObject;
 import org.openlowcode.design.data.properties.basic.FileContent;
 import org.openlowcode.design.data.properties.basic.HasAutolink;
@@ -39,6 +40,7 @@ import org.openlowcode.design.data.properties.basic.RightForLink;
 import org.openlowcode.design.data.properties.basic.RightForLinkToMaster;
 import org.openlowcode.design.data.properties.basic.Schedule;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.data.properties.basic.UniqueIdentified;
 import org.openlowcode.design.data.properties.basic.Widget;
 import org.openlowcode.design.generation.SourceGenerator;
@@ -287,7 +289,8 @@ public class DataObjectDefinitionShowPage
 		// buttons
 
 		UniqueIdentified uniqueidentifiedproperty = (UniqueIdentified) dataobject.getPropertyByName("UNIQUEIDENTIFIED");
-		NamedList<DynamicActionDefinition> actionlistonobjectid = uniqueidentifiedproperty.getActionListonObjectId().deepcopy();
+		NamedList<DynamicActionDefinition> actionlistonobjectid = uniqueidentifiedproperty.getActionListonObjectId()
+				.deepcopy();
 
 		actionlistonobjectid.mergeWithNamedListIfNotExist(
 				(companionproperty != null ? companionproperty.getActionListonObjectId() : null));
@@ -340,6 +343,12 @@ public class DataObjectDefinitionShowPage
 		if (this.companion != null) {
 			sg.wl("import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";");
 		}
+		if (dataobject.getPropertyByName("TYPED") != null) {
+			Typed typed = (Typed) dataobject.getPropertyByName("TYPED");
+			sg.wl("import " + typed.getTypes().getParentModule().getPath() + ".data.choice."
+					+ StringFormatter.formatForJavaClass(typed.getTypes().getName()) + "ChoiceDefinition;");
+		}
+
 		if (hasfilecontent) {
 			sg.wl("import org.openlowcode.tools.messages.SFile;");
 			sg.wl("import org.openlowcode.module.system.data.Binaryfile;");
@@ -484,13 +493,14 @@ public class DataObjectDefinitionShowPage
 		}
 
 		ArrayList<String> specificmenulist = StandardUtil.mergeListsWithoutDuplicates(
-				uniqueidentifiedproperty.getSpecificMenuList(), (companionproperty!=null?companionproperty.getSpecificMenuList():null));
+				uniqueidentifiedproperty.getSpecificMenuList(),
+				(companionproperty != null ? companionproperty.getSpecificMenuList() : null));
 
 		for (int i = 0; i < specificmenulist.size(); i++) {
 			String specifictabname = specificmenulist.get(i);
 			ArrayList<DynamicActionDefinition> actionsfortab = StandardUtil.mergeListsWithoutDuplicates(
 					uniqueidentifiedproperty.getActionsOnSpecificMenu(specifictabname),
-					(companionproperty!=null?companionproperty.getActionsOnSpecificMenu(specifictabname):null));
+					(companionproperty != null ? companionproperty.getActionsOnSpecificMenu(specifictabname) : null));
 
 			for (int j = 0; j < actionsfortab.size(); j++) {
 				DynamicActionDefinition thisaction = actionsfortab.get(j);
@@ -622,6 +632,11 @@ public class DataObjectDefinitionShowPage
 			if (hasblankobject.get(i))
 				sg.wl("			," + arraytypes.get(i) + " " + blankobjectname.get(i));
 		}
+		if (dataobject.getPropertyByName("TYPED") != null) {
+			Typed typed = (Typed) dataobject.getPropertyByName("TYPED");
+			sg.wl("			,ChoiceValue<" + StringFormatter.formatForJavaClass(typed.getTypes().getName())
+					+ "ChoiceDefinition> typechoice");
+		}
 		sg.wl("			) {");
 		sg.wl("		String objectdisplay = \"\";");
 		if (dataobject.getPropertyByName("NUMBERED") != null) {
@@ -704,6 +719,14 @@ public class DataObjectDefinitionShowPage
 			if (hasblankobject.get(i))
 				sg.wl("			," + arraytypes.get(i) + " " + blankobjectname.get(i));
 		}
+
+		// add typed argument here
+		if (dataobject.getPropertyByName("TYPED") != null) {
+			Typed typed = (Typed) dataobject.getPropertyByName("TYPED");
+			sg.wl("			,ChoiceValue<" + StringFormatter.formatForJavaClass(typed.getTypes().getName())
+					+ "ChoiceDefinition> typechoice");
+		}
+
 		sg.wl("			)   {");
 		sg.wl("		super(" + objectvariable + (companionattribute != null ? "," + companionattribute : "")
 				+ ",userlocale");
@@ -766,6 +789,10 @@ public class DataObjectDefinitionShowPage
 			sg.wl(" 			," + arraynames.get(i));
 			if (hasblankobject.get(i))
 				sg.wl("			," + blankobjectname.get(i));
+		}
+		// add typed argument here
+		if (dataobject.getPropertyByName("TYPED") != null) {
+			sg.wl("			, typechoice");
 		}
 		sg.wl("			);");
 		if (parentlink != null) {
@@ -831,7 +858,7 @@ public class DataObjectDefinitionShowPage
 			sg.wl("		objectdisplaydefinition.setReducedDisplay(false);");
 			sg.wl("		detailstab.addElement(objectdisplaydefinition);");
 			if (companion != null) {
-				sg.wl("		objectdisplaydefinition.overridesLabel(\""+companion.getLabel()+"\");");
+				sg.wl("		objectdisplaydefinition.overridesLabel(\"" + companion.getLabel() + "\");");
 				sg.wl("		SObjectDisplay<" + companionclass + "> companionobjectdisplay = new SObjectDisplay<"
 						+ companionclass + ">(\"COMPANION\",this.get" + companionclass + "()," + companionclass
 						+ ".getDefinition(), this, true);");
@@ -850,13 +877,13 @@ public class DataObjectDefinitionShowPage
 			sg.wl("		SObjectDisplay<" + objectclass + "> objectdisplaydefinition = new SObjectDisplay<" + objectclass
 					+ ">(\"" + objectclass.toUpperCase() + "\", this.get" + objectclass + "()," + objectclass
 					+ ".getDefinition(),this, true);");
-			
+
 			sg.wl("		mainband.addElement(objectdisplaydefinition);");
 			if (hasworkflow)
 				sg.wl("		objectdisplaydefinition.addPageNodeRightOfTitle(activetaskband);");
 			sg.wl("");
 			if (companion != null) {
-				sg.wl("		objectdisplaydefinition.overridesLabel(\""+companion.getLabel()+"\");");
+				sg.wl("		objectdisplaydefinition.overridesLabel(\"" + companion.getLabel() + "\");");
 				sg.wl("		SObjectDisplay<" + companionclass + "> companionobjectdisplay = new SObjectDisplay<"
 						+ companionclass + ">(\"COMPANION\",this.get" + companionclass + "()," + companionclass
 						+ ".getDefinition(), this, true);");
@@ -936,10 +963,10 @@ public class DataObjectDefinitionShowPage
 				ObjectIdArgument argument = (ObjectIdArgument) thisaction.getInputArguments().get(0);
 				if (argument.getObject().equals(companion)) {
 					sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
-							+ "(companionobjectdisplay.getAttributeInput(" + companionclass + ".getIdMarker()));");					
+							+ "(companionobjectdisplay.getAttributeInput(" + companionclass + ".getIdMarker()));");
 				} else {
-				sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
-						+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+					sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
+							+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
 				}
 				sg.wl("		SActionButton " + actionattributename + "forobjectbandbutton = new SActionButton("
 						+ buttonname + ",\"\"," + actionattributename + "forobjectbandaction,this);");
@@ -958,7 +985,8 @@ public class DataObjectDefinitionShowPage
 						+ " = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
 				ArrayList<DynamicActionDefinition> actionsformenu = StandardUtil.mergeListsWithoutDuplicates(
 						uniqueidentifiedproperty.getActionsOnSpecificMenu(specificmenuname),
-						(companionproperty!=null?companionproperty.getActionsOnSpecificMenu(specificmenuname):null));
+						(companionproperty != null ? companionproperty.getActionsOnSpecificMenu(specificmenuname)
+								: null));
 
 				for (int j = 0; j < actionsformenu.size(); j++) {
 					DynamicActionDefinition thisaction = actionsformenu.get(j);
@@ -977,10 +1005,10 @@ public class DataObjectDefinitionShowPage
 					ObjectIdArgument argument = (ObjectIdArgument) thisaction.getInputArguments().get(0);
 					if (argument.getObject().equals(companion)) {
 						sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
-								+ "(companionobjectdisplay.getAttributeInput(" + companionclass + ".getIdMarker()));");					
+								+ "(companionobjectdisplay.getAttributeInput(" + companionclass + ".getIdMarker()));");
 					} else {
-					sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
-							+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
+						sg.wl("		" + actionattributename + "forobjectbandaction.set" + inputargumentclass
+								+ "(objectdisplaydefinition.getAttributeInput(" + objectclass + ".getIdMarker()));");
 					}
 					sg.wl("		SActionButton " + actionattributename + "forobjectbandbutton = new SActionButton("
 							+ buttonname + ",\"\"," + actionattributename + "forobjectbandaction,this);");
@@ -1379,10 +1407,22 @@ public class DataObjectDefinitionShowPage
 							.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
 
 			if (attributeasleft != null) {
-
+				Typed typed = (Typed) leftlinkedproperty.getParent().getPropertyByName("TYPED");
+				@SuppressWarnings("rawtypes")
+				ConstraintOnLinkTypeRestrictionForLeft typerestrictionforleft = (ConstraintOnLinkTypeRestrictionForLeft) leftlinkedproperty
+						.getLinkObjectProperty().getBusinessRuleByName("TYPERESTRICTIONFORLEFT");
 				sg.wl("// ---------------- Display " + linkobjectclass + " as object array field -------------------");
 				sg.wl("// ----------------");
+
 				sg.wl("	");
+				sg.wl("");
+				if (typerestrictionforleft != null) {
+					sg.wl("		ArrayList<SPageNode> left" + linkobjectvariable
+							+ "nodes = new ArrayList<SPageNode>();");
+					sg.wl("		left" + linkobjectvariable + "nodes.add(new SPageText(\""
+							+ leftlinkedproperty.getLinkObjectProperty().getLabelFromLeft()
+							+ "\",SPageText.TYPE_TITLE,this));");
+				}
 				sg.wl("		SObjectArrayField<" + linkobjectclass + "> left" + linkobjectvariable
 						+ "s = new SObjectArrayField<" + linkobjectclass + ">(\"" + linkobjectclass.toUpperCase()
 						+ "\",");
@@ -1392,7 +1432,13 @@ public class DataObjectDefinitionShowPage
 				sg.wl("				" + linkobjectclass + ".getDefinition().getLinkobjectrightnrFieldMarker(), this);");
 				sg.wl("		left" + linkobjectvariable + "s.addDisplayProfile(" + linkobjectclass + "Definition.get"
 						+ linkobjectclass + "Definition().getDisplayProfileHideleftobjectfields());");
-				sg.wl("		" + mainobjectlocation + ".addElement(left" + linkobjectvariable + "s);");
+				if (typerestrictionforleft != null) {
+					sg.wl("		left" + linkobjectvariable + "nodes.add(left" + linkobjectvariable + "s);");
+
+				} else {
+
+					sg.wl("		" + mainobjectlocation + ".addElement(left" + linkobjectvariable + "s);");
+				}
 				sg.wl("		");
 				sg.wl("		AtgShow" + rightobjectvariable + "Action.ActionRef showright" + rightobjectvariable + "for"
 						+ linkobjectvariable + "action = AtgShow" + rightobjectvariable
@@ -1416,8 +1462,14 @@ public class DataObjectDefinitionShowPage
 						+ "s = new SObjectStorage<" + linkobjectclass + ">(\"BLANKLINKFORADDTOLEFT"
 						+ linkobjectvariable.toUpperCase() + "S\",this.getLeftforlinkfor" + linkobjectvariable
 						+ "blankforadd()," + linkobjectclass + ".getDefinition(),this);");
-				sg.wl("				" + mainobjectlocation + ".addElement(blanklinkforaddtoleft" + linkobjectvariable
-						+ "s);");
+
+				if (typerestrictionforleft != null) {
+					sg.wl("		left" + linkobjectvariable + "nodes.add(blanklinkforaddtoleft" + linkobjectvariable
+							+ "s);");
+				} else {
+					sg.wl("				" + mainobjectlocation + ".addElement(blanklinkforaddtoleft"
+							+ linkobjectvariable + "s);");
+				}
 				sg.wl("				");
 				sg.wl("				AtgSearchright" + rightobjectvariable + "for" + linkobjectvariable
 						+ "Action.InlineActionRef addtoleft" + linkobjectvariable + "ssearchaction = AtgSearchright"
@@ -1528,6 +1580,21 @@ public class DataObjectDefinitionShowPage
 				sg.wl("				left" + linkobjectvariable + "s.addNodeAtEndOfFieldData(addtoleft"
 						+ linkobjectvariable + "ssearcher);");
 
+				if (typerestrictionforleft != null) {
+					ChoiceValue[] allowedtypes = typerestrictionforleft.getAllowedTypes();
+
+					sg.wl("		mainband.addConditionalElements(this.getTypechoice(),");
+					sg.wl("				new ChoiceValue[] { ");
+					for (int t = 0; t < allowedtypes.length; t++) {
+						;
+						sg.wl("					" + (t > 0 ? "," : "")
+								+ StringFormatter.formatForJavaClass(typed.getTypes().getName())
+								+ "ChoiceDefinition.get()." + allowedtypes[t].getName());
+					}
+					sg.wl("				}, left" + linkobjectvariable + "nodes.toArray(new SPageNode[0]));");
+
+				}
+
 			}
 
 		}
@@ -1543,7 +1610,7 @@ public class DataObjectDefinitionShowPage
 			if (thiswidget.getWidgetPriority() != null)
 				if (thiswidget.getWidgetPriority().getTab() != null)
 					locationname = thiswidget.getWidgetPriority().getTab().getWidgetName();
-			thiswidget.generateWidgetCode(sg, module, locationname);
+			thiswidget.generateWidgetCode(sg, module, locationname, companion);
 		}
 
 		sg.wl("		return mainband;");

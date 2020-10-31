@@ -182,7 +182,7 @@ public class LinkedFromChildren
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 			String objectclass = StringFormatter.formatForJavaClass(linkedfromchildren.getParent().getName());
 			String objectvariable = StringFormatter.formatForAttribute(linkedfromchildren.getParent().getName());
 

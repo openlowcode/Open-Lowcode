@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import org.openlowcode.design.action.DynamicActionDefinition;
 import org.openlowcode.design.data.ArgumentContent;
+import org.openlowcode.design.data.ChoiceValue;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.Property;
@@ -282,15 +283,22 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 			extends
 			Widget {
 		private LeftForLink<E, F> parentproperty;
+		private Typed typed;
+		@SuppressWarnings("rawtypes")
+		private ConstraintOnLinkTypeRestrictionForLeft typerestrictionforleft;
 
 		/**
 		 * creaes a table widget for left for link
 		 * 
 		 * @param parentproperty parent property left for link
 		 */
+		@SuppressWarnings("rawtypes")
 		LinkFromLeftTableWidget(LeftForLink<E, F> parentproperty) {
 			super("LINKFROMLEFTTABLE");
 			this.parentproperty = parentproperty;
+			typed = (Typed) this.parentproperty.getParent().getPropertyByName("TYPED");
+			typerestrictionforleft = (ConstraintOnLinkTypeRestrictionForLeft) parentproperty
+					.getLinkObjectProperty().getBusinessRuleByName("TYPERESTRICTIONFORLEFT");
 		}
 
 		@Override
@@ -302,7 +310,9 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectArrayField;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectSearcher;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SPopupButton;");
-
+			if (typerestrictionforleft!=null) {
+				importstatements.add("import java.util.ArrayList;");
+			}
 			String linkobjectvariable = StringFormatter
 					.formatForAttribute(parentproperty.getLinkObjectDefinition().getName());
 			String linkobjectclass = StringFormatter
@@ -328,7 +338,11 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(
+				SourceGenerator sg,
+				Module module,
+				String locationname,
+				DataObjectDefinition companion) throws IOException {
 			DataObjectDefinition linkobject = parentproperty.getLinkObjectDefinition();
 			String objectvariable = StringFormatter.formatForAttribute(parentproperty.getParent().getName());
 			String objectclass = StringFormatter.formatForJavaClass(parentproperty.getParent().getName());
@@ -351,10 +365,17 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 				sg.wl("		// Display " + linkobjectclass);
 				sg.wl("		// ------------------------------------------------------------------------------------------");
 				sg.wl("");
-
+				if (this.typerestrictionforleft!=null) {
+					sg.wl("		ArrayList<SPageNode> left" + linkobjectvariable + "nodes = new ArrayList<SPageNode>();");
+					sg.wl("		left" + linkobjectvariable + "nodes.add(new SPageText(\""
+							+ parentproperty.getLinkObjectProperty().getLabelFromLeft()
+							+ "\",SPageText.TYPE_TITLE,this));");
+				} else {
+				
 				sg.wl("		" + locationname + ".addElement(new SPageText(\""
 						+ parentproperty.getLinkObjectProperty().getLabelFromLeft()
 						+ "\",SPageText.TYPE_TITLE,this));");
+				}
 				sg.wl("		SObjectArray<" + linkobjectclass + "> left" + linkobjectvariable + "s = new SObjectArray<"
 						+ linkobjectclass + ">(\"LEFT" + linkobjectclass.toUpperCase() + "\",");
 				sg.wl("				this.getLeftforlinkfor" + linkobjectvariable + "(),");
@@ -362,7 +383,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 				sg.wl("				this);");
 				sg.wl("		left" + linkobjectvariable + "s.addDisplayProfile(" + linkobjectclass + "Definition.get"
 						+ linkobjectclass + "Definition().getDisplayProfileHideleftobjectfields());");
-				
+
 				sg.wl("		left" + linkobjectvariable + "s.setWarningForUnsavedEdition();");
 				sg.wl("		AtgMassupdate" + linkobjectvariable + "andshowleftAction.ActionRef updateleft"
 						+ linkobjectvariable + "s = AtgMassupdate" + linkobjectvariable
@@ -476,9 +497,26 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 						+ ", this);");
 				sg.wl("		left" + linkobjectvariable + "buttonbar.addElement(deleteoneofleft" + linkobjectvariable
 						+ "button);");
-				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "buttonbar);");
-				sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "s);");
-			} else {
+				if (this.typerestrictionforleft!=null) {
+					sg.wl("			left" + linkobjectvariable + "nodes.add(left" + linkobjectvariable + "buttonbar);");
+					sg.wl("			left" + linkobjectvariable + "nodes.add(left" + linkobjectvariable + "s);");
+					ChoiceValue[] allowedtypes = this.typerestrictionforleft.getAllowedTypes();
+					
+					sg.wl("		mainband.addConditionalElements(this.getTypechoice(),");
+					sg.wl("				new ChoiceValue[] { ");
+					for (int t=0;t<allowedtypes.length;t++) {
+						;
+						sg.wl("					"+(t>0?",":"")+StringFormatter.formatForJavaClass(this.typed.getTypes().getName())+"ChoiceDefinition.get()."+allowedtypes[t].getName());
+					}
+					sg.wl("				}, left" + linkobjectvariable + "nodes.toArray(new SPageNode[0]));");
+
+
+				} else {
+					sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "buttonbar);");
+					sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "s);");
+			
+				}
+				} else {
 				// -------------------------------------------------------------------------------------------------
 				// show link as field array
 			}

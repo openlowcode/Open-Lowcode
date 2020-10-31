@@ -329,7 +329,7 @@ public class LeftForLinkToMaster<E extends DataObjectDefinition, F extends DataO
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 			DataObjectDefinition linkobject = parentproperty.getLinkObjectDefinition();
 			String objectvariable = StringFormatter.formatForAttribute(parentproperty.getParent().getName());
 			String objectclass = StringFormatter.formatForJavaClass(parentproperty.getParent().getName());

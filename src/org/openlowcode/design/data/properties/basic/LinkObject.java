@@ -112,6 +112,8 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 		super.addBusinessRule(rule);
 	}
 
+
+	
 	/**
 	 * creates a link object with default parameter
 	 * 

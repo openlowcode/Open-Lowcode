@@ -15,14 +15,19 @@ import org.openlowcode.design.data.ChoiceValue;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.SimpleChoiceCategory;
 import org.openlowcode.design.data.StringField;
+import org.openlowcode.design.data.properties.basic.Companion;
+import org.openlowcode.design.data.properties.basic.ConstraintOnLinkMaxOneFromLeft;
+import org.openlowcode.design.data.properties.basic.ConstraintOnLinkTypeRestrictionForLeft;
+import org.openlowcode.design.data.properties.basic.DisplayLinkAsAttributeFromLeftObject;
+import org.openlowcode.design.data.properties.basic.HasId;
+import org.openlowcode.design.data.properties.basic.LinkObject;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
 import org.openlowcode.design.data.properties.basic.Named;
 import org.openlowcode.design.data.properties.basic.Numbered;
 import org.openlowcode.design.data.properties.basic.NumberedForParent;
+import org.openlowcode.design.data.properties.basic.Stored;
 import org.openlowcode.design.data.properties.basic.StoredObject;
-import org.openlowcode.design.data.properties.basic.SubObject;
-import org.openlowcode.design.data.properties.basic.Subtype;
-import org.openlowcode.design.data.properties.basic.SubtypeCompanion;
+import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.data.properties.basic.UniqueIdentified;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.module.system.design.SystemModule;
@@ -101,14 +106,22 @@ public class DesignerModule
 		property.addProperty(new StoredObject());
 		property.addProperty(new UniqueIdentified());
 		property.addProperty(new Numbered());
-		property.addProperty(new Subtype(propertytype));
+		property.addProperty(new Typed(propertytype));
 		property.addProperty(new LinkedToParent("PARENTFORDATAOBJECT", object));
-		DataObjectDefinition propertylinkedtoparent = new DataObjectDefinition("LINKEDTOPARENTDEF", "Linked to Parent", this);
-		propertylinkedtoparent.addProperty(new StoredObject());
-		propertylinkedtoparent.addProperty(new SubtypeCompanion(property, new ChoiceValue[] {PROPERTY_LINKEDTOPARENT}));
-		;
 		
+		DataObjectDefinition onelinkproperty = new DataObjectDefinition("ONELINKPROPERTY","One link property",this);
+		onelinkproperty.addProperty(new Stored());
+		onelinkproperty.addProperty(new HasId());
+		onelinkproperty.addProperty(new Companion(property, new ChoiceValue[] {PROPERTY_LINKEDTOPARENT}));
 		
+		DataObjectDefinition mainlink = new DataObjectDefinition("MAINLINK","Main Link",this);
+		mainlink.addProperty(new StoredObject());
+		mainlink.addProperty(new UniqueIdentified());
+		LinkObject linkobject = new LinkObject(property,object,"Main Object","Referenced as main object by");
+		linkobject.addBusinessRule(new ConstraintOnLinkTypeRestrictionForLeft(new ChoiceValue[] {PROPERTY_LINKEDTOPARENT}));
+		linkobject.addBusinessRule(new ConstraintOnLinkMaxOneFromLeft(linkobject, true));
+		linkobject.addBusinessRule(new DisplayLinkAsAttributeFromLeftObject(true));
+		mainlink.addProperty(linkobject);
 	}
 
 }

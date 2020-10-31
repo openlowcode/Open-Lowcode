@@ -299,7 +299,7 @@ public class RightForLink<E extends DataObjectDefinition, F extends DataObjectDe
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 
 			DataObjectDefinition linkobject = rightforlink.getLinkObjectDefinition();
 			String objectvariable = StringFormatter.formatForAttribute(rightforlink.getParent().getName());

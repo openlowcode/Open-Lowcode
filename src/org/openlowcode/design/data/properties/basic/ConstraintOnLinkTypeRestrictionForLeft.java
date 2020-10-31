@@ -30,9 +30,9 @@ import org.openlowcode.design.generation.StringFormatter;
  * @since 1.14
  *
  */
-public class ConstraintOnLinkTypeRestrictionForLeft
+public class ConstraintOnLinkTypeRestrictionForLeft<E extends DataObjectDefinition,F extends DataObjectDefinition>
 		extends
-		PropertyBusinessRule<LinkObject<? super DataObjectDefinition, ? super DataObjectDefinition>> {
+		PropertyBusinessRule<LinkObject<E , F >> {
 
 	private ChoiceValue[] allowedtypes;
 	private HashMap<ChoiceValue, String> alternativelabels;
@@ -52,6 +52,10 @@ public class ConstraintOnLinkTypeRestrictionForLeft
 		this.alternativelabels = new HashMap<ChoiceValue, String>();
 	}
 
+	public ChoiceValue[] getAllowedTypes() {
+		return this.allowedtypes;
+	}
+	
 	/**
 	 * @param type
 	 * @param alternativelabel

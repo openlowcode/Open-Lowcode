@@ -1153,6 +1153,7 @@ public class DataObjectDefinition
 				showpage.addInputParameter(new ArrayArgument(
 						new ObjectArgument(thislinkedfromchildren.getName(), thislinkedfromchildren.getChildObject())));
 			}
+
 			if (thisproperty instanceof LeftForLink) {
 				LeftForLink<?, ?> thisleftforlink = (LeftForLink<?, ?>) thisproperty;
 				showpage.addInputParameter(new ArrayArgument(
@@ -1212,7 +1213,14 @@ public class DataObjectDefinition
 			}
 
 		}
+		for (int i = 0; i < this.propertylist.getSize(); i++) {
+			Property<?> thisproperty = this.propertylist.get(i);
+			if (thisproperty instanceof Typed) {
+				showpage.addInputParameter(
+						new ChoiceArgument("TYPECHOICE", ((Typed) (this.getPropertyByName("TYPED"))).getTypes()));
 
+			}
+		}
 		return showpage;
 	}
 
@@ -1972,6 +1980,7 @@ public class DataObjectDefinition
 				showaction.addOutputArgument(new ArrayArgument(
 						new ObjectArgument(thislinkedfromchildren.getName(), thislinkedfromchildren.getChildObject())));
 			}
+
 			if (thisproperty instanceof LeftForLink) {
 				@SuppressWarnings("rawtypes")
 				LeftForLink<?, ?> thisleftforlink = (LeftForLink) thisproperty;
@@ -2037,7 +2046,14 @@ public class DataObjectDefinition
 			}
 
 		}
+		for (int i = 0; i < this.propertylist.getSize(); i++) {
+			Property<?> thisproperty = this.propertylist.get(i);
+			if (thisproperty instanceof Typed) {
+				showaction.addOutputArgument(
+						new ChoiceArgument("TYPECHOICE", ((Typed) (this.getPropertyByName("TYPED"))).getTypes()));
 
+			}
+		}
 		return showaction;
 	}
 
@@ -2284,7 +2300,7 @@ public class DataObjectDefinition
 					|| (this.isShowActionAutomaticallyGenerated())) {
 				module.addAction(this.generatePrepareStandardCreateAction());
 				module.addAction(this.generateStandardCreateAction());
-				
+
 				if (this.getPropertyByName("TYPED") != null) {
 					Typed typed = (Typed) (this.getPropertyByName("TYPED"));
 					for (int i = 0; i < typed.getCompanionNumber(); i++) {
@@ -2293,7 +2309,7 @@ public class DataObjectDefinition
 						module.addAction(generateStandardCreateAction(companion));
 					}
 				}
-				
+
 				this.addActionOnObjectPageOnManageMenu(this.generateDuplicateAction(),
 						"Create new " + this.getLabel() + " with similar data");
 				module.AddPage(this.generateStandardCreatePage());
@@ -2303,7 +2319,7 @@ public class DataObjectDefinition
 						DataObjectDefinition companion = typed.getCompanion(i);
 						module.AddPage(this.generateStandardCreatePage(companion));
 					}
-			}
+				}
 			}
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> thisproperty = this.propertylist.get(i);
@@ -2466,11 +2482,11 @@ public class DataObjectDefinition
 	}
 
 	private PageDefinition generateStandardCreatePage(DataObjectDefinition companion) {
-		
+
 		String actionname = this.getName().toUpperCase();
-		if (companion!=null) actionname = companion.getName().toUpperCase();
-		DynamicPageDefinition standardcreatepage = new DynamicPageDefinition(
-				"STANDARDCREATE" + actionname);
+		if (companion != null)
+			actionname = companion.getName().toUpperCase();
+		DynamicPageDefinition standardcreatepage = new DynamicPageDefinition("STANDARDCREATE" + actionname);
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
 			for (int j = 0; j < property.getContextDataForCreationSize(); j++) {
@@ -2495,13 +2511,13 @@ public class DataObjectDefinition
 			}
 		}
 		standardcreatepage.addInputParameter(new ObjectArgument("object", this));
-		if (companion!=null) {
-			standardcreatepage.addInputParameter(new ObjectArgument("COMPANION",companion));
-			
+		if (companion != null) {
+			standardcreatepage.addInputParameter(new ObjectArgument("COMPANION", companion));
+
 		}
 		return standardcreatepage;
 	}
-	
+
 	private PageDefinition generateStandardCreatePage() {
 		return generateStandardCreatePage(null);
 	}
@@ -2557,21 +2573,23 @@ public class DataObjectDefinition
 	}
 
 	private ActionDefinition generateStandardCreateAction(DataObjectDefinition companion) {
-		DynamicActionDefinition standardcreationaction = new DynamicActionDefinition(
-				"STANDARDCREATE" + (companion==null?this.getName().toUpperCase():companion.getName().toUpperCase()), true);
+		DynamicActionDefinition standardcreationaction = new DynamicActionDefinition("STANDARDCREATE"
+				+ (companion == null ? this.getName().toUpperCase() : companion.getName().toUpperCase()), true);
 		addAttributesToCreateobject(standardcreationaction, this);
-		if (companion!=null) standardcreationaction.addInputArgument(new ObjectArgument("COMPANION",companion));
+		if (companion != null)
+			standardcreationaction.addInputArgument(new ObjectArgument("COMPANION", companion));
 		standardcreationaction.addOutputArgument(new ObjectIdArgument("createdobjectid", this));
 		this.addActionToCreateNewGroup(standardcreationaction);
 		return standardcreationaction;
 	}
+
 	private ActionDefinition generateStandardCreateAction() {
 		return generateStandardCreateAction(null);
 	}
 
 	private ActionDefinition generatePrepareStandardCreateAction(DataObjectDefinition companion) {
-		DynamicActionDefinition preparestandardcreationaction = new DynamicActionDefinition(
-				"PREPARESTANDARDCREATE" + (companion==null?this.getName().toUpperCase():companion.getName().toUpperCase()), true);
+		DynamicActionDefinition preparestandardcreationaction = new DynamicActionDefinition("PREPARESTANDARDCREATE"
+				+ (companion == null ? this.getName().toUpperCase() : companion.getName().toUpperCase()), true);
 		// -- contextattributes
 		for (int i = 0; i < this.propertylist.getSize(); i++) {
 			Property<?> property = this.propertylist.get(i);
@@ -2611,11 +2629,12 @@ public class DataObjectDefinition
 			}
 		}
 		preparestandardcreationaction.addOutputArgument(new ObjectArgument("OBJECT", this));
-		if (companion!=null) preparestandardcreationaction.addOutputArgument(new ObjectArgument("COMPANION", companion));
+		if (companion != null)
+			preparestandardcreationaction.addOutputArgument(new ObjectArgument("COMPANION", companion));
 		this.addActionToCreateNewGroup(preparestandardcreationaction);
 		return preparestandardcreationaction;
 	}
-	
+
 	private ActionDefinition generatePrepareStandardCreateAction() {
 		return generatePrepareStandardCreateAction(null);
 	}
@@ -3632,7 +3651,7 @@ public class DataObjectDefinition
 					+ thisproperty.getDataObjectConstructorAttributes() + ");");
 			for (int j = 0; j < thisproperty.getBusinessRuleNumber(); j++) {
 				PropertyBusinessRule<?> thisbusinessrule = thisproperty.getBusinessRule(j);
-				
+
 				thisbusinessrule.writeInitialization(sg);
 			}
 

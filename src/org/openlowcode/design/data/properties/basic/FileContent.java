@@ -79,7 +79,7 @@ public class FileContent
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 			String objectvariable = StringFormatter.formatForAttribute(filecontent.getParent().getName());
 			String objectclass = StringFormatter.formatForJavaClass(filecontent.getParent().getName());
 

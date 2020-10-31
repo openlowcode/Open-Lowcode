@@ -121,7 +121,7 @@ public class HasAutolink<E extends DataObjectDefinition>
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 			DataObjectDefinition linkobject = hasautolink.getLinkObjectDefinition();
 			DataObjectDefinition dataobject = hasautolink.getParent();
 			String objectvariable = StringFormatter.formatForAttribute(hasautolink.getParent().getName());
@@ -307,7 +307,7 @@ public class HasAutolink<E extends DataObjectDefinition>
 		}
 
 		@Override
-		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname) throws IOException {
+		public void generateWidgetCode(SourceGenerator sg, Module module, String locationname,DataObjectDefinition companion) throws IOException {
 			DataObjectDefinition linkobject = hasautolink.getLinkObjectDefinition();
 			DataObjectDefinition dataobject = hasautolink.getParent();
 			String objectvariable = StringFormatter.formatForAttribute(hasautolink.getParent().getName());
