@@ -133,7 +133,9 @@ public class CObjectArrayField
 			reader.returnNextEndStructure("ATTR");
 		}
 		fieldtoshow = reader.returnNextStringField("FTS");
-		this.datareference = CPageDataRef.parseCPageDataRef(reader);
+		boolean hasinputdata = reader.returnNextBooleanField("HID");
+		if (hasinputdata)
+			this.datareference = CPageDataRef.parseCPageDataRef(reader);
 		this.inlinefeeding = reader.returnNextBooleanField("INF");
 		if (this.inlinefeeding) {
 			reader.returnNextStartStructure("INLACT");
@@ -221,7 +223,7 @@ public class CObjectArrayField
 		thiselementarray = getExternalContent(inputdata, datareference);
 		if (objectatendoffielddata != null)
 			dataatendoffielddata = objectatendoffielddata.getNode(actionmanager, inputdata, parentwindow,
-					parenttabpanes,nodetocollapsewhenactiontriggered);
+					parenttabpanes, nodetocollapsewhenactiontriggered);
 		refreshDisplay();
 
 		thispane.getChildren().add(datapane);
@@ -349,7 +351,7 @@ public class CObjectArrayField
 				actionmanager.registerEventWithModifier(objectbutton, defaultaction,
 						PageActionModifier.getNothingPressed());
 				actionmanager.registerEventWithModifier(objectbutton, defaultaction,
-					PageActionModifier.getCtrlPressed(),true);
+						PageActionModifier.getCtrlPressed(), true);
 			}
 			if (this.deleteaction != null)
 				actionmanager.registerEventWithModifier(objectbutton, deleteaction,

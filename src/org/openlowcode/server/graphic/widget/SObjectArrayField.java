@@ -175,6 +175,7 @@ public class SObjectArrayField<E extends DataObject<E>>
 		objectmodel.writeFieldDefinition(writer, hiddenfields, activeprofiles, this.minfieldpriority, input, buffer);
 		writer.endStructure("ATTRS");
 		writer.addStringField("FTS", fieldtoshow.toString());
+		writer.addBooleanField("HID", (inputdata!=null));
 		inputdata.writeReferenceToCML(writer);
 		if (this.inlinefeeding) {
 			writer.addBooleanField("INF", true);
