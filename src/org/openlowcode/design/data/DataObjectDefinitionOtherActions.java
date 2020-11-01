@@ -1135,6 +1135,7 @@ public class DataObjectDefinitionOtherActions {
 	 * @param module     parent module
 	 * @throws IOException if anything bad happens during the generation
 	 */
+	@SuppressWarnings({ "rawtypes" })
 	public static void generateStandardCreateActionToFile(
 			DataObjectDefinition dataobject,
 			DataObjectDefinition companion,
@@ -1155,6 +1156,21 @@ public class DataObjectDefinitionOtherActions {
 		HashMap<String, String> importdeclaration = dataobject.getImportDeclarationForCreation(dataobject);
 
 		StringBuffer extraattributesdeclaration = dataobject.generateCreateObjectExtraAttributes(dataobject);
+		if (extraattributesdeclaration.length() > 0)
+			extraattributesdeclaration.append(',');
+
+		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+			Property<?> property = dataobject.propertylist.get(i);
+			if (property instanceof LeftForLink) {
+				LeftForLink leftforlink = (LeftForLink) property;
+				if (leftforlink.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT") != null) {
+					extraattributesdeclaration.append("\n			"
+							+ StringFormatter.formatForJavaClass(
+									leftforlink.getLinkObjectProperty().getRightobjectforlink().getName())
+							+ "[] left" + leftforlink.getLinkObjectDefinition().getName().toLowerCase() + ",");
+				}
+			}
+		}
 
 		String objectimport = "import " + module.getPath() + ".data." + objectclass + ";";
 		if (companion != null) {
@@ -1175,6 +1191,28 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
 		sg.wl("import org.openlowcode.server.runtime.SModule;");
 		sg.wl("import java.util.function.Function;");
+		boolean firstleftattribute = true;
+		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+			Property<?> property = dataobject.propertylist.get(i);
+			if (property instanceof LeftForLink) {
+				LeftForLink leftforlink = (LeftForLink) property;
+				if (leftforlink.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT") != null) {
+					if (firstleftattribute)
+						sg.wl("import java.util.ArrayList;");
+					sg.wl("import " + leftforlink.getLinkObjectDefinition().getOwnermodule().getPath() + ".data."
+							+ StringFormatter.formatForJavaClass(leftforlink.getLinkObjectDefinition().getName())
+							+ ";");
+					sg.wl("import "
+							+ leftforlink.getLinkObjectProperty().getRightobjectforlink().getOwnermodule().getPath()
+							+ ".data." + StringFormatter.formatForJavaClass(
+									leftforlink.getLinkObjectProperty().getRightobjectforlink().getName())
+							+ ";");
+
+				}
+			}
+
+		}
+
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryCondition;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
@@ -1189,8 +1227,7 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("	@Override");
-		if (extraattributesdeclaration.length() > 0)
-			extraattributesdeclaration.append(',');
+
 		sg.wl("	public DataObjectId<" + objectclass + "> executeActionLogic( " + extraattributesdeclaration.toString()
 				+ " " + objectclass + " object" + (companion != null ? "," + companionclass + " companion" : "")
 				+ ",Function<TableAlias,QueryFilter> datafilter)");
@@ -1215,6 +1252,34 @@ public class DataObjectDefinitionOtherActions {
 			sg.wl("		object.insert(this,SecurityInDataMethod.FAIL_IF_NOT_AUTHORIZED);");
 		}
 
+		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
+			Property<?> property = dataobject.propertylist.get(i);
+			if (property instanceof LeftForLink) {
+				LeftForLink leftforlink = (LeftForLink) property;
+				if (leftforlink.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT") != null) {
+					String linkobjectclass = StringFormatter
+							.formatForJavaClass(leftforlink.getLinkObjectDefinition().getName());
+					String linkobjectattribute = StringFormatter
+							.formatForAttribute(leftforlink.getLinkObjectDefinition().getName());
+
+					sg.wl("		if (left" + linkobjectattribute + " != null)");
+					sg.wl("			if (left" + linkobjectattribute + ".length > 0) {");
+					sg.wl("				ArrayList<" + linkobjectclass + "> linkstoadd = new ArrayList<"
+							+ linkobjectclass + ">();");
+					sg.wl("				for (int i = 0; i < left" + linkobjectattribute + ".length; i++) {");
+					sg.wl("					" + linkobjectclass + " linktoadd = new " + linkobjectclass + "();");
+					sg.wl("					linktoadd.setleftobject(object.getId());");
+					sg.wl("					linktoadd.setrightobject(left" + linkobjectattribute + "[i].getId());");
+					sg.wl("					linkstoadd.add(linktoadd);");
+					sg.wl("				}");
+					sg.wl("				" + linkobjectclass + ".insert(linkstoadd.toArray(new " + linkobjectclass
+							+ "[0]));");
+					sg.wl("			}");
+
+				}
+
+			}
+		}
 		sg.wl("		return object.getId();");
 		sg.wl("	}");
 		sg.wl("");
@@ -1749,7 +1814,7 @@ public class DataObjectDefinitionOtherActions {
 		StringBuffer extraattributesdeclaration = new StringBuffer();
 		StringBuffer extraattributesfilling = new StringBuffer();
 		StringBuffer extraattributestopage = new StringBuffer();
-		StringBuffer companionactionattributecall=new StringBuffer();
+		StringBuffer companionactionattributecall = new StringBuffer();
 		// ------------------------ Attributes for properties ---------------------
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
@@ -1769,13 +1834,13 @@ public class DataObjectDefinitionOtherActions {
 					extraattributestopage.append(" , ");
 				extraattributestopage.append("logicoutput.getCopy" + thisargument.getName().toLowerCase() + "()");
 
-				if (companionactionattributecall.length()>0)
+				if (companionactionattributecall.length() > 0)
 					companionactionattributecall.append(" , ");
 
 				companionactionattributecall.append("logicoutput.getCopy");
 				companionactionattributecall.append(thisargument.getName().toLowerCase());
 				companionactionattributecall.append("()");
-				
+
 				ArrayList<String> imports = thisargument.getImports();
 				for (int k = 0; k < imports.size(); k++) {
 					importdeclaration.put(imports.get(k), imports.get(k));
@@ -1829,11 +1894,12 @@ public class DataObjectDefinitionOtherActions {
 
 		sg.wl("");
 		sg.wl("import " + module.getPath() + ".page.generated.AtgStandardcreate" + actionname + "Page;");
-		if (dataobject.getPropertyByName("TYPED")!=null) {
-			Typed typedproperty =(Typed) dataobject.getPropertyByName("TYPED");
-			for (int i=0;i<typedproperty.getCompanionNumber();i++) {
+		if (dataobject.getPropertyByName("TYPED") != null) {
+			Typed typedproperty = (Typed) dataobject.getPropertyByName("TYPED");
+			for (int i = 0; i < typedproperty.getCompanionNumber(); i++) {
 				DataObjectDefinition specificcompanion = typedproperty.getCompanion(i);
-				sg.wl("import " + specificcompanion.getOwnermodule().getPath() + ".page.generated.AtgStandardcreate" + specificcompanion.getName().toLowerCase() + "Page;");
+				sg.wl("import " + specificcompanion.getOwnermodule().getPath() + ".page.generated.AtgStandardcreate"
+						+ specificcompanion.getName().toLowerCase() + "Page;");
 			}
 		}
 		sg.wl("import org.openlowcode.server.graphic.SPage;");
@@ -1890,12 +1956,13 @@ public class DataObjectDefinitionOtherActions {
 					ChoiceValue thistype = types.next();
 					DataObjectDefinition specificcompanion = typed.getCompanionForType(thistype);
 					if (specificcompanion != null) {
-						
-						sg.wl("		if ("+StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition.get()."+thistype.getName().toUpperCase()+".getStorageCode().equals(logicoutput.getCopytype().getStorageCode()))");
-						sg.wl("			return AtgPreparestandardcreate"+specificcompanion.getName().toLowerCase()+"Action.get().executeAndShowPage("+ companionactionattributecall.toString()+");");
 
+						sg.wl("		if (" + StringFormatter.formatForJavaClass(typed.getTypes().getName())
+								+ "ChoiceDefinition.get()." + thistype.getName().toUpperCase()
+								+ ".getStorageCode().equals(logicoutput.getCopytype().getStorageCode()))");
+						sg.wl("			return AtgPreparestandardcreate" + specificcompanion.getName().toLowerCase()
+								+ "Action.get().executeAndShowPage(" + companionactionattributecall.toString() + ");");
 
-						
 					}
 				}
 			}

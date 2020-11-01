@@ -2555,6 +2555,19 @@ public class DataObjectDefinition
 					action.addInputArgument(property.getDataInputForCreation(j));
 				}
 		}
+		// ---- specific processing for left for links with show as field
+		for (int i = 0; i < object.propertylist.getSize(); i++) {
+			Property<?> property = object.propertylist.get(i);
+			if (property instanceof LeftForLink) {
+				LeftForLink leftforlink = (LeftForLink) property;
+				if (leftforlink.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT") != null) {
+					action.addInputArgument(new ArrayArgument(
+							new ObjectArgument("LEFT" + leftforlink.getLinkObjectDefinition().getName(),
+									leftforlink.getLinkObjectProperty().getRightobjectforlink())));
+				}
+			}
+		}
+
 		ObjectArgument mainobject = new ObjectArgument("object", object);
 		mainobject.setOptional(objectisoptional);
 		action.addInputArgumentAsAccessCriteria(mainobject);
