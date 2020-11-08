@@ -176,7 +176,7 @@ public class SObjectArrayField<E extends DataObject<E>>
 		writer.endStructure("ATTRS");
 		writer.addStringField("FTS", fieldtoshow.toString());
 		writer.addBooleanField("HID", (inputdata!=null));
-		inputdata.writeReferenceToCML(writer);
+		if (inputdata!=null) inputdata.writeReferenceToCML(writer);
 		if (this.inlinefeeding) {
 			writer.addBooleanField("INF", true);
 			writer.startStructure("INLACT");

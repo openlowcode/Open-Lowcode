@@ -154,6 +154,7 @@ public class CObjectArrayField
 	}
 
 	public ArrayDataElt<ObjectDataElt> getExternalContent(CPageData inputdata, CPageDataRef dataref) {
+		if (dataref==null) return new ArrayDataElt<ObjectDataElt>("INPUTDATA", new ObjectDataEltType());
 		DataElt thiselement = inputdata.lookupDataElementByName(dataref.getName());
 		if (thiselement == null)
 			throw new RuntimeException(String.format("could not find any page data with name = %s", dataref.getName()));
