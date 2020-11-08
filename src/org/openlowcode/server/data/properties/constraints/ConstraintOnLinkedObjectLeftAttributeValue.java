@@ -110,6 +110,11 @@ public class ConstraintOnLinkedObjectLeftAttributeValue<
 	public QueryCondition generateQueryFilter(TableAlias maintablealias, DataObjectId<E> leftobjectid) {
 		return null;
 	}
+	
+	@Override
+	public QueryCondition generateQueryFilter(TableAlias maintablealias, E leftobject) {
+		return null;
+	}
 
 	@Override
 	public QueryCondition generateReverseQueryFilter(TableAlias maintablealias, DataObjectId<F> rightobjectid) {
@@ -132,4 +137,6 @@ public class ConstraintOnLinkedObjectLeftAttributeValue<
 		// do nothing
 
 	}
+
+
 }

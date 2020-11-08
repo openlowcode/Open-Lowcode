@@ -122,6 +122,14 @@ public class ConstraintOnLinkedObjectSimilarAttribute<E extends DataObject<E>, F
 	}
 
 	@Override
+	public QueryCondition generateQueryFilter(TableAlias maintablealias, E leftobject) {
+		G leftobjectfieldvalue = this.leftobjectextractorfromobject.extract(leftobject);
+		SimpleQueryCondition<G> attributecorrectquerycondition = new SimpleQueryCondition<G>(maintablealias,
+				rightattributemarker, new QueryOperatorEqual<G>(), leftobjectfieldvalue);
+		return attributecorrectquerycondition;
+	}
+	
+	@Override
 	public QueryCondition generateReverseQueryFilter(TableAlias maintablealias, DataObjectId<F> rightobjectid)
 			 {
 		G rightobjectfieldvalue = rightobjectextractor.extract(rightobjectid);
@@ -172,5 +180,7 @@ public class ConstraintOnLinkedObjectSimilarAttribute<E extends DataObject<E>, F
 				leftobjectextractorfromobject.extract(leftobject));
 
 	}
+
+
 
 }

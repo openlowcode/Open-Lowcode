@@ -2536,13 +2536,14 @@ public class DataObjectDefinition
 	}
 
 	private void addAttributesToCreateobject(DynamicActionDefinition action, DataObjectDefinition object) {
-		addAttributesToCreateobject(action, object, false);
+		addAttributesToCreateobject(action, object, false,true);
 	}
 
 	private void addAttributesToCreateobject(
 			DynamicActionDefinition action,
 			DataObjectDefinition object,
-			boolean objectisoptional) {
+			boolean objectisoptional,boolean addlinks) {
+
 		for (int i = 0; i < object.propertylist.getSize(); i++) {
 			Property<?> property = object.propertylist.get(i);
 			for (int j = 0; j < property.getContextDataForCreationSize(); j++) {
@@ -2556,7 +2557,7 @@ public class DataObjectDefinition
 				}
 		}
 		// ---- specific processing for left for links with show as field
-		for (int i = 0; i < object.propertylist.getSize(); i++) {
+		if (addlinks) for (int i = 0; i < object.propertylist.getSize(); i++) {
 			Property<?> property = object.propertylist.get(i);
 			if (property instanceof LeftForLink) {
 				LeftForLink leftforlink = (LeftForLink) property;
@@ -2571,7 +2572,15 @@ public class DataObjectDefinition
 		ObjectArgument mainobject = new ObjectArgument("object", object);
 		mainobject.setOptional(objectisoptional);
 		action.addInputArgumentAsAccessCriteria(mainobject);
+
 	}
+	
+	private void addAttributesToCreateobject(
+			DynamicActionDefinition action,
+			DataObjectDefinition object,
+			boolean objectisoptional) {
+		addAttributesToCreateobject(action,object,objectisoptional,false);
+			}
 
 	private DynamicActionDefinition generateDuplicateAction() {
 		DynamicActionDefinition duplicateaction = new DynamicActionDefinition(

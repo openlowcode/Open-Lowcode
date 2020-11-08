@@ -478,6 +478,7 @@ public abstract class Property<E extends Property<E>>
 	 */
 	protected void addDataAccessMethod(DataAccessMethod dam) {
 		this.dataaccessmethods.add(dam);
+		dam.setParentProperty(this);
 	}
 
 	/**

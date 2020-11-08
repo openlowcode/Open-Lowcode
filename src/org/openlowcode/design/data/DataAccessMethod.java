@@ -39,6 +39,7 @@ public class DataAccessMethod
 	private boolean ismassive = false;
 	private boolean allowsconsumer = false;
 	private ObjectArgument implicitobject;
+	private Property<?> parentproperty;
 
 	/**
 	 * @return true if the method accepts a query condition. This is mostly true for
@@ -168,12 +169,14 @@ public class DataAccessMethod
 		for (int i = 0; i < this.input.getSize(); i++) {
 			ArgumentContent thisargumentcontent = input.get(i).getContent();
 			if (thisargumentcontent instanceof ObjectArgument) {
+				ObjectArgument thisobjectargument = (ObjectArgument) thisargumentcontent;
+				if (thisobjectargument.getMasterObject().equals(this.parentproperty.getParent())) {
 				// note - may need to add a condition on the type of object
 				this.implicitobjectmethod = input.get(i); // as argument is implicit, it will not be an attribute for
 															// the user
 				this.implicitobject = (ObjectArgument) thisargumentcontent;
 				return false;
-
+				}
 			}
 		}
 		return true;
@@ -544,5 +547,13 @@ public class DataAccessMethod
 			arguments.append("ActionExecution contextaction,SecurityInDataMethod method");
 		}
 		return arguments.toString();
+	}
+
+	public void setParentProperty(Property<?> parentproperty) {
+		this.parentproperty = parentproperty;
+		
+	}
+	public Property<?> getParentProperty() {
+		return this.parentproperty;
 	}
 }

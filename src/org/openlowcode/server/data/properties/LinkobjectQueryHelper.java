@@ -502,6 +502,60 @@ public class LinkobjectQueryHelper {
 		return maintablealias;
 	}
 
+
+	
+	/**
+	 * gets the potential right objects for the given left object for link creation
+	 * 
+	 * @param leftobject            left object
+	 * @param additionalcondition   additional query filter
+	 * @param linkobjectdefinition  definition of the link object
+	 * @param leftobjectdefinition  definition of the left object
+	 * @param rightobjectdefinition definition of the right object
+	 * @param propertydefinition    link object property definition
+	 * @return the potential right objects
+	 */
+	public <E extends DataObject<E> & UniqueidentifiedInterface<E>, F extends DataObject<F> & LinkobjectInterface<F, E, G>, G extends DataObject<G> & UniqueidentifiedInterface<G>> G[] getpotentialrightobjectfordraft(
+			E leftobject, QueryFilter additionalcondition, DataObjectDefinition<F> linkobjectdefinition,
+			DataObjectDefinition<E> leftobjectdefinition, DataObjectDefinition<G> rightobjectdefinition,
+			LinkobjectDefinition<F, E, G> propertydefinition) {
+		// makes a query on right object
+
+		QueryCondition extendedcondition = null;
+		TableAlias maintablealias = rightobjectdefinition
+				.getAlias(StoredobjectQueryHelper.maintablealiasforgetallactive);
+
+		AndQueryCondition allconstraintsquery = null;
+		for (int i = 0; i < propertydefinition.getConstraintOnLinkObjectNumber(); i++) {
+			ConstraintOnLinkObject<E, G> constraintonlinkobject = propertydefinition.getConstraintOnLinkObject(i);
+			if (constraintonlinkobject != null) {
+				QueryCondition conditiononlinkconstraint = constraintonlinkobject.generateQueryFilter(maintablealias,
+						leftobject);
+				if (allconstraintsquery == null)
+					allconstraintsquery = new AndQueryCondition();
+				allconstraintsquery.addCondition(conditiononlinkconstraint);
+			}
+		}
+		if (allconstraintsquery != null)
+			extendedcondition = allconstraintsquery;
+		// TICKET T-223
+
+		if (extendedcondition != null) {
+			extendedcondition = (additionalcondition != null
+					? new AndQueryCondition(extendedcondition, additionalcondition.getCondition())
+					: extendedcondition);
+		} else {
+			extendedcondition = (additionalcondition != null ? additionalcondition.getCondition() : null);
+		}
+		G[] result = StoredobjectQueryHelper.get().getallactive(
+				new QueryFilter(extendedcondition,
+						(additionalcondition != null ? additionalcondition.getAliases() : null)),
+				rightobjectdefinition,
+				propertydefinition.getRightuniqueidentifieddefinition().getDependentDefinitionStoredobject());
+
+		return result;
+	}
+	
 	/**
 	 * gets the potential right objects for the given left object for link creation
 	 * 

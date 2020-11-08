@@ -35,7 +35,6 @@ import org.openlowcode.design.pages.PageDefinition;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
 import org.openlowcode.module.system.design.SystemModule;
 
-
 /**
  * This class regroups methods to generate search actions and pages
  * 
@@ -67,8 +66,13 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		DataObjectDefinition leftobject = linkobject.getLeftobjectforlink();
 		DynamicActionDefinition searchactionforrightobjectlink = new DynamicActionDefinition(
 				"SEARCHRIGHT" + rightobject.getName().toUpperCase() + "FOR" + object.getName().toUpperCase(), true);
-		searchactionforrightobjectlink
-				.addInputArgument(new ObjectIdArgument("LEFT" + leftobject.getName().toUpperCase(), leftobject));
+		ObjectIdArgument leftidargument = new ObjectIdArgument("LEFT" + leftobject.getName().toUpperCase() + "ID",leftobject);
+		leftidargument.setOptional(true);
+		searchactionforrightobjectlink.addInputArgument(leftidargument);
+		ObjectArgument leftobjectargument = new ObjectArgument("LEFT" + leftobject.getName().toUpperCase(), leftobject);
+		leftobjectargument.setOptional(true);
+		generateArgumentsForLinkSecondaryObjects(leftobject,searchactionforrightobjectlink);
+		searchactionforrightobjectlink.addInputArgument(leftobjectargument);
 		searchactionforrightobjectlink.forceNoAddress();
 		generateNormalSearchAttributesForObject(rightobject, searchactionforrightobjectlink);
 
@@ -80,6 +84,43 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		return searchactionforrightobjectlink;
 	}
 
+	/**
+	 * Generates the additional elements from the side object to be provided to the function. This is typically
+	 * to include elements not stored on the object itself when creating an object (linked to parent...)
+	 * 
+	 * @param sideobject the side object for the link search (typically left object)
+	 * @param searchactionforrightobjectlink the action to add attributes to
+	 */
+	private void generateArgumentsForLinkSecondaryObjects(
+			DataObjectDefinition sideobject,
+			DynamicActionDefinition searchactionforrightobjectlink) {
+		for (int i=0;i<sideobject.getPropertySize();i++) {
+			Property<?> thisproperty = sideobject.getPropertyAt(i);
+			if (thisproperty instanceof LinkedToParent) {
+				LinkedToParent linkedtoparent = (LinkedToParent) thisproperty;
+				ObjectIdArgument parentidargument = new ObjectIdArgument("LINKEDTOPARENTFOR"+linkedtoparent.getInstancename()+"ID",linkedtoparent.getParentObjectForLink());
+				parentidargument.setOptional(true);
+				searchactionforrightobjectlink.addInputArgument(parentidargument);
+			}
+			
+		}
+		
+	}
+
+	private void generateSideAttributesArgumentsForAction(DataObjectDefinition object,
+			SourceGenerator sg) throws IOException {
+		for (int i=0;i<object.getPropertySize();i++) {
+			Property<?> thisproperty = object.getPropertyAt(i);
+			if (thisproperty instanceof LinkedToParent) {
+				LinkedToParent linkedtoparent = (LinkedToParent) thisproperty;
+				String name = ("LINKEDTOPARENTFOR"+linkedtoparent.getInstancename()+"ID").toLowerCase();
+				sg.w(", DataObjectId<"+StringFormatter.formatForJavaClass(linkedtoparent.getParentObjectForLink().getName())+"> "+name+" ");
+				
+			}
+			
+		}
+	}
+	
 	/**
 	 * generate the search action looking for potential left object while building a
 	 * link
@@ -451,6 +492,14 @@ public class DataObjectDefinitionSearchPagesAndActions {
 				ischoice = true;
 			}
 		}
+		for (int i=0;i<linkobject.getLeftobjectforlink().getPropertySize();i++) {
+			Property<?> thisproperty = linkobject.getLeftobjectforlink().getPropertyAt(i);
+			if (thisproperty instanceof LinkedToParent) {
+				LinkedToParent<?> thislinkedtoparent = (LinkedToParent<?>) thisproperty;
+				sg.wl("import "+thislinkedtoparent.getParentObjectForLink().getOwnermodule().getPath()+".data."+
+				StringFormatter.formatForJavaClass(thislinkedtoparent.getParentObjectForLink().getName())+";");
+			}
+		}
 		if (ischoice)
 			sg.wl("import org.openlowcode.tools.structure.MultipleChoiceDataEltType;");
 		sg.wl("");
@@ -462,8 +511,14 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("		Atg" + actionname + " action;");
 		sg.wl("		Function<SActionInputDataRef<TObjectIdDataEltType<" + leftobjectclass
 				+ ">>, SActionDataLoc<TObjectIdDataEltType<" + leftobjectclass + ">>> id;");
-		sg.wl("		public Specific" + rightobjectclass + "Searcher(Function<SActionInputDataRef<TObjectIdDataEltType<"
-				+ leftobjectclass + ">>, SActionDataLoc<TObjectIdDataEltType<" + leftobjectclass + ">>>  id) {");
+		sg.wl("		Function<SActionInputDataRef<TObjectDataEltType<" + leftobjectclass
+				+ ">>, SActionDataLoc<TObjectDataEltType<" + leftobjectclass + ">>> object;");
+		sg.wl("		public Specific" + rightobjectclass + "Searcher(");
+		sg.wl("			Function<SActionInputDataRef<TObjectIdDataEltType<" + leftobjectclass
+				+ ">>, SActionDataLoc<TObjectIdDataEltType<" + leftobjectclass + ">>>  id,");
+		sg.wl("			Function<SActionInputDataRef<TObjectDataEltType<" + leftobjectclass
+				+ ">>, SActionDataLoc<TObjectDataEltType<" + leftobjectclass + ">>>  object) {");
+
 		sg.wl("			action = (Atg" + actionname + ")Atg" + actionname + ".get();");
 		sg.wl("			this.id = id;");
 		sg.wl("		}");
@@ -484,7 +539,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 
 		sg.wl("		@Override");
 		sg.wl("		public void setExtraAttributes(InlineActionRef specificinlineactionref)  {");
-		sg.wl("			specificinlineactionref.setLeft" + leftobjectattribute + "(id);			");
+		sg.wl("			specificinlineactionref.setLeft" + leftobjectattribute + "id(id);");
+		sg.wl("			specificinlineactionref.setLeft" + leftobjectattribute + "(object);");
+
 		sg.wl("		}	");
 		sg.wl("");
 		sg.wl("	}");
@@ -505,6 +562,8 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("	@Override");
 		sg.w("	public " + rightobjectclass + "[] executeActionLogic(DataObjectId<" + leftobjectclass + "> left"
 				+ leftobjectattribute + "id");
+		this.generateSideAttributesArgumentsForAction(linkobject.getLeftobjectforlink(),sg);
+		sg.w(", " + leftobjectclass + " left" + leftobjectattribute);
 		this.generateSearchArgumentsForAction(linkobject.getRightobjectforlink(), sg, true);
 
 		sg.wl(",Function<TableAlias,QueryFilter> datafilter)  {");
@@ -525,8 +584,24 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("		}");
 		sg.wl("			");
 		sg.wl("		");
-		sg.wl("		" + rightobjectclass + "[] result = " + linkobjectclass + ".getpotentialrightobject(left"
-				+ leftobjectattribute + "id,new QueryFilter(finalquerycondition,null));");
+		sg.wl("		" + rightobjectclass + "[] result = null;");
+		sg.wl("		if (left" + leftobjectattribute + "id.getId()!=null) result = " + linkobjectclass
+				+ ".getpotentialrightobject(left" + leftobjectattribute
+				+ "id,new QueryFilter(finalquerycondition,null));");
+		for (int i=0;i<linkobject.getLeftobjectforlink().getPropertySize();i++) {
+			Property<?> thisproperty = linkobject.getLeftobjectforlink().getPropertyAt(i);
+			if (thisproperty instanceof LinkedToParent) {
+				LinkedToParent<?> thislinkedtoparent = (LinkedToParent<?>) thisproperty;
+				sg.wl("		if (left" + leftobjectattribute + "id.getId()==null) left" + leftobjectattribute + ".setparentwithoutupdatefor"+thislinkedtoparent.getInstancename().toLowerCase()+"(linkedtoparentfor"+thislinkedtoparent.getInstancename().toLowerCase()+"id);");	
+				
+			}
+		}
+		
+		
+		
+		sg.wl("		if (left" + leftobjectattribute + "id.getId()==null) result = " + linkobjectclass
+				+ ".getpotentialrightobjectfordraft(left" + leftobjectattribute
+				+ ",new QueryFilter(finalquerycondition,null));");
 		if (canorder) {
 
 			sg.wl("		List<" + rightobjectclass + "> resultlist = Arrays.asList(result);");
@@ -890,6 +965,9 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.close();
 	}
 
+
+
+	
 	private void generateSearchArgumentsForAction(
 			DataObjectDefinition object,
 			SourceGenerator sg,
@@ -1263,10 +1341,10 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		sg.wl("");
 		sg.wl("import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;");
 		sg.wl("import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;");
-		if (object.getPropertyByName("TYPED")!=null) {
+		if (object.getPropertyByName("TYPED") != null) {
 			Typed typed = (Typed) (object.getPropertyByName("TYPED"));
-			sg.wl("import "+typed.getTypes().getParentModule().getPath()+".data.choice."+
-			StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition;");
+			sg.wl("import " + typed.getTypes().getParentModule().getPath() + ".data.choice."
+					+ StringFormatter.formatForJavaClass(typed.getTypes().getName()) + "ChoiceDefinition;");
 		}
 		sg.wl("import org.openlowcode.server.action.SActionInputDataRef;");
 		sg.wl("import org.openlowcode.server.action.SActionOutputDataRef;");
@@ -1587,15 +1665,17 @@ public class DataObjectDefinitionSearchPagesAndActions {
 			Typed typed = (Typed) object.getPropertyByName("TYPED");
 			sg.wl("		// Create typed object ----------------");
 			sg.wl("		SComponentBand createpopup = new SComponentBand(SComponentBand.DIRECTION_DOWN, this);");
-			sg.wl("		AtgPreparestandardcreate"+objectattribute+"Action.ActionRef preparestandardcreateactionref = AtgPreparestandardcreate"+objectattribute+"Action.get().getActionRef();");
+			sg.wl("		AtgPreparestandardcreate" + objectattribute
+					+ "Action.ActionRef preparestandardcreateactionref = AtgPreparestandardcreate" + objectattribute
+					+ "Action.get().getActionRef();");
 			sg.wl("		SPopupButton createpopupbutton = new SPopupButton(this, createpopup, \"Create "
 					+ object.getLabel() + "\", \"\",");
 			sg.wl("				true,true,preparestandardcreateactionref);");
 			sg.wl("");
 			sg.wl("		createband.addElement(createpopupbutton);");
-			String typechoice = StringFormatter.formatForJavaClass(typed.getTypes().getName())+"ChoiceDefinition";
-			sg.wl("		SChoiceTextField<"+typechoice+"> createpopuptype");
-			sg.wl("		= new SChoiceTextField<"+typechoice+">(\"Type\",\"TYPE\", \"\", "+typechoice+".get(),");
+			String typechoice = StringFormatter.formatForJavaClass(typed.getTypes().getName()) + "ChoiceDefinition";
+			sg.wl("		SChoiceTextField<" + typechoice + "> createpopuptype");
+			sg.wl("		= new SChoiceTextField<" + typechoice + ">(\"Type\",\"TYPE\", \"\", " + typechoice + ".get(),");
 			sg.wl("				null, this, false, null);");
 			sg.wl("		createpopup.addElement(createpopuptype);");
 			sg.wl("		preparestandardcreateactionref.setType(createpopuptype.getChoiceInput());");

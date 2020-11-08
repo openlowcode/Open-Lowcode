@@ -25,6 +25,7 @@ import org.openlowcode.tools.structure.ChoiceDataEltType;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
 import org.openlowcode.tools.structure.MultipleChoiceDataElt;
+import org.openlowcode.tools.structure.ObjectIdDataElt;
 import org.openlowcode.tools.structure.ObjectIdDataEltType;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
@@ -110,6 +111,11 @@ public class CPageInlineAction extends Named {
 					treated=true;
 					result.addActionAttribute(new MultipleChoiceDataElt(thisbusinessdataloc.getName()));
 				}
+				if (thisbusinessdataloc.getType().equals("OID")) {
+					treated=true;
+					result.addActionAttribute(new ObjectIdDataElt(thisbusinessdataloc.getName()));
+				}
+				
 				if (thisbusinessdataloc.getType().startsWith("ARR")) {
 					String subtype = thisbusinessdataloc.getType().substring(4);
 					if (subtype.compareTo(CActionDataLoc.CHOICE_TYPE) == 0) {

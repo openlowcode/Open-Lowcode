@@ -61,10 +61,21 @@ public abstract class ConstraintOnLinkObject<E extends DataObject<E>, F extends 
 	 * 
 	 * @param maintablealias alias to generate the condition for
 	 * @param leftobjectid   id of the left object
-	 * @return a query condition that will return only valid left objects for link
+	 * @return a query condition that will return only valid right objects for link
 	 *         creation
 	 */
 	public abstract QueryCondition generateQueryFilter(TableAlias maintablealias, DataObjectId<E> leftobjectid);
+
+	/**
+	 * generates a filter to show only valid objects when querying for potential
+	 * right objects
+	 * 
+	 * @param maintablealias alias to generate the condition for
+	 * @param leftobject     draft left object (not yet persisted)
+	 * @return a query condition that will return only valid right objects for link
+	 *         creation
+	 */
+	public abstract QueryCondition generateQueryFilter(TableAlias maintablealias, E leftobject);
 
 	/**
 	 * generates a filter to show only valid objects when querying for potential

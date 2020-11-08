@@ -87,6 +87,15 @@ public class SActionData {
 	 * @return the requested data element, or an exception if out of range
 	 */
 	public DataElt getAttribute(int index) {
+		if (index>=actiondata.getSize()) {
+			StringBuffer actiondatadrop = new StringBuffer();
+			for (int i=0;i<actiondata.getSize();i++) {
+				DataElt element = actiondata.get(i);
+				if (element!=null) actiondatadrop.append("["+i+":"+element.getName()+":"+element.getType());
+				if (element==null) actiondatadrop.append("["+i+":NULL]");
+			}
+			throw new RuntimeException("Request out of range ("+index+"/"+actiondata.getSize()+"), drop of elements "+actiondatadrop);
+		}
 		return actiondata.get(index);
 	}
 

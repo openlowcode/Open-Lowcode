@@ -301,6 +301,12 @@ public class LinkObject<E extends DataObjectDefinition, F extends DataObjectDefi
 		getpotentialrightobjects.addInputArgument(
 				new MethodArgument("leftobjectid", new ObjectIdArgument("leftobject", this.leftobjectforlink)));
 		this.addDataAccessMethod(getpotentialrightobjects);
+		
+		DataAccessMethod getpotentialrightobjectsfordraft = new DataAccessMethod("GETPOTENTIALRIGHTOBJECTFORDRAFT",
+				new ArrayArgument(new ObjectArgument("RIGHTOBJECT", this.rightobjectforlink)), true);
+		getpotentialrightobjectsfordraft.addInputArgument(
+				new MethodArgument("LEFTOBJECT", new ObjectArgument("leftobject", this.leftobjectforlink)));
+		this.addDataAccessMethod(getpotentialrightobjectsfordraft);
 
 		DataAccessMethod getpotentialleftobjects = new DataAccessMethod("GETPOTENTIALLEFTOBJECT",
 				new ArrayArgument(new ObjectArgument("LEFTOBJECT", this.leftobjectforlink)), true);

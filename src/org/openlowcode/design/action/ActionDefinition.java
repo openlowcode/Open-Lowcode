@@ -1108,7 +1108,7 @@ public abstract class ActionDefinition
 					String objectvariable = StringFormatter.formatForAttribute(thisobjectinarrayarg.getType());
 					String objectclass = StringFormatter.formatForJavaClass(thisobjectinarrayarg.getType());
 
-					sg.wl("if (attribute" + i + ".getArrayPayloadEltType() instanceof ObjectDataEltType) {");
+					sg.wl("			if (attribute" + i + ".getArrayPayloadEltType() instanceof ObjectDataEltType) {");
 					sg.wl("				ArrayList<" + objectclass + "> inputlist = new  ArrayList<" + objectclass
 							+ ">();");
 					sg.wl("				for (int i=0;i<attribute" + i + ".getObjectNumber();i++) {");

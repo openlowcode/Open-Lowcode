@@ -427,7 +427,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 							+ "Action)AtgSearchright" + rightobjectvariable + "for" + linkobjectvariable
 							+ "Action.get()).new Specific" + rightobjectclass + "Searcher(");
 					sg.wl("					objectdisplaydefinition.getAttributeInput(" + objectclass
-							+ ".getIdMarker())),");
+							+ ".getIdMarker()),null),");
 					sg.wl("			this,\"" + linkobject.getName().toUpperCase() + "SEARCH\");");
 					sg.wl("		" + rightobjectvariable + "searchforaddtoleft" + linkobjectvariable
 							+ "s.getresultarray().setAllowMultiSelect(); ");

@@ -19,6 +19,9 @@ import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.data.argument.StringArgument;
 import org.openlowcode.design.data.argument.TimestampArgument;
 import org.openlowcode.design.data.autopages.GeneratedPages;
+import org.openlowcode.design.data.properties.basic.ConstraintOnLinkTypeRestrictionForLeft;
+import org.openlowcode.design.data.properties.basic.DisplayLinkAsAttributeFromLeftObject;
+import org.openlowcode.design.data.properties.basic.LeftForLink;
 import org.openlowcode.design.data.properties.basic.LinkedToParent;
 import org.openlowcode.design.data.properties.basic.Session;
 import org.openlowcode.design.data.properties.basic.TimeSlot;
@@ -26,6 +29,10 @@ import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.design.pages.SearchWidgetDefinition;
+import org.openlowcode.module.designer.data.Dataobjectdef;
+import org.openlowcode.server.action.SInlineEchoActionRef;
+import org.openlowcode.server.data.message.TObjectDataEltType;
 
 /**
  * Generation of the creation page for a Data Object
@@ -46,20 +53,20 @@ public class DataObjectDefinitionCreatePageToFile
 	 */
 	public DataObjectDefinitionCreatePageToFile(DataObjectDefinition dataobject) {
 		this.dataobject = dataobject;
-		this.companion=null;
+		this.companion = null;
 	}
-	
 
 	/**
 	 * creates the utility class to generate the creation page
 	 * 
 	 * @param dataobject data object
 	 */
-	public DataObjectDefinitionCreatePageToFile(DataObjectDefinition dataobject,DataObjectDefinition companion) {
+	public DataObjectDefinitionCreatePageToFile(DataObjectDefinition dataobject, DataObjectDefinition companion) {
 		this.dataobject = dataobject;
-		this.companion=companion;
+		this.companion = companion;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void generateToFile(SourceGenerator sg, Module module) throws IOException {
 		String objectclass = StringFormatter.formatForJavaClass(dataobject.getName());
@@ -67,12 +74,17 @@ public class DataObjectDefinitionCreatePageToFile
 
 		String pagename = objectvariable;
 		String companionclass = null;
-		
-		if (companion!=null) {
+		ArrayList<LeftForLink<?, ?>> leftlinkedproperties = new ArrayList<LeftForLink<?, ?>>();
+		for (int i = 0; i < dataobject.getPropertySize(); i++) {
+			if (dataobject.getPropertyAt(i) instanceof LeftForLink)
+				leftlinkedproperties.add((LeftForLink) dataobject.getPropertyAt(i));
+		}
+
+		if (companion != null) {
 			pagename = StringFormatter.formatForAttribute(companion.getName());
 			companionclass = StringFormatter.formatForJavaClass(companion.getName());
 		}
-		
+
 		sg.wl("package " + module.getPath() + ".page.generated;");
 		sg.wl("");
 
@@ -86,8 +98,6 @@ public class DataObjectDefinitionCreatePageToFile
 
 				ArgumentContent thisargument = thisproperty.getContextDataForCreation(j);
 
-
-				
 				if (pageattributedeclaration.length() > 0)
 					pageattributedeclaration.append(" , ");
 				pageattributedeclaration
@@ -133,6 +143,36 @@ public class DataObjectDefinitionCreatePageToFile
 
 				}
 		}
+		boolean hasleftlinkasattribute = false;
+		for (int i = 0; i < leftlinkedproperties.size(); i++) {
+			LeftForLink<?, ?> leftlinkedproperty = leftlinkedproperties.get(i);
+			DataObjectDefinition linkobject = leftlinkedproperty.getLinkObjectDefinition();
+			String linkobjectclass = StringFormatter.formatForJavaClass(linkobject.getName());
+			String linkobjectvariable = StringFormatter.formatForAttribute(linkobject.getName());
+			String rightobjectvariable = StringFormatter
+					.formatForAttribute(leftlinkedproperty.getRightObjectForLink().getName());
+			String rightobjectclass = StringFormatter
+					.formatForJavaClass(leftlinkedproperty.getRightObjectForLink().getName());
+			@SuppressWarnings("rawtypes")
+			DisplayLinkAsAttributeFromLeftObject<
+					?, ?> attributeasleft = (DisplayLinkAsAttributeFromLeftObject) leftlinkedproperty
+							.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
+
+			if (attributeasleft != null) {
+				hasleftlinkasattribute = true;
+				sg.wl("import " + linkobject.getOwnermodule().getPath() + ".action.generated.AtgSearchright"
+						+ rightobjectvariable + "for" + linkobjectvariable + "Action;");
+				sg.wl("import " + linkobject.getOwnermodule().getPath() + ".data." + rightobjectclass + ";");
+			}
+		}
+		if (hasleftlinkasattribute) {
+			sg.wl("import java.util.ArrayList;");
+			sg.wl("import org.openlowcode.server.graphic.widget.SObjectArrayField;");
+			sg.wl("import org.openlowcode.server.graphic.widget.SFieldSearcher;");
+			sg.wl("import org.openlowcode.server.action.SInlineEchoActionRef;");
+			sg.wl("import org.openlowcode.server.data.message.TObjectDataEltType;");
+
+		}
 
 		// ------------------------ Attributes for field suggestions
 		// ---------------------
@@ -154,14 +194,15 @@ public class DataObjectDefinitionCreatePageToFile
 		String objectimport = "import " + dataobject.getOwnermodule().getPath() + ".data." + objectclass + ";";
 		importdeclaration.put(objectimport, objectimport);
 
-		if (companion!=null) {
+		if (companion != null) {
 			String companionimport = "import " + companion.getOwnermodule().getPath() + ".data." + companionclass + ";";
-			
+
 			importdeclaration.put(companionimport, companionimport);
-			String companioncreateaction = "import  "+ companion.getOwnermodule().getPath() + ".action.generated.AtgStandardcreate"+companion.getName().toLowerCase()+"Action;";
+			String companioncreateaction = "import  " + companion.getOwnermodule().getPath()
+					+ ".action.generated.AtgStandardcreate" + companion.getName().toLowerCase() + "Action;";
 			importdeclaration.put(companioncreateaction, companioncreateaction);
 		}
-		
+
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			if (thisproperty instanceof LinkedToParent) {
@@ -182,7 +223,7 @@ public class DataObjectDefinitionCreatePageToFile
 			}
 			if (thisproperty instanceof Typed) {
 				sg.wl("import org.openlowcode.server.graphic.widget.SChoiceTextField;");
-				
+
 			}
 		}
 
@@ -230,15 +271,17 @@ public class DataObjectDefinitionCreatePageToFile
 
 		sg.wl("	@Override");
 		sg.wl("	public String generateTitle(" + pageattributedeclaration.toString());
-		sg.wl("			" + objectclass + " object"+(companion!=null?", "+companionclass+" companion":"")+")  {");
+		sg.wl("			" + objectclass + " object" + (companion != null ? ", " + companionclass + " companion" : "")
+				+ ")  {");
 		sg.wl("		return \"Create " + dataobject.getLabel() + "\";");
 		sg.wl("		}");
 
 		sg.wl("	public AtgStandardcreate" + pagename + "Page(" + pageattributedeclaration.toString());
-		sg.wl("			" + objectclass + " object"+(companion!=null?", "+companionclass+" companion":"")+")  {");
+		sg.wl("			" + objectclass + " object" + (companion != null ? ", " + companionclass + " companion" : "")
+				+ ")  {");
 
 		sg.wl("		super(" + pageattributeentry.toString());
-		sg.wl("			  object"+(companion!=null?",companion":"")+");");
+		sg.wl("			  object" + (companion != null ? ",companion" : "") + ");");
 		sg.wl("		");
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++)
 			for (int j = 0; j < dataobject.propertylist.get(i).getContextDataForCreationSize(); j++) {
@@ -257,20 +300,40 @@ public class DataObjectDefinitionCreatePageToFile
 		sg.wl("	protected SPageNode getContent()  {");
 		sg.wl("		");
 		sg.wl("			SComponentBand mainband = new  SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
-		sg.wl("			SPageText title = new SPageText(\"Enter data for new " + (companion!=null?companion.getLabel():dataobject.getLabel())
+		sg.wl("			SPageText title = new SPageText(\"Enter data for new "
+				+ (companion != null ? companion.getLabel() : dataobject.getLabel())
 				+ "\",SPageText.TYPE_TITLE,this);");
 
 		sg.wl("			mainband.addElement(title);");
 		sg.wl("			AtgStandardcreate" + pagename + "Action.ActionRef create" + pagename
 				+ "actionref = AtgStandardcreate" + pagename + "Action.get().getActionRef();");
 		if (subobject != null) {
-			sg.wl("	AtgShow" + StringFormatter.formatForAttribute(subobject.getParentObjectForLink().getName())
+			sg.wl("			AtgShow" + StringFormatter.formatForAttribute(subobject.getParentObjectForLink().getName())
 					+ "Action.ActionRef back = AtgShow"
 					+ StringFormatter.formatForAttribute(subobject.getParentObjectForLink().getName())
 					+ "Action.get().getActionRef();");
 		} else {
-			sg.wl("	AtgLaunchsearch" + objectvariable + "Action.ActionRef back = AtgLaunchsearch" + objectvariable
+			sg.wl("			AtgLaunchsearch" + objectvariable + "Action.ActionRef back = AtgLaunchsearch" + objectvariable
 					+ "Action.get().getActionRef();");
+		}
+		ArrayList<String> parentidsetters = new ArrayList<String>();
+		for (int i = 0; i < leftlinkedproperties.size(); i++) {
+			LeftForLink<?, ?> leftlinkedproperty = leftlinkedproperties.get(i);
+			DataObjectDefinition linkobject = leftlinkedproperty.getLinkObjectDefinition();
+			String linkobjectvariable = StringFormatter.formatForAttribute(linkobject.getName());
+			String rightobjectvariable = StringFormatter
+					.formatForAttribute(leftlinkedproperty.getRightObjectForLink().getName());
+			DisplayLinkAsAttributeFromLeftObject<
+					?, ?> attributeasleft = (DisplayLinkAsAttributeFromLeftObject) leftlinkedproperty
+							.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
+
+			if (attributeasleft != null) {
+			sg.wl("				AtgSearchright" + rightobjectvariable + "for" + linkobjectvariable
+					+ "Action.InlineActionRef addtoleft" + linkobjectvariable + "ssearchaction = AtgSearchright"
+					+ rightobjectvariable + "for" + linkobjectvariable + "Action.get().getInlineActionRef();");
+			sg.wl("				");
+			parentidsetters.add("				addtoleft" + linkobjectvariable + "ssearchaction.set");
+			}
 		}
 //add context data. 
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
@@ -295,6 +358,10 @@ public class DataObjectDefinitionCreatePageToFile
 					sg.wl("			mainband.addElement(" + namevariable + ");");
 					sg.wl("			create" + pagename + "actionref.set" + nameclass + "(" + namevariable
 							+ ".getObjectIdInput());");
+					for (int k=0;k<parentidsetters.size();k++) {
+						sg.wl(parentidsetters.get(k)+nameclass+"("+namevariable
+								+ ".getObjectIdInput());");
+					}
 					if (issubobject)
 						sg.wl("			back.setId(" + namevariable + ".getObjectIdInput());");
 					if (contextdata.isOptional()) {
@@ -305,9 +372,15 @@ public class DataObjectDefinitionCreatePageToFile
 						sg.wl("				mainband.addElement(new SPageText(\"Select relevant "
 								+ contextobjectid.getObject().getLabel() + "\",SPageText.TYPE_TITLE,this));");
 						sg.wl("				mainband.addElement(" + objectidvariable + "searcher);");
-						sg.wl("				create" + pagename + "actionref.set" + nameclass + "("
-								+ objectidvariable + "searcher.getresultarray().getAttributeInput(" + objectidclass
+						sg.wl("				create" + pagename + "actionref.set" + nameclass + "(" + objectidvariable
+								+ "searcher.getresultarray().getAttributeInput(" + objectidclass
 								+ ".getIdMarker())); ");
+						for (int k=0;k<parentidsetters.size();k++) {
+							sg.wl(parentidsetters.get(k)+nameclass+"("+
+									objectidvariable
+									+ "searcher.getresultarray().getAttributeInput(" + objectidclass
+									+ ".getIdMarker())); ");
+						}
 						sg.wl("			}");
 
 					}
@@ -315,13 +388,9 @@ public class DataObjectDefinitionCreatePageToFile
 				}
 				if (contextdata instanceof ChoiceArgument) {
 					ChoiceArgument choiceargument = (ChoiceArgument) contextdata;
-					sg.wl("		SChoiceTextField<"
-							+ choiceargument.getChoiceCategoryClass()
-							+ "> typefield = new SChoiceTextField<"
-							+ choiceargument.getChoiceCategoryClass()
-							+ ">(");
-					sg.wl("				\"Type\", \"TYPE\",\"Type\", "
-							+choiceargument.getChoiceCategoryClass()
+					sg.wl("		SChoiceTextField<" + choiceargument.getChoiceCategoryClass()
+							+ "> typefield = new SChoiceTextField<" + choiceargument.getChoiceCategoryClass() + ">(");
+					sg.wl("				\"Type\", \"TYPE\",\"Type\", " + choiceargument.getChoiceCategoryClass()
 							+ ".get(), this.getType(), this, true, back);");
 					sg.wl("		mainband.addElement(typefield);");
 
@@ -389,8 +458,7 @@ public class DataObjectDefinitionCreatePageToFile
 				sg.wl("			STimeslotField timeslotfield = new STimeslotField(\"ORIGINTIMESLOT\",\"Start Time\",\"End Time\",\"Start Time\",\"End Time\", STimeslotField.DEFAULT_EMPTY,");
 				sg.wl("					this.getStarttime(),this.getEndtime(), true, this);");
 				sg.wl("			mainband.addElement(timeslotfield);");
-				sg.wl("			create" + pagename
-						+ "actionref.setStarttime(timeslotfield.getStartDateInput());");
+				sg.wl("			create" + pagename + "actionref.setStarttime(timeslotfield.getStartDateInput());");
 				sg.wl("			create" + objectvariable + "actionref.setEndtime(timeslotfield.getEndDateInput()); ");
 
 			}
@@ -400,8 +468,7 @@ public class DataObjectDefinitionCreatePageToFile
 				sg.wl("			mainband.addElement(timeslotfield);");
 				sg.wl("			SIntegerField sequencefield = new SIntegerField(\"Sequence Number\",\"SEQUENCEFIELD\", \"\", new Integer(1), true,this, false,false,false, null);");
 				sg.wl("			mainband.addElement(sequencefield);");
-				sg.wl("			create" + pagename
-						+ "actionref.setStarttime(timeslotfield.getStartDateInput()); ");
+				sg.wl("			create" + pagename + "actionref.setStarttime(timeslotfield.getStartDateInput()); ");
 				sg.wl("			create" + pagename + "actionref.setEndtime(timeslotfield.getEndDateInput()); ");
 				sg.wl("			create" + pagename + "actionref.setSequence(sequencefield.getIntegerInput());  ");
 
@@ -426,13 +493,13 @@ public class DataObjectDefinitionCreatePageToFile
 		}
 		sg.wl("			" + objectvariable + "display.setHideReadOnly();");
 		sg.wl("			mainband.addElement(" + objectvariable + "display);");
-if (companion!=null) {
-		sg.wl("			SObjectDisplay<" + companionclass + "> " + pagename + "display = new SObjectDisplay<"
-				+ companionclass + ">(\"COMPANIONDISPLAY\", this.getCompanion()," + companionclass
-				+ ".getDefinition(),this, false);");
-		sg.wl("			" + pagename + "display.setHideReadOnly();");
-		sg.wl("			mainband.addElement(" + pagename + "display);")	;
-}
+		if (companion != null) {
+			sg.wl("			SObjectDisplay<" + companionclass + "> " + pagename + "display = new SObjectDisplay<"
+					+ companionclass + ">(\"COMPANIONDISPLAY\", this.getCompanion()," + companionclass
+					+ ".getDefinition(),this, false);");
+			sg.wl("			" + pagename + "display.setHideReadOnly();");
+			sg.wl("			mainband.addElement(" + pagename + "display);");
+		}
 		for (int i = 0; i < dataobject.propertylist.getSize(); i++) {
 			Property<?> thisproperty = dataobject.propertylist.get(i);
 			for (int j = 0; j < thisproperty.getDataInputSize(); j++) {
@@ -463,17 +530,147 @@ if (companion!=null) {
 			}
 		}
 
-		sg.wl("			create" + pagename + "actionref.setObject(" + objectvariable
-				+ "display.getObjectInput()); ");
-		if (companion!=null) {
-			sg.wl("			create" + pagename + "actionref.setCompanion(" + pagename
-					+ "display.getObjectInput()); ");
+		sg.wl("			create" + pagename + "actionref.setObject(" + objectvariable + "display.getObjectInput()); ");
+		if (companion != null) {
+			sg.wl("			create" + pagename + "actionref.setCompanion(" + pagename + "display.getObjectInput()); ");
 		}
-		if (dataobject.getPropertyByName("TYPED")!=null) {
+		if (dataobject.getPropertyByName("TYPED") != null) {
 			sg.wl("			create" + pagename + "actionref.setType(typefield.getChoiceInput());");
 		}
-		sg.wl("			SActionButton create = new SActionButton(\"Create\", create" + pagename
-				+ "actionref, this);");
+
+		/// --------------- attributes as link if needed
+
+		for (int i = 0; i < leftlinkedproperties.size(); i++) {
+			LeftForLink<?, ?> leftlinkedproperty = leftlinkedproperties.get(i);
+			DataObjectDefinition linkobject = leftlinkedproperty.getLinkObjectDefinition();
+			String linkobjectclass = StringFormatter.formatForJavaClass(linkobject.getName());
+			String linkobjectvariable = StringFormatter.formatForAttribute(linkobject.getName());
+			String rightobjectvariable = StringFormatter
+					.formatForAttribute(leftlinkedproperty.getRightObjectForLink().getName());
+			String rightobjectclass = StringFormatter
+					.formatForJavaClass(leftlinkedproperty.getRightObjectForLink().getName());
+			@SuppressWarnings("rawtypes")
+			DisplayLinkAsAttributeFromLeftObject<
+					?, ?> attributeasleft = (DisplayLinkAsAttributeFromLeftObject) leftlinkedproperty
+							.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
+
+			if (attributeasleft != null) {
+				Typed typed = (Typed) leftlinkedproperty.getParent().getPropertyByName("TYPED");
+				@SuppressWarnings("rawtypes")
+				ConstraintOnLinkTypeRestrictionForLeft typerestrictionforleft = (ConstraintOnLinkTypeRestrictionForLeft) leftlinkedproperty
+						.getLinkObjectProperty().getBusinessRuleByName("TYPERESTRICTIONFORLEFT");
+				sg.wl("// ---------------- Display " + linkobjectclass + " as object array field -------------------");
+				sg.wl("// ----------------");
+
+				sg.wl("	");
+				sg.wl("");
+				if (typerestrictionforleft != null) {
+					sg.wl("		ArrayList<SPageNode> left" + linkobjectvariable
+							+ "nodes = new ArrayList<SPageNode>();");
+					sg.wl("		left" + linkobjectvariable + "nodes.add(new SPageText(\""
+							+ leftlinkedproperty.getLinkObjectProperty().getLabelFromLeft()
+							+ "\",SPageText.TYPE_TITLE,this));");
+				}
+				sg.wl("		SObjectArrayField<" + rightobjectclass + "> left" + linkobjectvariable
+						+ "s = new SObjectArrayField<" + rightobjectclass + ">(\"" + linkobjectclass.toUpperCase()
+						+ "\",");
+				sg.wl("				\"" + leftlinkedproperty.getLinkObjectProperty().getLabelFromLeft() + "\",\""
+						+ linkobject.getLabel() + "\", null,");
+				sg.wl("				" + rightobjectclass + ".getDefinition(),");
+				sg.wl("				" + rightobjectclass + ".getDefinition().getNrFieldMarker(), this);");
+
+				if (typerestrictionforleft != null) {
+					sg.wl("		left" + linkobjectvariable + "nodes.add(left" + linkobjectvariable + "s);");
+
+				} else {
+
+					sg.wl("			mainband.addElement(left" + linkobjectvariable + "s);");
+				}
+
+				sg.wl("				");
+
+
+				sg.wl("				SInlineEchoActionRef<TObjectDataEltType<" + rightobjectclass + ">> addtoleft"
+						+ linkobjectvariable + "s_resultechoaction =");
+				sg.wl("						new SInlineEchoActionRef<TObjectDataEltType<" + rightobjectclass
+						+ ">>(new TObjectDataEltType<" + rightobjectclass + ">(" + rightobjectclass
+						+ ".getDefinition()));");
+
+				sg.wl("				SFieldSearcher<" + rightobjectclass + "> addtoleft" + linkobjectvariable
+						+ "ssearcher = ");
+				sg.wl("						new SFieldSearcher<" + rightobjectclass + ">(\"ADDTOLEFT"
+						+ linkobjectvariable.toUpperCase() + "SSEARCHER\", ");
+				sg.wl("						\"add\", ");
+				sg.wl("						\"close\", ");
+				sg.wl("						\"enter the start of the number of the " + rightobjectvariable + "\", ");
+				sg.wl("						addtoleft" + linkobjectvariable + "ssearchaction, ");
+				sg.wl("						addtoleft" + linkobjectvariable + "s_resultechoaction, ");
+				sg.wl("						" + rightobjectclass + ".getDefinition(), ");
+				sg.wl("						" + rightobjectclass + ".getNrFieldMarker(), ");
+				sg.wl("						this);");
+				sg.wl("				");
+
+				// ------------------------------------------------------------------------------------
+				// create right object
+				// ------------------------------------------------------------------------------------
+
+				sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setLeft" + objectvariable + "("
+						+ objectvariable + "display.getObjectInput());");
+				sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setLeft" + objectvariable
+						+ "id(null);");
+
+				sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setNr(addtoleft"
+						+ linkobjectvariable + "ssearcher.getSearchTextInput());");
+				for (int j = 0; j < leftlinkedproperty.getRightObjectForLink().getSearchWidgets().length; j++) {
+					SearchWidgetDefinition searchwidget = leftlinkedproperty.getRightObjectForLink()
+							.getSearchWidgets()[j];
+					if (searchwidget.getFieldname().compareTo("NR") != 0)
+						if (searchwidget.getType() != SearchWidgetDefinition.TYPE_DATE) {
+							sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
+									+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "(null);");
+						} else {
+							sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
+									+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "from(null);");
+							sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.set"
+									+ StringFormatter.formatForJavaClass(searchwidget.getFieldname()) + "to(null);");
+						}
+				}
+
+				sg.wl("				addtoleft" + linkobjectvariable + "ssearcher.setSearchInlineOutput(AtgSearchright"
+						+ rightobjectvariable + "for" + linkobjectvariable + "Action.get().getSearchresultfor"
+						+ rightobjectvariable + "Ref());");
+				sg.wl("left" + linkobjectvariable + "s.addFeedingInlineAction(addtoleft" + linkobjectvariable + "s_resultechoaction, addtoleft" + linkobjectvariable + "s_resultechoaction.getOutputActionDataRef());");
+				sg.wl("				left" + linkobjectvariable + "s.addNodeAtEndOfFieldData(addtoleft"
+						+ linkobjectvariable + "ssearcher);");
+				sg.wl("				addtoleft" + linkobjectvariable + "s_resultechoaction.setInputData(addtoleft"
+						+ linkobjectvariable + "ssearcher.getObjectInput()); ");
+				if (typerestrictionforleft != null) {
+					ChoiceValue[] allowedtypes = typerestrictionforleft.getAllowedTypes();
+
+					sg.wl("		mainband.addConditionalElements(this.getType(),");
+					sg.wl("				new ChoiceValue[] { ");
+					for (int t = 0; t < allowedtypes.length; t++) {
+						;
+						sg.wl("					" + (t > 0 ? "," : "")
+								+ StringFormatter.formatForJavaClass(typed.getTypes().getName())
+								+ "ChoiceDefinition.get()." + allowedtypes[t].getName());
+					}
+					sg.wl("				}, left" + linkobjectvariable + "nodes.toArray(new SPageNode[0]));");
+
+					sg.wl("				left" + linkobjectvariable + "s.addFeedingInlineAction(addtoleft"
+							+ linkobjectvariable + "ssearchaction,addtoleft" + linkobjectvariable
+							+ "s_resultechoaction.getOutputActionDataRef());");
+
+				}
+				sg.wl("			create" + pagename + "actionref.setLeft" + linkobjectvariable + "(left"
+						+ linkobjectvariable + "s.getObjectArrayInput());");
+			}
+
+		}
+
+		/// --------------- end of attributes as link
+
+		sg.wl("			SActionButton create = new SActionButton(\"Create\", create" + pagename + "actionref, this);");
 		sg.wl("			SActionButton backbutton = new SActionButton(\"Back\",back,this);");
 		sg.wl("			");
 		sg.wl("			SComponentBand buttonband = new SComponentBand(SComponentBand.DIRECTION_RIGHT,this);");

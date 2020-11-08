@@ -1546,8 +1546,10 @@ public class DataObjectDefinitionShowPage
 				// -------------------------------------------------------------------------------------
 
 				sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setLeft" + objectvariable
-						+ "(objectdisplaydefinition.getAttributeInput(" + objectclass
+						+ "id(objectdisplaydefinition.getAttributeInput(" + objectclass
 						+ ".getDefinition().getIdMarker()));");
+				sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setLeft" + objectvariable
+						+ "(null);");
 				sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setNr(addtoleft"
 						+ linkobjectvariable + "ssearcher.getSearchTextInput());");
 				for (int j = 0; j < leftlinkedproperty.getRightObjectForLink().getSearchWidgets().length; j++) {
@@ -1629,7 +1631,7 @@ public class DataObjectDefinitionShowPage
 	 * @return the linkedtoparent on left object related by a constraint on link
 	 *         same parent, null if it does not exist
 	 */
-	public LinkedToParent<?> getLeftLinkedToParent(LinkObject<?, ?> linkobject, LinkedToParent<?> rightobjectparent) {
+	public static LinkedToParent<?> getLeftLinkedToParent(LinkObject<?, ?> linkobject, LinkedToParent<?> rightobjectparent) {
 		for (int i = 0; i < linkobject.getBusinessRuleNumber(); i++) {
 			PropertyBusinessRule<?> businessrule = linkobject.getBusinessRule(i);
 			if (businessrule instanceof ConstraintOnLinkObjectSameParent) {
@@ -1651,7 +1653,7 @@ public class DataObjectDefinitionShowPage
 	 *         string.
 	 * 
 	 */
-	private boolean canCreateRightObject(LinkObject<?, ?> linkobjectproperty) {
+	public static boolean canCreateRightObject(LinkObject<?, ?> linkobjectproperty) {
 		DataObjectDefinition rightobject = linkobjectproperty.getRightobjectforlink();
 		if (!rightobject.hasNumbered())
 			return false;
