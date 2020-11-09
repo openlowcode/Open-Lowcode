@@ -69,12 +69,21 @@ public class ArrayDataElt<E extends DataElt> extends DataElt {
 	}
 
 	/**
+	 * 
 	 * @return the number of objects in the array
 	 */
 	public int getObjectNumber() {
 		return this.arraycontent.size();
 	}
 
+	/**
+	 * 
+	 * @param index a number between 0 (included) and getObjectNumber (excluded)
+	 */
+	public void removeObjectAtIndex(int index) {
+		this.arraycontent.remove(index);
+	}
+	
 	/**
 	 * @param index
 	 * @return

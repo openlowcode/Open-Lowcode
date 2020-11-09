@@ -88,6 +88,7 @@ public class CObjectArrayField
 	private CPageInlineAction feedinginlineaction;
 	private CInlineActionDataRef feedinginlineactionoutputdata;
 	private Tooltip tooltip;
+	private boolean keeponlyone;
 
 	/**
 	 * creates an object array field widget from a message from the server
@@ -144,6 +145,7 @@ public class CObjectArrayField
 			this.feedinginlineactionoutputdata = new CInlineActionDataRef(reader, this);
 			reader.returnNextEndStructure("INLACT");
 		}
+		this.keeponlyone = reader.returnNextBooleanField("KOO");
 		reader.returnNextEndStructure("OBJARF");
 
 	}
@@ -154,7 +156,8 @@ public class CObjectArrayField
 	}
 
 	public ArrayDataElt<ObjectDataElt> getExternalContent(CPageData inputdata, CPageDataRef dataref) {
-		if (dataref==null) return new ArrayDataElt<ObjectDataElt>("INPUTDATA", new ObjectDataEltType());
+		if (dataref == null)
+			return new ArrayDataElt<ObjectDataElt>("INPUTDATA", new ObjectDataEltType());
 		DataElt thiselement = inputdata.lookupDataElementByName(dataref.getName());
 		if (thiselement == null)
 			throw new RuntimeException(String.format("could not find any page data with name = %s", dataref.getName()));
@@ -257,13 +260,14 @@ public class CObjectArrayField
 			if (payloadtypeinarray instanceof ObjectDataEltType) {
 				ObjectDataEltType objecttype = (ObjectDataEltType) payloadtypeinarray;
 				ArrayDataElt<ObjectDataElt> output = new ArrayDataElt<ObjectDataElt>(eltname, objecttype);
-				for (int i = 0; i < thiselementarray.getObjectNumber(); i++) {
-					// fields are not sent back
-					ObjectDataElt thisobject = thiselementarray.getObjectAtIndex(i);
-					ObjectDataElt object = new ObjectDataElt(eltname);
-					object.setUID(thisobject.getUID());
-					output.addElement(object);
-				}
+				if (thiselementarray != null)
+					for (int i = 0; i < thiselementarray.getObjectNumber(); i++) {
+						// fields are not sent back
+						ObjectDataElt thisobject = thiselementarray.getObjectAtIndex(i);
+						ObjectDataElt object = new ObjectDataElt(eltname);
+						object.setUID(thisobject.getUID());
+						output.addElement(object);
+					}
 				return output;
 			}
 		}
@@ -280,8 +284,11 @@ public class CObjectArrayField
 			treated = true;
 		}
 		if (dataelt instanceof ObjectDataElt) {
+			
 			ObjectDataElt element = (ObjectDataElt) dataelt;
+			if (this.keeponlyone) if (thiselementarray.getObjectNumber()==1) thiselementarray.removeObjectAtIndex(0);
 			thiselementarray.addElement(element.deepcopy(thiselementarray.getName()));
+			
 			refreshDisplay();
 			treated = true;
 		}

@@ -50,6 +50,7 @@ public class SObjectArrayField<E extends DataObject<E>>
 		implements
 		SDefaultPath {
 	private boolean inlinefeeding;
+	private boolean keeponlyone;
 	private String label;
 	private String helper;
 	private ArrayDataElt<TObjectDataElt<E>> inputdata;
@@ -99,8 +100,13 @@ public class SObjectArrayField<E extends DataObject<E>>
 		this.inlinefeeding = false;
 		this.fieldtoshow = fieldtoshow;
 		this.activeprofiles = new NamedList<DisplayProfile<E>>();
+		this.keeponlyone = false;
 	}
 
+	public void setKeepOnlyOne() {
+		this.keeponlyone=true;
+	}
+	
 	/**
 	 * adds a display profile to hide some fields
 	 * 
@@ -187,6 +193,7 @@ public class SObjectArrayField<E extends DataObject<E>>
 		} else {
 			writer.addBooleanField("INF", false);
 		}
+		writer.addBooleanField("KOO",this.keeponlyone);
 	}
 
 	@Override
