@@ -27,6 +27,8 @@ SPDX-License-Identifier: EPL-2.0
 			<include name="org/openlowcode/design/**" />
 			<include name="org/openlowcode/tools/**" />
 			<include name="org/openlowcode/module/system/design/SystemModule.java" />
+			<include name="org/openlowcode/module/designer/design/DesignerModule.java" />
+			
 			<include name="org/openlowcode/tools/stats/CountLinesOfCode.java" />
 			<include name="org/openlowcode/OLcVersionGenerator.java" />					
 		</javac>
@@ -42,8 +44,13 @@ SPDX-License-Identifier: EPL-2.0
 		</java>
 	</target>
 
+	<target name="generatedesigner" depends="generatesystemmodule">
+		<java classname="org.openlowcode.design.module.Module" classpath="./bin/">
+			<arg value="org.openlowcode.module.designer.design.DesignerModule" />
+		</java>
+	</target>
 
-	<target name="generatelinecount" depends="generatesystemmodule">
+	<target name="generatelinecount" depends="generatedesigner">
 		<java classname="org.openlowcode.tools.stats.CountLinesOfCode" classpath="./bin/">
 			<arg value="./src" />
 			<arg value="./src/olccodemetrics.csv" />
