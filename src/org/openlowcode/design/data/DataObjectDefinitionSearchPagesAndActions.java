@@ -97,7 +97,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		for (int i=0;i<sideobject.getPropertySize();i++) {
 			Property<?> thisproperty = sideobject.getPropertyAt(i);
 			if (thisproperty instanceof LinkedToParent) {
-				LinkedToParent linkedtoparent = (LinkedToParent) thisproperty;
+				LinkedToParent<?> linkedtoparent = (LinkedToParent<?>) thisproperty;
 				ObjectIdArgument parentidargument = new ObjectIdArgument("LINKEDTOPARENTFOR"+linkedtoparent.getInstancename()+"ID",linkedtoparent.getParentObjectForLink());
 				parentidargument.setOptional(true);
 				searchactionforrightobjectlink.addInputArgument(parentidargument);
@@ -112,7 +112,7 @@ public class DataObjectDefinitionSearchPagesAndActions {
 		for (int i=0;i<object.getPropertySize();i++) {
 			Property<?> thisproperty = object.getPropertyAt(i);
 			if (thisproperty instanceof LinkedToParent) {
-				LinkedToParent linkedtoparent = (LinkedToParent) thisproperty;
+				LinkedToParent<?> linkedtoparent = (LinkedToParent<?>) thisproperty;
 				String name = ("LINKEDTOPARENTFOR"+linkedtoparent.getInstancename()+"ID").toLowerCase();
 				sg.w(", DataObjectId<"+StringFormatter.formatForJavaClass(linkedtoparent.getParentObjectForLink().getName())+"> "+name+" ");
 				

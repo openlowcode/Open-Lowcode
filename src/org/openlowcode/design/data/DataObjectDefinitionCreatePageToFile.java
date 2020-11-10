@@ -30,10 +30,6 @@ import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
 import org.openlowcode.design.pages.SearchWidgetDefinition;
-import org.openlowcode.module.designer.data.Dataobjectdef;
-import org.openlowcode.server.action.SInlineEchoActionRef;
-import org.openlowcode.server.data.message.TObjectDataEltType;
-
 /**
  * Generation of the creation page for a Data Object
  * 
@@ -147,13 +143,13 @@ public class DataObjectDefinitionCreatePageToFile
 		for (int i = 0; i < leftlinkedproperties.size(); i++) {
 			LeftForLink<?, ?> leftlinkedproperty = leftlinkedproperties.get(i);
 			DataObjectDefinition linkobject = leftlinkedproperty.getLinkObjectDefinition();
+			@SuppressWarnings("unused")
 			String linkobjectclass = StringFormatter.formatForJavaClass(linkobject.getName());
 			String linkobjectvariable = StringFormatter.formatForAttribute(linkobject.getName());
 			String rightobjectvariable = StringFormatter
 					.formatForAttribute(leftlinkedproperty.getRightObjectForLink().getName());
 			String rightobjectclass = StringFormatter
 					.formatForJavaClass(leftlinkedproperty.getRightObjectForLink().getName());
-			@SuppressWarnings("rawtypes")
 			DisplayLinkAsAttributeFromLeftObject<
 					?, ?> attributeasleft = (DisplayLinkAsAttributeFromLeftObject) leftlinkedproperty
 							.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
@@ -549,14 +545,11 @@ public class DataObjectDefinitionCreatePageToFile
 					.formatForAttribute(leftlinkedproperty.getRightObjectForLink().getName());
 			String rightobjectclass = StringFormatter
 					.formatForJavaClass(leftlinkedproperty.getRightObjectForLink().getName());
-			@SuppressWarnings("rawtypes")
 			DisplayLinkAsAttributeFromLeftObject<
 					?, ?> attributeasleft = (DisplayLinkAsAttributeFromLeftObject) leftlinkedproperty
 							.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT");
-
 			if (attributeasleft != null) {
 				Typed typed = (Typed) leftlinkedproperty.getParent().getPropertyByName("TYPED");
-				@SuppressWarnings("rawtypes")
 				ConstraintOnLinkTypeRestrictionForLeft typerestrictionforleft = (ConstraintOnLinkTypeRestrictionForLeft) leftlinkedproperty
 						.getLinkObjectProperty().getBusinessRuleByName("TYPERESTRICTIONFORLEFT");
 				sg.wl("// ---------------- Display " + linkobjectclass + " as object array field -------------------");
@@ -586,7 +579,8 @@ public class DataObjectDefinitionCreatePageToFile
 
 					sg.wl("			mainband.addElement(left" + linkobjectvariable + "s);");
 				}
-
+				if (leftlinkedproperty.isUniqueLinkFromLeft()) sg.wl("		left" + linkobjectvariable
+						+ "s.setKeepOnlyOne();	");
 				sg.wl("				");
 
 
@@ -657,9 +651,6 @@ public class DataObjectDefinitionCreatePageToFile
 					}
 					sg.wl("				}, left" + linkobjectvariable + "nodes.toArray(new SPageNode[0]));");
 
-					sg.wl("				left" + linkobjectvariable + "s.addFeedingInlineAction(addtoleft"
-							+ linkobjectvariable + "ssearchaction,addtoleft" + linkobjectvariable
-							+ "s_resultechoaction.getOutputActionDataRef());");
 
 				}
 				sg.wl("			create" + pagename + "actionref.setLeft" + linkobjectvariable + "(left"

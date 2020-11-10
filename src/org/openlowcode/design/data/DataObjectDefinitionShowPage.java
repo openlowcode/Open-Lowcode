@@ -1520,7 +1520,7 @@ public class DataObjectDefinitionShowPage
 						Property<?> thisproperty = leftlinkedproperty.getRightObjectForLink().getPropertyAt(j);
 						if (thisproperty instanceof LinkedToParent) {
 							LinkedToParent<?> rightobjectlinkedtoparent = (LinkedToParent<?>) thisproperty;
-							LinkedToParent<?> leftobjectlinkedtoparent = this.getLeftLinkedToParent(
+							LinkedToParent<?> leftobjectlinkedtoparent = DataObjectDefinitionShowPage.getLeftLinkedToParent(
 									leftlinkedproperty.getLinkObjectProperty(), rightobjectlinkedtoparent);
 							sg.wl("				createlinkandrightobjectfor" + linkobjectvariable
 									+ ".setLinkedtoparentfor"
@@ -1552,6 +1552,12 @@ public class DataObjectDefinitionShowPage
 						+ "(null);");
 				sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setNr(addtoleft"
 						+ linkobjectvariable + "ssearcher.getSearchTextInput());");
+				for (int j=0;j<this.dataobject.getPropertySize();j++) {
+					if (dataobject.getPropertyAt(j) instanceof LinkedToParent) {
+						LinkedToParent<?> parent = (LinkedToParent<?>) dataobject.getPropertyAt(j);
+						sg.wl("				addtoleft" + linkobjectvariable + "ssearchaction.setLinkedtoparentfor"+parent.getInstancename().toLowerCase()+"id(null);");
+					}
+				}
 				for (int j = 0; j < leftlinkedproperty.getRightObjectForLink().getSearchWidgets().length; j++) {
 					SearchWidgetDefinition searchwidget = leftlinkedproperty.getRightObjectForLink()
 							.getSearchWidgets()[j];

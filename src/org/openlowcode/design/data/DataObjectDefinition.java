@@ -2560,7 +2560,7 @@ public class DataObjectDefinition
 		if (addlinks) for (int i = 0; i < object.propertylist.getSize(); i++) {
 			Property<?> property = object.propertylist.get(i);
 			if (property instanceof LeftForLink) {
-				LeftForLink leftforlink = (LeftForLink) property;
+				LeftForLink<?,?> leftforlink = (LeftForLink<?,?>) property;
 				if (leftforlink.getLinkObjectProperty().getBusinessRuleByName("DISPLAYASATTRIBUTEFROMLEFT") != null) {
 					action.addInputArgument(new ArrayArgument(
 							new ObjectArgument("LEFT" + leftforlink.getLinkObjectDefinition().getName(),

@@ -25,6 +25,7 @@ import org.openlowcode.tools.structure.ChoiceDataEltType;
 import org.openlowcode.tools.structure.DataElt;
 import org.openlowcode.tools.structure.DataEltType;
 import org.openlowcode.tools.structure.MultipleChoiceDataElt;
+import org.openlowcode.tools.structure.ObjectDataElt;
 import org.openlowcode.tools.structure.ObjectIdDataElt;
 import org.openlowcode.tools.structure.ObjectIdDataEltType;
 import org.openlowcode.tools.structure.TextDataElt;
@@ -114,6 +115,11 @@ public class CPageInlineAction extends Named {
 				if (thisbusinessdataloc.getType().equals("OID")) {
 					treated=true;
 					result.addActionAttribute(new ObjectIdDataElt(thisbusinessdataloc.getName()));
+				}
+				
+				if (thisbusinessdataloc.getType().equals("OBJ")) {
+					treated=true;
+					result.addActionAttribute(new ObjectDataElt(thisbusinessdataloc.getName()));
 				}
 				
 				if (thisbusinessdataloc.getType().startsWith("ARR")) {

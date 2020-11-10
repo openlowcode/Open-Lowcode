@@ -2270,7 +2270,7 @@ public class Module
 			} catch (Throwable e) {
 				errormodules.add(classpath + " - " + e.getMessage() + "\n    - " + e.getStackTrace()[0] + "\n    - "
 						+ (e.getStackTrace().length > 1 ? e.getStackTrace()[1] : ""));
-				logger.severe("Exception " + e.getMessage());
+				logger.severe("Exception "+e.getClass().toString()+" - " + e.getMessage());
 				for (int s = 0; s < e.getStackTrace().length; s++) {
 					logger.severe(" - " + e.getStackTrace()[s].toString());
 				}

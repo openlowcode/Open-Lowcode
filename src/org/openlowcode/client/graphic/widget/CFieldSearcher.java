@@ -13,6 +13,7 @@ package org.openlowcode.client.graphic.widget;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import org.openlowcode.tools.messages.MessageReader;
 import org.openlowcode.tools.messages.OLcRemoteException;
@@ -36,6 +37,7 @@ import org.openlowcode.tools.structure.ObjectIdDataEltType;
 import org.openlowcode.tools.structure.SimpleDataElt;
 import org.openlowcode.tools.structure.TextDataElt;
 import org.openlowcode.tools.structure.TextDataEltType;
+
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -97,6 +99,7 @@ public class CFieldSearcher
 	private CPageInlineAction inlineenirichaction;
 	private Tooltip searchtooltip;
 
+	private static Logger logger = Logger.getLogger(CFieldSearcher.class.getName());
 	/**
 	 * creates the CFieldSearcher from a message from the server
 	 * 
@@ -228,10 +231,14 @@ public class CFieldSearcher
 			ButtonHandler buttonhandler = new ButtonHandler(actionmanager);
 			bottombutton.setOnMouseClicked(buttonhandler);
 		}
-		if (inlineenirichaction != null)
+		if (inlineenirichaction != null) {
 			actionmanager.registerInlineAction(resultlist, inlineenirichaction);
-		if (actionaftersearch != null)
+			logger.finer("   --> CFieldSearcher adding inline enrich action "+inlineenirichaction.getModule()+"/"+inlineenirichaction.getName());
+		}
+		if (actionaftersearch != null) {
 			actionmanager.registerEvent(resultlist, actionaftersearch);
+			logger.finer("   --> CFieldSearcher add action after search "+actionaftersearch.getModule()+"/"+actionaftersearch.getName());
+		}
 		resultlist.addEventHandler(ActionEvent.ACTION, actionmanager);
 		resultlist.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
@@ -301,12 +308,13 @@ public class CFieldSearcher
 	@SuppressWarnings("unchecked")
 	@Override
 	public void forceUpdateData(DataElt dataelt) {
-
+		logger.finer(" --> gets data element in the CFieldSearcher");
 		if (!(dataelt instanceof ArrayDataElt))
 			throw new RuntimeException(
 					String.format("inline page data does not have expected %s type, actually found %s",
 							dataelt.getName(), dataelt.getType()));
 		data = (ArrayDataElt<ObjectDataElt>) dataelt;
+		logger.finer("--> got an array with "+data.getObjectNumber()+" elements");
 		ArrayList<String> itemstoshow = new ArrayList<String>();
 		for (int i = 0; i < data.getObjectNumber(); i++) {
 			ObjectDataElt thisobject = data.getObjectAtIndex(i);

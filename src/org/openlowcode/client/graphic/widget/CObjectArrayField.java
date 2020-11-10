@@ -178,7 +178,7 @@ public class CObjectArrayField
 			Window parentwindow,
 			TabPane[] parenttabpanes,
 			CollapsibleNode nodetocollapsewhenactiontriggered) {
-		logger.fine("built node CObjectArrayField " + this.name);
+		logger.finer("built node CObjectArrayField " + this.name);
 		this.actionmanager = actionmanager;
 		if (this.inlinefeeding) {
 			inputdata.addInlineActionDataRef(this.feedinginlineactionoutputdata);
@@ -280,13 +280,20 @@ public class CObjectArrayField
 		boolean treated = false;
 		if (dataelt instanceof ArrayDataElt) {
 			thiselementarray = (ArrayDataElt<ObjectDataElt>) dataelt;
+			logger.severe("--> putting an array of "+thiselementarray.getObjectNumber()+" elements ");
+			
 			refreshDisplay();
 			treated = true;
 		}
 		if (dataelt instanceof ObjectDataElt) {
 			
 			ObjectDataElt element = (ObjectDataElt) dataelt;
-			if (this.keeponlyone) if (thiselementarray.getObjectNumber()==1) thiselementarray.removeObjectAtIndex(0);
+			if (this.keeponlyone) if (thiselementarray.getObjectNumber()==1) {
+				logger.finer("--> cleaning object "+thiselementarray.getObjectAtIndex(0).getUID()+ " - "+element.toString());
+				thiselementarray.removeObjectAtIndex(0);
+				
+			}
+			logger.finer("--> adding object "+element.getUID()+ " - "+element.toString()+" number of elements before = "+thiselementarray.getObjectNumber());
 			thiselementarray.addElement(element.deepcopy(thiselementarray.getName()));
 			
 			refreshDisplay();
@@ -317,7 +324,7 @@ public class CObjectArrayField
 	}
 
 	private void refreshDisplay() {
-		logger.fine("Refresh CObjectArrayField " + this.name);
+		logger.finer("Refresh CObjectArrayField " + this.name);
 
 		datapane.getChildren().clear();
 		CBusinessField<?> selectedfield = null;
@@ -367,7 +374,7 @@ public class CObjectArrayField
 
 			objectbutton.setOnMousePressed(new ObjectArrayFieldMouseEvent(i));
 
-			logger.fine("Add objectbutton " + buttontitle);
+			logger.finer("Add objectbutton " + buttontitle);
 			datapane.getChildren().add(objectbutton);
 
 		}

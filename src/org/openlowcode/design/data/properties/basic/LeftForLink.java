@@ -19,6 +19,7 @@ import org.openlowcode.design.data.ChoiceValue;
 import org.openlowcode.design.data.DataObjectDefinition;
 import org.openlowcode.design.data.MethodAdditionalProcessing;
 import org.openlowcode.design.data.Property;
+import org.openlowcode.design.data.PropertyBusinessRule;
 import org.openlowcode.design.data.PropertyGenerics;
 import org.openlowcode.design.data.argument.ObjectIdArgument;
 import org.openlowcode.design.generation.SourceGenerator;
@@ -297,8 +298,8 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 			super("LINKFROMLEFTTABLE");
 			this.parentproperty = parentproperty;
 			typed = (Typed) this.parentproperty.getParent().getPropertyByName("TYPED");
-			typerestrictionforleft = (ConstraintOnLinkTypeRestrictionForLeft) parentproperty
-					.getLinkObjectProperty().getBusinessRuleByName("TYPERESTRICTIONFORLEFT");
+			typerestrictionforleft = (ConstraintOnLinkTypeRestrictionForLeft) parentproperty.getLinkObjectProperty()
+					.getBusinessRuleByName("TYPERESTRICTIONFORLEFT");
 		}
 
 		@Override
@@ -310,7 +311,7 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectArrayField;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SObjectSearcher;");
 			importstatements.add("import org.openlowcode.server.graphic.widget.SPopupButton;");
-			if (typerestrictionforleft!=null) {
+			if (typerestrictionforleft != null) {
 				importstatements.add("import java.util.ArrayList;");
 			}
 			String linkobjectvariable = StringFormatter
@@ -365,16 +366,17 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 				sg.wl("		// Display " + linkobjectclass);
 				sg.wl("		// ------------------------------------------------------------------------------------------");
 				sg.wl("");
-				if (this.typerestrictionforleft!=null) {
-					sg.wl("		ArrayList<SPageNode> left" + linkobjectvariable + "nodes = new ArrayList<SPageNode>();");
+				if (this.typerestrictionforleft != null) {
+					sg.wl("		ArrayList<SPageNode> left" + linkobjectvariable
+							+ "nodes = new ArrayList<SPageNode>();");
 					sg.wl("		left" + linkobjectvariable + "nodes.add(new SPageText(\""
 							+ parentproperty.getLinkObjectProperty().getLabelFromLeft()
 							+ "\",SPageText.TYPE_TITLE,this));");
 				} else {
-				
-				sg.wl("		" + locationname + ".addElement(new SPageText(\""
-						+ parentproperty.getLinkObjectProperty().getLabelFromLeft()
-						+ "\",SPageText.TYPE_TITLE,this));");
+
+					sg.wl("		" + locationname + ".addElement(new SPageText(\""
+							+ parentproperty.getLinkObjectProperty().getLabelFromLeft()
+							+ "\",SPageText.TYPE_TITLE,this));");
 				}
 				sg.wl("		SObjectArray<" + linkobjectclass + "> left" + linkobjectvariable + "s = new SObjectArray<"
 						+ linkobjectclass + ">(\"LEFT" + linkobjectclass.toUpperCase() + "\",");
@@ -497,26 +499,27 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 						+ ", this);");
 				sg.wl("		left" + linkobjectvariable + "buttonbar.addElement(deleteoneofleft" + linkobjectvariable
 						+ "button);");
-				if (this.typerestrictionforleft!=null) {
+				if (this.typerestrictionforleft != null) {
 					sg.wl("			left" + linkobjectvariable + "nodes.add(left" + linkobjectvariable + "buttonbar);");
 					sg.wl("			left" + linkobjectvariable + "nodes.add(left" + linkobjectvariable + "s);");
 					ChoiceValue[] allowedtypes = this.typerestrictionforleft.getAllowedTypes();
-					
+
 					sg.wl("		mainband.addConditionalElements(this.getTypechoice(),");
 					sg.wl("				new ChoiceValue[] { ");
-					for (int t=0;t<allowedtypes.length;t++) {
+					for (int t = 0; t < allowedtypes.length; t++) {
 						;
-						sg.wl("					"+(t>0?",":"")+StringFormatter.formatForJavaClass(this.typed.getTypes().getName())+"ChoiceDefinition.get()."+allowedtypes[t].getName());
+						sg.wl("					" + (t > 0 ? "," : "")
+								+ StringFormatter.formatForJavaClass(this.typed.getTypes().getName())
+								+ "ChoiceDefinition.get()." + allowedtypes[t].getName());
 					}
 					sg.wl("				}, left" + linkobjectvariable + "nodes.toArray(new SPageNode[0]));");
-
 
 				} else {
 					sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "buttonbar);");
 					sg.wl("		" + locationname + ".addElement(left" + linkobjectvariable + "s);");
-			
+
 				}
-				} else {
+			} else {
 				// -------------------------------------------------------------------------------------------------
 				// show link as field array
 			}
@@ -529,4 +532,23 @@ public class LeftForLink<E extends DataObjectDefinition, F extends DataObjectDef
 		}
 
 	}
+
+	/**
+	 * utility method telling is the link is unique for left, restricting widgets
+	 * when needed in (especially in creation page)
+	 * 
+	 * @return
+	 */
+	public boolean isUniqueLinkFromLeft() {
+		LinkObject<?, ?> linkobject = this.getLinkObjectProperty();
+		for (int i = 0; i < linkobject.getBusinessRuleNumber(); i++) {
+			PropertyBusinessRule<?> businessrule = linkobject.getBusinessRule(i);
+			if (businessrule instanceof ConstraintOnLinkMaxOneFromLeft)
+				return true;
+			if (businessrule instanceof ConstraintOnLinkUniqueForLeftAndRight)
+				return true;
+		}
+		return false;
+	}
+
 }

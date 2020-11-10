@@ -113,7 +113,7 @@ public class CPageData {
 				throw new RuntimeException("Name in trigggered inline action is null ");
 
 			if ((currentref.getModule().compareTo(module) == 0) && (currentref.getName().compareTo(name) == 0)) {
-				LOGGER.finer("found one match for action");
+				LOGGER.finer("found one match for action for module "+module+", action "+name+" index = "+i);
 				DataElt dataelt = newdata.getDataElement(currentref.getFieldorder());
 				Platform.runLater(new Runnable() {
 
