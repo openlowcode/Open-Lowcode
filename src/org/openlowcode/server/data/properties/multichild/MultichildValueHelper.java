@@ -301,12 +301,16 @@ public abstract class MultichildValueHelper<
 	public abstract boolean allowothervalues();
 
 	/**
+	 * @param current the current value
 	 * @return the value to consolidate other values in. Example, if you want to
 	 *         have always time data from a 5 years time window, you may have a
 	 *         value 'Before' that will consolidate values from previous year when
-	 *         you get previous year data
+	 *         you get previous year data. Return null in order not to consolidate
+	 *         the data
+	 * @since 1.11.4
 	 */
-	public abstract F getDefaultValueForOtherData();
+
+	public abstract F getDefaultValueForOtherData(F current);
 
 	/**
 	 * This method checks if the current value can be kept or an alternative should
@@ -348,7 +352,7 @@ public abstract class MultichildValueHelper<
 				}
 
 			}
-		F alternative = getDefaultValueForOtherData();
+		F alternative = getDefaultValueForOtherData(get(object));
 		if (alternative != null) {
 			logger.finer("       ---> Found alternative " + alternative);
 			set(object, alternative);
@@ -592,15 +596,18 @@ public abstract class MultichildValueHelper<
 		if (this.allowothervalues())
 			return true;
 		F value = getter.apply(optionalorinvalid);
-		if (value==null) return false;
+		if (value == null)
+			return false;
 		F[] mandatoryvalues = this.getMandatoryValues();
 		F[] optionalvalues = this.getOptionalValues();
-		if (mandatoryvalues!=null) for (int i = 0; i < mandatoryvalues.length; i++)
-			if (value.equals(mandatoryvalues[i]))
-				return true;
-		if (optionalvalues!=null) for (int i = 0; i < optionalvalues.length; i++)
-			if (value.equals(optionalvalues[i]))
-				return true;
+		if (mandatoryvalues != null)
+			for (int i = 0; i < mandatoryvalues.length; i++)
+				if (value.equals(mandatoryvalues[i]))
+					return true;
+		if (optionalvalues != null)
+			for (int i = 0; i < optionalvalues.length; i++)
+				if (value.equals(optionalvalues[i]))
+					return true;
 		return false;
 	}
 
@@ -613,12 +620,14 @@ public abstract class MultichildValueHelper<
 			return true;
 		F[] mandatoryvalues = this.getMandatoryValues();
 		F[] optionalvalues = this.getOptionalValues();
-		if (mandatoryvalues!=null) for (int i = 0; i < mandatoryvalues.length; i++)
-			if (payload.equals(mandatoryvalues[i]))
-				return true;
-		if (optionalvalues!=null) for (int i = 0; i < optionalvalues.length; i++)
-			if (payload.equals(optionalvalues[i]))
-				return true;
+		if (mandatoryvalues != null)
+			for (int i = 0; i < mandatoryvalues.length; i++)
+				if (payload.equals(mandatoryvalues[i]))
+					return true;
+		if (optionalvalues != null)
+			for (int i = 0; i < optionalvalues.length; i++)
+				if (payload.equals(optionalvalues[i]))
+					return true;
 		return false;
 	}
 

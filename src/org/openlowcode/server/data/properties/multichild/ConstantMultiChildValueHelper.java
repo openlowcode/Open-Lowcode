@@ -82,7 +82,7 @@ G extends DataObject<G> & UniqueidentifiedInterface<G>> extends MultichildValueH
 	}
 
 	@Override
-	public F getDefaultValueForOtherData() {
+	public F getDefaultValueForOtherData(F current) {
 		return defaultforotherdata;
 	}
 	@Override
