@@ -326,6 +326,7 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 			String value = secondaryvalues.get(i);
 			logger.fine("   > Evaluating value "+value);
 			MultichildValueHelper<F, ?, E> helper = secondvaluehelpers.get(i);
+			helper.setContext(parent);
 			boolean valid = helper.isTextValid(value, applocale, extraattributes);
 			if (!valid) {
 				logger.fine("      !!! INVALID !!! ");
