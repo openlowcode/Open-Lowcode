@@ -160,9 +160,12 @@ public class NumberedDefinition<E extends DataObject<E> & UniqueidentifiedInterf
 			ChoiceValue<ApplocaleChoiceDefinition> locale) {
 		if (columnattributes.length == 0)
 			return new NumberedFlatFileLoader(objectdefinition, this, false, propertyextractor);
-		if (columnattributes.length == 1)
+		if (columnattributes.length == 1) {
 			if (columnattributes[0].equals("UPDATE"))
 				return new NumberedFlatFileLoader(objectdefinition, this, true, propertyextractor);
+			if (columnattributes[0].equals("NEWNUMBER"))
+				return new NumberedNewNumberFlatFileLoader();
+	}
 		throw new RuntimeException("attribute set '" + columnattributes[0] + "' not supported for numbered for object "
 				+ objectdefinition.getName());
 	}
