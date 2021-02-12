@@ -31,6 +31,7 @@ import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
+import org.openlowcode.module.system.data.choice.BooleanChoiceDefinition;
 
 /**
  * This class gathers automatically generated actions for a data object.
@@ -781,6 +782,7 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("");
 		sg.wl("import java.util.function.Function;");
 		sg.wl("");
+		sg.wl("import org.openlowcode.module.system.data.choice.BooleanChoiceDefinition;");
 		sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
 		sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
 		sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
@@ -806,8 +808,13 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("			Function<TableAlias, QueryFilter> datafilter) {");
 		sg.wl("		" + parentclass + " " + parentvariable + " = " + parentclass + ".readone(" + parentvariable
 				+ "id);");
-		sg.wl("		" + parentvariable + ".repairfor" + hasmultidimensionchild.getInstancename().toLowerCase()
+		if (hasmultidimensionchild.IsDeleteOnRepairAllowed()) {
+			sg.wl("		" + parentvariable + ".repairfor" + hasmultidimensionchild.getInstancename().toLowerCase()
+					+ "(BooleanChoiceDefinition.get().YES);");
+		} else {
+			sg.wl("		" + parentvariable + ".repairfor" + hasmultidimensionchild.getInstancename().toLowerCase()
 				+ "(null);");
+		}
 		sg.wl("		return new ActionOutputData(" + parentvariable + "id);");
 		sg.wl("	}");
 		sg.wl("");

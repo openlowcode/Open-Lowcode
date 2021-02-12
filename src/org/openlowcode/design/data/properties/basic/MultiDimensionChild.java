@@ -51,7 +51,8 @@ public class MultiDimensionChild<E extends DataObjectDefinition>
 	private Field firstaxisvalue;
 	private Field[] secondaxisvalues;
 	private Field[] payloadvalues;
-
+	private boolean isdeleteallowedonrepair;
+	
 	public Field getFirstAxisValue() {
 		return firstaxisvalue;
 	}
@@ -79,6 +80,15 @@ public class MultiDimensionChild<E extends DataObjectDefinition>
 		this.secondaxisvalues = secondaxisvalues;
 		this.payloadvalues = payloadvalues;
 		this.linkedtoparent.setMultiDimensionChild(this);
+		isdeleteallowedonrepair=false;
+	}
+	
+	public boolean isDeleteAllowedOnRepair() {
+		return this.isdeleteallowedonrepair;
+	}
+	
+	public void setAllowsDeleteOnRepair() {
+		this.isdeleteallowedonrepair=true;
 	}
 
 	@Override

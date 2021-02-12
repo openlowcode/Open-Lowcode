@@ -41,10 +41,23 @@ public class HasMultiDimensionalChild
 	private DataObjectDefinition childobjectforlink;
 	private MultiDimensionChild<?> originobjectproperty;
 
+	
 	public MultiDimensionChild<?> getOriginMultiDimensionChildProperty() {
 		return this.originobjectproperty;
 	}
 	
+	/**
+	 * @return true if delete of elements is allowed on repairing an item
+	 */
+	public boolean IsDeleteOnRepairAllowed() {
+		return originobjectproperty.isDeleteAllowedOnRepair();
+	}
+	
+	/**
+	 * @param name unique name of the property for the object
+	 * @param childobjectforlink definition of the child object
+	 * @param originobjectproperty multi dimension child property on the child object
+	 */
 	public HasMultiDimensionalChild(
 			String name,
 			DataObjectDefinition childobjectforlink,
@@ -53,9 +66,10 @@ public class HasMultiDimensionalChild
 		this.childobjectforlink = childobjectforlink;
 		this.originobjectproperty = originobjectproperty;
 		this.addPropertyGenerics(new PropertyGenerics("CHILDOBJECTFORLINK", childobjectforlink, originobjectproperty));
-
+		
 	}
 
+	
 	@Override
 	public void controlAfterParentDefinition() {
 		this.addDependentProperty(originobjectproperty.getLinkedToParent().getLinkedFromChildren());
