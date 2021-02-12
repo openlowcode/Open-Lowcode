@@ -174,14 +174,24 @@ public class Hasmultidimensionalchild<
 		// gets previous children
 		F[] previouschildren = this.casteddefinition.getChildren(object.getId());
 		HashMap<String, F> childrenbykey = new HashMap<String, F>();
-
+		
+		// Creates a list of duplicates to be removed, newest children are stored here to be removed later
+		
+		ArrayList<F> duplicatechildren = new ArrayList<F>();
+		
 		// get MultiDimensionHelper
 		MultidimensionchildHelper<F, E> multidimensionalchildhelper = this.casteddefinition.getHelper();
 		multidimensionalchildhelper.setContext(object);
 		for (int i = 0; i < previouschildren.length; i++) {
 			F thischild = previouschildren[i];
 			String key = multidimensionalchildhelper.generateKeyForObject(thischild);
+			if (childrenbykey.containsKey(key)) {
+				duplicatechildren.add(thischild);
+				 
+			}
+				else {
 			childrenbykey.put(key, thischild);
+				}
 		}
 
 		// check missing mandatory
@@ -202,6 +212,8 @@ public class Hasmultidimensionalchild<
 			compulsorychildren.put(key, thisobject);
 		}
 
+		
+		
 		// detects optionals and invalids
 
 		ArrayList<F> optionalsandinvalids = new ArrayList<F>();
@@ -250,6 +262,19 @@ public class Hasmultidimensionalchild<
 				unconsolidatedinvalids.add(invalid);
 			}
 		}
+		// process duplicates, consolidates value
+		
+		for (int i=0;i<duplicatechildren.size();i++) {
+			F thisduplicate = duplicatechildren.get(i);
+			String keyforduplicate =  multidimensionalchildhelper.generateKeyForObject(thisduplicate);
+			if (childrenbykey.get(keyforduplicate) != null) {
+				F childtoconsolidateinto = childrenbykey.get(keyforduplicate);
+				multidimensionalchildhelper.getConsolidator().accept(childtoconsolidateinto, thisduplicate);
+				allobjectstodelete.add(thisduplicate);
+				logger.finer("          -> found object to consolidate the duplicate into ");
+			}
+		}
+		
 		// Complete optionals with missing primary values
 
 		for (int i = 0; i < optionals.size(); i++) {
