@@ -107,6 +107,7 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 		if (columnattributes.length >= 2) {
 			if (maincolumnattribute.equals(this.mainvaluehelper.getFieldName())) {
 				String maincolumnvalue = columnattributes[1];
+				
 				String[] extraattributes = null;
 				if (columnattributes.length > 2) {
 					extraattributes = new String[columnattributes.length - 2];
@@ -333,6 +334,9 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 				iscontextvalid = false;
 			}
 		}
+		
+		
+		
 		if (!iscontextvalid)
 			return false;
 		DataObjectDefinition<F> childdefinition = this.hasmultidimensionalchilddefinition
@@ -344,7 +348,8 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 			helper.fillWithValue(firstblank, value, applocale, extraattributes);
 		}
 		logger.fine(" -> First blank = "+firstblank.dropToString());
-		ArrayList<F> newobjects = mainvaluehelper.generateElementsForAllMandatory(firstblank,parent);
+		
+		ArrayList<F> newobjects = mainvaluehelper.generateElementsForAllMandatory(firstblank,parent,helper,childrenbykey);
 		logger.fine("Generating elements number = "+(newobjects==null?"null":newobjects.size()));
 		if (newobjects!=null) if (newobjects.size()>0) {
 			for (int i=0;i<newobjects.size();i++) {

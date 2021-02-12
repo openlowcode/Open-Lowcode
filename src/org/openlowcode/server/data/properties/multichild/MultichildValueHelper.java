@@ -279,6 +279,20 @@ public abstract class MultichildValueHelper<
 	 * @return the mandatory values required for this field
 	 */
 	public abstract F[] getMandatoryValues();
+	
+	/**
+	 * Returns true if the value is part of mandatory values
+	 * 
+	 * @param mainvalue the value
+	 * @return
+	 */
+	public boolean isIsMandatory(Object mainvalue) {
+		F[] mandatoryvalues = getMandatoryValues();
+		if (mandatoryvalues!=null) for (int i=0;i<mandatoryvalues.length;i++) {
+			if (mandatoryvalues[i]!=null) if (mandatoryvalues[i].equals(mainvalue)) return true;
+		}
+		return false;
+	}
 
 	/**
 	 * gets the optional values that have to exist for this field on the list of
@@ -464,7 +478,6 @@ public abstract class MultichildValueHelper<
 		private HasmultidimensionalchildFlatFileLoaderHelper<G, E> helper;
 		@SuppressWarnings("unused")
 		private ChoiceValue<ApplocaleChoiceDefinition> applocale;
-		@SuppressWarnings("unused")
 		private MultichildValueHelper<E, F, G> payloadhelper;
 		private String[] extraattributes;
 		private MultichildValueHelper<E, ?, G> mainvaluehelper;
@@ -548,10 +561,12 @@ public abstract class MultichildValueHelper<
 		public boolean load(G object, Object value, PostUpdateProcessingStore<G> postupdateprocessingstore) {
 			helper.setContext(object);
 			String helpercontextkey = helper.getContextKey();
+			helper.getMainValueHelper().setContext(object);
+			if (!helper.getMainValueHelper().isIsMandatory(mainvalue)) throw new RuntimeException("Column is not valid: "+mainvalue);
 			E relevantchild = helper.getChildForLineAndColumnKey(helpercontextkey,
 					MultichildValueHelper.this.print(mainvalue));
 			if (relevantchild == null) {
-
+				
 				boolean valid = helper.generateNewRowForContext(object, applocale, extraattributes);
 				if (valid) {
 					relevantchild = helper.getChildForLineAndColumnKey(helpercontextkey,
@@ -636,14 +651,19 @@ public abstract class MultichildValueHelper<
 	 * @return
 	 * @since 1.12
 	 */
-	public ArrayList<E> generateElementsForAllMandatory(E thisoptional, G thisparent) {
+	public ArrayList<E> generateElementsForAllMandatory(E thisoptional, G thisparent,MultidimensionchildHelper<E,G> helper,HashMap<String, HashMap<String, E>> childrenbykey) {
 		ArrayList<E> returnelements = new ArrayList<E>();
 		this.setContext(thisparent);
 		F[] allmandatories = this.getMandatoryValues();
 		for (int i = 0; i < allmandatories.length; i++) {
 			E thischild = thisoptional.deepcopy();
 			setter.accept(thischild, allmandatories[i]);
-			returnelements.add(thischild);
+			
+			String keyforchild = helper.generateKeyForObject(thischild, true);
+			String mainvalue = helper.getMainValueHelper().getAndPrint(thischild);
+			boolean alreadypresent=false;
+			if (childrenbykey.containsKey(keyforchild)) if (childrenbykey.get(keyforchild).containsKey(mainvalue)) alreadypresent=true;
+			if (!alreadypresent) returnelements.add(thischild);
 		}
 		return returnelements;
 	}
