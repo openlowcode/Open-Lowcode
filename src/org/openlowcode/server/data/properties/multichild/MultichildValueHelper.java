@@ -407,6 +407,16 @@ public abstract class MultichildValueHelper<
 		private ChoiceValue<ApplocaleChoiceDefinition> applocale;
 		private String[] extraattributes;
 
+		private F parsedvalue;
+		
+		public F getParsedValue() {
+			return parsedvalue;
+		}
+		
+		public MultichildValueHelper<E,F,G> getParent() {
+			return MultichildValueHelper.this;
+		}
+		
 		public SecondValueFlatFileLoader(
 				HasmultidimensionalchildFlatFileLoaderHelper<G, E> helper,
 				ChoiceValue<ApplocaleChoiceDefinition> applocale,
@@ -430,6 +440,10 @@ public abstract class MultichildValueHelper<
 			this.extraattributes = extraattributes;
 		}
 
+		public HasmultidimensionalchildFlatFileLoaderHelper<G, E> getHelper() {
+			return this.helper;
+		}
+		
 		@Override
 		public String[] getValueRestriction() {
 			return restrictions;
@@ -438,8 +452,9 @@ public abstract class MultichildValueHelper<
 		@Override
 		public boolean load(G object, Object value, PostUpdateProcessingStore<G> postupdateprocessingstore) {
 			logger.warning("Adding value in index " + index + " value = " + value.toString());
+			parsedvalue = MultichildValueHelper.this.payloadparser.apply(value, applocale, extraattributes);
 			helper.setSecondaryValueForLoading(index, MultichildValueHelper.this
-					.print(MultichildValueHelper.this.payloadparser.apply(value, applocale, extraattributes)));
+					.print(parsedvalue));
 
 			// returns false as no change of value is done
 			return false;
@@ -552,6 +567,10 @@ public abstract class MultichildValueHelper<
 			this.extraattributes = extraattributes;
 		}
 
+		public HasmultidimensionalchildFlatFileLoaderHelper<G, E> getHelper() {
+			return this.helper;
+		}
+		
 		@Override
 		public boolean processAfterLineInsertion() {
 			return true;

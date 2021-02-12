@@ -64,7 +64,8 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	private ChoiceValue<ApplocaleChoiceDefinition> selectedlocale;
 	private FlatFileLoaderSupplement<E> supplement;
 	private ChoiceValue<PreferedfileencodingChoiceDefinition> preferedencoding;
-
+	private ArrayList<FlatFileLoaderColumn<E>> loadercolumns;
+	
 	/**
 	 * Creates a FlatFileLoader without supplement
 	 * 
@@ -102,6 +103,14 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 		this.supplement = supplement;
 	}
 
+	public int getFlatFileLoaderColumnNumber() {
+		return this.loadercolumns.size();
+	}
+	
+	public FlatFileLoaderColumn<E> getColumnAtIndex(int index) {
+		return this.loadercolumns.get(index);
+	}
+	
 	/**
 	 * This method returns true if the line has some data. A data is defined as a
 	 * string of length greater than 0
@@ -153,7 +162,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 		try {
 
 			Object[] headline = parser.parseOneLine();
-			ArrayList<FlatFileLoaderColumn<E>> loadercolumns = new ArrayList<FlatFileLoaderColumn<E>>();
+			loadercolumns = new ArrayList<FlatFileLoaderColumn<E>>();
 			// custom loader helpers sorted by classname.
 			HashMap<
 			String,
@@ -465,6 +474,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 							while (loaderhelperiterator.hasNext()) {
 								try {
 									CustomloaderHelper<E> customloaderhelper = loaderhelperiterator.next();
+									customloaderhelper.setContextLoader(this);
 									customloaderhelper.executeAtEndOfLine(objectforprocessing);
 								} catch (Exception e) {
 									postprocerror++;

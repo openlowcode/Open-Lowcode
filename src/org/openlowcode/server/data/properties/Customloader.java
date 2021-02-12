@@ -23,7 +23,7 @@ import org.openlowcode.server.data.DataObjectProperty;
  *
  * @param <E> parent data object
  */
-public class Customloader<E extends DataObject<E>> extends DataObjectProperty<E> {
+public class Customloader<E extends DataObject<E> & UniqueidentifiedInterface<E>> extends DataObjectProperty<E> {
 
 	/**
 	 * creates a custom  loader property

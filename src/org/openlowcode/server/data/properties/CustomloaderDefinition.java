@@ -21,6 +21,7 @@ import org.openlowcode.server.data.DataObjectElement;
 import org.openlowcode.server.data.DataObjectPayload;
 import org.openlowcode.server.data.DataObjectPropertyDefinition;
 import org.openlowcode.server.data.PropertyExtractor;
+import org.openlowcode.server.data.loader.FlatFileLoader;
 import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
 import org.openlowcode.server.data.specificstorage.ExternalFieldSchema;
 import org.openlowcode.server.data.storage.QueryCondition;
@@ -33,7 +34,7 @@ import org.openlowcode.server.data.storage.QueryCondition;
  *
  * @param <E> parent data object
  */
-public class CustomloaderDefinition<E extends DataObject<E>> extends DataObjectPropertyDefinition<E> {
+public class CustomloaderDefinition<E extends DataObject<E> & UniqueidentifiedInterface<E>> extends DataObjectPropertyDefinition<E> {
 
 	/**
 	 * the interface that a custom loader helper should comply to
@@ -45,6 +46,13 @@ public class CustomloaderDefinition<E extends DataObject<E>> extends DataObjectP
 	 */
 	public interface CustomloaderHelper<E extends DataObject<E>> {
 
+		/**
+		 * sets the context loader. It can help a helper get an access to a dependent loader / helper
+		 * 
+		 * @param flatfileloader
+		 */
+		public void setContextLoader(FlatFileLoader<?> flatfileloader);
+		
 		/**
 		 * gets the loader column for the corresponding column attributes
 		 * 

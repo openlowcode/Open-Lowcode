@@ -20,6 +20,7 @@ import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;
 import org.openlowcode.server.data.ChoiceValue;
 import org.openlowcode.server.data.DataObject;
 import org.openlowcode.server.data.DataObjectDefinition;
+import org.openlowcode.server.data.loader.FlatFileLoader;
 import org.openlowcode.server.data.loader.FlatFileLoaderColumn;
 import org.openlowcode.server.data.properties.CustomloaderDefinition.CustomloaderHelper;
 import org.openlowcode.server.data.properties.multichild.MultichildValueHelper;
@@ -278,6 +279,8 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 
 	private ArrayList<String> secondaryvalues = new ArrayList<String>();
 	private E contextobject = null;
+	@SuppressWarnings("unused")
+	private FlatFileLoader<?> parentflatfileloader;
 
 	public void setSecondaryValueForLoading(int index, String string) {
 		if (secondaryvalues.size() <= index)
@@ -362,5 +365,13 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 		}
 		return true;
 	}
+
+	@Override
+	public void setContextLoader(FlatFileLoader<?> flatfileloader) {
+		this.parentflatfileloader = flatfileloader;
+		
+	}
+
+	
 
 }
