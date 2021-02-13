@@ -1050,7 +1050,7 @@ public class CChoiceField
 
 	@Override
 	public Function<CChoiceFieldValue, String> labelExtractor() {
-		return (t) -> (t.getDisplayvalue());
+		return (t) -> ((t.getDisplayvalue()!=null?t.getDisplayvalue():""));
 	}
 
 }
