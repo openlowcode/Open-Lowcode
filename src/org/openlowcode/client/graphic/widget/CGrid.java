@@ -467,9 +467,9 @@ public class CGrid
 			logger.finest("----------------- CGridLine " + data.getObjectNumber() + " lines ---------------");
 			for (int i = 0; i < data.getObjectNumber(); i++) {
 				ObjectDataElt thisline = data.getObjectAtIndex(i);
-				SimpleDataElt faultyfieldtemp = thisline.lookupEltByName("YEARALLOCATED");
+				SimpleDataElt faultyfieldtemp = thisline.lookupEltByName(linefield);
 				if (faultyfieldtemp != null)
-					logger.finest("index " + i + " YEARALLOCATED = " + faultyfieldtemp.toString());
+					logger.finest("index " + i + " linefield = " + faultyfieldtemp.toString());
 				SimpleDataElt faultyfieldtempid = thisline.lookupEltByName("ID");
 				if (faultyfieldtempid != null)
 					logger.finest("index " + i + "ID = " + faultyfieldtempid.toString());
@@ -558,12 +558,12 @@ public class CGrid
 					gridline.addObject(columnvalue, secondarycolumnvalue, displayvalue, fieldlabel, thisline);
 					logger.finest("Adding to Grid Line " + gridline.getLineLabel() + " (" + gridline.hashCode()
 							+ ") with secondary " + thisline.hashCode() + " - " + thisline.lookupEltByName("ID") + " - "
-							+ thisline.lookupEltByName("YEARALLOCATED"));
+							+ thisline.lookupEltByName(linefield));
 				} else {
 					gridline.addObject(columnvalue, displayvalue, fieldlabel, thisline);
 					logger.finest("Adding to Grid Line " + gridline.getLineLabel() + " (" + gridline.hashCode() + ")"
 							+ thisline.hashCode() + " - " + thisline.lookupEltByName("ID") + " - "
-							+ thisline.lookupEltByName("YEARALLOCATED"));
+							+ thisline.lookupEltByName(linefield));
 
 				}
 				if (datacolumnsbyname.get(columnvalue) == null) { // actually usefull, as done in the loop of first
@@ -670,7 +670,7 @@ public class CGrid
 					ObjectInGrid thisobject = thisgridline.getObjectinline(j);
 					logger.finest("   --> object  " + j + " - " + thisobject.getObject().hashCode() + " - "
 							+ thisobject.getObject().lookupEltByName("ID") + " - "
-							+ thisobject.getObject().lookupEltByName("YEARALLOCATED"));
+							+ thisobject.getObject().lookupEltByName(linefield));
 				}
 				thistabledata.add(thisgridline);
 			}
@@ -1149,7 +1149,7 @@ public class CGrid
 					logger.finest("adding new object through force update data - Adding to Grid Line "
 							+ currentline.getLineLabel() + " (" + currentline.hashCode() + ") "
 							+ relevantobject.hashCode() + " - " + relevantobject.lookupEltByName("ID") + " - "
-							+ relevantobject.lookupEltByName("YEARALLOCATED"));
+							+ relevantobject.lookupEltByName(linefield));
 					if (relevantobject != null) {
 						object.forceUpdatedObject(relevantobject);
 						updated++;
