@@ -67,6 +67,7 @@ import org.openlowcode.server.security.ActionAuthorization;
 import org.openlowcode.server.security.ActionObjectSecurityManager;
 import org.openlowcode.server.security.ActionSecurityManager;
 import org.openlowcode.server.security.SecurityBuffer;
+import org.openlowcode.server.security.ServerSecurityBuffer;
 
 /**
  * The component in the sever managing connections with the clients
@@ -870,9 +871,14 @@ public class ServerConnection
 		// performance.
 		PersistenceGateway.releaseForThread();
 		String usertrace = "unauthenticated";
-		if (userid != null)
+		if (userid != null) {
 			usertrace = userid.getId();
-		logger.severe("Exception while treating  action " + actionname + " to to ip = " + ip + ", for session of user "
+			Appuser user = ServerSecurityBuffer.getUniqueInstance().getUserPerUserId(userid);
+			if (user!=null) usertrace = user.getNr()+" - "+user.getName()+" - "+userid.getId();
+		}
+			
+			
+		logger.severe("Error while treating  action " + actionname + " to to ip = " + ip + ", for session of user "
 				+ usertrace);
 		ExceptionLogger.setInLogs(e, logger);
 		writer.sendMessageError(1, e.getClass().toString() + " - " + e.getMessage());
