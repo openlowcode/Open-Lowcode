@@ -709,7 +709,20 @@ public class EditableTreeTable<E extends Object> {
 				}
 				childrenforkey.add(item);
 			}
-			for (int i = 0; i < keys.size(); i++) {
+			
+			if (keys.size()==1) {
+				// enhance the label with the current element
+				subtree.getValue().updateLabel(subtree.getValue().getLabel()+" "+childrenlabel.get(keys.get(0)));
+				
+				// check one level below
+				if (nextlinegroupingindex < this.linegroupings.size()) {
+					generateSubTree(this.linegroupings.get(nextlinegroupingindex), subtree,
+							nextlinegroupingindex + 1);
+				}
+				
+			}
+			
+			if (keys.size()>1) for (int i = 0; i < keys.size(); i++) {
 				String key = keys.get(i);
 				ArrayList<Wrapper<E>> children = groupedchildren.get(key);
 				EditableTreeTableLineItem<Wrapper<E>> nodelineitem = new EditableTreeTableLineItem<Wrapper<E>>(
