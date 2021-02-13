@@ -97,6 +97,8 @@ public class DesignerModule
 		propertytype.addValue(PROPERTY_UNIQUEIDENTIFIED);
 		ChoiceValue PROPERTY_LINKEDTOPARENT = new ChoiceValue("LINKEDTOPARENT","Linked to Parent","Links to exactly one object of the parent type.");
 		propertytype.addValue(PROPERTY_LINKEDTOPARENT);
+		ChoiceValue PROPERTY_LINKOBJECT = new ChoiceValue("LINKOBJECT","Link Object","A property to be added .");
+		propertytype.addValue(PROPERTY_LINKOBJECT);
 		
 		this.addChoiceCategory(propertytype);
 		
@@ -117,11 +119,27 @@ public class DesignerModule
 		DataObjectDefinition mainlink = new DataObjectDefinition("MAINLINK","Main Link",this);
 		mainlink.addProperty(new StoredObject());
 		mainlink.addProperty(new UniqueIdentified());
-		LinkObject linkobject = new LinkObject(property,object,"Main Object","Referenced as main object by");
-		linkobject.addBusinessRule(new ConstraintOnLinkTypeRestrictionForLeft(new ChoiceValue[] {PROPERTY_LINKEDTOPARENT}));
-		linkobject.addBusinessRule(new ConstraintOnLinkMaxOneFromLeft(linkobject, true));
-		linkobject.addBusinessRule(new DisplayLinkAsAttributeFromLeftObject(true));
-		mainlink.addProperty(linkobject);
+		
+		LinkObject linkobjectformainlink = new LinkObject(property,object,"Main Object","Referenced as main object by");
+		linkobjectformainlink.addBusinessRule(new ConstraintOnLinkTypeRestrictionForLeft(new ChoiceValue[] {PROPERTY_LINKEDTOPARENT,PROPERTY_LINKOBJECT}));
+		linkobjectformainlink.addBusinessRule(new ConstraintOnLinkMaxOneFromLeft(linkobjectformainlink, true));
+		linkobjectformainlink.addBusinessRule(new DisplayLinkAsAttributeFromLeftObject(true));
+		mainlink.addProperty(linkobjectformainlink);
+		
+		DataObjectDefinition twolinksproperty = new DataObjectDefinition("TWOLINKSPROPERTY","Two link property",this);
+		twolinksproperty.addProperty(new Stored());
+		twolinksproperty.addProperty(new HasId());
+		twolinksproperty.addProperty(new Companion(property, new ChoiceValue[] {PROPERTY_LINKOBJECT}));
+		
+		DataObjectDefinition secondarylink = new DataObjectDefinition("SECONDLINK","Secondary Link",this);
+		secondarylink.addProperty(new StoredObject());
+		secondarylink.addProperty(new UniqueIdentified());
+		
+		LinkObject linkobjectforsecondlink = new LinkObject(property,object,"Second Object","Referenced as second object by");
+		linkobjectforsecondlink.addBusinessRule(new ConstraintOnLinkTypeRestrictionForLeft(new ChoiceValue[] {PROPERTY_LINKOBJECT}));
+		linkobjectforsecondlink.addBusinessRule(new ConstraintOnLinkMaxOneFromLeft(linkobjectforsecondlink, true));
+		linkobjectforsecondlink.addBusinessRule(new DisplayLinkAsAttributeFromLeftObject(true));
+		secondarylink.addProperty(linkobjectforsecondlink);
 	}
 
 }
