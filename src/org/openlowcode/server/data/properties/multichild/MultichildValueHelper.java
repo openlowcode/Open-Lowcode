@@ -596,6 +596,7 @@ public abstract class MultichildValueHelper<
 							"Did not find existing child for key, debug = " + helper.getDebugForLineAndColumnKey(
 									helpercontextkey, MultichildValueHelper.this.print(mainvalue)));
 			}
+			if (relevantchild==null) throw new RuntimeException("Found no relevant line for key "+helpercontextkey+". This is likely because your loading file is missing a compulsory column");
 			return this.payloadhelper.LoadIfDifferent(relevantchild, value, applocale, extraattributes);
 
 		}
