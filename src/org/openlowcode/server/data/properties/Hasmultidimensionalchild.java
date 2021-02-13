@@ -119,17 +119,20 @@ public class Hasmultidimensionalchild<
 			childrenbykey.put(key, thischild);
 		}
 		ArrayList<F> allobjectstoinsert = new ArrayList<F>();
+		
 		for (int i = 0; i < newlines.length; i++) {
 			F thisline = newlines[i];
-			boolean invalid = helper.isInvalid(thisline);
-			if (!invalid) {
- 			ArrayList<F> missingforthisoptional = helper.getOtherPrimaryelements(thisline, childrenbykey);
-			for (int j = 0; j < missingforthisoptional.size(); j++) {
-				F thismissing = missingforthisoptional.get(j);
-				allobjectstoinsert.add(thismissing);
-				childrenbykey.put(helper.generateKeyForObject(thismissing), thismissing);
-
-			}
+			boolean valid = helper.isValidOrVoid(thisline);
+			if (valid) {
+				ArrayList<F> multipliedlines = helper.multiplyforvoidfields(thisline,previouschildren);
+				for (int j=0;j<multipliedlines.size();j++) {
+					ArrayList<F> missingforthisoptional = helper.getOtherPrimaryelements(multipliedlines.get(j), childrenbykey);
+					for (int k = 0; k < missingforthisoptional.size(); k++) {
+						F thismissing = missingforthisoptional.get(k);
+						allobjectstoinsert.add(thismissing);
+						childrenbykey.put(helper.generateKeyForObject(thismissing), thismissing);
+					}
+				}
 			}
 		}
 

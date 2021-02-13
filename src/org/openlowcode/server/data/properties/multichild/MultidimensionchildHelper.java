@@ -216,6 +216,59 @@ public class MultidimensionchildHelper<
 	
 
 	/**
+	 * Specific treatment for new lines.
+	 * 
+	 * @param newline
+	 * @return true if the element has at least one valid criteria and null criterias (no invalid criteria)
+	 * @since 1.15
+	 */
+	public boolean isValidOrVoid(E newline) {
+		boolean hasonevalidelement=false;
+		for (int i=0;i<this.secondarycriteriavaluehelpers.size();i++) {
+			MultichildValueHelper<E, ?, F> helper = this.secondarycriteriavaluehelpers.get(i);
+			if (!helper.allowUserValue()) if (!helper.allowothervalues()) {
+				boolean isvalid = helper.isValid(newline);
+				if (isvalid) hasonevalidelement=true;
+				if (!isvalid) if (helper.get(newline)!=null) return false;
+			}
+		}
+		if (hasonevalidelement) return true;
+		return false;
+	}
+	
+	/**
+	 * Multiply the blank objects
+	 * 
+	 * @param thisline
+	 * @param previouschildren
+	 * @return
+	 * @since 1.15
+	 */
+	public ArrayList<E> multiplyforvoidfields(E thisline, E[] previouschildren) {
+		ArrayList<E> newlines = new ArrayList<E>();
+		boolean hasonenullcriteria=false;
+		for (int i=0;i<this.secondarycriteriavaluehelpers.size();i++) {
+			MultichildValueHelper<E, ?, F> helper = this.secondarycriteriavaluehelpers.get(i);
+			if (helper.get(thisline)==null) hasonenullcriteria=true;
+		}
+		if (!hasonenullcriteria) newlines.add(thisline);
+		if (hasonenullcriteria) {
+			
+			newlines.add(thisline);
+			for (int i=0;i<this.secondarycriteriavaluehelpers.size();i++) {
+				MultichildValueHelper<E, ?, F> helper = this.secondarycriteriavaluehelpers.get(i);
+				if (helper.get(thisline)==null) {
+					SecondaryValueSelection<E, ?, F> secondaryvalueselection = helper.getSecondaryValueSelectionForField();
+					secondaryvalueselection.GetAllValuesFromExistingObjects(previouschildren);
+					newlines = secondaryvalueselection.createclonesforallvalues(newlines);
+				}
+			}
+		}
+		return newlines;
+		
+	}
+	
+	/**
 	 * @param a child object
 	 * @return true if invalid
 	 * @since 1.12
@@ -241,6 +294,8 @@ public class MultidimensionchildHelper<
 		return this.maincriteriavaluehelper.getMissingElementsForKey(thisoptional,childrenbykey,this,this.payloadvaluehelper);
 		
 	}
+
+	
 
 	
 

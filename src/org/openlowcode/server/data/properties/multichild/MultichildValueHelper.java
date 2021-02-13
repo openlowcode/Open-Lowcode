@@ -720,5 +720,9 @@ public abstract class MultichildValueHelper<
 		}
 		return missingvalues;
 	}
+	
+	public SecondaryValueSelection<E,F,G> getSecondaryValueSelectionForField() {
+		return new SecondaryValueSelection<E,F,G>(this);
+	}
 
 }
