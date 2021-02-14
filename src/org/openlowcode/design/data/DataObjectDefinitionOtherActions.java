@@ -31,7 +31,6 @@ import org.openlowcode.design.data.properties.basic.Typed;
 import org.openlowcode.design.generation.SourceGenerator;
 import org.openlowcode.design.generation.StringFormatter;
 import org.openlowcode.design.module.Module;
-import org.openlowcode.module.system.data.choice.BooleanChoiceDefinition;
 
 /**
  * This class gathers automatically generated actions for a data object.
@@ -637,7 +636,7 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("");
 		sg.wl("	@Override");
 		sg.wl("	public SPage choosePage(DataObjectId<" + parentclass + "> activityid_thru) {");
-		sg.wl("		return AtgShow" + parentvariable + "Action.get().executeAndShowPage(activityid_thru);");
+		sg.wl("		return AtgPrepareaddlinesfor" + hasmultidimensionchild.getInstancename().toLowerCase() + "Action.get().executeAndShowPage(activityid_thru);");
 		sg.wl("	}");
 		sg.wl("");
 		sg.wl("}");
@@ -670,6 +669,13 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("import org.openlowcode.server.graphic.widget.SObjectIdStorage;");
 		sg.wl("import org.openlowcode.server.graphic.widget.SPageText;");
 		sg.wl("");
+		
+		sg.wl("import " + module.getPath() + ".action.generated.AbsRepairlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action;");
+		sg.wl("import " + module.getPath() + ".action.generated.AtgRepairlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action;");
+		
+		
 		sg.wl("import " + module.getPath() + ".action.generated.AbsAddlinesfor"
 				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action;");
 		sg.wl("import " + module.getPath() + ".action.generated.AbsShow" + parentvariable + "Action;");
@@ -750,9 +756,17 @@ public class DataObjectDefinitionOtherActions {
 		sg.wl("		AbsShow" + parentvariable + "Action.ActionRef backtoparent = AtgShow" + parentvariable
 				+ "Action.get().getActionRef();");
 		sg.wl("		backtoparent.setId(" + parentvariable + "idstorage.getObjectIdInput());");
+
 		sg.wl("");
+		sg.wl("		AbsRepairlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action.ActionRef repairlinesaction = AtgRepairlinesfor"
+				+ hasmultidimensionchild.getInstancename().toLowerCase() + "Action.get().getActionRef();");
+		sg.wl("		repairlinesaction.set" + parentclass + "id(" + parentvariable + "idstorage.getObjectIdInput());");
+		sg.wl("");
+		
 		sg.wl("		buttonband.addElement(new SActionButton(\"Back\", backtoparent,this));");
 		sg.wl("		buttonband.addElement(new SActionButton(\"Create new\",addchildrenaction,this));");
+		sg.wl("		buttonband.addElement(new SActionButton(\"Repair lines\",repairlinesaction,this));");
 		sg.wl("		mainband.addElement(buttonband);");
 		sg.wl("		mainband.addElement(new SPageText(\"Existing Elements below\", SPageText.TYPE_TITLE, this));");
 		sg.wl("");
