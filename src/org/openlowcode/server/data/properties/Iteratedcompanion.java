@@ -35,6 +35,7 @@ public class Iteratedcompanion<E extends DataObject<E> & HasidInterface<E>>
 		extends
 		DataObjectProperty<E> {
 
+	@SuppressWarnings("unused")
 	private IteratedcompanionDefinition<E> casteddefinition;
 
 	/**
