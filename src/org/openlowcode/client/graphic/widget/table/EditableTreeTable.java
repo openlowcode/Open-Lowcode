@@ -100,6 +100,8 @@ public class EditableTreeTable<E extends Object> {
 	private ArrayList<Wrapper<E>> wrappedpayload;
 	private TreeItem<EditableTreeTableLineItem<Wrapper<E>>> treeroot;
 
+	private Function<E,Boolean> frozenobjects;
+	
 	private boolean defaultisreadonly = false;
 
 	private EventHandler<MouseEvent> readonlyactioneventhandler;
@@ -120,6 +122,10 @@ public class EditableTreeTable<E extends Object> {
 		this.defaultisreadonly = defaultisreadonly;
 	}
 
+	public void setFrozenObjectPredicate(Function<E,Boolean> frozenobjects) {
+		this.frozenobjects = frozenobjects;
+	}
+	
 	/**
 	 * Creates an editable tree table
 	 * 
@@ -244,7 +250,7 @@ public class EditableTreeTable<E extends Object> {
 				E, F,
 				G> columngrouping = new ColumnGrouping<E, F, G>(extracttitle, generatetitlekey, generatetitlelabel,
 						horizontalconsolidationexception, payloadextractor, payloadintegration, columngroupinglabel,
-						grouping, operator, formatvalidator);
+						grouping, operator, formatvalidator,frozenobjects);
 		this.columngroups.add(columngrouping);
 	}
 
@@ -497,11 +503,11 @@ public class EditableTreeTable<E extends Object> {
 				public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
 					int totalwidth = 0;
 					for (int j=0;j<columns.size();j++) {
-						logger.severe("      column "+j+" width = "+columns.get(j).getWidth());
+						logger.fine("      column "+j+" width = "+columns.get(j).getWidth());
 						totalwidth+= columns.get(j).getWidth();
 					}
 					totalwidth+=14;
-					logger.severe("       ---------------------------> Total width setup to "+totalwidth+" points");
+					logger.fine("       ---------------------------> Total width setup to "+totalwidth+" points");
 					treetableview.setMinWidth(totalwidth);
 					treetableview.setPrefWidth(totalwidth);
 				}
@@ -625,7 +631,7 @@ public class EditableTreeTable<E extends Object> {
 		// if several items, do not simplidy at this level
 		
 		if (item.getValue().getNumberofleaves()>1) {
-			logger.severe(" Item "+item.getValue().getLabel()+" has several children.");
+			logger.fine(" Item "+item.getValue().getLabel()+" has several children.");
 			for (int i=0;i<item.getChildren().size();i++) {
 				consolidateTree(item.getChildren().get(i),currentlevel+1);
 			}
@@ -633,14 +639,14 @@ public class EditableTreeTable<E extends Object> {
 		// one item, if children, cut them
 		if (item.getValue().getNumberofleaves()==1) {
 			if (item.getChildren().size()==1) {
-				logger.severe(" Item "+item.getValue().getLabel()+"has only one data and one child, clear.");
+				logger.fine(" Item "+item.getValue().getLabel()+"has only one data and one child, clear.");
 				String extralabel = consolidatelowerlabels(item.getChildren().get(0),0);
 				String newlabel = item.getValue().getLabel()+" "+extralabel;
 				if (currentlevel==0) newlabel = extralabel;
 				item.getValue().updateLabel(newlabel);
 				item.getChildren().clear();
 			} else {
-				logger.severe(" Item "+item.getValue().getLabel()+"has only one data and no child, do nothing");
+				logger.fine(" Item "+item.getValue().getLabel()+"has only one data and no child, do nothing");
 			}
 		}
 	}
@@ -756,6 +762,7 @@ public class EditableTreeTable<E extends Object> {
 		private ColumnGrouping<E, F, G> columngrouping;
 		private String titlekey;
 
+
 		public boolean isEditable(EditableTreeTableLineItem<Wrapper<E>> lineitem) {
 			ArrayList<Wrapper<E>> filteredvalues = columngrouping.filterItems(lineitem, titlekey);
 			if (filteredvalues.size() == 1)
@@ -775,8 +782,10 @@ public class EditableTreeTable<E extends Object> {
 		public EditableTreeTableValueColumn(
 				ColumnGrouping<E, F, G> columngrouping,
 				String titlekey,
-				String titlelabel) {
+				String titlelabel,
+				Function<E,Boolean> frozenobjects) {
 			super(titlelabel);
+
 			logger.finest("Creating column for key = " + titlekey);
 			this.columngrouping = columngrouping;
 			this.titlekey = titlekey;
@@ -813,13 +822,25 @@ public class EditableTreeTable<E extends Object> {
 
 				}
 			});
+			
+			Function<EditableTreeTableLineItem<Wrapper<E>>,Boolean> cellvalidator = (a) -> {
+				logger.fine("   ----------------------> Test of cell validator");
+				ArrayList<Wrapper<E>> itemsforcell = columngrouping.filterItems(a, titlekey);
+				if (itemsforcell!=null) if (itemsforcell.size()==1) {
+					logger.fine("            >> "+frozenobjects.apply(itemsforcell.get(0).getPayload()));
+					return frozenobjects.apply(itemsforcell.get(0).getPayload());
+				}
+				return new Boolean(true);
+			};
+			
+			
 			this.setCellFactory(col -> {
 				LargeTextTreeTableCell<
 						EditableTreeTableLineItem<Wrapper<E>>,
 						String> cell = new LargeTextTreeTableCell<EditableTreeTableLineItem<Wrapper<E>>, String>(
 								IDENTICAL_CONVERTER, columngrouping.formatvalidator, null, (a) -> {
 									logger.finest("Inside read-only criteria");
-									if (EditableTreeTableValueColumn.this.isEditable(a)) return new Boolean(false);
+									if (EditableTreeTableValueColumn.this.isEditable(a)) return cellvalidator.apply(a);
 									return new Boolean(true);
 								}, false, true, 1);
 
@@ -912,6 +933,7 @@ public class EditableTreeTable<E extends Object> {
 		private Operator<G> operator;
 		private FormatValidator<G> formatvalidator;
 		private Function<F, Boolean> horizontalconsolidationexception;
+		private Function<E, Boolean> frozenobjects;
 
 		public ColumnGrouping(
 				Function<E, F> extracttitle,
@@ -923,7 +945,8 @@ public class EditableTreeTable<E extends Object> {
 				String columngroupinglabel,
 				int grouping,
 				Operator<G> operator,
-				FormatValidator<G> formatvalidator) {
+				FormatValidator<G> formatvalidator,
+				Function<E,Boolean> frozenobjects) {
 			super();
 			this.extracttitle = extracttitle;
 			this.generatetitlekey = generatetitlekey;
@@ -935,6 +958,7 @@ public class EditableTreeTable<E extends Object> {
 			this.grouping = grouping;
 			this.operator = operator;
 			this.formatvalidator = formatvalidator;
+			this.frozenobjects = frozenobjects;
 		}
 
 		private ArrayList<Wrapper<E>> filterItems(EditableTreeTableLineItem<Wrapper<E>> row, String titlekey) {
@@ -980,7 +1004,7 @@ public class EditableTreeTable<E extends Object> {
 				TreeTableColumn<
 						EditableTreeTableLineItem<Wrapper<E>>,
 						String> currentcolumn = new EditableTreeTableValueColumn<E, F, G>(this, titlekeyfinal,
-								titlestring);
+								titlestring,frozenobjects);
 				columns.add(currentcolumn);
 			}
 			// ---------- Create Total Column

@@ -256,7 +256,7 @@ public class CGrid
 		@Override
 		public void handle(MouseEvent event) {
 			MouseButton button = event.getButton();
-			logger.severe("Audit of mouse click on menu "+event.getSource().getClass());
+			logger.fine("Audit of mouse click on menu "+event.getSource().getClass());
 			if (button == MouseButton.PRIMARY) {
 				if (event.getClickCount() == 1 && (event.isShiftDown())) {
 
@@ -791,6 +791,10 @@ public class CGrid
 			for (int i = 0; i < data.getObjectNumber(); i++)
 				datainlist.add(data.getObjectAtIndex(i));
 			treetable = new EditableTreeTable<ObjectDataElt>(datainlist);
+			treetable.setFrozenObjectPredicate((a)->{
+				logger.fine("  ---> Checking an Object Data Elt "+a.isFrozen()+" "+a.toString());
+				return a.isFrozen();
+			});
 			treetable.setDefaultIsReadOnly(true);
 			// -- dealing with lines (that will actually be displayed as columns)
 

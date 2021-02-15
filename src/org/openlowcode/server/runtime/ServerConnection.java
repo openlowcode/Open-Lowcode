@@ -570,11 +570,12 @@ public class ServerConnection
 							} catch (Throwable t) {
 								treatThrowable(t, actionname, userid, writer);
 							}
-							reader.returnNextEndStructure("INLINEACTION");
+							
 						} else {
 							writer.sendMessageError(9999, "Not Authorized for the action " + action.getName());
 
 						}
+						reader.returnNextEndStructure("INLINEACTION");
 					} catch (Exception e) {
 						logger.warning("------------------ Error in inline action -------------- ");
 						treatThrowable(e, actionname, userid, writer);
