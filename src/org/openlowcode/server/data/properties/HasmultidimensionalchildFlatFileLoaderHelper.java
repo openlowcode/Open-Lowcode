@@ -291,11 +291,19 @@ public class HasmultidimensionalchildFlatFileLoaderHelper<
 	}
 
 	public String getContextKey() {
+		logger.finest("-------------------------------------------------");
 		ArrayList<String> keyvalues = new ArrayList<String>();
 		for (int i = 0; i < secondaryvalues.size(); i++) {
+			logger.finest("Adding element "+i+" for key "+secondaryvalues.get(i));
 			keyvalues.add(secondaryvalues.get(i));
 		}
-		return MultidimensionchildHelper.generateKey(keyvalues);
+		if (secondaryvalues.size()<secondvaluehelpers.size()) for (int i=secondaryvalues.size();i<secondvaluehelpers.size();i++){
+			logger.finest(" x*x Adding null unfilled value");
+			keyvalues.add(null);
+		}
+		String key = MultidimensionchildHelper.generateKey(keyvalues);
+		logger.finest("   >>> Total Key "+key );
+		return key;
 	}
 
 	public void setContext(E object) {

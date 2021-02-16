@@ -42,7 +42,10 @@ public class MultidimensionchildHelper<
 		for (int i = 0; i < values.size(); i++) {
 			if (i > 0)
 				keybuffer.append("@|@");
-			keybuffer.append(values.get(i).replace("@", "@@"));
+			
+			if (values.get(i)!=null) keybuffer.append(values.get(i).replace("@", "@@"));
+			if (values.get(i)==null) keybuffer.append("");
+			
 		}
 		return keybuffer.toString();
 	}
