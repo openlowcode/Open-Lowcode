@@ -346,6 +346,92 @@ public class DataObjectDefinitionFileActions {
 	}
 
 	/**
+	 * generates the code for a local flat file loader action
+	 * 
+	 * @param name   data object name
+	 * @param sg     source generator
+	 * @param module parent module
+	 * @throws IOException if anything bad happens during code generation
+	 * @since 1.15
+	 */
+	public static void generateFlatFileLocalLoaderToFile(String name, SourceGenerator sg, Module module,DataObjectDefinition object) throws IOException {
+		String objectclass = StringFormatter.formatForJavaClass(object.getName());
+		String objectvariable = StringFormatter.formatForAttribute(object.getName());
+		String loadername = StringFormatter.formatForJavaClass(name);
+		
+sg.wl("package " + module.getPath() + ".action.generated;");
+sg.wl("");
+sg.wl("import java.util.function.Function;");
+sg.wl("");
+sg.wl("import org.openlowcode.module.system.data.choice.ApplocaleChoiceDefinition;");
+sg.wl("import org.openlowcode.module.system.data.choice.PreferedfileencodingChoiceDefinition;");
+sg.wl("import org.openlowcode.module.system.page.ShowloadingreportforchildrenPage;");
+sg.wl("import org.openlowcode.server.data.ChoiceValue;");
+sg.wl("import org.openlowcode.server.data.loader.FlatFileLoader;");
+sg.wl("import org.openlowcode.server.data.loader.FlatFileLoaderReport;");
+sg.wl("import org.openlowcode.server.data.properties.DataObjectId;");
+sg.wl("import org.openlowcode.server.data.storage.QueryFilter;");
+sg.wl("import org.openlowcode.server.data.storage.TableAlias;");
+sg.wl("import org.openlowcode.server.graphic.SPage;");
+sg.wl("import org.openlowcode.server.runtime.SModule;");
+sg.wl("import org.openlowcode.tools.messages.SFile;");
+sg.wl("");
+sg.wl("");
+sg.wl("import " + module.getPath() + ".data."+objectclass+";");
+sg.wl("");
+sg.wl("public class Atg"+loadername+"Action");
+sg.wl("		extends");
+sg.wl("		Abs"+loadername+"Action {");
+sg.wl("");
+sg.wl("	public Atg"+loadername+"Action(SModule parent) {");
+sg.wl("		super(parent);");
+sg.wl("");
+sg.wl("	}");
+sg.wl("");
+sg.wl("	@Override");
+sg.wl("	public ActionOutputData executeActionLogic(");
+sg.wl("			DataObjectId<"+objectclass+"> "+objectvariable+"id,");
+sg.wl("			ChoiceValue<ApplocaleChoiceDefinition> locale,");
+sg.wl("			ChoiceValue<PreferedfileencodingChoiceDefinition> encoding,");
+sg.wl("			SFile file,");
+sg.wl("			Function<TableAlias, QueryFilter> datafilter) {");
+sg.wl("		"+objectclass+" "+objectvariable+" = "+objectclass+".readone("+objectvariable+"id);");
+sg.wl("		FlatFileLoader<"+objectclass+"> loader = new FlatFileLoader<"+objectclass+">("+objectclass+".getDefinition(),locale,encoding);");
+sg.wl("		loader.setHardObject("+objectvariable+");");
+sg.wl("		FlatFileLoaderReport returnmessage = loader.load(file);");
+sg.wl("		return new ActionOutputData(returnmessage.getContext(),");
+sg.wl("				returnmessage.getInserted(),");
+sg.wl("				returnmessage.getUpdated(),");
+sg.wl("				returnmessage.getError(),");
+sg.wl("				returnmessage.getPostprocError(),");
+sg.wl("				(int)(returnmessage.getLoadingtimems()/1000),");
+sg.wl("				returnmessage.getErrordetails(),");
+sg.wl("				"+objectvariable+"id);");
+sg.wl("	}");
+sg.wl("");
+sg.wl("	@Override");
+sg.wl("	public SPage choosePage(ActionOutputData logicoutput) {");
+sg.wl("		return new ShowloadingreportforchildrenPage(logicoutput.getLoadingcontext(),");
+sg.wl("				logicoutput.getInserted(),");
+sg.wl("				logicoutput.getUpdated(),");
+sg.wl("				logicoutput.getErrors(),"); 
+sg.wl("				logicoutput.getPostprocerrors(),");
+sg.wl("				logicoutput.getLoadingtime(),");
+sg.wl("				logicoutput.getErrordetail(),");
+sg.wl("				logicoutput.get"+objectclass+"id_thru());");
+sg.wl("	}");
+sg.wl("");
+sg.wl("}");
+		
+
+		
+		
+
+		
+		sg.close();
+	}
+	
+	/**
 	 * generates the code for the flat file loader action
 	 * 
 	 * @param name   data object name

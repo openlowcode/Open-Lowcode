@@ -38,6 +38,7 @@ import org.openlowcode.design.data.properties.basic.AutonumberingRule;
 import org.openlowcode.design.data.properties.basic.ComplexWorkflow;
 import org.openlowcode.design.data.properties.basic.ComputedDecimal;
 import org.openlowcode.design.data.properties.basic.ConstraintOnLinkObjectSameParent;
+import org.openlowcode.design.data.properties.basic.CustomLoader;
 import org.openlowcode.design.data.properties.basic.DataControl;
 import org.openlowcode.design.data.properties.basic.FileContent;
 import org.openlowcode.design.data.properties.basic.HasAutolink;
@@ -329,6 +330,18 @@ public class DataObjectDefinition
 
 	}
 
+	public boolean HasLocalLoader() {
+	
+		for (int i=0;i<this.propertylist.getSize();i++) {
+			Property<?> thisproperty = this.propertylist.get(i);
+			if (thisproperty instanceof CustomLoader) {
+				CustomLoader customloader = (CustomLoader) thisproperty;
+				if (customloader.getLocalLoader()) return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * get the lookup action group for this data object to grant privileges to an
 	 * authority for this action group
@@ -1451,6 +1464,28 @@ public class DataObjectDefinition
 		return flatfileloaderaction;
 	}
 
+	private ActionDefinition generateLocalLoaderAction() {
+		String localloadername = "LOCALFLATFILELOADERFOR"+this.getName();
+		DynamicActionDefinition localloaderaction = new DynamicActionDefinition(localloadername,true);
+		localloaderaction.addInputArgumentAsAccessCriteria(new ObjectIdArgument(this.getName().toUpperCase()+"ID",this));
+		localloaderaction
+		.addInputArgument(new ChoiceArgument("LOCALE", SystemModule.getSystemModule().getApplicationLocale()));
+		localloaderaction.addInputArgument(
+		new ChoiceArgument("ENCODING", SystemModule.getSystemModule().getPreferedFileEncoding()));
+		localloaderaction.addInputArgument(new LargeBinaryArgument("FILE",false));
+		localloaderaction.addOutputArgument(new StringArgument("LOADINGCONTEXT", 500));
+		localloaderaction.addOutputArgument(new IntegerArgument("INSERTED"));
+		localloaderaction.addOutputArgument(new IntegerArgument("UPDATED"));
+		localloaderaction.addOutputArgument(new IntegerArgument("ERRORS"));
+		localloaderaction.addOutputArgument(new IntegerArgument("POSTPROCERRORS"));
+
+		localloaderaction.addOutputArgument(new IntegerArgument("LOADINGTIME"));
+		localloaderaction.addOutputArgument(new ArrayArgument(
+				new ObjectArgument("ERRORDETAIL", SystemModule.getSystemModule().getCSVLoaderError())));
+		localloaderaction.addOutputArgument(new ObjectIdArgument(this.getName().toUpperCase()+"ID_THRU", this));
+		return localloaderaction;
+	}
+	
 	private ActionDefinition generateFlatFileSample() {
 		// security done, nothing to do
 		String generateflatfilesampleactionname = "GENERATEFLATFILESAMPLEFOR" + this.getName();
@@ -2224,6 +2259,7 @@ public class DataObjectDefinition
 			module.addAction(generateUpdateAction());
 			module.addAction(generateMassUpdateAction());
 			module.addAction(generateFlatFileLoader());
+			if (this.HasLocalLoader()) module.addAction(generateLocalLoaderAction());
 			module.addAction(generateFlatFileSample());
 			module.AddPage(generateUpdatePage());
 			if (this.getPropertyByName("TYPED") != null) {

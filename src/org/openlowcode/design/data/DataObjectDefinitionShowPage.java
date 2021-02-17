@@ -51,6 +51,7 @@ import org.openlowcode.module.system.design.SystemModule;
 import org.openlowcode.tools.misc.NamedList;
 import org.openlowcode.tools.misc.StandardUtil;
 
+
 /**
  * this class generates the show object page. This is the biggest automatically
  * generated class in the framework
@@ -362,6 +363,10 @@ public class DataObjectDefinitionShowPage
 			sg.wl("import org.openlowcode.server.graphic.widget.SObjectArray;");
 
 		}
+		if (dataobject.HasLocalLoader()) {
+			sg.wl("import " + module.getPath() + ".action.generated.AtgLocalflatfileloaderfor"+objectvariable+"Action;");
+		}
+		
 		if (hasworkflow) {
 
 			sg.wl("import org.openlowcode.module.system.action.ShowactivetaskAction;");
@@ -1357,6 +1362,42 @@ public class DataObjectDefinitionShowPage
 				}
 			}
 
+			// --------------- locale load if exists
+			
+			if (dataobject.HasLocalLoader()) {
+
+sg.wl("	AtgLocalflatfileloaderfor"+objectvariable+"Action.ActionRef localloadaction = AtgLocalflatfileloaderfor"+objectvariable+"Action.get().getActionRef();");
+sg.wl("	localloadaction.setBudgetroundid(objectdisplaydefinition.getAttributeInput(Budgetround.getIdMarker()));");
+sg.wl("	SComponentBand localloadpopup = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
+sg.wl("	SPopupButton localloadpopupbutton = new SPopupButton(this, localloadpopup, \"Load\",\"Specific loading for this object\");");
+sg.wl("	objectbuttonband.addElement(localloadpopupbutton);");
+sg.wl("	SFileChooser csvfilechooserforlocalload = new SFileChooser(this, \"CSVFILECHOSERFORLOCALLOAD\",\"Select File\");");
+sg.wl("	localloadpopup.addElement(csvfilechooserforlocalload);");
+sg.wl("	SComponentBand csvloadcbandcontentforlocalload = new SComponentBand(SComponentBand.DIRECTION_DOWN,this);");
+sg.wl("	SCollapsibleBand csvloadcbandforlocalload = new SCollapsibleBand(this, csvloadcbandcontentforlocalload, \"Settings\", false);");
+sg.wl("	localloadpopup.addElement(csvloadcbandforlocalload);");
+sg.wl("	SChoiceTextField<ApplocaleChoiceDefinition> csvloadlocaleforlocalload = new SChoiceTextField<ApplocaleChoiceDefinition>");
+sg.wl("		(\"Locale\",\"APPLOCALEFORLOCALLOAD\",\"determines csv and number format, default is US\", ApplocaleChoiceDefinition.get(),");
+sg.wl("		null, this, true, false, false, false, null);");
+sg.wl("	csvloadlocaleforlocalload.setLinkedData(this.getUserlocale());");
+sg.wl("	csvloadcbandcontentforlocalload.addElement(csvloadlocaleforlocalload);");
+sg.wl("	SChoiceTextField<PreferedfileencodingChoiceDefinition> csvloadpreffileencodingforlocalload = new SChoiceTextField<PreferedfileencodingChoiceDefinition>");
+sg.wl("		(\"Encoding\",\"FILEENCODINGFORLOCALLOAD\",\"determines file encoding, default is ANSI / Windows CP1522\", PreferedfileencodingChoiceDefinition.get(),");
+sg.wl("		null, this, true, false, false, false, null);");
+sg.wl("	csvloadpreffileencodingforlocalload.setLinkedData(this.getPrefencoding());");
+sg.wl("	csvloadcbandcontentforlocalload.addElement(csvloadpreffileencodingforlocalload);");
+sg.wl("	localloadaction.setLocale(csvloadlocaleforlocalload.getChoiceInput());"); 
+sg.wl("	localloadaction.setEncoding(csvloadpreffileencodingforlocalload.getChoiceInput());"); 
+sg.wl("	localloadaction.setFile(csvfilechooserforlocalload.getLargeBinaryInput());"); 
+sg.wl("	SActionButton launchlocalload = new SActionButton(\"Load\",localloadaction,this);");
+sg.wl("	localloadpopup.addElement(launchlocalload);				");
+				
+				
+			}
+			
+			// ---------------- end of locale load
+			
+			
 			sg.wl("		objectdisplaydefinition.addButtonBarUnderTitle(objectbuttonband);");
 
 		}

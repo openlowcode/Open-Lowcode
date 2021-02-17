@@ -31,14 +31,36 @@ public class CustomLoader
 		Property<CustomLoader> {
 
 	/**
+	 * @return if a local loader should be generated
+	 * @since 1.15
+	 */
+	public boolean getLocalLoader() {
+		return this.localloader;
+	}
+	
+	private boolean localloader;
+	
+	/**
 	 * Creates a custom loader for the data object
 	 * 
 	 * @param name a unique name amongst all the custom loaders of this data object
 	 *             (should be a valid java attribute name)
 	 */
 	public CustomLoader(String name) {
-		super(name, "CUSTOMLOADER");
+		this(name, false);
+	}
 
+	/**
+	 * creates a custom loader with the possibility to generate a local loader
+	 * 
+	 * @param name        a unique name amongst all the custom loaders of this data
+	 *                    object (should be a valid java attribute name)
+	 * @param localloader if true, generate a local loader for the object
+	 * @since 1.15
+	 */
+	public CustomLoader(String name, boolean localloader) {
+		super(name, "CUSTOMLOADER");
+		this.localloader = localloader;
 	}
 
 	@Override

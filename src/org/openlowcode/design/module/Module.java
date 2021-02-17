@@ -1811,6 +1811,18 @@ public class Module
 						this);
 				// flat file sample generation
 
+				if (currentobject.HasLocalLoader()) {
+					// flat file loading
+					String fullfilepathflatfileforlocalloader = srcautoactionfolder + "Atg"
+							+ StringFormatter.formatForJavaClass("LOCALFLATFILELOADERFOR"+ currentobject.getName())
+							+ "Action.java";
+					logger.info("generating file " + fullfilepathflatfileforlocalloader);
+					DataObjectDefinitionFileActions.generateFlatFileLocalLoaderToFile("LOCALFLATFILELOADERFOR"+ currentobject.getName(),
+							new SourceGenerator(new File(fullfilepathflatfileforlocalloader), this.getAuthor(), this.getVersionid()),
+							this,currentobject);
+				
+				}
+				
 				String fullfilepathflatfilesample = srcautoactionfolder + "Atg"
 						+ StringFormatter.formatForJavaClass("GENERATEFLATFILESAMPLEFOR" + currentobject.getName())
 						+ "Action.java";

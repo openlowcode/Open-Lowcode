@@ -65,7 +65,8 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	private FlatFileLoaderSupplement<E> supplement;
 	private ChoiceValue<PreferedfileencodingChoiceDefinition> preferedencoding;
 	private ArrayList<FlatFileLoaderColumn<E>> loadercolumns;
-	
+	private E hardobject;
+
 	/**
 	 * Creates a FlatFileLoader without supplement
 	 * 
@@ -84,6 +85,18 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 		this.preferedencoding = preferedencoding;
 		if (this.preferedencoding == null)
 			this.preferedencoding = PreferedfileencodingChoiceDefinition.get().CP1522;
+		this.hardobject = null;
+	}
+
+	/**
+	 * adds a fixed base object in an hardcoded manner for all lines in the loader
+	 * file
+	 * 
+	 * @param hardobject object that will be processed
+	 * @since 1.15
+	 */
+	public void setHardObject(E hardobject) {
+		this.hardobject = hardobject;
 	}
 
 	/**
@@ -106,11 +119,11 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	public int getFlatFileLoaderColumnNumber() {
 		return this.loadercolumns.size();
 	}
-	
+
 	public FlatFileLoaderColumn<E> getColumnAtIndex(int index) {
 		return this.loadercolumns.get(index);
 	}
-	
+
 	/**
 	 * This method returns true if the line has some data. A data is defined as a
 	 * string of length greater than 0
@@ -142,7 +155,11 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 	public static String buildExceptionMessage(Throwable t) {
 		if (t == null)
 			return "Null Exception (this is not normal)";
-		return "Error: " + (t.getClass()!=null?t.getClass().getName():"Null Class") + " - " + t.getMessage() + " @ " + (t.getStackTrace()!=null?(t.getStackTrace().length>0?t.getStackTrace()[0]:"No element stack trace"):"Null Stack Trace");
+		return "Error: " + (t.getClass() != null ? t.getClass().getName() : "Null Class") + " - " + t.getMessage()
+				+ " @ "
+				+ (t.getStackTrace() != null
+						? (t.getStackTrace().length > 0 ? t.getStackTrace()[0] : "No element stack trace")
+						: "Null Stack Trace");
 	}
 
 	private FlatFileLoaderReport load(
@@ -165,8 +182,8 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 			loadercolumns = new ArrayList<FlatFileLoaderColumn<E>>();
 			// custom loader helpers sorted by classname.
 			HashMap<
-			String,
-			CustomloaderHelper<E>> activecustomloaderhelper = new HashMap<String, CustomloaderHelper<E>>();
+					String,
+					CustomloaderHelper<E>> activecustomloaderhelper = new HashMap<String, CustomloaderHelper<E>>();
 			// line preparator is the column used to define if insert or update. There can
 			// be zero or 1 column like that
 			int linepreparatorindex = -1;
@@ -180,7 +197,8 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 					String alias = objectdefinition.getLoaderAlias(headlineelement);
 					logger.fine(" -- Found alias = " + alias + " for headline element = " + headlineelement);
 					if (alias == null) {
-						logger.fine("  -- Did not find alias for "+headlineelement+", continues with headline element");
+						logger.fine(
+								"  -- Did not find alias for " + headlineelement + ", continues with headline element");
 						alias = headlineelement;
 					}
 					// column definition exists
@@ -195,10 +213,10 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 							activecustomloaderhelper.put(relevanthelper.getClass().getName(), relevanthelper);
 						if (column == null) {
 							logger.severe(" ----------------------- Alias drop ------------------------------------ ");
-							for (int e=0;e<objectdefinition.getAliasNumber();e++) {
+							for (int e = 0; e < objectdefinition.getAliasNumber(); e++) {
 								String thisalias = objectdefinition.getAliasat(e);
 								String aliassolved = objectdefinition.getLoaderAlias(thisalias);
-								logger.severe("      "+thisalias+" - "+aliassolved);
+								logger.severe("      " + thisalias + " - " + aliassolved);
 							}
 							logger.severe("-------------------------------------------------------------------------");
 
@@ -241,9 +259,9 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 					logger.info(
 							"  --- starting static preprocessing for object '" + objectdefinition.getName() + "' - ");
 					ArrayList<
-					HashMap<
-					String,
-					String>> uniquevaluesforstaticprocessing = new ArrayList<HashMap<String, String>>();
+							HashMap<
+									String,
+									String>> uniquevaluesforstaticprocessing = new ArrayList<HashMap<String, String>>();
 					for (int i = 0; i < columnswithstaticprocessing.size(); i++)
 						uniquevaluesforstaticprocessing.add(new HashMap<String, String>());
 					Object[] data = parser.parseOneLine();
@@ -284,7 +302,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 						}
 					}
 					logger.info("  --- finished static preprocessing for for object '" + objectdefinition.getName()
-					+ "' - , read " + firstpass + " lines in file");
+							+ "' - , read " + firstpass + " lines in file");
 				}
 				Object[] dataforloading = parser.parseOneLine();
 				// ---- loop on data
@@ -307,9 +325,9 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 							boolean contentupdated = false;
 							// adds criteria for selection
 							ArrayList<
-							FlatFileLoaderColumn.LinePreparationExtra<
-							E>> linepreparatorextracriterias = new ArrayList<
-							FlatFileLoaderColumn.LinePreparationExtra<E>>();
+									FlatFileLoaderColumn.LinePreparationExtra<
+											E>> linepreparatorextracriterias = new ArrayList<
+													FlatFileLoaderColumn.LinePreparationExtra<E>>();
 							for (int i = 0; i < linepreparatorextraindex.size(); i++) {
 								FlatFileLoaderColumn<E> thiscolumn = loadercolumns.get(linepreparatorextraindex.get(i));
 								linepreparatorextracriterias.add(thiscolumn
@@ -321,12 +339,20 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 								if (linepreparatorextra != null)
 									linepreparatorextracriterias.add(linepreparatorextra);
 							}
+
+							if (hardobject != null) {
+								objectforprocessing = hardobject;
+								thislineupdate = true;
+							}
+
 							// tries to get an object
 							if (linepreparatorindex != -1) {
+								if (hardobject != null)
+									throw new RuntimeException("Hard object is not compatible with line preparator");
 								if (dataforloading.length <= linepreparatorindex)
 									throw new RuntimeException(
 											"loooking for line preparator index at index = " + linepreparatorindex
-											+ " but line only has length = " + dataforloading.length);
+													+ " but line only has length = " + dataforloading.length);
 								FlatFileLoaderColumn<E> thiscolumn = loadercolumns.get(linepreparatorindex);
 								LinePreparation<E> thislineprep = thiscolumn.LinePreparation(
 										dataforloading[linepreparatorindex], linepreparatorextracriterias);
@@ -395,7 +421,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 
 							// ---------- runs multi-field checks and constraints
 							objectforprocessing.getDefinitionFromObject()
-							.checkMultiFieldConstraints(objectforprocessing);
+									.checkMultiFieldConstraints(objectforprocessing);
 
 							if (thislineupdate)
 								if (contentupdated) {
@@ -719,7 +745,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 			return value;
 		}
 		throw new RuntimeException("For " + context + ", received an object of unsupported type = " + object.getClass()
-		+ " value = " + object);
+				+ " value = " + object);
 
 	}
 
@@ -738,7 +764,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 			return value;
 		}
 		throw new RuntimeException("For " + context + ", received an object of unsupported type = " + value.getClass()
-		+ " value = " + value);
+				+ " value = " + value);
 
 	}
 
@@ -786,7 +812,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 
 		}
 		throw new RuntimeException("For " + context + ", received an object of unsupported type = " + object.getClass()
-		+ " value = " + object);
+				+ " value = " + object);
 
 	}
 
@@ -816,7 +842,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 		}
 		// --------------------- Else return error
 		throw new RuntimeException("For " + context + ", received an object of unsupported type = " + object.getClass()
-		+ " value = " + object);
+				+ " value = " + object);
 	}
 
 	/**
@@ -857,7 +883,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 				if (parsedbigdecimal.precision() > precision)
 					throw new RuntimeException(
 							"Trying to load a number with a precision too big " + parsedbigdecimal.precision()
-							+ ", authorized precision = " + precision + ", number = " + parsedbigdecimal);
+									+ ", authorized precision = " + precision + ", number = " + parsedbigdecimal);
 			return parsedbigdecimal;
 		}
 		if (object instanceof String) {
@@ -874,7 +900,7 @@ public class FlatFileLoader<E extends DataObject<E> & UniqueidentifiedInterface<
 			return parsedbigdecimal;
 		}
 		throw new RuntimeException("For " + context + ", received an object of unsupported type = " + object.getClass()
-		+ " value = " + object);
+				+ " value = " + object);
 	}
 
 	/**
