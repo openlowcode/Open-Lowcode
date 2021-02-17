@@ -28,9 +28,9 @@ import org.openlowcode.design.generation.SourceGenerator;
  */
 public class OLcVersionGenerator {
 
-	public final static String version = "1.15";
-	public final static String clientversion = "1.15";
-	public final static boolean stable = false;
+	public final static String version = "1.15.1";
+	public final static String clientversion = "1.15.1";
+	public final static boolean stable = true;
 
 
 	public static void main(String[] args) {
