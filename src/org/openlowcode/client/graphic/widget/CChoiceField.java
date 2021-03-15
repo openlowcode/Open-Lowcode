@@ -916,6 +916,8 @@ public class CChoiceField
 	}
 
 	public CChoiceFieldValue lookupValueByStorage(String code) {
+		if (code==null) return null;
+		if (code.length()==0) return null;
 		for (int i = 0; i < values.size(); i++) {
 			if (values.get(i).getStorageCode().equals(code))
 				return values.get(i);
