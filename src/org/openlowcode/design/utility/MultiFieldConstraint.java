@@ -126,7 +126,7 @@ public class MultiFieldConstraint
 			boolean done = false;
 			if (thisfield instanceof ChoiceField) {
 				sg.wl("		rawconstraintline.add((" + thisfield.getName().toLowerCase() + "!=null?"
-						+ thisfield.getName().toLowerCase() + ".getStorageCode():null));");
+						+ thisfield.getName().toLowerCase() + ".getStorageCode():\"\"));");
 				done = true;
 			}
 			if (thisfield instanceof DecimalField) {

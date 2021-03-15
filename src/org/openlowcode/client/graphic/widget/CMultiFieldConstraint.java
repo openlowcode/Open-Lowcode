@@ -110,13 +110,14 @@ public class CMultiFieldConstraint
 		while (reader.structureArrayHasNextElement("VAL")) {
 			ArrayList<String> combination = new ArrayList<String>();
 			reader.startStructureArray("VALELT");
+			
 			while (reader.structureArrayHasNextElement("VALELT")) {
 				int index = combination.size();
 				String value = reader.returnNextStringField("ELT");
 				if (index >= constrainedfields.size())
 					throw new RuntimeException("value element is index " + index + " but there are only "
 							+ constrainedfields.size() + " constrained values.");
-				if (!constrainedfields.get(index).isRestrictionValid(value))
+				if (value.length()>0) if (!constrainedfields.get(index).isRestrictionValid(value))
 					throw new RuntimeException("restriction is not valid " + value);
 				combination.add(value);
 				reader.returnNextEndStructure("VALELT");
