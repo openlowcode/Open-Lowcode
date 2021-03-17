@@ -451,7 +451,7 @@ public abstract class MultichildValueHelper<
 
 		@Override
 		public boolean load(G object, Object value, PostUpdateProcessingStore<G> postupdateprocessingstore) {
-			logger.warning("Adding value in index " + index + " value = " + value.toString());
+			logger.fine("Adding value in index " + index + " value = " + (value!=null?value.toString():"NULL"));
 			parsedvalue = MultichildValueHelper.this.payloadparser.apply(value, applocale, extraattributes);
 			helper.setSecondaryValueForLoading(index, MultichildValueHelper.this
 					.print(parsedvalue));

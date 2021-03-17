@@ -3548,7 +3548,7 @@ public class DataObjectDefinition
 			if (classfilter == null)
 				throw new RuntimeException("No class defined");
 			sg.wl("	private ConditionalAliasListParentHelper<");
-			sg.wl("			" + classname + ", " + choiceclass + ",");
+			sg.wl("			" + classname + ", " + (choiceclass.equals("?")?"BooleanChoiceDefinition":choiceclass) + ",");
 			sg.wl("			" + classfilter + "> aliaslisthelper;");
 		} else if (this.categoryforextractor != null) {
 			sg.wl("	private ConditionalAliasListHelper<");
@@ -3780,7 +3780,7 @@ public class DataObjectDefinition
 			sg.wl("");
 		}
 
-		if (this.categoryforextractor != null) {
+		if (this.categoryforextractor != null || this.dynamicloaderinsertionorder.size()>0) {
 			sg.wl("		this.initConditionalAliasList();");
 		}
 		sg.wl("	}");
@@ -4145,7 +4145,7 @@ public class DataObjectDefinition
 
 		}
 
-		if (this.categoryforextractor != null) {
+		if (this.categoryforextractor != null || this.dynamicloaderinsertionorder.size()>0) {
 			sg.wl("	public void initConditionalAliasList() {");
 			Iterator<Entry<String, ChoiceValue[]>> restrictionset = restrictionforalias.entrySet().iterator();
 
